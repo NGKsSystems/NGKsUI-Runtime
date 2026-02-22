@@ -1,0 +1,24 @@
+$vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+if (!(Test-Path $vswhere)) {
+  throw "vswhere_missing: $vswhere"
+}
+
+$vsPath = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+if ([string]::IsNullOrWhiteSpace($vsPath)) {
+  throw "vs_install_not_found"
+}
+
+$devCmd = Join-Path $vsPath "Common7\Tools\VsDevCmd.bat"
+if (!(Test-Path $devCmd)) {
+  throw "vsdevcmd_missing: $devCmd"
+}
+
+$envDump = cmd /c "`"$devCmd`" -arch=x64 -host_arch=x64 && set"
+foreach ($line in $envDump) {
+  if ($line -match "^(.*?)=(.*)$") {
+    [System.Environment]::SetEnvironmentVariable($matches[1], $matches[2])
+    Set-Item -Path "Env:$($matches[1])" -Value $matches[2] -ErrorAction SilentlyContinue
+  }
+}
+
+Write-Output "MSVC environment imported from: $devCmd"

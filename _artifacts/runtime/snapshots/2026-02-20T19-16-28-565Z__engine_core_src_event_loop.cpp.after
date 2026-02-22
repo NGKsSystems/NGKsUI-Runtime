@@ -1,0 +1,163 @@
+#include "ngk/event_loop.hpp"
+
+#include <algorithm>
+#include <chrono>
+#include <cstdint>
+#include <functional>
+#include <thread>
+#include <vector>
+
+namespace ngk {
+
+using Clock = std::chrono::steady_clock;
+
+struct EventLoop::Impl {
+  bool running = false;
+  bool stop_requested = false;
+
+  std::function<void()> platform_pump;
+
+  struct Timeout {
+    std::uint64_t id = 0;
+    Clock::time_point due{};
+    std::function<void()> cb;
+    bool cancelled = false;
+  };
+
+  struct Interval {
+    std::uint64_t id = 0;
+    std::chrono::milliseconds period{0};
+    Clock::time_point next_due{};
+    std::function<void()> cb;
+    bool cancelled = false;
+  };
+
+  std::uint64_t next_id = 1;
+  std::vector<Timeout> timeouts;
+  std::vector<Interval> intervals;
+
+  // Anti-starvation: even if something goes weird, never run unlimited callbacks in one turn.
+  static constexpr int kMaxCallbacksPerTurn = 8;
+
+  std::uint64_t alloc_id() { return next_id++; }
+
+  void compact() {
+    auto t_end = std::remove_if(timeouts.begin(), timeouts.end(),
+      [](const Timeout& t) { return t.cancelled; });
+    timeouts.erase(t_end, timeouts.end());
+
+    auto i_end = std::remove_if(intervals.begin(), intervals.end(),
+      [](const Interval& i) { return i.cancelled; });
+    intervals.erase(i_end, intervals.end());
+  }
+};
+
+EventLoop::EventLoop() : impl_(new Impl()) {}
+EventLoop::~EventLoop() { delete impl_; }
+
+void EventLoop::set_platform_pump(std::function<void()> pump) {
+  impl_->platform_pump = std::move(pump);
+}
+
+// Compatibility alias (keeps earlier prompts compiling if present)
+void EventLoop::set_platform_pump_hook(std::function<void()> pump) {
+  set_platform_pump(std::move(pump));
+}
+
+std::uint64_t EventLoop::set_timeout(std::chrono::milliseconds delay, std::function<void()> cb) {
+  Impl::Timeout t;
+  t.id = impl_->alloc_id();
+  t.due = Clock::now() + delay;
+  t.cb = std::move(cb);
+  impl_->timeouts.push_back(std::move(t));
+  return t.id;
+}
+
+std::uint64_t EventLoop::set_interval(std::chrono::milliseconds period, std::function<void()> cb) {
+  Impl::Interval it;
+  it.id = impl_->alloc_id();
+  it.period = period;
+  it.next_due = Clock::now() + period; // schedule from NOW, never from "last tick"
+  it.cb = std::move(cb);
+  impl_->intervals.push_back(std::move(it));
+  return it.id;
+}
+
+void EventLoop::cancel(std::uint64_t id) {
+  for (auto& t : impl_->timeouts) {
+    if (t.id == id) t.cancelled = true;
+  }
+  for (auto& it : impl_->intervals) {
+    if (it.id == id) it.cancelled = true;
+  }
+}
+
+void EventLoop::stop() {
+  impl_->stop_requested = true;
+}
+
+void EventLoop::run() {
+  impl_->running = true;
+  impl_->stop_requested = false;
+
+  while (!impl_->stop_requested) {
+    // 1) Pump platform messages first, always.
+    if (impl_->platform_pump) {
+      impl_->platform_pump();
+    }
+
+    const auto now = Clock::now();
+    int callbacks_run = 0;
+
+    // 2) Fire due timeouts (bounded)
+    for (auto& t : impl_->timeouts) {
+      if (callbacks_run >= Impl::kMaxCallbacksPerTurn) break;
+      if (!t.cancelled && t.due <= now) {
+        t.cancelled = true;
+        if (t.cb) t.cb();
+        callbacks_run++;
+      }
+    }
+
+    // 3) Fire due intervals (bounded), reschedule from NOW+period (no catch-up bursts)
+    for (auto& it : impl_->intervals) {
+      if (callbacks_run >= Impl::kMaxCallbacksPerTurn) break;
+      if (!it.cancelled && it.next_due <= now) {
+        if (it.cb) it.cb();
+        callbacks_run++;
+
+        // Critical anti-starvation rule:
+        // never attempt to "catch up" by firing multiple times; schedule next from now.
+        it.next_due = Clock::now() + it.period;
+      }
+    }
+
+    impl_->compact();
+
+    // 4) Decide sleep duration (short, never blocks message pump for long)
+    // If we ran callbacks, iterate again quickly.
+    if (callbacks_run > 0) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      continue;
+    }
+
+    // Find next due time (timeouts/intervals) to sleep efficiently.
+    Clock::time_point next_due = now + std::chrono::milliseconds(8); // default small sleep
+    for (const auto& t : impl_->timeouts) {
+      if (!t.cancelled) next_due = std::min(next_due, t.due);
+    }
+    for (const auto& it : impl_->intervals) {
+      if (!it.cancelled) next_due = std::min(next_due, it.next_due);
+    }
+
+    auto sleep_ms = std::chrono::duration_cast<std::chrono::milliseconds>(next_due - Clock::now()).count();
+    if (sleep_ms < 1) sleep_ms = 1;
+    if (sleep_ms > 8) sleep_ms = 8; // cap to keep UI responsive
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms));
+  }
+
+  impl_->running = false;
+}
+
+} // namespace ngk

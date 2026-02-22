@@ -1,0 +1,72 @@
+#include <chrono>
+#include <cstdint>
+#include <iomanip>
+#include <iostream>
+
+#include "ngk/event_loop.hpp"
+#include "ngk/platform/win32_window.hpp"
+
+int main() {
+  ngk::EventLoop loop;
+  ngk::platform::Win32Window window;
+
+  window.set_close_callback([&] {
+    std::cout << "close_requested=1\n";
+  });
+
+  window.set_quit_callback([&] {
+    std::cout << "quit_requested=1\n";
+    loop.stop();
+  });
+
+  window.set_resize_callback([](int width, int height) {
+    std::cout << "resize w=" << width << " h=" << height << "\n";
+  });
+
+  window.set_key_callback([](std::uint32_t key, bool is_down, bool repeat) {
+    std::cout << (is_down ? "key_down" : "key_up")
+      << " vk=0x" << std::hex << std::uppercase << key
+      << std::dec << " repeat=" << (repeat ? 1 : 0) << "\n";
+  });
+
+  window.set_char_callback([](std::uint32_t codepoint) {
+    std::cout << "char u=0x" << std::hex << std::uppercase << std::setw(4) << std::setfill('0')
+      << codepoint << std::dec << "\n";
+  });
+
+  window.set_mouse_move_callback([](int x, int y) {
+    std::cout << "mouse_move x=" << x << " y=" << y << "\n";
+  });
+
+  window.set_mouse_button_callback([](std::uint32_t button_message, bool is_down) {
+    std::cout << (is_down ? "mouse_down" : "mouse_up")
+      << " msg=0x" << std::hex << std::uppercase << button_message << std::dec << "\n";
+  });
+
+  window.set_mouse_wheel_callback([](int delta) {
+    std::cout << "wheel delta=" << delta << "\n";
+  });
+
+  if (!window.create(L"NGKsUI Runtime – Win32 Sandbox", 960, 640)) {
+    std::cout << "window create failed\n";
+    return 1;
+  }
+
+  std::cout << "window created\n";
+
+  loop.set_platform_hook([&] {
+    window.poll_events_once();
+    if (window.close_requested()) {
+      loop.stop();
+    }
+  });
+
+  loop.set_timeout(std::chrono::seconds(30), [&] {
+    if (!window.close_requested()) {
+      window.request_close();
+    }
+  });
+
+  loop.run();
+  return 0;
+}

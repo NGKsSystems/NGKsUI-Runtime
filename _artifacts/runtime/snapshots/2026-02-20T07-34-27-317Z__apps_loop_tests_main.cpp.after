@@ -1,0 +1,61 @@
+#include <chrono>
+#include <iostream>
+#include <string>
+
+#include "ngk/event_loop.hpp"
+
+namespace {
+
+bool assert_true(const bool condition, const std::string& name) {
+  if (condition) {
+    std::cout << "PASS: " << name << "\n";
+    return true;
+  }
+
+  std::cout << "FAIL: " << name << "\n";
+  return false;
+}
+
+} // namespace
+
+int main() {
+  ngk::EventLoop loop;
+
+  bool post_ran = false;
+  int interval_ticks = 0;
+  bool cancelled_timeout_ran = false;
+  bool final_timeout_ran = false;
+
+  loop.post([&] {
+    post_ran = true;
+  });
+
+  std::uint64_t interval_id = 0;
+  interval_id = loop.set_interval(std::chrono::milliseconds(20), [&] {
+    ++interval_ticks;
+    if (interval_ticks == 3) {
+      loop.cancel_timer(interval_id);
+    }
+  });
+
+  const std::uint64_t cancelled_timeout_id = loop.set_timeout(std::chrono::milliseconds(40), [&] {
+    cancelled_timeout_ran = true;
+  });
+  loop.cancel_timer(cancelled_timeout_id);
+
+  loop.set_timeout(std::chrono::milliseconds(120), [&] {
+    final_timeout_ran = true;
+    loop.stop();
+  });
+
+  loop.run();
+
+  bool ok = true;
+  ok = assert_true(post_ran, "post task executes") && ok;
+  ok = assert_true(interval_ticks == 3, "interval ticks exactly three times after cancellation") && ok;
+  ok = assert_true(!cancelled_timeout_ran, "cancelled timeout does not execute") && ok;
+  ok = assert_true(final_timeout_ran, "stop timeout executes") && ok;
+
+  std::cout << "SUMMARY: " << (ok ? "PASS" : "FAIL") << "\n";
+  return ok ? 0 : 1;
+}

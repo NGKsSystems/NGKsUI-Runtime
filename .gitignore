@@ -1,0 +1,21 @@
+# ---- Build ----
+artifacts/
+out/
+build/
+cmake-build-*/
+
+# ---- MSVC ----
+.vs/
+*.obj
+*.pdb
+*.ilk
+*.pch
+*.idb
+*.tlog
+
+# ---- Ninja ----
+.ninja_*
+
+# ---- Runtime logs ----
+_proof/*.log
+_proof/*.txt

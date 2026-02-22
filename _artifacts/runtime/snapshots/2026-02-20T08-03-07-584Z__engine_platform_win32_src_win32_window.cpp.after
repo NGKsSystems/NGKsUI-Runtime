@@ -1,0 +1,196 @@
+#include "ngk/platform/win32_window.hpp"
+
+#include <windows.h>
+
+namespace ngk::platform {
+
+namespace {
+
+constexpr wchar_t kWindowClassName[] = L"NGKsUIRuntimeWindowClass";
+
+std::uint32_t low_word(const long long value) {
+  return static_cast<std::uint32_t>(value & 0xFFFF);
+}
+
+std::uint32_t high_word(const long long value) {
+  return static_cast<std::uint32_t>((value >> 16) & 0xFFFF);
+}
+
+int signed_low_word(const long long value) {
+  return static_cast<short>(low_word(value));
+}
+
+int signed_high_word(const long long value) {
+  return static_cast<short>(high_word(value));
+}
+
+} // namespace
+
+Win32Window::Win32Window()
+    : instance_(GetModuleHandleW(nullptr)),
+      hwnd_(nullptr),
+      class_registered_(false),
+      close_requested_(false) {}
+
+Win32Window::~Win32Window() {
+  destroy();
+}
+
+bool Win32Window::create(const wchar_t* title, int width, int height) {
+  WNDCLASSEXW window_class{};
+  window_class.cbSize = sizeof(WNDCLASSEXW);
+  window_class.lpfnWndProc = reinterpret_cast<WNDPROC>(&Win32Window::wnd_proc);
+  window_class.hInstance = instance_;
+  window_class.lpszClassName = kWindowClassName;
+  window_class.hCursor = LoadCursorW(nullptr, IDC_ARROW);
+
+  if (RegisterClassExW(&window_class) != 0) {
+    class_registered_ = true;
+  } else if (GetLastError() != ERROR_CLASS_ALREADY_EXISTS) {
+    return false;
+  }
+
+  hwnd_ = CreateWindowExW(
+    0,
+    kWindowClassName,
+    title,
+    WS_OVERLAPPEDWINDOW,
+    CW_USEDEFAULT,
+    CW_USEDEFAULT,
+    width,
+    height,
+    nullptr,
+    nullptr,
+    instance_,
+    this);
+
+  if (!hwnd_) {
+    return false;
+  }
+
+  ShowWindow(hwnd_, SW_SHOW);
+  UpdateWindow(hwnd_);
+  return true;
+}
+
+void Win32Window::destroy() {
+  if (hwnd_) {
+    DestroyWindow(hwnd_);
+    hwnd_ = nullptr;
+  }
+
+  if (class_registered_) {
+    UnregisterClassW(kWindowClassName, instance_);
+    class_registered_ = false;
+  }
+}
+
+void Win32Window::poll_events_once() {
+  MSG message{};
+  while (PeekMessageW(&message, nullptr, 0, 0, PM_REMOVE)) {
+    TranslateMessage(&message);
+    DispatchMessageW(&message);
+  }
+}
+
+void Win32Window::request_close() {
+  if (hwnd_) {
+    PostMessageW(hwnd_, WM_CLOSE, 0, 0);
+  }
+}
+
+bool Win32Window::close_requested() const {
+  return close_requested_;
+}
+
+void Win32Window::set_close_callback(CloseCallback callback) {
+  close_callback_ = std::move(callback);
+}
+
+void Win32Window::set_resize_callback(ResizeCallback callback) {
+  resize_callback_ = std::move(callback);
+}
+
+void Win32Window::set_key_callback(KeyCallback callback) {
+  key_callback_ = std::move(callback);
+}
+
+void Win32Window::set_mouse_move_callback(MouseMoveCallback callback) {
+  mouse_move_callback_ = std::move(callback);
+}
+
+void Win32Window::set_mouse_button_callback(MouseButtonCallback callback) {
+  mouse_button_callback_ = std::move(callback);
+}
+
+long long __stdcall Win32Window::wnd_proc(Hwnd hwnd, unsigned int message, unsigned long long wparam, long long lparam) {
+  if (message == WM_NCCREATE) {
+    CREATESTRUCTW* create_struct = reinterpret_cast<CREATESTRUCTW*>(lparam);
+    Win32Window* window = static_cast<Win32Window*>(create_struct->lpCreateParams);
+    SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
+    return DefWindowProcW(hwnd, message, static_cast<WPARAM>(wparam), static_cast<LPARAM>(lparam));
+  }
+
+  Win32Window* window = reinterpret_cast<Win32Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
+  if (window) {
+    return window->handle_message(message, wparam, lparam);
+  }
+
+  return DefWindowProcW(hwnd, message, static_cast<WPARAM>(wparam), static_cast<LPARAM>(lparam));
+}
+
+long long Win32Window::handle_message(unsigned int message, unsigned long long wparam, long long lparam) {
+  switch (message) {
+    case WM_CLOSE:
+      close_requested_ = true;
+      if (close_callback_) {
+        close_callback_();
+      }
+      DestroyWindow(hwnd_);
+      hwnd_ = nullptr;
+      return 0;
+    case WM_DESTROY:
+      close_requested_ = true;
+      return 0;
+    case WM_SIZE:
+      if (resize_callback_) {
+        resize_callback_(static_cast<int>(low_word(lparam)), static_cast<int>(high_word(lparam)));
+      }
+      return 0;
+    case WM_KEYDOWN:
+    case WM_SYSKEYDOWN:
+      if (key_callback_) {
+        key_callback_(static_cast<std::uint32_t>(wparam), true);
+      }
+      return 0;
+    case WM_KEYUP:
+    case WM_SYSKEYUP:
+      if (key_callback_) {
+        key_callback_(static_cast<std::uint32_t>(wparam), false);
+      }
+      return 0;
+    case WM_MOUSEMOVE:
+      if (mouse_move_callback_) {
+        mouse_move_callback_(signed_low_word(lparam), signed_high_word(lparam));
+      }
+      return 0;
+    case WM_LBUTTONDOWN:
+    case WM_MBUTTONDOWN:
+    case WM_RBUTTONDOWN:
+      if (mouse_button_callback_) {
+        mouse_button_callback_(message, true);
+      }
+      return 0;
+    case WM_LBUTTONUP:
+    case WM_MBUTTONUP:
+    case WM_RBUTTONUP:
+      if (mouse_button_callback_) {
+        mouse_button_callback_(message, false);
+      }
+      return 0;
+    default:
+      return DefWindowProcW(hwnd_, message, static_cast<WPARAM>(wparam), static_cast<LPARAM>(lparam));
+  }
+}
+
+} // namespace ngk::platform

@@ -1,0 +1,38 @@
+[
+  {
+    "relativePath": "_artifacts/exec_sessions/exec_13305945a143a1bf/295ee2d1-a202-4946-81c1-0dbdbcb9d8a4/execution_log.txt",
+    "size": 126,
+    "lastModified": "2026-02-20T04:47:13.981Z",
+    "sha256": "43969b0ec2be3d6838671b5cd448beb700bdf034a2218581d3b76674853b40c6"
+  },
+  {
+    "relativePath": "_artifacts/exec_sessions/exec_13305945a143a1bf/295ee2d1-a202-4946-81c1-0dbdbcb9d8a4/report.txt",
+    "size": 156,
+    "lastModified": "2026-02-20T04:47:13.980Z",
+    "sha256": "731ff7a4872ae5264e774f5de3af183fb19c1959480993eb567c0e5834d82c35"
+  },
+  {
+    "relativePath": "_artifacts/exec_sessions/exec_13305945a143a1bf/295ee2d1-a202-4946-81c1-0dbdbcb9d8a4/status.txt",
+    "size": 7,
+    "lastModified": "2026-02-20T04:47:13.980Z",
+    "sha256": "883d3bff9a26459c06c2dae4b4993c3f6bf4059f8abefb81bef9985f280237ff"
+  },
+  {
+    "relativePath": "_artifacts/exec_sessions/exec_13305945a143a1bf/295ee2d1-a202-4946-81c1-0dbdbcb9d8a4/summary.txt",
+    "size": 151,
+    "lastModified": "2026-02-20T04:47:13.980Z",
+    "sha256": "d43832ab9a205cc9960605f257709b40ecafefa4155867d2024f5a311eec858c"
+  },
+  {
+    "relativePath": "_artifacts/runtime/activity_log.txt",
+    "size": 105,
+    "lastModified": "2026-02-20T04:47:13.986Z",
+    "sha256": "913f5f5a49aafef2cc81c87b3591260f51225acd608ac58da7da6fa36a70ed44"
+  },
+  {
+    "relativePath": "_artifacts/runtime/README.txt",
+    "size": 991,
+    "lastModified": "2026-02-20T04:47:13.985Z",
+    "sha256": "06df24d461e9a2ae51a5e3d018de2cffaf496e8fdacfd89042e25dd3dcbecaea"
+  }
+]

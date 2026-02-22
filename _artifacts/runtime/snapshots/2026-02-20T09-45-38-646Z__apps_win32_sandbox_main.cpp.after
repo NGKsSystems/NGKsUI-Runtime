@@ -1,0 +1,84 @@
+#include <chrono>
+#include <cstdint>
+#include <iomanip>
+#include <iostream>
+#include <string>
+
+#include "ngk/event_loop.hpp"
+#include "ngk/platform/win32_window.hpp"
+
+static const char* dpi_awareness_to_string(ngk::platform::Win32Window::DpiAwareness a) {
+  using A = ngk::platform::Win32Window::DpiAwareness;
+  switch (a) {
+    case A::PerMonitorV2: return "per_monitor_v2";
+    case A::PerMonitor: return "per_monitor";
+    case A::System: return "system";
+    case A::Unaware: return "unaware";
+    case A::Unknown:
+    default: return "unknown";
+  }
+}
+
+int main() {
+  ngk::EventLoop loop;
+  ngk::platform::Win32Window window;
+
+  // Create window first, then print dpi awareness (it is determined during create()).
+  if (!window.create(L"NGKsUI Runtime - Win32 Sandbox", 960, 640)) {
+    std::cout << "create_failed=1\n";
+    return 1;
+  }
+
+  std::cout << "dpi_awareness=" << dpi_awareness_to_string(window.dpi_awareness()) << "\n";
+  std::cout << "window created\n";
+
+  window.set_close_callback([&] {
+    std::cout << "close_requested=1\n";
+  });
+
+  window.set_quit_callback([&] {
+    std::cout << "quit_requested=1\n";
+    loop.stop();
+  });
+
+  window.set_resize_callback([](int width, int height) {
+    std::cout << "resize w=" << width << " h=" << height << "\n";
+  });
+
+  window.set_dpi_changed_callback([](int dpi_x, int dpi_y) {
+    std::cout << "dpi_changed dpi_x=" << dpi_x << " dpi_y=" << dpi_y << "\n";
+  });
+
+  window.set_key_callback([](std::uint32_t key, bool is_down, bool repeat) {
+    std::cout << (is_down ? "key_down" : "key_up")
+      << " vk=0x" << std::hex << std::uppercase << key
+      << std::dec << " repeat=" << (repeat ? 1 : 0) << "\n";
+  });
+
+  window.set_char_callback([](std::uint32_t codepoint) {
+    std::cout << "char u=0x" << std::hex << std::uppercase << std::setw(4) << std::setfill('0')
+      << codepoint << std::dec << "\n";
+  });
+
+  window.set_mouse_move_callback([](int x, int y) {
+    std::cout << "mouse_move x=" << x << " y=" << y << "\n";
+  });
+
+  window.set_mouse_button_callback([](std::uint32_t message, bool is_down) {
+    std::cout << "mouse_button msg=0x" << std::hex << std::uppercase << message
+      << std::dec << " down=" << (is_down ? 1 : 0) << "\n";
+  });
+
+  window.set_mouse_wheel_callback([](int delta) {
+    std::cout << "wheel delta=" << delta << "\n";
+  });
+
+  // Pump Win32 messages as the platform hook.
+  loop.set_platform_pump([&] { window.poll_events_once(); });
+
+  // Run until quit callback stops the loop.
+  loop.run();
+
+  std::cout << "shutdown ok\n";
+  return 0;
+}
