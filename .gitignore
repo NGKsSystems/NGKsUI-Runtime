@@ -19,3 +19,7 @@ cmake-build-*/
 # ---- Runtime logs ----
 _proof/*.log
 _proof/*.txt
+_artifacts/
+_proof/Old/
+*.zip
+*.dmp

@@ -1,6 +1,0 @@
-ExecLedger Report
-=================
-Exec ID: 60cf03efb20f22eb
-Session ID: b526d391-ab92-4ab4-960d-76047ec79eda
-Mode: auto
-Created: 2026-02-22T08:26:09.479Z
