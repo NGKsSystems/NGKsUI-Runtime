@@ -1,196 +1,131 @@
-######################################################################
-# NGKsSystems - Hardened .gitignore (Windows/MSVC/CMake/Qt + Secrets)
-# Goal: prevent accidental commits of builds, proofs, dumps, zips,
-# logs, local tooling state, and common secret/credential files.
-######################################################################
+# =============================================================================
+# NGKsSystems - hardened ignore rules (build/proof/artifacts/secrets)
+# =============================================================================
 
-# ======================
-# Build outputs (general)
-# ======================
+# ---- OS junk ----
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ---- Node / Electron ----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+dist/
+dist-*/
+dist-electron/
+dist-native/
+release/
+.releases/
+.cache/
+.eslintcache
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+.env
+.env.*
+pip-wheel-metadata/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- Build (general) ----
 artifacts/
 _artifacts/
 artifacts_proof/
 out/
 build/
-build-*/
+cmake-build*/
 cmake-build-*/
 CMakeFiles/
-CMakeCache.txt
-CTestTestfile.cmake
-cmake_install.cmake
-compile_commands.json
-
-# If you use multiple build folders:
-*/build/
-*/out/
-*/artifacts/
-*/_artifacts/
-*/artifacts_proof/
-
-# ======================
-# Proof / audit outputs
-# ======================
-# Harden: ignore ALL proof output, not just *.txt/*.log
-_proof/
-*/_proof/
-artifacts/_proof/
-*/artifacts/_proof/
-
-# Legacy/large evidence artifacts
-*.zip
-*.dmp
-*.mdmp
-*.stackdump
-
-# ======================
-# MSVC / Visual Studio
-# ======================
-.vs/
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-
-# Build intermediates & outputs
-*.obj
-*.pdb
-*.ilk
-*.pch
-*.idb
-*.tlog
-*.log
-*.lastbuildstate
-*.opendb
-*.VC.db
-*.VC.VC.opendb
-ipch/
 Debug/
 Release/
 x64/
 x86/
 Win32/
 
-# MSBuild artifacts
-*.sdf
-*.cache
-*.ncb
+# ---- C/C++ intermediates ----
+*.obj
+*.pdb
+*.ilk
+*.pch
+*.idb
+*.tlog
+*.exp
+*.lib
+*.dll
+*.exe
+*.manifest
+*.res
 *.aps
+*.log
 
-# ======================
-# Ninja
-# ======================
+# ---- Ninja ----
 .ninja_*
 
-# ======================
-# Qt (general)
-# ======================
-moc_*.cpp
-moc_*.h
-qrc_*.cpp
-ui_*.h
-*.qmlc
-*.jsc
-*.rcc
-*.prl
-
-# QtCreator / QML tooling
-*.pro.user
-*.pro.user.*
-*.qtc_clangd/
-*.qmlproject.user
-*.qmlproject.user.*
-
-# ======================
-# IDE / Editor state
-# ======================
-.vscode/
+# ---- MSVC / IDEs ----
+.vs/
 .idea/
-*.swp
-*.swo
-*~
-.DS_Store
-Thumbs.db
-ehthumbs.db
-Desktop.ini
+.vscode/
+*.user
+*.suo
+*.vcxproj.user
 
-# ======================
-# Python (if present)
-# ======================
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.venv/
-venv/
-env/
-pip-wheel-metadata/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
+# ---- Runtime logs / proof bundles ----
+_proof/
+_proof/**
+*_proof/
+*_proof/**
+proof/
+proof/**
+logs/
+logs/**
+log/
+log/**
+*.dmp
+*.zip
+*.7z
+*.rar
 
-# ======================
-# Node/Electron (if present)
-# ======================
-node_modules/
-dist/
-dist-electron/
-dist-native/
-.cache/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-*.tsbuildinfo
+# ---- Crash / profiling ----
+*.core
+*.stackdump
+*.profraw
+*.profdata
 
-# ======================
-# Secrets / credentials (common)
-# ======================
-# Env files
-.env
-.env.*
-*.env
-
-# Common credential/key formats
+# ---- Secrets / credentials (block common files) ----
 *.pem
 *.key
-*.crt
-*.cer
 *.p12
 *.pfx
+*.cer
+*.crt
+*.der
 *.jks
+*.keystore
 *.kdbx
-*.ppk
+*.ovpn
+*id_rsa*
+*id_ed25519*
+credentials*.json
+service-account*.json
+secrets*.json
+secrets*.txt
+tokens*.txt
+token*.txt
 
-# Known credential/secret file names
-secrets/
-secret/
-credentials/
-credential/
-**/secrets/**
-**/secret/**
-**/credentials/**
-**/credential/**
-
-# Provider configs that often contain tokens
-**/.pypirc
-**/.npmrc
-**/.netrc
-
-# ======================
-# Logs (general)
-# ======================
-*.trace
-*.etl
-*.jsonl
-*.tmp
-
-######################################################################
-# Notes:
-# - .gitignore prevents NEW adds; it does NOT remove already-tracked files.
-# - If _proof or artifacts were ever committed, you must untrack them:
-#     git rm -r --cached _proof artifacts/_proof artifacts_proof _artifacts artifacts
-#     git commit -m "Stop tracking local proof/build artifacts"
-# - If a secret already exists in history, GitHub push protection will still block.
-#   You must rewrite history (git filter-repo) OR use GitHub’s unblock flow
-#   (not recommended) AND rotate/revoke the token.
-######################################################################
+# ---- Local config (force users to keep private copies) ----
+.local/
+.local/**
+_local/
+_local/**
+private/
+private/**
