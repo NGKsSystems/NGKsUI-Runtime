@@ -1,0 +1,25 @@
+# Default: normalize text to LF in repo
+* text=auto
+
+# Keep Windows scripts as CRLF in working tree
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# C/C++ sources/headers - LF in repo
+*.c   text eol=lf
+*.cc  text eol=lf
+*.cpp text eol=lf
+*.h   text eol=lf
+*.hpp text eol=lf
+*.inl text eol=lf
+
+# JSON - LF in repo
+*.json text eol=lf
+
+# Binary
+*.zip binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.dmp binary
