@@ -1,25 +1,196 @@
-# ---- Build ----
+######################################################################
+# NGKsSystems - Hardened .gitignore (Windows/MSVC/CMake/Qt + Secrets)
+# Goal: prevent accidental commits of builds, proofs, dumps, zips,
+# logs, local tooling state, and common secret/credential files.
+######################################################################
+
+# ======================
+# Build outputs (general)
+# ======================
 artifacts/
+_artifacts/
+artifacts_proof/
 out/
 build/
+build-*/
 cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+CTestTestfile.cmake
+cmake_install.cmake
+compile_commands.json
 
-# ---- MSVC ----
+# If you use multiple build folders:
+*/build/
+*/out/
+*/artifacts/
+*/_artifacts/
+*/artifacts_proof/
+
+# ======================
+# Proof / audit outputs
+# ======================
+# Harden: ignore ALL proof output, not just *.txt/*.log
+_proof/
+*/_proof/
+artifacts/_proof/
+*/artifacts/_proof/
+
+# Legacy/large evidence artifacts
+*.zip
+*.dmp
+*.mdmp
+*.stackdump
+
+# ======================
+# MSVC / Visual Studio
+# ======================
 .vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build intermediates & outputs
 *.obj
 *.pdb
 *.ilk
 *.pch
 *.idb
 *.tlog
+*.log
+*.lastbuildstate
+*.opendb
+*.VC.db
+*.VC.VC.opendb
+ipch/
+Debug/
+Release/
+x64/
+x86/
+Win32/
 
-# ---- Ninja ----
+# MSBuild artifacts
+*.sdf
+*.cache
+*.ncb
+*.aps
+
+# ======================
+# Ninja
+# ======================
 .ninja_*
 
-# ---- Runtime logs ----
-_proof/*.log
-_proof/*.txt
-_artifacts/
-_proof/Old/
-*.zip
-*.dmp
+# ======================
+# Qt (general)
+# ======================
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+*.qmlc
+*.jsc
+*.rcc
+*.prl
+
+# QtCreator / QML tooling
+*.pro.user
+*.pro.user.*
+*.qtc_clangd/
+*.qmlproject.user
+*.qmlproject.user.*
+
+# ======================
+# IDE / Editor state
+# ======================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ======================
+# Python (if present)
+# ======================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+pip-wheel-metadata/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ======================
+# Node/Electron (if present)
+# ======================
+node_modules/
+dist/
+dist-electron/
+dist-native/
+.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tsbuildinfo
+
+# ======================
+# Secrets / credentials (common)
+# ======================
+# Env files
+.env
+.env.*
+*.env
+
+# Common credential/key formats
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+*.jks
+*.kdbx
+*.ppk
+
+# Known credential/secret file names
+secrets/
+secret/
+credentials/
+credential/
+**/secrets/**
+**/secret/**
+**/credentials/**
+**/credential/**
+
+# Provider configs that often contain tokens
+**/.pypirc
+**/.npmrc
+**/.netrc
+
+# ======================
+# Logs (general)
+# ======================
+*.trace
+*.etl
+*.jsonl
+*.tmp
+
+######################################################################
+# Notes:
+# - .gitignore prevents NEW adds; it does NOT remove already-tracked files.
+# - If _proof or artifacts were ever committed, you must untrack them:
+#     git rm -r --cached _proof artifacts/_proof artifacts_proof _artifacts artifacts
+#     git commit -m "Stop tracking local proof/build artifacts"
+# - If a secret already exists in history, GitHub push protection will still block.
+#   You must rewrite history (git filter-repo) OR use GitHub’s unblock flow
+#   (not recommended) AND rotate/revoke the token.
+######################################################################
