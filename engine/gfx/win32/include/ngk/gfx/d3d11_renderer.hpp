@@ -22,7 +22,12 @@ public:
 
   void begin_frame();
   void clear(float r, float g, float b, float a);
+  void queue_rect(int x, int y, int w, int h, float r, float g, float b, float a);
+  void queue_rect_outline(int x, int y, int w, int h, float r, float g, float b, float a);
+  void debug_set_stage(const char* stage);
+  void debug_set_forensic_log_path(const char* path);
   void end_frame();
+  void shutdown();
 
   bool is_ready() const;
   bool is_device_lost() const;
@@ -31,7 +36,6 @@ public:
 private:
   bool create_render_target();
   void release_render_target();
-  void shutdown();
   void mark_device_lost(std::uint32_t hr);
 
   // Debug injection: if NGK_PRESENT_FAIL_EVERY is set >0, simulate device loss every N presents.

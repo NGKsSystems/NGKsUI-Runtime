@@ -217,6 +217,12 @@ void Win32Window::poll_events_once() {
   }
 }
 
+void Win32Window::request_repaint() {
+  if (hwnd_) {
+    InvalidateRect(hwnd_, nullptr, FALSE);
+  }
+}
+
 void Win32Window::request_close() {
   if (hwnd_) {
     PostMessageW(hwnd_, WM_CLOSE, 0, 0);
@@ -271,6 +277,10 @@ void Win32Window::set_mouse_wheel_callback(MouseWheelCallback callback) {
   mouse_wheel_callback_ = std::move(callback);
 }
 
+void Win32Window::set_paint_callback(PaintCallback callback) {
+  paint_callback_ = std::move(callback);
+}
+
 long long __stdcall Win32Window::wnd_proc(Hwnd hwnd, unsigned int message, unsigned long long wparam, long long lparam) {
   if (message == WM_NCCREATE) {
     CREATESTRUCTW* create_struct = reinterpret_cast<CREATESTRUCTW*>(lparam);
@@ -309,6 +319,15 @@ long long Win32Window::handle_message(unsigned int message, unsigned long long w
         resize_callback_(w, h);
       }
       return 0;
+    case WM_PAINT: {
+      PAINTSTRUCT paint_struct{};
+      BeginPaint(hwnd_, &paint_struct);
+      if (paint_callback_) {
+        paint_callback_();
+      }
+      EndPaint(hwnd_, &paint_struct);
+      return 0;
+    }
 
     case WM_DPICHANGED: {
       // wParam: LOWORD = x dpi, HIWORD = y dpi

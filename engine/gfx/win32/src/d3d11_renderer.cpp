@@ -191,6 +191,36 @@ void D3D11Renderer::clear(float r, float g, float b, float a) {
   context_->ClearRenderTargetView(rtv_, color);
 }
 
+void D3D11Renderer::queue_rect(int x, int y, int w, int h, float r, float g, float b, float a) {
+  (void)x;
+  (void)y;
+  (void)w;
+  (void)h;
+  (void)r;
+  (void)g;
+  (void)b;
+  (void)a;
+}
+
+void D3D11Renderer::queue_rect_outline(int x, int y, int w, int h, float r, float g, float b, float a) {
+  (void)x;
+  (void)y;
+  (void)w;
+  (void)h;
+  (void)r;
+  (void)g;
+  (void)b;
+  (void)a;
+}
+
+void D3D11Renderer::debug_set_stage(const char* stage) {
+  (void)stage;
+}
+
+void D3D11Renderer::debug_set_forensic_log_path(const char* path) {
+  (void)path;
+}
+
 void D3D11Renderer::end_frame() {
   if (!ready_ || device_lost_ || !swapchain_) return;
 
