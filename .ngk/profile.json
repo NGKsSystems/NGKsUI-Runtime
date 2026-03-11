@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "detected": {
+    "primary_path": "cmake_presets",
+    "confidence": {
+      "score": 90,
+      "reasons": [
+        "CMakePresets.json found",
+        "Multiple build ecosystems detected"
+      ]
+    }
+  },
+  "bootstrap": {
+    "kind": "none",
+    "command": "",
+    "notes": "Detected from probe fingerprints"
+  },
+  "dialect": {
+    "debug": "",
+    "release": "",
+    "build": "",
+    "test": "",
+    "package": ""
+  },
+  "cmake": {
+    "preset_candidates": [
+      "win-msvc-debug",
+      "win-msvc-release"
+    ]
+  },
+  "msbuild": {
+    "solution_candidates": []
+  },
+  "runner": {
+    "default_path": "cmake_presets",
+    "overrides": {}
+  }
+}

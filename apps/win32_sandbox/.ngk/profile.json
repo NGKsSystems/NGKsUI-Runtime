@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "detected": {
+    "primary_path": "cmake_manual",
+    "confidence": {
+      "score": 80,
+      "reasons": [
+        "CMakeLists.txt found"
+      ]
+    }
+  },
+  "bootstrap": {
+    "kind": "none",
+    "command": "",
+    "notes": "Detected from probe fingerprints"
+  },
+  "dialect": {
+    "debug": "",
+    "release": "",
+    "build": "",
+    "test": "",
+    "package": ""
+  },
+  "cmake": {
+    "preset_candidates": []
+  },
+  "msbuild": {
+    "solution_candidates": []
+  },
+  "runner": {
+    "default_path": "cmake_manual",
+    "overrides": {}
+  }
+}
