@@ -1,0 +1,21 @@
+{
+  "cache_schema_version": 1,
+  "config_hash": "ee57e8fbfd2b1398b1e23eefc054c65c4b32c37363aa2ced23265b0d913fe5cf",
+  "danger_env": {},
+  "ngksgraph_commit": "",
+  "ngksgraph_version": "0.1.0",
+  "profile": "release",
+  "selected_target": "widget_sandbox",
+  "structural_graph_hash": "19f2c598ba30e20ac1a97d929aa5507291d3b732a29bda61bf0e65d2697a9dc2",
+  "toolchain": {
+    "compiler_hash": "",
+    "compiler_path": "",
+    "moc_hash": "",
+    "moc_path": "",
+    "qt_enabled": false,
+    "rcc_hash": "",
+    "rcc_path": "",
+    "uic_hash": "",
+    "uic_path": ""
+  }
+}

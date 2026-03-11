@@ -20,6 +20,7 @@ public:
   using MouseMoveCallback = std::function<void(int, int)>;
   using MouseButtonCallback = std::function<void(std::uint32_t, bool)>;
   using MouseWheelCallback = std::function<void(int)>;
+  using PaintCallback = std::function<void()>;
 
   enum class DpiAwareness : std::uint32_t {
     Unknown = 0,
@@ -38,6 +39,7 @@ public:
 
   void poll_events_once();
   void request_close();
+  void request_repaint();
   bool close_requested() const;
 
   // Native HWND for renderer backends (D3D11 swapchain).
@@ -54,6 +56,7 @@ public:
   void set_mouse_move_callback(MouseMoveCallback callback);
   void set_mouse_button_callback(MouseButtonCallback callback);
   void set_mouse_wheel_callback(MouseWheelCallback callback);
+  void set_paint_callback(PaintCallback callback);
 
 private:
   using Hwnd = HWND__*;
@@ -79,6 +82,7 @@ private:
   MouseMoveCallback mouse_move_callback_;
   MouseButtonCallback mouse_button_callback_;
   MouseWheelCallback mouse_wheel_callback_;
+  PaintCallback paint_callback_;
 };
 
 } // namespace ngk::platform

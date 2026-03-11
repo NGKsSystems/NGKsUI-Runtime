@@ -1,0 +1,15 @@
+ALWAYS compare artifact workflow
+
+From repo root:
+
+1) Auto mode (latest completed phase folder with gate file):
+   .\tools\generate_phase_compare.ps1 -NumeratorEvery 60 -DenominatorEvery 180
+
+2) Explicit folder mode:
+   .\tools\generate_phase_compare.ps1 -ProofFolder "C:\Users\suppo\Desktop\NGKsSystems\NGKsUI Runtime\_proof\phase15_4_dual_cadence_20260223_111536" -NumeratorEvery 60 -DenominatorEvery 180
+
+Outputs written into selected proof folder:
+- phaseXX_YY_compare.txt
+- phaseXX_YY_compare.json
+- 92_zip_with_compare_path.txt
+- refreshed <proof_folder>_with_compare.zip

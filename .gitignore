@@ -84,6 +84,10 @@ _proof/
 _proof/**
 *_proof/
 *_proof/**
+.ngk/
+.ngk/**
+.ngkssys/
+.ngkssys/**
 proof/
 proof/**
 logs/

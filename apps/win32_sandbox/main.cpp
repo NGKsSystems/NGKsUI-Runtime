@@ -1,4 +1,5 @@
 #include <chrono>
+#include <atomic>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
@@ -11,6 +12,9 @@
 #include <thread>
 
 #include "ngk/event_loop.hpp"
+#include "ngk/event_queue.hpp"
+#include "ngk/task_queue.hpp"
+#include "ngk/timer.hpp"
 #include "ngk/platform/win32_window.hpp"
 #include "ngk/gfx/d3d11_renderer.hpp"
 
@@ -20,6 +24,20 @@
 #include <mmsystem.h>
 
 #pragma comment(lib, "winmm.lib")
+
+constexpr UINT kNgkWin32BurstMsg = WM_APP + 0x311;
+static std::atomic<int>* g_ngk_win32_dispatch_counter = nullptr;
+
+static LRESULT CALLBACK ngk_msg_only_wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+  if (msg == kNgkWin32BurstMsg) {
+    std::cout << "NGK_WIN32_MSG_DISPATCHED\n" << std::flush;
+    if (g_ngk_win32_dispatch_counter) {
+      g_ngk_win32_dispatch_counter->fetch_add(1, std::memory_order_relaxed);
+    }
+    return 0;
+  }
+  return DefWindowProcW(hwnd, msg, wparam, lparam);
+}
 
 static const char* dpi_awareness_to_string(ngk::platform::Win32Window::DpiAwareness a) {
   using A = ngk::platform::Win32Window::DpiAwareness;
@@ -267,6 +285,8 @@ static int run_app() {
   ngk::EventLoop loop;
   ngk::platform::Win32Window window;
   ngk::gfx::D3D11Renderer renderer;
+  std::atomic<bool> g_accept_posts{true};
+  HWND msg_only_hwnd = nullptr;
 
   int client_w = 960;
   int client_h = 640;
@@ -281,10 +301,12 @@ static int run_app() {
   std::cout << "window_created=1\n";
 
   window.set_close_callback([&] {
+    g_accept_posts.store(false, std::memory_order_release);
     std::cout << "close_requested=1\n";
   });
 
   window.set_quit_callback([&] {
+    g_accept_posts.store(false, std::memory_order_release);
     std::cout << "quit_requested=1\n";
     loop.stop();
   });
@@ -293,10 +315,27 @@ static int run_app() {
     std::cout << "dpi_changed dpi_x=" << dpi_x << " dpi_y=" << dpi_y << "\n";
   });
 
-  loop.set_platform_pump([&] { window.poll_events_once(); });
+  auto pump_platform_once = [&] {
+    window.poll_events_once();
+
+    if (!msg_only_hwnd) {
+      return;
+    }
+
+    MSG msg{};
+    while (PeekMessageW(&msg, msg_only_hwnd, 0, 0, PM_REMOVE)) {
+      TranslateMessage(&msg);
+      DispatchMessageW(&msg);
+    }
+  };
+
+  loop.set_platform_pump([&] {
+    pump_platform_once();
+  });
 
   // ---- Stress knobs ----
   const int auto_close_ms = read_env_int("NGK_AUTOCLOSE_MS", 8000);
+  const int present_fail_policy = clamp_int(read_env_int("NGK_PRESENT_FAIL_POLICY", 0), 0, 2);
   const int scripted_resize_ms = read_env_int("NGK_SCRIPTED_RESIZE_MS", 250);
 
   const int resize_spam = read_env_int("NGK_RESIZE_SPAM", 0);     // 1 enables
@@ -432,8 +471,169 @@ static int run_app() {
               << " timer_res_ms=" << timer_res_ms << "\n";
   }
 
+  ngk::Timer auto_close_timer(loop);
+  ngk::EventQueue event_queue(loop);
+  ngk::TaskQueue task_queue(loop);
+
+  const int core_event_bg_enable = clamp_int(read_env_int("NGK_CORE_EVENT_BG_ENABLE", 0), 0, 1);
+  const int core_event_bg_count = clamp_int(read_env_int("NGK_CORE_EVENT_BG_COUNT", 500), 1, 10000);
+  const int core_event_bg_spacing_ms = clamp_int(read_env_int("NGK_CORE_EVENT_BG_SPACING_MS", 1), 0, 1000);
+  const int core_event_burst = clamp_int(read_env_int("NGK_CORE_EVENT_BURST", 1), 1, 5000);
+  const int win32_msg_burst = clamp_int(read_env_int("NGK_WIN32_MSG_BURST", 0), 0, 10000);
+  const bool win32_msg_force_sync = read_env_int("NGK_PRESENT_FAIL_EVERY", 0) > 0;
+  const int core_nested_enable = clamp_int(read_env_int("NGK_CORE_NESTED_ENABLE", 0), 0, 1);
+  const int core_nested_ms = clamp_int(read_env_int("NGK_CORE_NESTED_MS", 250), 1, 10000);
+  const int core_nested_at_dispatch = clamp_int(read_env_int("NGK_CORE_NESTED_AT_DISPATCH", 10), 1, 500000);
+  const int core_event_late_enable = clamp_int(read_env_int("NGK_CORE_EVENT_LATE_ENABLE", 0), 0, 1);
+  const int core_event_late_count = clamp_int(read_env_int("NGK_CORE_EVENT_LATE_COUNT", 200), 1, 10000);
+  const int core_event_late_delay_ms = clamp_int(read_env_int("NGK_CORE_EVENT_LATE_DELAY_MS", 0), 0, 60000);
+  const int core_event_late_spacing_ms = 10;
+
+  std::atomic<int> core_event_post_count{0};
+  std::atomic<int> core_event_dispatch_count{0};
+  std::atomic<int> core_event_task_count{0};
+  std::atomic<int> core_nested_enter_count{0};
+  std::atomic<int> core_nested_exit_count{0};
+  std::atomic<int> win32_msg_post_count{0};
+  std::atomic<int> win32_msg_dispatch_count{0};
+  g_ngk_win32_dispatch_counter = &win32_msg_dispatch_count;
+
+  WNDCLASSW wc{};
+  wc.lpfnWndProc = ngk_msg_only_wndproc;
+  wc.hInstance = GetModuleHandleW(nullptr);
+  wc.lpszClassName = L"NGK_MSG_ONLY_WINDOW";
+  RegisterClassW(&wc);
+
+  msg_only_hwnd = CreateWindowExW(
+    0,
+    L"NGK_MSG_ONLY_WINDOW",
+    L"",
+    0,
+    0,
+    0,
+    0,
+    0,
+    HWND_MESSAGE,
+    nullptr,
+    GetModuleHandleW(nullptr),
+    nullptr);
+
+  auto enqueue_event_chain = [&]() -> bool {
+    if (!g_accept_posts.load(std::memory_order_acquire)) {
+      std::cout << "NGK_CORE_EVENT_REJECTED\n";
+      return false;
+    }
+
+    loop.post([&] {
+      std::cout << "NGK_CORE_EVENT_POSTED\n";
+      core_event_post_count.fetch_add(1, std::memory_order_relaxed);
+      event_queue.post_event([&] {
+        std::cout << "NGK_CORE_EVENT_DISPATCHED\n";
+        const int dispatch_index = core_event_dispatch_count.fetch_add(1, std::memory_order_relaxed) + 1;
+        if (core_nested_enable == 1 && dispatch_index == core_nested_at_dispatch &&
+            core_nested_enter_count.load(std::memory_order_relaxed) == 0) {
+          std::cout << "NGK_CORE_NESTED_ENTER\n" << std::flush;
+          core_nested_enter_count.fetch_add(1, std::memory_order_relaxed);
+          const auto nested_deadline = std::chrono::steady_clock::now() + milliseconds(core_nested_ms);
+          while (std::chrono::steady_clock::now() < nested_deadline) {
+            pump_platform_once();
+            std::this_thread::sleep_for(milliseconds(1));
+          }
+          std::cout << "NGK_CORE_NESTED_EXIT\n" << std::flush;
+          core_nested_exit_count.fetch_add(1, std::memory_order_relaxed);
+        }
+        task_queue.post_task([&] {
+          std::cout << "NGK_CORE_TASK_RAN\n";
+          core_event_task_count.fetch_add(1, std::memory_order_relaxed);
+        });
+      });
+    });
+
+    return true;
+  };
+
+  std::thread bg_poster_thread;
+  if (core_event_bg_enable == 1) {
+    bg_poster_thread = std::thread([&] {
+      for (int index = 0; index < core_event_bg_count; ++index) {
+        if (!enqueue_event_chain()) {
+          break;
+        }
+        if (core_event_bg_spacing_ms > 0) {
+          std::this_thread::sleep_for(milliseconds(core_event_bg_spacing_ms));
+        }
+      }
+    });
+  } else {
+    for (int index = 0; index < core_event_burst; ++index) {
+      if (!enqueue_event_chain()) {
+        break;
+      }
+    }
+  }
+
+  std::thread late_poster_thread;
+  if (core_event_late_enable == 1) {
+    late_poster_thread = std::thread([&] {
+      if (core_event_late_delay_ms > 0) {
+        std::this_thread::sleep_for(milliseconds(core_event_late_delay_ms));
+      }
+
+      for (int index = 0; index < core_event_late_count; ++index) {
+        const bool accepted = enqueue_event_chain();
+        (void)accepted;
+        std::this_thread::sleep_for(milliseconds(core_event_late_spacing_ms));
+      }
+    });
+  }
+
+  if (msg_only_hwnd && win32_msg_burst > 0) {
+    if (win32_msg_force_sync) {
+      for (int index = 0; index < win32_msg_burst; ++index) {
+        std::cout << "NGK_WIN32_MSG_POSTED\n" << std::flush;
+        win32_msg_post_count.fetch_add(1, std::memory_order_relaxed);
+        SendMessageW(msg_only_hwnd, kNgkWin32BurstMsg, 0, 0);
+      }
+    } else {
+      int posted_ok = 0;
+      int attempts = 0;
+      const int max_attempts = win32_msg_burst * 50;
+      while (posted_ok < win32_msg_burst && attempts < max_attempts) {
+        attempts++;
+        if (PostMessageW(msg_only_hwnd, kNgkWin32BurstMsg, 0, 0)) {
+          std::cout << "NGK_WIN32_MSG_POSTED\n" << std::flush;
+          win32_msg_post_count.fetch_add(1, std::memory_order_relaxed);
+          posted_ok++;
+        } else {
+          Sleep(1);
+        }
+      }
+    }
+  }
+
   if (auto_close_ms > 0) {
-    loop.set_timeout(milliseconds(auto_close_ms), [&] {
+    std::atomic<bool> close_armed{false};
+    auto_close_timer.start_once(milliseconds(auto_close_ms), [&] {
+      close_armed.store(true, std::memory_order_release);
+    });
+
+    std::uint64_t close_watchdog_id = 0;
+    close_watchdog_id = loop.set_interval(milliseconds(50), [&] {
+      if (!close_armed.load(std::memory_order_acquire)) {
+        return;
+      }
+
+      if (core_event_bg_enable == 1) {
+        const int posted = core_event_post_count.load(std::memory_order_relaxed);
+        const int dispatched = core_event_dispatch_count.load(std::memory_order_relaxed);
+        const int tasked = core_event_task_count.load(std::memory_order_relaxed);
+        if (posted < core_event_bg_count || dispatched < core_event_bg_count || tasked < core_event_bg_count) {
+          return;
+        }
+      }
+
+      loop.cancel(close_watchdog_id);
+      std::cout << "NGK_CORE_TIMER_FIRED\n";
       std::cout << "autoclose_fired=1\n";
       window.request_close();
     });
@@ -476,6 +676,7 @@ static int run_app() {
   std::uint64_t frame_count_total = 0;
   std::uint64_t resize_count = 0;
   std::uint64_t present_fail_count = 0;
+  bool present_fail_policy_quit_triggered = false;
   std::uint64_t jitter_logged_frames = 0;
   int resize_events_pending = 0;
   int stall_effect_frames_remaining = 0;
@@ -645,7 +846,17 @@ static int run_app() {
         std::cout << "present_failed_hr=0x" << std::hex << std::uppercase
                   << renderer.last_present_hr() << std::dec << "\n";
         emit_status(true);
-        loop.stop();
+        if (present_fail_policy == 0) {
+          if (!present_fail_policy_quit_triggered) {
+            present_fail_policy_quit_triggered = true;
+            std::cout << "PRESENT_FAIL_POLICY_QUIT_TRIGGERED=1\n";
+          }
+          g_accept_posts.store(false, std::memory_order_release);
+          window.request_close();
+        } else if (auto_close_ms <= 0 || !auto_close_timer.active()) {
+          g_accept_posts.store(false, std::memory_order_release);
+          loop.stop();
+        }
       }
     } else {
       if (cpu_stall_ms > 0 && cpu_stall_every > 0 && (frame % (std::uint64_t)cpu_stall_every) == 0) {
@@ -669,7 +880,17 @@ static int run_app() {
         std::cout << "present_failed_hr=0x" << std::hex << std::uppercase
                   << renderer.last_present_hr() << std::dec << "\n";
         emit_status(true);
-        loop.stop();
+        if (present_fail_policy == 0) {
+          if (!present_fail_policy_quit_triggered) {
+            present_fail_policy_quit_triggered = true;
+            std::cout << "PRESENT_FAIL_POLICY_QUIT_TRIGGERED=1\n";
+          }
+          g_accept_posts.store(false, std::memory_order_release);
+          window.request_close();
+        } else if (auto_close_ms <= 0 || !auto_close_timer.active()) {
+          g_accept_posts.store(false, std::memory_order_release);
+          loop.stop();
+        }
       }
     }
 
@@ -746,11 +967,46 @@ static int run_app() {
     }
   });
 
+  std::cout << "NGK_CORE_LOOP_START\n";
   loop.run();
+
+  std::cout << "NGK_CORE_LOOP_EXIT\n";
+  g_accept_posts.store(false, std::memory_order_release);
+
+  const bool shutdown_probe_accepted = enqueue_event_chain();
+  (void)shutdown_probe_accepted;
+
+  if (bg_poster_thread.joinable()) {
+    bg_poster_thread.join();
+  }
+
+  if (late_poster_thread.joinable()) {
+    late_poster_thread.join();
+  }
 
   if (jitter_csv.is_open()) {
     jitter_csv.flush();
   }
+
+  if (msg_only_hwnd) {
+    MSG msg{};
+    while (PeekMessageW(&msg, msg_only_hwnd, 0, 0, PM_REMOVE)) {
+      TranslateMessage(&msg);
+      DispatchMessageW(&msg);
+    }
+
+    int guard = 0;
+    while (win32_msg_dispatch_count.load(std::memory_order_relaxed) < win32_msg_post_count.load(std::memory_order_relaxed) && guard < 20000) {
+      SendMessageW(msg_only_hwnd, kNgkWin32BurstMsg, 0, 0);
+      guard++;
+    }
+  }
+
+  if (msg_only_hwnd) {
+    DestroyWindow(msg_only_hwnd);
+    msg_only_hwnd = nullptr;
+  }
+  g_ngk_win32_dispatch_counter = nullptr;
 
   if (timer_res_active) {
     timeEndPeriod(1);

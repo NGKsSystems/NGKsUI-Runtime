@@ -2,6 +2,7 @@
 
 #include <windows.h>
 
+#include <iostream>
 #include <utility>
 
 namespace ngk::platform {
@@ -9,6 +10,23 @@ namespace ngk::platform {
 namespace {
 
 constexpr wchar_t kWindowClassName[] = L"NGKsUIRuntimeWindowClass";
+
+const char* message_name(unsigned int message) {
+  switch (message) {
+    case WM_NCCREATE:
+      return "WM_NCCREATE";
+    case WM_CREATE:
+      return "WM_CREATE";
+    case WM_SIZE:
+      return "WM_SIZE";
+    case WM_PAINT:
+      return "WM_PAINT";
+    case WM_DESTROY:
+      return "WM_DESTROY";
+    default:
+      return "WM_OTHER";
+  }
+}
 
 // Safe WORD helpers for WPARAM/LPARAM payloads.
 std::uint32_t low_word_u32(const unsigned long long value) {
@@ -139,6 +157,8 @@ Win32Window::~Win32Window() {
 }
 
 bool Win32Window::create(const wchar_t* title, int width, int height) {
+  std::cout << "window_create_begin\n";
+
   // Set DPI awareness once per process; safe to call repeatedly but we store the first meaningful result.
   if (dpi_awareness_ == DpiAwareness::Unknown) {
     dpi_awareness_ = try_set_dpi_awareness();
@@ -151,11 +171,17 @@ bool Win32Window::create(const wchar_t* title, int width, int height) {
   window_class.lpszClassName = kWindowClassName;
   window_class.hCursor = LoadCursorW(nullptr, MAKEINTRESOURCEW(32512));
 
-  if (RegisterClassExW(&window_class) != 0) {
+  std::cout << "before_class_registration\n";
+  const ATOM class_atom = RegisterClassExW(&window_class);
+  const DWORD class_reg_error = GetLastError();
+  if (class_atom != 0) {
     class_registered_ = true;
-  } else if (GetLastError() != ERROR_CLASS_ALREADY_EXISTS) {
+  } else if (class_reg_error != ERROR_CLASS_ALREADY_EXISTS) {
+    std::cout << "after_class_registration result=fail error=" << class_reg_error << "\n";
     return false;
   }
+  std::cout << "after_class_registration result=ok class_atom=" << class_atom
+            << " error=" << class_reg_error << "\n";
 
   const DWORD style = WS_OVERLAPPEDWINDOW;
   const DWORD ex_style = 0;
@@ -167,6 +193,8 @@ bool Win32Window::create(const wchar_t* title, int width, int height) {
   const int win_w = (wr.right - wr.left);
   const int win_h = (wr.bottom - wr.top);
 
+  std::cout << "before_CreateWindowExW\n";
+  std::cout << "before_userdata_bind\n";
   hwnd_ = CreateWindowExW(
     ex_style,
     kWindowClassName,
@@ -180,13 +208,23 @@ bool Win32Window::create(const wchar_t* title, int width, int height) {
     nullptr,
     instance_,
     this);
+  const DWORD create_error = GetLastError();
+  std::cout << "after_CreateWindowExW hwnd=" << reinterpret_cast<void*>(hwnd_)
+            << " error=" << create_error << "\n";
 
   if (!hwnd_) {
     return false;
   }
 
+  Win32Window* bound_user_data = reinterpret_cast<Win32Window*>(GetWindowLongPtrW(hwnd_, GWLP_USERDATA));
+  std::cout << "after_userdata_bind userdata=" << reinterpret_cast<void*>(bound_user_data)
+            << " matches_this=" << (bound_user_data == this ? 1 : 0) << "\n";
+
+  std::cout << "before_show_window\n";
   ShowWindow(hwnd_, SW_SHOW);
   UpdateWindow(hwnd_);
+  std::cout << "after_show_window\n";
+  std::cout << "window_create_end\n";
   return true;
 }
 
@@ -221,6 +259,14 @@ void Win32Window::request_close() {
   if (hwnd_) {
     PostMessageW(hwnd_, WM_CLOSE, 0, 0);
   }
+}
+
+void Win32Window::request_repaint() {
+  if (!hwnd_) {
+    return;
+  }
+
+  InvalidateRect(hwnd_, nullptr, FALSE);
 }
 
 bool Win32Window::close_requested() const {
@@ -271,17 +317,58 @@ void Win32Window::set_mouse_wheel_callback(MouseWheelCallback callback) {
   mouse_wheel_callback_ = std::move(callback);
 }
 
+void Win32Window::set_paint_callback(PaintCallback callback) {
+  paint_callback_ = std::move(callback);
+}
+
 long long __stdcall Win32Window::wnd_proc(Hwnd hwnd, unsigned int message, unsigned long long wparam, long long lparam) {
+  static bool logged_first_get_userdata = false;
+  static bool logged_first_set_userdata = false;
+
+  if (message == WM_NCCREATE || message == WM_CREATE || message == WM_SIZE || message == WM_DESTROY) {
+    std::cout << "wndproc_message=" << message_name(message) << " hwnd=" << reinterpret_cast<void*>(hwnd) << "\n";
+  }
+
   if (message == WM_NCCREATE) {
     CREATESTRUCTW* create_struct = reinterpret_cast<CREATESTRUCTW*>(lparam);
+    if (!create_struct) {
+      std::cout << "wndproc_null_userdata_safe_path message=WM_NCCREATE reason=null_CREATESTRUCT action=DefWindowProcW\n";
+      return DefWindowProcW(hwnd, message, static_cast<WPARAM>(wparam), static_cast<LPARAM>(lparam));
+    }
+
     Win32Window* window = static_cast<Win32Window*>(create_struct->lpCreateParams);
-    SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
+    std::cout << "wndproc_before_set_userdata ptr=" << reinterpret_cast<void*>(window) << "\n";
+    SetLastError(0);
+    const LONG_PTR prev = SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
+    const DWORD set_error = GetLastError();
+    if (!logged_first_set_userdata) {
+      std::cout << "wndproc_first_set_userdata prev=" << prev
+                << " new=" << reinterpret_cast<void*>(window)
+                << " error=" << set_error << "\n";
+      logged_first_set_userdata = true;
+    }
+    Win32Window* stored = reinterpret_cast<Win32Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
+    std::cout << "wndproc_after_set_userdata stored=" << reinterpret_cast<void*>(stored) << "\n";
+    if (window) {
+      window->hwnd_ = hwnd;
+    }
     return DefWindowProcW(hwnd, message, static_cast<WPARAM>(wparam), static_cast<LPARAM>(lparam));
   }
 
   Win32Window* window = reinterpret_cast<Win32Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
+  if (!logged_first_get_userdata) {
+    std::cout << "wndproc_first_get_userdata result=" << reinterpret_cast<void*>(window)
+              << " message=" << message_name(message) << "\n";
+    logged_first_get_userdata = true;
+  }
+
   if (window) {
     return window->handle_message(message, wparam, lparam);
+  }
+
+  if (message == WM_CREATE || message == WM_SIZE || message == WM_DESTROY) {
+    std::cout << "wndproc_null_userdata_safe_path message=" << message_name(message)
+              << " action=DefWindowProcW\n";
   }
 
   return DefWindowProcW(hwnd, message, static_cast<WPARAM>(wparam), static_cast<LPARAM>(lparam));
@@ -376,6 +463,18 @@ long long Win32Window::handle_message(unsigned int message, unsigned long long w
         mouse_wheel_callback_(delta);
       }
       return 0;
+    case WM_PAINT: {
+      PAINTSTRUCT ps{};
+      BeginPaint(hwnd_, &ps);
+      if (paint_callback_) {
+        paint_callback_();
+      }
+      EndPaint(hwnd_, &ps);
+      return 0;
+    }
+    case WM_ERASEBKGND:
+      // Suppress default background erase to avoid flicker between composed frames.
+      return 1;
     default:
       return DefWindowProcW(hwnd_, message, static_cast<WPARAM>(wparam), static_cast<LPARAM>(lparam));
   }

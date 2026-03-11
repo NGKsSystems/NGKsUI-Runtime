@@ -1,0 +1,182 @@
+{
+  "generator_nodes": [],
+  "profile": "release",
+  "qt_generated_files": [],
+  "qt_tool_info": {},
+  "qt_trace": {
+    "qt.enabled": false,
+    "qt.generator.reason": [],
+    "qt.generator.tool_hash": {},
+    "qt.include.injected": [],
+    "qt.lib.injected": {
+      "lib_dirs": [],
+      "libs": []
+    },
+    "qt.moc.generated": [],
+    "qt.moc.skipped": [],
+    "qt.rcc.generated": [],
+    "qt.rcc.skipped": [],
+    "qt.uic.generated": [],
+    "qt.uic.skipped": []
+  },
+  "schema_version": 1,
+  "selected_target": "widget_sandbox",
+  "source_map": {
+    "engine": [
+      "engine/core/src/core.cpp",
+      "engine/core/src/event_loop.cpp",
+      "engine/core/src/event_queue.cpp",
+      "engine/core/src/task_queue.cpp",
+      "engine/core/src/timer.cpp",
+      "engine/gfx/src/gfx.cpp",
+      "engine/gfx/win32/src/d3d11_renderer.cpp",
+      "engine/platform/win32/src/platform_win32.cpp",
+      "engine/platform/win32/src/win32_window.cpp",
+      "engine/ui/button.cpp",
+      "engine/ui/label.cpp",
+      "engine/ui/panel.cpp",
+      "engine/ui/src/ui.cpp",
+      "engine/ui/ui_element.cpp",
+      "engine/ui/vertical_layout.cpp"
+    ],
+    "loop_tests": [
+      "apps/loop_tests/main.cpp"
+    ],
+    "sandbox_app": [
+      "apps/sandbox_app/main.cpp"
+    ],
+    "widget_sandbox": [
+      "apps/widget_sandbox/main.cpp"
+    ],
+    "win32_sandbox": [
+      "apps/win32_sandbox/main.cpp"
+    ]
+  },
+  "target_overrides": {
+    "engine": {
+      "cflags": [
+        "/O2"
+      ],
+      "defines": [
+        "NDEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "include_dirs": [
+        "engine/core/include",
+        "engine/gfx/include",
+        "engine/gfx/win32/include",
+        "engine/platform/win32/include",
+        "engine/ui",
+        "engine/ui/include"
+      ],
+      "ldflags": [],
+      "lib_dirs": [],
+      "libs": []
+    },
+    "loop_tests": {
+      "cflags": [
+        "/O2"
+      ],
+      "defines": [
+        "NDEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "include_dirs": [
+        "engine/core/include",
+        "engine/gfx/include",
+        "engine/gfx/win32/include",
+        "engine/platform/win32/include",
+        "engine/ui",
+        "engine/ui/include"
+      ],
+      "ldflags": [],
+      "lib_dirs": [],
+      "libs": [
+        "d3d11",
+        "dxgi",
+        "gdi32",
+        "user32"
+      ]
+    },
+    "sandbox_app": {
+      "cflags": [
+        "/O2"
+      ],
+      "defines": [
+        "NDEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "include_dirs": [
+        "engine/core/include",
+        "engine/gfx/include",
+        "engine/gfx/win32/include",
+        "engine/platform/win32/include",
+        "engine/ui",
+        "engine/ui/include"
+      ],
+      "ldflags": [],
+      "lib_dirs": [],
+      "libs": [
+        "d3d11",
+        "dxgi",
+        "gdi32",
+        "user32"
+      ]
+    },
+    "widget_sandbox": {
+      "cflags": [
+        "/O2"
+      ],
+      "defines": [
+        "NDEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "include_dirs": [
+        "engine/core/include",
+        "engine/gfx/include",
+        "engine/gfx/win32/include",
+        "engine/platform/win32/include",
+        "engine/ui",
+        "engine/ui/include"
+      ],
+      "ldflags": [],
+      "lib_dirs": [],
+      "libs": [
+        "d3d11",
+        "dxgi",
+        "gdi32",
+        "user32"
+      ]
+    },
+    "win32_sandbox": {
+      "cflags": [
+        "/O2"
+      ],
+      "defines": [
+        "NDEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "include_dirs": [
+        "engine/core/include",
+        "engine/gfx/include",
+        "engine/gfx/win32/include",
+        "engine/platform/win32/include",
+        "engine/ui",
+        "engine/ui/include"
+      ],
+      "ldflags": [],
+      "lib_dirs": [],
+      "libs": [
+        "d3d11",
+        "dxgi",
+        "gdi32",
+        "user32"
+      ]
+    }
+  }
+}

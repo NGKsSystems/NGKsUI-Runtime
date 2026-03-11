@@ -1,6 +1,9 @@
 add_library(ngk_core STATIC
   src/core.cpp
   src/event_loop.cpp
+  src/event_queue.cpp
+  src/task_queue.cpp
+  src/timer.cpp
 )
 
 target_include_directories(ngk_core PUBLIC
