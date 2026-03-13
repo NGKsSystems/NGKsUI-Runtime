@@ -1,5 +1,5 @@
 PHASE 40.29 build graph integrity
-timestamp=2026-03-13T06:08:01.4734980+03:00
+timestamp=2026-03-13T06:27:32.0749607+03:00
 plan=C:\Users\suppo\Desktop\NGKsSystems\NGKsUI Runtime\build_graph\debug\ngksbuildcore_plan.json
 compile_cpp_refs_count=16
 missing_source_refs_count=0

@@ -440,3 +440,21 @@ This remains intentionally bounded:
 - one conflict rule only,
 - no new widgets, timers, animation, or telemetry,
 - no baseline visual or behavior changes.
+
+## Phase 40.64 Extension Third Subcomponent Isolation
+
+Extension lane now proves a third tiny subcomponent can be added without child coupling:
+- existing child A: `status_chip_v1`,
+- existing child B: `secondary_indicator_v1`,
+- new child C: `tertiary_marker_subcomponent`.
+
+Isolation guarantees:
+- parent-owned inputs: parent builds `status_chip_input_v1`, `secondary_indicator_input_v1`, and `tertiary_marker_input_v1`,
+- coexistence proof: all three children render together under extension render/visual contracts,
+- no child dependency: each child remains input-only with dependency markers fixed to `none`,
+- baseline isolation: baseline lane remains default, unchanged, and independently validated.
+
+This remains intentionally bounded:
+- one tiny third child only,
+- no new widgets beyond this marker child, no timers, animation, or telemetry,
+- no baseline visual or behavior changes.

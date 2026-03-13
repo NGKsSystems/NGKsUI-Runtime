@@ -98,6 +98,23 @@ struct ExtensionSecondaryIndicatorInputRecord {
   std::string parent_orchestration_state = "inactive";
 };
 
+struct ExtensionTertiaryMarkerDisplayData {
+  bool visible = true;
+  std::string text = "marker: tertiary idle";
+  std::string variant = "muted";
+  std::string source = "extension_parent_state";
+};
+
+struct ExtensionTertiaryMarkerInputRecord {
+  bool visible = true;
+  std::string text = "marker: tertiary idle";
+  std::string variant = "muted";
+  std::string source = "extension_parent_state";
+  std::string owner = "extension_parent_state_tertiary_marker";
+  std::string parent_coexistence_rule = "parent_subcomponent_isolation_v1";
+  std::string parent_coexistence_state = "active";
+};
+
 struct ExtensionLaneState {
   bool active = false;
   const char* mode_identity = "baseline";
@@ -109,6 +126,7 @@ struct ExtensionLaneState {
   ExtensionCardDisplayData card_display;
   ExtensionStatusChipDisplayData status_chip;
   ExtensionSecondaryIndicatorDisplayData secondary_indicator;
+  ExtensionTertiaryMarkerDisplayData tertiary_marker;
   bool status_chip_interaction_active = false;
   bool parent_orchestration_active = false;
   const char* parent_orchestration_rule_name = "parent_emphasis_bridge_v1";
@@ -149,6 +167,10 @@ struct ExtensionLaneLayout {
   int secondary_indicator_y = 0;
   int secondary_indicator_width = 180;
   int secondary_indicator_height = 18;
+  int tertiary_marker_x = 0;
+  int tertiary_marker_y = 0;
+  int tertiary_marker_width = 180;
+  int tertiary_marker_height = 16;
 };
 
 enum class ExtensionInteractionInputKind {
@@ -191,6 +213,8 @@ const char* extension_status_chip_layout_variant(bool detail_interaction_applied
 const char* extension_status_chip_interaction_boundary_state(bool interaction_active);
 const char* extension_secondary_indicator_text(bool secondary_active);
 const char* extension_secondary_indicator_variant(bool secondary_active);
+const char* extension_tertiary_marker_text(const ExtensionLaneState& state);
+const char* extension_tertiary_marker_variant(const ExtensionLaneState& state);
 bool extension_parent_visibility_rule_allows_secondary_indicator(const ExtensionLaneState& state);
 void refresh_extension_parent_visibility_rule(ExtensionLaneState& state);
 bool extension_parent_orchestration_rule_active(const ExtensionLaneState& state);
@@ -205,6 +229,7 @@ void apply_extension_parent_routed_intent_outcome(
   bool secondary_intent);
 ExtensionStatusChipInputRecord build_extension_status_chip_input_record(const ExtensionLaneState& state);
 ExtensionSecondaryIndicatorInputRecord build_extension_secondary_indicator_input_record(const ExtensionLaneState& state);
+ExtensionTertiaryMarkerInputRecord build_extension_tertiary_marker_input_record(const ExtensionLaneState& state);
 
 ExtensionLaneState make_extension_lane_state(SandboxLane lane) {
   ExtensionLaneState state;
@@ -225,6 +250,10 @@ ExtensionLaneState make_extension_lane_state(SandboxLane lane) {
   state.status_chip.visible = state.active;
   state.status_chip.source = "secondary_placeholder_state";
   state.secondary_indicator.source = "secondary_placeholder_state";
+  state.tertiary_marker.visible = state.active;
+  state.tertiary_marker.text = extension_tertiary_marker_text(state);
+  state.tertiary_marker.variant = extension_tertiary_marker_variant(state);
+  state.tertiary_marker.source = "extension_parent_state";
   refresh_extension_parent_visibility_rule(state);
   refresh_extension_parent_orchestration_rule(state);
   refresh_extension_parent_ordering_rule(state);
@@ -304,6 +333,34 @@ const char* extension_secondary_indicator_variant(bool secondary_active) {
   return secondary_active ? "alert" : "neutral";
 }
 
+const char* extension_tertiary_marker_text(const ExtensionLaneState& state) {
+  if (state.parent_orchestration_active) {
+    return "marker: parent coordination active";
+  }
+  if (state.parent_conflict_last_mode == "both") {
+    return "marker: parent conflict isolated";
+  }
+  if (state.parent_conflict_last_mode == "secondary_alone") {
+    return "marker: parent secondary intent observed";
+  }
+  if (state.parent_conflict_last_mode == "status_alone") {
+    return "marker: parent status intent observed";
+  }
+
+  return "marker: tertiary idle";
+}
+
+const char* extension_tertiary_marker_variant(const ExtensionLaneState& state) {
+  if (state.parent_orchestration_active) {
+    return "coordinated";
+  }
+  if (state.parent_conflict_last_mode == "both") {
+    return "emphasis";
+  }
+
+  return "muted";
+}
+
 bool extension_parent_visibility_rule_allows_secondary_indicator(const ExtensionLaneState& state) {
   return state.card_display.secondary_active;
 }
@@ -376,6 +433,8 @@ void apply_extension_parent_routed_intent_outcome(
   state.parent_conflict_winner_intent = winner;
   state.parent_last_routed_intent = winner;
   state.card_display.detail_interaction_applied = true;
+  state.tertiary_marker.text = extension_tertiary_marker_text(state);
+  state.tertiary_marker.variant = extension_tertiary_marker_variant(state);
 
   if (state.parent_conflict_last_mode == "both") {
     state.card_display.detail_text = "routing note: parent conflict winner secondary";
@@ -491,6 +550,37 @@ ExtensionSecondaryIndicatorInputRecord build_extension_secondary_indicator_input
   return input;
 }
 
+void apply_extension_tertiary_marker_style_from_input(ngk::ui::Label& marker_label, const ExtensionTertiaryMarkerInputRecord& marker_input) {
+  if (marker_input.variant == "emphasis") {
+    marker_label.set_background(0.20f, 0.14f, 0.08f, 1.0f);
+    return;
+  }
+
+  if (marker_input.variant == "coordinated") {
+    marker_label.set_background(0.08f, 0.18f, 0.22f, 1.0f);
+    return;
+  }
+
+  marker_label.set_background(0.08f, 0.08f, 0.10f, 1.0f);
+}
+
+void apply_extension_tertiary_marker_input_to_label(ngk::ui::Label& marker_label, const ExtensionTertiaryMarkerInputRecord& marker_input) {
+  marker_label.set_text(marker_input.text);
+  apply_extension_tertiary_marker_style_from_input(marker_label, marker_input);
+}
+
+ExtensionTertiaryMarkerInputRecord build_extension_tertiary_marker_input_record(const ExtensionLaneState& state) {
+  ExtensionTertiaryMarkerInputRecord input;
+  input.visible = state.tertiary_marker.visible;
+  input.text = state.tertiary_marker.text;
+  input.variant = state.tertiary_marker.variant;
+  input.source = state.tertiary_marker.source;
+  input.owner = "extension_parent_state_tertiary_marker";
+  input.parent_coexistence_rule = "parent_subcomponent_isolation_v1";
+  input.parent_coexistence_state = "active";
+  return input;
+}
+
 ExtensionLaneLayout compute_extension_lane_layout(int width, int height, bool secondary_active, bool secondary_indicator_first) {
   ExtensionLaneLayout layout;
   layout.background_x = 0;
@@ -516,6 +606,12 @@ ExtensionLaneLayout compute_extension_lane_layout(int width, int height, bool se
     layout.status_chip_y = layout.info_card_y + 66;
     layout.secondary_indicator_y = layout.status_chip_y + layout.status_chip_height + 2;
   }
+  layout.tertiary_marker_x = layout.info_card_x + 10;
+  layout.tertiary_marker_width = std::max(0, layout.info_card_width - 20);
+  layout.tertiary_marker_height = 16;
+  layout.tertiary_marker_y = std::max(layout.status_chip_y, layout.secondary_indicator_y)
+    + std::max(layout.status_chip_height, layout.secondary_indicator_height)
+    + 2;
   layout.placeholder_height = secondary_active ? 56 : 40;
   layout.placeholder_x = UI_MARGIN;
   layout.placeholder_y = layout.info_card_y + layout.info_card_height + 12;
@@ -560,6 +656,7 @@ void emit_extension_lane_startup_tokens(const ExtensionLaneState& state, const E
 
   const ExtensionStatusChipInputRecord status_chip_input = build_extension_status_chip_input_record(state);
   const ExtensionSecondaryIndicatorInputRecord secondary_indicator_input = build_extension_secondary_indicator_input_record(state);
+  const ExtensionTertiaryMarkerInputRecord tertiary_marker_input = build_extension_tertiary_marker_input_record(state);
 
   std::cout << "widget_extension_mode_label_present=1\n";
   std::cout << "widget_extension_mode_label_text=" << label.text() << "\n";
@@ -603,7 +700,8 @@ void emit_extension_lane_startup_tokens(const ExtensionLaneState& state, const E
   std::cout << "widget_extension_parent_orchestration_child_dependency=none\n";
   std::cout << "widget_extension_subcomponent_name=status_chip_v1\n";
   std::cout << "widget_extension_subcomponent_secondary_name=secondary_indicator_v1\n";
-  std::cout << "widget_extension_subcomponent_coexistence=status_chip_v1+secondary_indicator_v1\n";
+  std::cout << "widget_extension_subcomponent_tertiary_name=tertiary_marker_subcomponent\n";
+  std::cout << "widget_extension_subcomponent_coexistence=status_chip_v1+secondary_indicator_v1+tertiary_marker_subcomponent\n";
   std::cout << "widget_extension_subcomponent_input_record=status_chip_input_v1\n";
   std::cout << "widget_extension_subcomponent_input_owner=" << status_chip_input.owner << "\n";
   std::cout << "widget_extension_subcomponent_visible=" << (status_chip_input.visible ? 1 : 0) << "\n";
@@ -626,6 +724,15 @@ void emit_extension_lane_startup_tokens(const ExtensionLaneState& state, const E
   std::cout << "widget_extension_subcomponent_secondary_input_parent_orchestration_rule=" << secondary_indicator_input.parent_orchestration_rule << "\n";
   std::cout << "widget_extension_subcomponent_secondary_input_parent_orchestration_state=" << secondary_indicator_input.parent_orchestration_state << "\n";
   std::cout << "widget_extension_subcomponent_secondary_input_source=" << secondary_indicator_input.source << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_input_record=tertiary_marker_input_v1\n";
+  std::cout << "widget_extension_subcomponent_tertiary_input_owner=" << tertiary_marker_input.owner << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_visible=" << (tertiary_marker_input.visible ? 1 : 0) << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_input_text=" << tertiary_marker_input.text << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_input_variant=" << tertiary_marker_input.variant << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_input_source=" << tertiary_marker_input.source << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_parent_coexistence_rule=" << tertiary_marker_input.parent_coexistence_rule << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_parent_coexistence_state=" << tertiary_marker_input.parent_coexistence_state << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_child_dependency=none\n";
   std::cout << "widget_extension_primary_summary_text=" << state.card_display.summary_text << "\n";
   std::cout << "widget_extension_secondary_placeholder_state=" << (state.card_display.secondary_active ? "active" : "inactive") << "\n";
   std::cout << "widget_extension_layout_background=" << layout.background_x << "," << layout.background_y << "," << layout.background_width << "," << layout.background_height << "\n";
@@ -634,13 +741,15 @@ void emit_extension_lane_startup_tokens(const ExtensionLaneState& state, const E
   std::cout << "widget_extension_layout_info_card=" << layout.info_card_x << "," << layout.info_card_y << "," << layout.info_card_width << "," << layout.info_card_height << "\n";
   std::cout << "widget_extension_layout_status_chip=" << layout.status_chip_x << "," << layout.status_chip_y << "," << layout.status_chip_width << "," << layout.status_chip_height << "\n";
   std::cout << "widget_extension_layout_secondary_indicator=" << layout.secondary_indicator_x << "," << layout.secondary_indicator_y << "," << layout.secondary_indicator_width << "," << layout.secondary_indicator_height << "\n";
+  std::cout << "widget_extension_layout_tertiary_marker=" << layout.tertiary_marker_x << "," << layout.tertiary_marker_y << "," << layout.tertiary_marker_width << "," << layout.tertiary_marker_height << "\n";
   std::cout << "widget_extension_layout_child_order=" << (state.parent_secondary_indicator_first ? "secondary_indicator_v1,status_chip_v1" : "status_chip_v1,secondary_indicator_v1") << "\n";
 }
 
 void emit_extension_visual_contract_frame_tokens(
   const ExtensionLaneState& state,
   const ExtensionStatusChipInputRecord& status_chip_input,
-  const ExtensionSecondaryIndicatorInputRecord& secondary_indicator_input
+  const ExtensionSecondaryIndicatorInputRecord& secondary_indicator_input,
+  const ExtensionTertiaryMarkerInputRecord& tertiary_marker_input
 ) {
   std::cout << "widget_extension_visual_contract_background_present=1\n";
   std::cout << "widget_extension_visual_contract_label_present=1\n";
@@ -689,7 +798,15 @@ void emit_extension_visual_contract_frame_tokens(
   std::cout << "widget_extension_visual_subcomponent_secondary_text=" << secondary_indicator_input.text << "\n";
   std::cout << "widget_extension_visual_subcomponent_secondary_variant=" << secondary_indicator_input.variant << "\n";
   std::cout << "widget_extension_visual_subcomponent_secondary_parent_orchestration_state=" << secondary_indicator_input.parent_orchestration_state << "\n";
+  std::cout << "widget_extension_visual_subcomponent_tertiary_input_record=tertiary_marker_input_v1\n";
+  std::cout << "widget_extension_visual_subcomponent_tertiary_input_owner=" << tertiary_marker_input.owner << "\n";
+  std::cout << "widget_extension_visual_subcomponent_tertiary_visible=" << (tertiary_marker_input.visible ? 1 : 0) << "\n";
+  std::cout << "widget_extension_visual_subcomponent_tertiary_text=" << tertiary_marker_input.text << "\n";
+  std::cout << "widget_extension_visual_subcomponent_tertiary_variant=" << tertiary_marker_input.variant << "\n";
+  std::cout << "widget_extension_visual_subcomponent_tertiary_parent_coexistence_state=" << tertiary_marker_input.parent_coexistence_state << "\n";
+  std::cout << "widget_extension_visual_subcomponent_tertiary_child_dependency=none\n";
   std::cout << "widget_extension_visual_subcomponent_coexistence=1\n";
+  std::cout << "widget_extension_visual_subcomponent_coexistence_three=1\n";
   std::cout << "widget_extension_visual_contract_lane=extension\n";
 }
 
@@ -765,6 +882,8 @@ bool handle_extension_interaction_mouse_button(
   ngk::ui::Label& subcomponent_status_chip_label,
   ExtensionSecondaryIndicatorInputRecord& secondary_indicator_input,
   ngk::ui::Label& subcomponent_secondary_indicator_label,
+  ExtensionTertiaryMarkerInputRecord& tertiary_marker_input,
+  ngk::ui::Label& subcomponent_tertiary_marker_label,
   const std::function<void(const char*, const char*)>& request_frame
 ) {
   if (!lane_state.active || !lane_state.placeholder_visible) {
@@ -783,6 +902,9 @@ bool handle_extension_interaction_mouse_button(
     apply_extension_parent_routed_intent_outcome(lane_state, true, false);
     status_chip_input = build_extension_status_chip_input_record(lane_state);
     secondary_indicator_input = build_extension_secondary_indicator_input_record(lane_state);
+    lane_state.tertiary_marker.text = extension_tertiary_marker_text(lane_state);
+    lane_state.tertiary_marker.variant = extension_tertiary_marker_variant(lane_state);
+    tertiary_marker_input = build_extension_tertiary_marker_input_record(lane_state);
     layout = compute_extension_lane_layout(
       surface_width,
       surface_height,
@@ -790,6 +912,8 @@ bool handle_extension_interaction_mouse_button(
       lane_state.parent_secondary_indicator_first);
     apply_extension_status_chip_input_to_label(subcomponent_status_chip_label, status_chip_input);
     apply_extension_secondary_indicator_input_to_label(subcomponent_secondary_indicator_label, secondary_indicator_input);
+    apply_extension_tertiary_marker_input_to_label(subcomponent_tertiary_marker_label, tertiary_marker_input);
+    subcomponent_tertiary_marker_label.set_visible(tertiary_marker_input.visible);
     subcomponent_secondary_indicator_label.set_visible(secondary_indicator_input.visible);
     primary_detail_label.set_text(lane_state.card_display.detail_text);
     interaction_state.status_chip_toggle_count += 1;
@@ -821,6 +945,9 @@ bool handle_extension_interaction_mouse_button(
 
   if (secondary_indicator_input.visible && point_in_extension_rect(pointer_x, pointer_y, layout.secondary_indicator_x, layout.secondary_indicator_y, layout.secondary_indicator_width, layout.secondary_indicator_height)) {
     apply_extension_parent_routed_intent_outcome(lane_state, false, true);
+    tertiary_marker_input = build_extension_tertiary_marker_input_record(lane_state);
+    apply_extension_tertiary_marker_input_to_label(subcomponent_tertiary_marker_label, tertiary_marker_input);
+    subcomponent_tertiary_marker_label.set_visible(tertiary_marker_input.visible);
     primary_detail_label.set_text(lane_state.card_display.detail_text);
     interaction_state.secondary_indicator_intent_count += 1;
 
@@ -856,8 +983,11 @@ bool handle_extension_interaction_mouse_button(
   refresh_extension_parent_visibility_rule(lane_state);
   refresh_extension_parent_orchestration_rule(lane_state);
   refresh_extension_parent_ordering_rule(lane_state);
+  lane_state.tertiary_marker.text = extension_tertiary_marker_text(lane_state);
+  lane_state.tertiary_marker.variant = extension_tertiary_marker_variant(lane_state);
   status_chip_input = build_extension_status_chip_input_record(lane_state);
   secondary_indicator_input = build_extension_secondary_indicator_input_record(lane_state);
+  tertiary_marker_input = build_extension_tertiary_marker_input_record(lane_state);
   layout = compute_extension_lane_layout(
     surface_width,
     surface_height,
@@ -870,6 +1000,8 @@ bool handle_extension_interaction_mouse_button(
   primary_detail_label.set_text(lane_state.card_display.detail_text);
   apply_extension_status_chip_input_to_label(subcomponent_status_chip_label, status_chip_input);
   apply_extension_secondary_indicator_input_to_label(subcomponent_secondary_indicator_label, secondary_indicator_input);
+  apply_extension_tertiary_marker_input_to_label(subcomponent_tertiary_marker_label, tertiary_marker_input);
+  subcomponent_tertiary_marker_label.set_visible(tertiary_marker_input.visible);
   subcomponent_secondary_indicator_label.set_visible(secondary_indicator_input.visible);
   apply_extension_primary_summary_badge_variant(primary_summary_label, lane_state.card_display.secondary_active);
   interaction_state.secondary_toggle_count += 1;
@@ -902,6 +1034,16 @@ bool handle_extension_interaction_mouse_button(
   std::cout << "widget_extension_subcomponent_secondary_text=" << secondary_indicator_input.text << "\n";
   std::cout << "widget_extension_subcomponent_secondary_variant=" << secondary_indicator_input.variant << "\n";
   std::cout << "widget_extension_subcomponent_secondary_parent_orchestration_state=" << secondary_indicator_input.parent_orchestration_state << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_input_record=tertiary_marker_input_v1\n";
+  std::cout << "widget_extension_subcomponent_tertiary_input_owner=" << tertiary_marker_input.owner << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_visible=" << (tertiary_marker_input.visible ? 1 : 0) << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_input_text=" << tertiary_marker_input.text << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_input_variant=" << tertiary_marker_input.variant << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_input_source=" << tertiary_marker_input.source << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_parent_coexistence_rule=" << tertiary_marker_input.parent_coexistence_rule << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_parent_coexistence_state=" << tertiary_marker_input.parent_coexistence_state << "\n";
+  std::cout << "widget_extension_subcomponent_tertiary_child_dependency=none\n";
+  std::cout << "widget_extension_subcomponent_coexistence=status_chip_v1+secondary_indicator_v1+tertiary_marker_subcomponent\n";
   std::cout << "widget_extension_parent_visibility_rule_state=" << (lane_state.parent_secondary_indicator_visible ? "visible" : "hidden") << "\n";
   std::cout << "widget_extension_parent_ordering_rule_state=" << (lane_state.parent_secondary_indicator_first ? "secondary_first" : "status_first") << "\n";
   std::cout << "widget_extension_parent_ordering_child_dependency=none\n";
@@ -920,6 +1062,7 @@ bool render_extension_lane_frame(
   const ExtensionLaneState& extension_state,
   const ExtensionStatusChipInputRecord& status_chip_input,
   const ExtensionSecondaryIndicatorInputRecord& secondary_indicator_input,
+  const ExtensionTertiaryMarkerInputRecord& tertiary_marker_input,
   bool extension_visual_baseline_mode,
   bool& extension_visual_contract_frame_logged
 ) {
@@ -976,14 +1119,25 @@ bool render_extension_lane_frame(
   std::cout << "widget_extension_render_subcomponent_secondary_text=" << secondary_indicator_input.text << "\n";
   std::cout << "widget_extension_render_subcomponent_secondary_variant=" << secondary_indicator_input.variant << "\n";
   std::cout << "widget_extension_render_subcomponent_secondary_parent_orchestration_state=" << secondary_indicator_input.parent_orchestration_state << "\n";
+  std::cout << "widget_extension_render_subcomponent_tertiary_name=tertiary_marker_subcomponent\n";
+  std::cout << "widget_extension_render_subcomponent_tertiary_input_record=tertiary_marker_input_v1\n";
+  std::cout << "widget_extension_render_subcomponent_tertiary_input_owner=" << tertiary_marker_input.owner << "\n";
+  std::cout << "widget_extension_render_subcomponent_tertiary_from_input_only=1\n";
+  std::cout << "widget_extension_render_subcomponent_tertiary_visible=" << (tertiary_marker_input.visible ? 1 : 0) << "\n";
+  std::cout << "widget_extension_render_subcomponent_tertiary_rendered=" << (tertiary_marker_input.visible ? 1 : 0) << "\n";
+  std::cout << "widget_extension_render_subcomponent_tertiary_text=" << tertiary_marker_input.text << "\n";
+  std::cout << "widget_extension_render_subcomponent_tertiary_variant=" << tertiary_marker_input.variant << "\n";
+  std::cout << "widget_extension_render_subcomponent_tertiary_parent_coexistence_state=" << tertiary_marker_input.parent_coexistence_state << "\n";
+  std::cout << "widget_extension_render_subcomponent_tertiary_child_dependency=none\n";
   std::cout << "widget_extension_render_layout_child_order=" << (extension_state.parent_secondary_indicator_first ? "secondary_indicator_v1,status_chip_v1" : "status_chip_v1,secondary_indicator_v1") << "\n";
   std::cout << "widget_extension_render_subcomponent_coexistence=1\n";
+  std::cout << "widget_extension_render_subcomponent_coexistence_three=1\n";
   std::cout << "widget_extension_render_layout_mode=" << extension_layout_mode(extension_state.card_display.secondary_active) << "\n";
   std::cout << "widget_extension_info_card_present=" << (extension_state.info_card_visible ? 1 : 0) << "\n";
   std::cout << "widget_extension_secondary_placeholder_present=" << (extension_state.placeholder_visible ? 1 : 0) << "\n";
 
   if (extension_visual_baseline_mode && !extension_visual_contract_frame_logged) {
-    emit_extension_visual_contract_frame_tokens(extension_state, status_chip_input, secondary_indicator_input);
+    emit_extension_visual_contract_frame_tokens(extension_state, status_chip_input, secondary_indicator_input, tertiary_marker_input);
     extension_visual_contract_frame_logged = true;
   }
 
@@ -1150,6 +1304,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
   ExtensionLaneState extension_state = make_extension_lane_state(lane);
   ExtensionStatusChipInputRecord extension_status_chip_input = build_extension_status_chip_input_record(extension_state);
   ExtensionSecondaryIndicatorInputRecord extension_secondary_indicator_input = build_extension_secondary_indicator_input_record(extension_state);
+  ExtensionTertiaryMarkerInputRecord extension_tertiary_marker_input = build_extension_tertiary_marker_input_record(extension_state);
   ExtensionInteractionState extension_interaction_state = make_extension_interaction_state(extension_state);
   int surface_width = kInitialWidth;
   int surface_height = kInitialHeight;
@@ -1186,6 +1341,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
   ngk::ui::Label extension_info_card_summary(extension_state.card_display.summary_text);
   ngk::ui::Label extension_status_chip(extension_state.status_chip.text);
   ngk::ui::Label extension_secondary_indicator(extension_state.secondary_indicator.text);
+  ngk::ui::Label extension_tertiary_marker(extension_state.tertiary_marker.text);
   ngk::ui::Label extension_info_card_detail(extension_state.card_display.detail_text);
   ngk::ui::VerticalLayout extension_secondary_placeholder(4);
   ngk::ui::Label extension_secondary_placeholder_text(extension_state.secondary_placeholder_text);
@@ -1229,6 +1385,10 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
   extension_secondary_indicator.set_preferred_size(0, extension_layout.secondary_indicator_height);
   apply_extension_secondary_indicator_input_to_label(extension_secondary_indicator, extension_secondary_indicator_input);
   extension_secondary_indicator.set_visible(extension_secondary_indicator_input.visible);
+  extension_tertiary_marker.set_size(0, extension_layout.tertiary_marker_height);
+  extension_tertiary_marker.set_preferred_size(0, extension_layout.tertiary_marker_height);
+  apply_extension_tertiary_marker_input_to_label(extension_tertiary_marker, extension_tertiary_marker_input);
+  extension_tertiary_marker.set_visible(extension_tertiary_marker_input.visible);
   extension_info_card_detail.set_size(0, 22);
   extension_info_card_detail.set_preferred_size(0, 22);
   apply_extension_primary_summary_badge_variant(extension_info_card_summary, extension_state.card_display.secondary_active);
@@ -1256,6 +1416,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
       extension_info_card.add_child(&extension_info_card_summary);
       extension_info_card.add_child(&extension_status_chip);
       extension_info_card.add_child(&extension_secondary_indicator);
+      extension_info_card.add_child(&extension_tertiary_marker);
       extension_info_card.add_child(&extension_info_card_detail);
       root.add_child(&extension_info_card);
       std::cout << "widget_extension_info_card_title=" << extension_info_card_title.text() << "\n";
@@ -1275,6 +1436,9 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
       std::cout << "widget_extension_subcomponent_secondary_visibility_owner=extension_parent_state\n";
       std::cout << "widget_extension_subcomponent_secondary_indicator_text=" << extension_secondary_indicator.text() << "\n";
       std::cout << "widget_extension_subcomponent_secondary_indicator_variant=" << extension_secondary_indicator_input.variant << "\n";
+      std::cout << "widget_extension_subcomponent_tertiary_marker_visible=" << (extension_tertiary_marker_input.visible ? 1 : 0) << "\n";
+      std::cout << "widget_extension_subcomponent_tertiary_marker_text=" << extension_tertiary_marker.text() << "\n";
+      std::cout << "widget_extension_subcomponent_tertiary_marker_variant=" << extension_tertiary_marker_input.variant << "\n";
       std::cout << "widget_extension_info_card_detail=" << extension_info_card_detail.text() << "\n";
     }
     if (extension_state.placeholder_visible) {
@@ -1416,6 +1580,12 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
     std::cout << "widget_extension_visual_subcomponent_secondary_text=" << extension_secondary_indicator.text() << "\n";
     std::cout << "widget_extension_visual_subcomponent_secondary_variant=" << extension_secondary_indicator_input.variant << "\n";
     std::cout << "widget_extension_visual_subcomponent_secondary_parent_orchestration_state=" << extension_secondary_indicator_input.parent_orchestration_state << "\n";
+    std::cout << "widget_extension_visual_subcomponent_tertiary_visible=" << (extension_tertiary_marker_input.visible ? 1 : 0) << "\n";
+    std::cout << "widget_extension_visual_subcomponent_tertiary_text=" << extension_tertiary_marker.text() << "\n";
+    std::cout << "widget_extension_visual_subcomponent_tertiary_variant=" << extension_tertiary_marker_input.variant << "\n";
+    std::cout << "widget_extension_visual_subcomponent_tertiary_parent_coexistence_state=" << extension_tertiary_marker_input.parent_coexistence_state << "\n";
+    std::cout << "widget_extension_visual_subcomponent_tertiary_child_dependency=none\n";
+    std::cout << "widget_extension_visual_subcomponent_coexistence_three=1\n";
     std::cout << "widget_extension_visual_layout_child_order=" << (extension_state.parent_secondary_indicator_first ? "secondary_indicator_v1,status_chip_v1" : "status_chip_v1,secondary_indicator_v1") << "\n";
     std::cout << "widget_extension_visual_bounds_background=" << extension_layout.background_x << "," << extension_layout.background_y << "," << extension_layout.background_width << "," << extension_layout.background_height << "\n";
     std::cout << "widget_extension_visual_bounds_label=" << extension_layout.label_x << "," << extension_layout.label_y << "," << extension_layout.label_width << "," << extension_layout.label_height << "\n";
@@ -1423,6 +1593,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
     std::cout << "widget_extension_visual_bounds_info_card=" << extension_layout.info_card_x << "," << extension_layout.info_card_y << "," << extension_layout.info_card_width << "," << extension_layout.info_card_height << "\n";
     std::cout << "widget_extension_visual_bounds_status_chip=" << extension_layout.status_chip_x << "," << extension_layout.status_chip_y << "," << extension_layout.status_chip_width << "," << extension_layout.status_chip_height << "\n";
     std::cout << "widget_extension_visual_bounds_secondary_indicator=" << extension_layout.secondary_indicator_x << "," << extension_layout.secondary_indicator_y << "," << extension_layout.secondary_indicator_width << "," << extension_layout.secondary_indicator_height << "\n";
+    std::cout << "widget_extension_visual_bounds_tertiary_marker=" << extension_layout.tertiary_marker_x << "," << extension_layout.tertiary_marker_y << "," << extension_layout.tertiary_marker_width << "," << extension_layout.tertiary_marker_height << "\n";
   };
 
   auto set_status = [&](const std::string& text) {
@@ -1592,6 +1763,8 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
           extension_status_chip,
           extension_secondary_indicator_input,
           extension_secondary_indicator,
+          extension_tertiary_marker_input,
+          extension_tertiary_marker,
           request_frame)) {
       log_focus_if_changed();
       return;
@@ -1701,6 +1874,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
         extension_state,
         extension_status_chip_input,
         extension_secondary_indicator_input,
+        extension_tertiary_marker_input,
         extension_visual_baseline_mode,
         extension_visual_contract_frame_logged
       );
@@ -2229,6 +2403,8 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
           extension_status_chip,
           extension_secondary_indicator_input,
           extension_secondary_indicator,
+          extension_tertiary_marker_input,
+          extension_tertiary_marker,
           request_frame);
         std::cout << "widget_extension_interaction_demo_toggle=1\n";
       });
@@ -2257,6 +2433,8 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
           extension_status_chip,
           extension_secondary_indicator_input,
           extension_secondary_indicator,
+          extension_tertiary_marker_input,
+          extension_tertiary_marker,
           request_frame);
         std::cout << "widget_extension_subcomponent_interaction_demo_toggle=1\n";
       });
@@ -2285,6 +2463,8 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
           extension_status_chip,
           extension_secondary_indicator_input,
           extension_secondary_indicator,
+          extension_tertiary_marker_input,
+          extension_tertiary_marker,
           request_frame);
         std::cout << "widget_extension_subcomponent_secondary_interaction_demo_ping=1\n";
       });
@@ -2294,8 +2474,11 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
         extension_info_card_detail.set_text(extension_state.card_display.detail_text);
         extension_status_chip_input = build_extension_status_chip_input_record(extension_state);
         extension_secondary_indicator_input = build_extension_secondary_indicator_input_record(extension_state);
+        extension_tertiary_marker_input = build_extension_tertiary_marker_input_record(extension_state);
         apply_extension_status_chip_input_to_label(extension_status_chip, extension_status_chip_input);
         apply_extension_secondary_indicator_input_to_label(extension_secondary_indicator, extension_secondary_indicator_input);
+        apply_extension_tertiary_marker_input_to_label(extension_tertiary_marker, extension_tertiary_marker_input);
+        extension_tertiary_marker.set_visible(extension_tertiary_marker_input.visible);
         extension_secondary_indicator.set_visible(extension_secondary_indicator_input.visible);
         std::cout << "widget_extension_parent_interaction_route_source=simultaneous_child_intents\n";
         std::cout << "widget_extension_parent_interaction_route_intent=status_chip_toggle_intent+secondary_indicator_ping_intent\n";
