@@ -1,0 +1,22 @@
+PHASE 40.30 visual baseline contract
+timestamp=2026-03-13T06:08:00.1763213+03:00
+widget_exe=C:\Users\suppo\Desktop\NGKsSystems\NGKsUI Runtime\build\debug\bin\widget_sandbox.exe
+mode=--visual-baseline + NGK_WIDGET_VISUAL_BASELINE=1
+render_artifact_log=C:\Users\suppo\Desktop\NGKsSystems\NGKsUI Runtime\_proof\phase40_30_visual_baseline_run.log
+gate=PASS
+--- checks ---
+[background_present, True]
+[title_present, True]
+[status_present, True]
+[textbox_present, True]
+[button1_present, True]
+[button2_present, True]
+[window_size_captured, True]
+[title_text_fixed, True]
+[status_text_fixed, True]
+[button1_text_fixed, True]
+[button2_text_fixed, True]
+[bounds_dump_present, True]
+[capture_completed, True]
+[sandbox_clean_exit, True]
+[first_frame, True]

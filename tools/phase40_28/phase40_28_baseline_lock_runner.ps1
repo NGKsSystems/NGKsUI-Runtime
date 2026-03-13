@@ -103,6 +103,10 @@ $cleanExitAll = $true
 
 try {
   if (-not (Test-Path -LiteralPath $graphPlan)) { throw "graph_plan_missing:$graphPlan" }
+  "=== PRE-BUILD CONTRACT GUARD ===" | Add-Content -Path $f13 -Encoding utf8
+  $guardOut = pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\runtime_contract_guard.ps1 2>&1
+  if ($guardOut) { $guardOut | Add-Content -Path $f13 -Encoding utf8 }
+  if ($LASTEXITCODE -ne 0) { throw 'runtime_contract_guard_failed' }
   .\tools\enter_msvc_env.ps1 *> $f13
   $plan = Get-Content -Raw -LiteralPath $graphPlan | ConvertFrom-Json
   foreach ($node in $plan.nodes) {
@@ -124,16 +128,12 @@ $widgetExe = Resolve-WidgetExePath -RootPath $root -PlanPath $graphPlan -PlanPat
 function Invoke-ValidationRun {
   param([int]$RunIndex,[string]$WidgetExe)
 
-  $oldRecovery = $env:NGK_WIDGET_RECOVERY_MODE
   $oldForceFull = $env:NGK_RENDER_RECOVERY_FORCE_FULL
   $oldDemo = $env:NGK_WIDGET_SANDBOX_DEMO
-  $oldBackend = $env:NGK_PHASE40_17_BACKEND
 
   try {
-    $env:NGK_WIDGET_RECOVERY_MODE = '1'
     $env:NGK_RENDER_RECOVERY_FORCE_FULL = '1'
     $env:NGK_WIDGET_SANDBOX_DEMO = '1'
-    $env:NGK_PHASE40_17_BACKEND = 'd3d'
 
     $out = & $WidgetExe '--demo' 2>&1
     $txt = ($out | Out-String)
@@ -154,10 +154,8 @@ function Invoke-ValidationRun {
     }
   }
   finally {
-    $env:NGK_WIDGET_RECOVERY_MODE = $oldRecovery
     $env:NGK_RENDER_RECOVERY_FORCE_FULL = $oldForceFull
     $env:NGK_WIDGET_SANDBOX_DEMO = $oldDemo
-    $env:NGK_PHASE40_17_BACKEND = $oldBackend
   }
 }
 

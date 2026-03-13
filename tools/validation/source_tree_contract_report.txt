@@ -1,0 +1,14 @@
+PHASE 40.29 source tree contract scan
+timestamp=2026-03-13T06:08:01.4627496+03:00
+root=C:\Users\suppo\Desktop\NGKsSystems\NGKsUI Runtime
+scan_roots=engine/,engine/core/,engine/gfx/,engine/ui/
+cpp_count=15
+header_count=19
+missing_includes_count=0
+cpp_header_warning_count=4
+--- missing includes ---
+--- cpp/header pairing warnings ---
+WARN no obvious matching header for engine\core\src\event_queue.cpp
+WARN no obvious matching header for engine\core\src\task_queue.cpp
+WARN no obvious matching header for engine\core\src\timer.cpp
+WARN no obvious matching header for engine\platform\win32\src\platform_win32.cpp
