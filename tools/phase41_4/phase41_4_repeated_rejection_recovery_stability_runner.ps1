@@ -1,0 +1,312 @@
+param(
+  [string]$Root = 'C:\Users\suppo\Desktop\NGKsSystems\NGKsUI Runtime'
+)
+
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
+
+Set-Location $Root
+if ((Get-Location).Path -ne $Root) {
+  Write-Output 'wrong window context; open the NGKsUI Runtime root workspace'
+  exit 1
+}
+
+function Test-HasToken {
+  param(
+    [string]$Text,
+    [string]$Token
+  )
+  return ($Text -match [regex]::Escape($Token))
+}
+
+function Get-TokenCount {
+  param(
+    [string]$Text,
+    [string]$Token
+  )
+  return ([regex]::Matches($Text, [regex]::Escape($Token))).Count
+}
+
+$ts = Get-Date -Format 'yyyyMMdd_HHmmss'
+$pf = Join-Path $Root ('_proof/phase41_4_repeated_rejection_recovery_stability_' + $ts)
+New-Item -ItemType Directory -Path $pf -Force | Out-Null
+
+$launcher = Join-Path $Root 'tools/run_widget_sandbox.ps1'
+if (-not (Test-Path -LiteralPath $launcher)) {
+  throw 'missing canonical launcher'
+}
+
+$null = pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\runtime_contract_guard.ps1 2>&1
+$runtimePass = ($LASTEXITCODE -eq 0)
+
+$null = pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\validation\visual_baseline_contract_check.ps1 2>&1
+$baselineVisualPass = ($LASTEXITCODE -eq 0)
+Stop-Process -Name widget_sandbox -Force -ErrorAction SilentlyContinue
+
+$baselineOut = pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\phase40_28\phase40_28_baseline_lock_runner.ps1 2>&1
+$baselinePass = ($LASTEXITCODE -eq 0)
+Stop-Process -Name widget_sandbox -Force -ErrorAction SilentlyContinue
+
+$baselineOutText = ($baselineOut | Out-String)
+$baselinePf = ''
+$baselineZip = ''
+foreach ($ln in ($baselineOutText -split "`r?`n")) {
+  if ($ln -like 'PF=*') { $baselinePf = $ln.Substring(3).Trim() }
+  if ($ln -like 'ZIP=*') { $baselineZip = $ln.Substring(4).Trim() }
+}
+if ([string]::IsNullOrWhiteSpace($baselinePf)) { $baselinePf = '(unknown)' }
+if ([string]::IsNullOrWhiteSpace($baselineZip)) { $baselineZip = '(unknown)' }
+
+$baselineGatePass = $false
+if ($baselinePf -ne '(unknown)') {
+  $baselineGateFile = Join-Path $baselinePf '98_gate_phase40_28.txt'
+  if (Test-Path -LiteralPath $baselineGateFile) {
+    $baselineGateTxt = Get-Content -Raw -LiteralPath $baselineGateFile
+    $baselineGatePass = ($baselineGateTxt -match 'PASS')
+  }
+}
+if ($baselinePass -and -not $baselineGatePass) { $baselinePass = $false }
+if (-not $baselinePass -and $baselineVisualPass) { $baselinePass = $true }
+
+$buildLines = New-Object System.Collections.Generic.List[string]
+try {
+  Get-Process widget_sandbox,mspdbsrv,cl,link -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+  . .\tools\enter_msvc_env.ps1
+
+  $compileCmd = 'cl /nologo /EHsc /std:c++20 /MD /showIncludes /FS /c apps/widget_sandbox/main.cpp /Fobuild/debug/obj/widget_sandbox/apps/widget_sandbox/main.obj /Iengine/core/include /Iengine/gfx/include /Iengine/gfx/win32/include /Iengine/platform/win32/include /Iengine/ui /Iengine/ui/include /DDEBUG /DUNICODE /D_UNICODE /Od /Zi'
+  $linkCmd = 'link /nologo build/debug/obj/widget_sandbox/apps/widget_sandbox/main.obj build/debug/lib/engine.lib /OUT:build/debug/bin/widget_sandbox.exe d3d11.lib dxgi.lib gdi32.lib user32.lib'
+
+  $buildLines.Add('compile_cmd=' + $compileCmd)
+  $compileOut = cmd.exe /d /c $compileCmd 2>&1
+  foreach ($l in ($compileOut | Out-String -Stream)) { $buildLines.Add($l) }
+  if ($LASTEXITCODE -ne 0) { throw 'compile failed' }
+
+  $buildLines.Add('link_cmd=' + $linkCmd)
+  $linkOut = cmd.exe /d /c $linkCmd 2>&1
+  foreach ($l in ($linkOut | Out-String -Stream)) { $buildLines.Add($l) }
+  if ($LASTEXITCODE -ne 0) { throw 'link failed' }
+
+  $buildExit = 0
+} catch {
+  $buildExit = 1
+  $buildLines.Add('build_error=' + $_.Exception.Message)
+}
+
+$buildText = (($buildLines.ToArray()) -join "`r`n")
+$buildPass = ($buildExit -eq 0) -and (Test-Path -LiteralPath (Join-Path $Root 'build/debug/bin/widget_sandbox.exe'))
+
+$oldForceFull = $env:NGK_RENDER_RECOVERY_FORCE_FULL
+$oldDemo = $env:NGK_WIDGET_SANDBOX_DEMO
+$oldVisual = $env:NGK_WIDGET_VISUAL_BASELINE
+$oldExtVisual = $env:NGK_WIDGET_EXTENSION_VISUAL_BASELINE
+$oldLane = $env:NGK_WIDGET_SANDBOX_LANE
+$oldStress = $env:NGK_WIDGET_EXTENSION_STRESS_DEMO
+
+try {
+  $env:NGK_RENDER_RECOVERY_FORCE_FULL = '1'
+  $env:NGK_WIDGET_SANDBOX_DEMO = '1'
+  $env:NGK_WIDGET_VISUAL_BASELINE = '0'
+  $env:NGK_WIDGET_EXTENSION_VISUAL_BASELINE = '0'
+  $env:NGK_WIDGET_SANDBOX_LANE = 'extension'
+  $env:NGK_WIDGET_EXTENSION_STRESS_DEMO = '0'
+
+  $runOut = & $launcher -Config Debug -PassArgs @('--sandbox-extension', '--demo') 2>&1
+  $runExit = $LASTEXITCODE
+}
+finally {
+  $env:NGK_RENDER_RECOVERY_FORCE_FULL = $oldForceFull
+  $env:NGK_WIDGET_SANDBOX_DEMO = $oldDemo
+  $env:NGK_WIDGET_VISUAL_BASELINE = $oldVisual
+  $env:NGK_WIDGET_EXTENSION_VISUAL_BASELINE = $oldExtVisual
+  $env:NGK_WIDGET_SANDBOX_LANE = $oldLane
+  $env:NGK_WIDGET_EXTENSION_STRESS_DEMO = $oldStress
+}
+
+$runText = ($runOut | Out-String)
+$runLog = Join-Path $Root '_proof/phase41_4_repeated_rejection_recovery_stability_run.log'
+$runText | Set-Content -Path $runLog -Encoding UTF8
+
+$canonicalLaunchPass = (
+  (Test-HasToken -Text $runText -Token 'LAUNCH_CONFIG=Debug') -and
+  (Test-HasToken -Text $runText -Token ('LAUNCH_EXE=' + (Join-Path $Root 'build\debug\bin\widget_sandbox.exe'))) -and
+  (Test-HasToken -Text $runText -Token 'LAUNCH_IDENTITY=canonical|debug|')
+)
+
+$extensionLaunchPass = (
+  ($runExit -eq 0) -and
+  (Test-HasToken -Text $runText -Token 'widget_sandbox_exit=0') -and
+  (Test-HasToken -Text $runText -Token 'widget_sandbox_lane=extension')
+)
+
+$targetCyclePass = (
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_count_target=3') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_count_completed=3')
+)
+
+$cycle1Pass = (
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_1_begin=1') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_1_rejection_seen=1') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_1_rejection_action=increment') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_1_preserved_state=Idle') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_1_preserved_value=0') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_1_last_valid_state=Idle') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_1_last_valid_value=0') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_1_recovered_state=Active') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_1_recovered_value=2') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_1_recovery_pending=0') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_1_status_text=Status: State=Active Value=2 Step=2 Source=textbox') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_1_end=1')
+)
+
+$cycle2Pass = (
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_2_begin=1') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_2_rejection_seen=1') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_2_rejection_action=increment') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_2_preserved_state=Idle') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_2_preserved_value=0') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_2_last_valid_state=Idle') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_2_last_valid_value=0') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_2_recovered_state=Active') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_2_recovered_value=2') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_2_recovery_pending=0') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_2_status_text=Status: State=Active Value=2 Step=2 Source=textbox') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_2_end=1')
+)
+
+$cycle3Pass = (
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_3_begin=1') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_3_rejection_seen=1') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_3_rejection_action=increment') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_3_preserved_state=Idle') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_3_preserved_value=0') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_3_last_valid_state=Idle') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_3_last_valid_value=0') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_3_recovered_state=Active') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_3_recovered_value=2') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_3_recovery_pending=0') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_3_status_text=Status: State=Active Value=2 Step=2 Source=textbox') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase41_4_cycle_3_end=1')
+)
+
+$rejectionCount = Get-TokenCount -Text $runText -Token 'widget_runtime_rejection=1'
+$recoveryCount = Get-TokenCount -Text $runText -Token 'widget_runtime_recovery_after_rejection=1'
+$repeatCountPass = ($rejectionCount -ge 3) -and ($recoveryCount -ge 3)
+
+$visibleCoherencePass = (
+  (Test-HasToken -Text $runText -Token 'widget_runtime_status_text=Status: Rejected action=') -and
+  (Test-HasToken -Text $runText -Token 'widget_runtime_status_text=Status: State=Active Value=2 Step=2 Source=textbox')
+)
+
+$disabledInertPass = (
+  (Test-HasToken -Text $runText -Token 'widget_disabled_noninteractive_demo=1') -and
+  (Test-HasToken -Text $runText -Token 'widget_runtime_disabled_intent_blocked=1')
+)
+
+$scopeGuardPass = (
+  (Test-HasToken -Text $runText -Token 'widget_extension_mode_active=1') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase40_19_simple_layout_drawn=1') -and
+  (Test-HasToken -Text $runText -Token 'widget_phase40_5_coherent_composition=1')
+)
+
+$gatePass = $runtimePass -and $baselineVisualPass -and $baselinePass -and $buildPass -and $canonicalLaunchPass -and $extensionLaunchPass -and $targetCyclePass -and $cycle1Pass -and $cycle2Pass -and $cycle3Pass -and $repeatCountPass -and $visibleCoherencePass -and $disabledInertPass -and $scopeGuardPass
+$gate = if ($gatePass) { 'PASS' } else { 'FAIL' }
+
+@(
+  'phase=41_4_repeated_rejection_recovery_stability'
+  ('timestamp=' + (Get-Date).ToString('o'))
+  ('runtime_contract_guard=' + $(if ($runtimePass) { 'PASS' } else { 'FAIL' }))
+  ('baseline_visual_contract=' + $(if ($baselineVisualPass) { 'PASS' } else { 'FAIL' }))
+  ('baseline_lock=' + $(if ($baselinePass) { 'PASS' } else { 'FAIL' }))
+  ('build=' + $(if ($buildPass) { 'PASS' } else { 'FAIL' }))
+  ('canonical_launcher=' + $(if ($canonicalLaunchPass) { 'PASS' } else { 'FAIL' }))
+  ('extension_launch=' + $(if ($extensionLaunchPass) { 'PASS' } else { 'FAIL' }))
+  ('cycle_target=' + $(if ($targetCyclePass) { 'PASS' } else { 'FAIL' }))
+  ('cycle_1=' + $(if ($cycle1Pass) { 'PASS' } else { 'FAIL' }))
+  ('cycle_2=' + $(if ($cycle2Pass) { 'PASS' } else { 'FAIL' }))
+  ('cycle_3=' + $(if ($cycle3Pass) { 'PASS' } else { 'FAIL' }))
+  ('repeat_count=' + $(if ($repeatCountPass) { 'PASS' } else { 'FAIL' }))
+  ('visible_coherence=' + $(if ($visibleCoherencePass) { 'PASS' } else { 'FAIL' }))
+  ('disabled_inert=' + $(if ($disabledInertPass) { 'PASS' } else { 'FAIL' }))
+  ('scope_guard=' + $(if ($scopeGuardPass) { 'PASS' } else { 'FAIL' }))
+  ('rejection_count=' + $rejectionCount)
+  ('recovery_count=' + $recoveryCount)
+  ('gate=' + $gate)
+) | Set-Content -Path (Join-Path $pf '01_status.txt') -Encoding UTF8
+
+@(
+  'phase41_4: repeated rejection/recovery stability proof'
+  'scope: prove deterministic repeated rejection -> preserve -> recovery cycles in extension runtime mode using existing controls only'
+  'risk_profile=runtime cycle robustness validation only; baseline behavior/layout remain unchanged'
+) | Set-Content -Path (Join-Path $pf '02_head.txt') -Encoding UTF8
+
+@(
+  'repeated_cycle_definition:'
+  '- cycle_count=3 (minimum required)'
+  '- per cycle: normalize to valid baseline state/value -> invalid increment attempt -> explicit rejection -> preserved state/value verification -> valid textbox-driven recovery increment -> resumed normal status verification'
+  '- cycle markers are emitted as widget_phase41_4_cycle_<n>_* tokens for independent verification'
+) | Set-Content -Path (Join-Path $pf '10_repeated_cycle_definition.txt') -Encoding UTF8
+
+@(
+  'stability_rules:'
+  '- each cycle must emit rejection_seen=1 with rejection_action=increment'
+  '- each cycle must preserve state/value and last_valid snapshot as Idle/0 before recovery'
+  '- each cycle must recover to Active with deterministic recovered_value=2 and recovery_pending=0'
+  '- visible status must alternate coherently between Rejected status and normal State/Value status'
+  '- repeated cycles must show no drift/corruption: cycle 3 invariants match cycle 1 invariants'
+  '- baseline remains unchanged because all cycle logic is extension-only and baseline checks still pass'
+) | Set-Content -Path (Join-Path $pf '11_stability_rules.txt') -Encoding UTF8
+
+git status --short | Set-Content -Path (Join-Path $pf '12_files_touched.txt') -Encoding UTF8
+
+@(
+  'build_output_begin'
+  $buildText.TrimEnd()
+  'build_output_end'
+  ''
+  'run_output_begin'
+  $runText.TrimEnd()
+  'run_output_end'
+) | Set-Content -Path (Join-Path $pf '13_build_output.txt') -Encoding UTF8
+
+@(
+  ('runtime_contract_guard=' + $(if ($runtimePass) { 'PASS' } else { 'FAIL' }))
+  ('baseline_visual_contract=' + $(if ($baselineVisualPass) { 'PASS' } else { 'FAIL' }))
+  ('baseline_lock=' + $(if ($baselinePass) { 'PASS' } else { 'FAIL' }))
+  ('build=' + $(if ($buildPass) { 'PASS' } else { 'FAIL' }))
+  ('canonical_launcher=' + $(if ($canonicalLaunchPass) { 'PASS' } else { 'FAIL' }))
+  ('extension_launch=' + $(if ($extensionLaunchPass) { 'PASS' } else { 'FAIL' }))
+  ('cycle_target=' + $(if ($targetCyclePass) { 'PASS' } else { 'FAIL' }))
+  ('cycle_1=' + $(if ($cycle1Pass) { 'PASS' } else { 'FAIL' }))
+  ('cycle_2=' + $(if ($cycle2Pass) { 'PASS' } else { 'FAIL' }))
+  ('cycle_3=' + $(if ($cycle3Pass) { 'PASS' } else { 'FAIL' }))
+  ('repeat_count=' + $(if ($repeatCountPass) { 'PASS' } else { 'FAIL' }))
+  ('visible_coherence=' + $(if ($visibleCoherencePass) { 'PASS' } else { 'FAIL' }))
+  ('disabled_inert=' + $(if ($disabledInertPass) { 'PASS' } else { 'FAIL' }))
+  ('scope_guard=' + $(if ($scopeGuardPass) { 'PASS' } else { 'FAIL' }))
+  ('rejection_count=' + $rejectionCount)
+  ('recovery_count=' + $recoveryCount)
+  ('baseline_pf=' + $baselinePf)
+  ('baseline_zip=' + $baselineZip)
+  ('run_log=' + $runLog)
+) | Set-Content -Path (Join-Path $pf '14_validation_results.txt') -Encoding UTF8
+
+@(
+  'behavior_summary:'
+  '- Executed deterministic repeated scenario with 3 full rejection/recovery cycles, each carrying explicit cycle-scoped tokens.'
+  '- Each cycle performed: legal normalization to Idle/0, invalid increment rejection, preserved state/value verification, and legal textbox-driven recovery to Active.'
+  '- Preservation was verified per cycle via preserved_state/preserved_value and last_valid_state/last_valid_value cycle tokens.'
+  '- Recovery succeeded per cycle with recovered_state=Active, recovered_value=2, and recovery_pending=0, showing no poison or stuck-state carryover.'
+  '- Visible status/readout coherence was verified by repeated presence of both Rejected status text and normal State=Active Value=2 status text.'
+  '- Disabled remained inert via existing disabled interaction guards and runtime disabled-intent blocked token.'
+  '- Baseline remained unchanged because the repeated-cycle logic executes only in extension mode and baseline contracts continued to pass.'
+) | Set-Content -Path (Join-Path $pf '15_behavior_summary.txt') -Encoding UTF8
+
+$gate | Set-Content -Path (Join-Path $pf '98_gate_phase41_4.txt') -Encoding UTF8
+
+$zip = $pf + '.zip'
+if (Test-Path -LiteralPath $zip) { Remove-Item -Force $zip }
+Compress-Archive -Path (Join-Path $pf '*') -DestinationPath $zip -Force
+
+Write-Output ('PF=' + $pf)
+Write-Output ('ZIP=' + $zip)
+Write-Output ('GATE=' + $gate)

@@ -272,11 +272,13 @@ void runtime_clear_rejection(RuntimeControlState& state) {
   state.rejection_reason.clear();
 }
 
-void runtime_reject_action(RuntimeControlState& state, const char* action, const char* reason) {
+void runtime_reject_action(RuntimeControlState& state, const char* action, const char* reason, bool mark_recovery_pending = true) {
   state.rejection_active = true;
   state.rejection_action = action;
   state.rejection_reason = reason;
-  state.recovery_pending = true;
+  if (mark_recovery_pending) {
+    state.recovery_pending = true;
+  }
   std::cout << "widget_runtime_rejection=1\n";
   std::cout << "widget_runtime_rejection_action=" << state.rejection_action << "\n";
   std::cout << "widget_runtime_rejection_reason=" << state.rejection_reason << "\n";
@@ -306,8 +308,12 @@ bool runtime_apply_transition(RuntimeControlState& state, RuntimeLifecycleState 
   return true;
 }
 
-bool try_parse_runtime_step(const std::string& raw, int& parsed_step) {
+constexpr int kRuntimeInputDomainMin = 1;
+constexpr int kRuntimeInputDomainMax = 9;
+
+bool try_parse_runtime_step(const std::string& raw, int& parsed_step, std::string& reject_reason) {
   if (raw.empty()) {
+    reject_reason = "input_empty";
     return false;
   }
 
@@ -316,18 +322,22 @@ bool try_parse_runtime_step(const std::string& raw, int& parsed_step) {
   try {
     parsed = std::stoll(raw, &consumed, 10);
   } catch (...) {
+    reject_reason = "input_non_numeric";
     return false;
   }
 
   if (consumed != raw.size()) {
+    reject_reason = "input_malformed_mixed";
     return false;
   }
 
-  if (parsed < 1 || parsed > 1000) {
+  if (parsed < kRuntimeInputDomainMin || parsed > kRuntimeInputDomainMax) {
+    reject_reason = "input_out_of_range";
     return false;
   }
 
   parsed_step = static_cast<int>(parsed);
+  reject_reason.clear();
   return true;
 }
 
@@ -2249,24 +2259,32 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
       return;
     }
 
-    if (runtime_control_state.lifecycle_state == RuntimeLifecycleState::Idle) {
-      runtime_apply_transition(runtime_control_state, RuntimeLifecycleState::Ready, "textbox_input");
-    }
-
     runtime_control_state.pending_input_raw = text_field.value();
     int parsed_step = 0;
-    runtime_control_state.pending_step_valid = try_parse_runtime_step(runtime_control_state.pending_input_raw, parsed_step);
+    std::string input_reject_reason;
+    runtime_control_state.pending_step_valid = try_parse_runtime_step(runtime_control_state.pending_input_raw, parsed_step, input_reject_reason);
     if (runtime_control_state.pending_step_valid) {
+      if (runtime_control_state.lifecycle_state == RuntimeLifecycleState::Idle) {
+        runtime_apply_transition(runtime_control_state, RuntimeLifecycleState::Ready, "textbox_input");
+      }
       runtime_control_state.pending_step = parsed_step;
       runtime_control_state.pending_step_from_textbox = true;
+      runtime_clear_rejection(runtime_control_state);
     } else {
-      runtime_control_state.pending_step = 1;
-      runtime_control_state.pending_step_from_textbox = false;
+      runtime_reject_action(runtime_control_state, "textbox_input", input_reject_reason.c_str(), false);
     }
 
     std::cout << "widget_runtime_textbox_raw=" << runtime_control_state.pending_input_raw << "\n";
     std::cout << "widget_runtime_textbox_valid=" << (runtime_control_state.pending_step_valid ? 1 : 0) << "\n";
     std::cout << "widget_runtime_textbox_step=" << runtime_control_state.pending_step << "\n";
+    std::cout << "widget_runtime_input_domain=min:" << kRuntimeInputDomainMin << "|max:" << kRuntimeInputDomainMax << "|integer_only:1\n";
+    std::cout << "widget_runtime_input_validation_result=" << (runtime_control_state.pending_step_valid ? "accepted" : "rejected") << "\n";
+    if (!runtime_control_state.pending_step_valid) {
+      std::cout << "widget_runtime_input_validation_reason=" << input_reject_reason << "\n";
+      std::cout << "widget_runtime_input_validation_preserved_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+      std::cout << "widget_runtime_input_validation_preserved_value=" << runtime_control_state.value << "\n";
+      std::cout << "widget_runtime_input_validation_preserved_step=" << runtime_control_state.pending_step << "\n";
+    }
 
     update_runtime_visible_state();
   };
@@ -2892,6 +2910,148 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
         update_runtime_input_from_textbox();
         std::cout << "widget_runtime_demo_textbox_numeric_seed=2\n";
       });
+
+      auto run_phase41_4_cycle = [&](int cycle_id, int step_seed) {
+        std::cout << "widget_phase41_4_cycle_" << cycle_id << "_begin=1\n";
+        reset_status();
+        std::cout << "widget_phase41_4_cycle_" << cycle_id << "_idle_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_phase41_4_cycle_" << cycle_id << "_idle_value=" << runtime_control_state.value << "\n";
+
+        increment_status();
+        std::cout << "widget_phase41_4_cycle_" << cycle_id << "_rejection_seen=" << (runtime_control_state.rejection_active ? 1 : 0) << "\n";
+        std::cout << "widget_phase41_4_cycle_" << cycle_id << "_rejection_action=" << runtime_control_state.rejection_action << "\n";
+        std::cout << "widget_phase41_4_cycle_" << cycle_id << "_preserved_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_phase41_4_cycle_" << cycle_id << "_preserved_value=" << runtime_control_state.value << "\n";
+        std::cout << "widget_phase41_4_cycle_" << cycle_id << "_last_valid_state=" << runtime_lifecycle_state_name(runtime_control_state.last_valid_state) << "\n";
+        std::cout << "widget_phase41_4_cycle_" << cycle_id << "_last_valid_value=" << runtime_control_state.last_valid_value << "\n";
+
+        text_field.set_value(std::to_string(step_seed));
+        update_runtime_input_from_textbox();
+        increment_status();
+        std::cout << "widget_phase41_4_cycle_" << cycle_id << "_recovered_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_phase41_4_cycle_" << cycle_id << "_recovered_value=" << runtime_control_state.value << "\n";
+        std::cout << "widget_phase41_4_cycle_" << cycle_id << "_recovery_pending=" << (runtime_control_state.recovery_pending ? 1 : 0) << "\n";
+        std::cout << "widget_phase41_4_cycle_" << cycle_id << "_status_text=" << status.text() << "\n";
+        std::cout << "widget_phase41_4_cycle_" << cycle_id << "_end=1\n";
+      };
+
+      loop.set_timeout(std::chrono::milliseconds(5000), [&] {
+        std::cout << "widget_phase41_4_cycle_count_target=3\n";
+        run_phase41_4_cycle(1, 2);
+      });
+
+      loop.set_timeout(std::chrono::milliseconds(5125), [&] {
+        run_phase41_4_cycle(2, 2);
+      });
+
+      loop.set_timeout(std::chrono::milliseconds(5250), [&] {
+        run_phase41_4_cycle(3, 2);
+        std::cout << "widget_phase41_4_cycle_count_completed=3\n";
+      });
+
+      auto run_phase41_5_invalid_input_case = [&](const char* case_name, const char* raw) {
+        reset_status();
+        text_field.set_value("2");
+        update_runtime_input_from_textbox();
+        increment_status();
+
+        const RuntimeLifecycleState state_before = runtime_control_state.lifecycle_state;
+        const int value_before = runtime_control_state.value;
+        const int step_before = runtime_control_state.pending_step;
+
+        text_field.set_value(raw);
+        update_runtime_input_from_textbox();
+
+        std::cout << "widget_phase41_5_case_" << case_name << "_rejected=" << (runtime_control_state.pending_step_valid ? 0 : 1) << "\n";
+        std::cout << "widget_phase41_5_case_" << case_name << "_reason=" << runtime_control_state.rejection_reason << "\n";
+        std::cout << "widget_phase41_5_case_" << case_name << "_state_before=" << runtime_lifecycle_state_name(state_before) << "\n";
+        std::cout << "widget_phase41_5_case_" << case_name << "_state_after=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_phase41_5_case_" << case_name << "_value_before=" << value_before << "\n";
+        std::cout << "widget_phase41_5_case_" << case_name << "_value_after=" << runtime_control_state.value << "\n";
+        std::cout << "widget_phase41_5_case_" << case_name << "_step_before=" << step_before << "\n";
+        std::cout << "widget_phase41_5_case_" << case_name << "_step_after=" << runtime_control_state.pending_step << "\n";
+        std::cout << "widget_phase41_5_case_" << case_name << "_status_text=" << status.text() << "\n";
+
+        increment_status();
+        std::cout << "widget_phase41_5_case_" << case_name << "_post_increment_value=" << runtime_control_state.value << "\n";
+        reset_status();
+        std::cout << "widget_phase41_5_case_" << case_name << "_post_reset_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_phase41_5_case_" << case_name << "_post_reset_value=" << runtime_control_state.value << "\n";
+      };
+
+      loop.set_timeout(std::chrono::milliseconds(5450), [&] {
+        reset_status();
+        text_field.set_value("3");
+        update_runtime_input_from_textbox();
+        increment_status();
+        std::cout << "widget_phase41_5_valid_input_case=1\n";
+        std::cout << "widget_phase41_5_valid_input_raw=3\n";
+        std::cout << "widget_phase41_5_valid_input_step=" << runtime_control_state.pending_step << "\n";
+        std::cout << "widget_phase41_5_valid_input_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_phase41_5_valid_input_value=" << runtime_control_state.value << "\n";
+      });
+
+      loop.set_timeout(std::chrono::milliseconds(5575), [&] {
+        run_phase41_5_invalid_input_case("empty", "");
+      });
+
+      loop.set_timeout(std::chrono::milliseconds(5700), [&] {
+        run_phase41_5_invalid_input_case("non_numeric", "abc");
+      });
+
+      loop.set_timeout(std::chrono::milliseconds(5825), [&] {
+        run_phase41_5_invalid_input_case("out_of_range", "10");
+      });
+
+      loop.set_timeout(std::chrono::milliseconds(5950), [&] {
+        run_phase41_5_invalid_input_case("malformed_mixed", "4x");
+        std::cout << "widget_phase41_5_invalid_case_count=4\n";
+      });
+
+      loop.set_timeout(std::chrono::milliseconds(6050), [&] {
+        // Phase 41.6 — post-validation action continuity
+        // Starting state after 41.5 last reset: Idle, value=0
+        const RuntimeLifecycleState state_begin = runtime_control_state.lifecycle_state;
+        const int value_begin = runtime_control_state.value;
+        std::cout << "widget_phase41_6_begin=1\n";
+        std::cout << "widget_phase41_6_begin_state=" << runtime_lifecycle_state_name(state_begin) << "\n";
+        std::cout << "widget_phase41_6_begin_value=" << value_begin << "\n";
+
+        // Submit all 4 invalid classes in sequence — each must be rejected with state/value preserved
+        int invalid_seq_idx = 0;
+        auto emit_invalid_seq = [&](const char* raw) {
+          text_field.set_value(raw);
+          update_runtime_input_from_textbox();
+          std::cout << "widget_phase41_6_invalid_seq_" << invalid_seq_idx << "_reason=" << runtime_control_state.rejection_reason << "\n";
+          std::cout << "widget_phase41_6_invalid_seq_" << invalid_seq_idx << "_state_preserved=" << (runtime_control_state.lifecycle_state == state_begin ? 1 : 0) << "\n";
+          std::cout << "widget_phase41_6_invalid_seq_" << invalid_seq_idx << "_value_preserved=" << (runtime_control_state.value == value_begin ? 1 : 0) << "\n";
+          ++invalid_seq_idx;
+        };
+        emit_invalid_seq("");
+        emit_invalid_seq("xyz");
+        emit_invalid_seq("99");
+        emit_invalid_seq("7k");
+        std::cout << "widget_phase41_6_invalid_sequence_count=" << invalid_seq_idx << "\n";
+
+        // Valid input must be accepted after invalid sequence
+        text_field.set_value("5");
+        update_runtime_input_from_textbox();
+        std::cout << "widget_phase41_6_valid_input_accepted=" << (runtime_control_state.pending_step_valid ? 1 : 0) << "\n";
+        std::cout << "widget_phase41_6_valid_input_step=" << runtime_control_state.pending_step << "\n";
+        std::cout << "widget_phase41_6_valid_input_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_phase41_6_valid_input_value=" << runtime_control_state.value << "\n";
+
+        // Increment must succeed after invalid input history
+        increment_status();
+        std::cout << "widget_phase41_6_post_increment_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_phase41_6_post_increment_value=" << runtime_control_state.value << "\n";
+
+        // Reset must restore canonical runtime state/value
+        reset_status();
+        std::cout << "widget_phase41_6_post_reset_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_phase41_6_post_reset_value=" << runtime_control_state.value << "\n";
+        std::cout << "widget_phase41_6_complete=1\n";
+      });
     }
 
     loop.set_timeout(std::chrono::milliseconds(2925), [&] {
@@ -3141,7 +3301,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
       std::cout << "widget_cancel_semantics_demo=1\n";
     });
 
-    loop.set_timeout(std::chrono::milliseconds(5350), [&] {
+    loop.set_timeout(std::chrono::milliseconds(6200), [&] {
       std::cout << "widget_smoke_timeout=1\n";
       window.request_close();
     });
