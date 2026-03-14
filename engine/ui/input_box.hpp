@@ -276,7 +276,7 @@ public:
 
     std::string draw_text = value_;
     if (draw_text.empty() && !focused()) {
-      draw_text = "(type here)";
+      draw_text = "Type here";
     }
 
     if (value_.empty() && !focused()) {

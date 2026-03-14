@@ -54,10 +54,10 @@ struct ExtensionCompositionModel {
 
 struct ExtensionCardDisplayData {
   bool secondary_active = false;
-  std::string summary_text = "State summary: inactive";
+  std::string summary_text = "State: Inactive";
   std::string summary_badge_variant = "neutral";
   bool detail_interaction_applied = false;
-  std::string detail_text = "Action: waiting for toggle";
+  std::string detail_text = "Next Action: Waiting for Toggle";
 };
 
 struct ExtensionStatusChipDisplayData {
@@ -118,11 +118,11 @@ struct ExtensionTertiaryMarkerInputRecord {
 struct ExtensionLaneState {
   bool active = false;
   const char* mode_identity = "baseline";
-  const char* label_text = "Extension mode: active";
+  const char* label_text = "Extension Mode: Active";
   bool placeholder_visible = false;
   bool info_card_visible = false;
-  const char* info_card_title = "Runtime Control Card";
-  const char* info_card_text = "Primary controls and status";
+  const char* info_card_title = "Runtime Control";
+  const char* info_card_text = "Controls";
   ExtensionCardDisplayData card_display;
   ExtensionStatusChipDisplayData status_chip;
   ExtensionSecondaryIndicatorDisplayData secondary_indicator;
@@ -138,7 +138,7 @@ struct ExtensionLaneState {
   const char* parent_conflict_rule_name = "parent_intent_priority_secondary_over_status_v1";
   std::string parent_conflict_last_mode = "none";
   std::string parent_conflict_winner_intent = "none";
-  std::string secondary_placeholder_text = "State summary: inactive";
+  std::string secondary_placeholder_text = "State: Inactive";
   ExtensionCompositionModel composition;
 };
 
@@ -203,6 +203,100 @@ struct SandboxRunConfig {
   SandboxLane lane = SandboxLane::Baseline;
 };
 
+enum class RuntimeLifecycleState {
+  Idle,
+  Ready,
+  Active,
+  Resetting
+};
+
+struct RuntimeControlState {
+  int baseline_value = 0;
+  int value = 0;
+  int pending_step = 1;
+  bool pending_step_valid = false;
+  bool pending_step_from_textbox = false;
+  std::string pending_input_raw;
+  RuntimeLifecycleState lifecycle_state = RuntimeLifecycleState::Idle;
+};
+
+const char* runtime_lifecycle_state_name(RuntimeLifecycleState state) {
+  switch (state) {
+    case RuntimeLifecycleState::Idle:
+      return "Idle";
+    case RuntimeLifecycleState::Ready:
+      return "Ready";
+    case RuntimeLifecycleState::Active:
+      return "Active";
+    case RuntimeLifecycleState::Resetting:
+      return "Resetting";
+  }
+
+  return "Unknown";
+}
+
+bool runtime_is_legal_transition(RuntimeLifecycleState from, RuntimeLifecycleState to) {
+  if (from == RuntimeLifecycleState::Idle && to == RuntimeLifecycleState::Ready) {
+    return true;
+  }
+  if (from == RuntimeLifecycleState::Ready && to == RuntimeLifecycleState::Active) {
+    return true;
+  }
+  if (from == RuntimeLifecycleState::Active && to == RuntimeLifecycleState::Resetting) {
+    return true;
+  }
+  if (from == RuntimeLifecycleState::Ready && to == RuntimeLifecycleState::Resetting) {
+    return true;
+  }
+  if (from == RuntimeLifecycleState::Resetting && to == RuntimeLifecycleState::Idle) {
+    return true;
+  }
+
+  return false;
+}
+
+bool runtime_apply_transition(RuntimeControlState& state, RuntimeLifecycleState to, const char* trigger) {
+  const RuntimeLifecycleState from = state.lifecycle_state;
+  const bool legal = runtime_is_legal_transition(from, to);
+  std::cout << "widget_runtime_transition_from=" << runtime_lifecycle_state_name(from) << "\n";
+  std::cout << "widget_runtime_transition_to=" << runtime_lifecycle_state_name(to) << "\n";
+  std::cout << "widget_runtime_transition_trigger=" << trigger << "\n";
+  std::cout << "widget_runtime_transition_legal=" << (legal ? 1 : 0) << "\n";
+
+  if (!legal) {
+    return false;
+  }
+
+  state.lifecycle_state = to;
+  std::cout << "widget_runtime_state=" << runtime_lifecycle_state_name(state.lifecycle_state) << "\n";
+  return true;
+}
+
+bool try_parse_runtime_step(const std::string& raw, int& parsed_step) {
+  if (raw.empty()) {
+    return false;
+  }
+
+  std::size_t consumed = 0;
+  long long parsed = 0;
+  try {
+    parsed = std::stoll(raw, &consumed, 10);
+  } catch (...) {
+    return false;
+  }
+
+  if (consumed != raw.size()) {
+    return false;
+  }
+
+  if (parsed < 1 || parsed > 1000) {
+    return false;
+  }
+
+  parsed_step = static_cast<int>(parsed);
+  return true;
+}
+
 const char* extension_primary_detail_text(bool secondary_active);
 const char* extension_primary_detail_text_from_interaction(bool detail_interaction_applied, bool secondary_active);
 const char* extension_status_chip_text(bool detail_interaction_applied, bool secondary_active);
@@ -243,7 +337,7 @@ ExtensionLaneState make_extension_lane_state(SandboxLane lane) {
   state.info_card_visible = state.composition.primary_visible;
   state.placeholder_visible = state.composition.secondary_visible;
   state.card_display.secondary_active = false;
-  state.card_display.summary_text = "State summary: inactive";
+  state.card_display.summary_text = "State: Inactive";
   state.card_display.summary_badge_variant = "neutral";
   state.card_display.detail_interaction_applied = false;
   state.card_display.detail_text = extension_primary_detail_text_from_interaction(
@@ -259,12 +353,12 @@ ExtensionLaneState make_extension_lane_state(SandboxLane lane) {
   refresh_extension_parent_visibility_rule(state);
   refresh_extension_parent_orchestration_rule(state);
   refresh_extension_parent_ordering_rule(state);
-  state.secondary_placeholder_text = "State summary: inactive";
+  state.secondary_placeholder_text = "State: Inactive";
   return state;
 }
 
 const char* extension_primary_summary_text(bool secondary_active) {
-  return secondary_active ? "State summary: active" : "State summary: inactive";
+  return secondary_active ? "State: Active" : "State: Inactive";
 }
 
 const char* extension_primary_summary_badge_variant(bool secondary_active) {
@@ -276,12 +370,12 @@ const char* extension_layout_mode(bool secondary_active) {
 }
 
 const char* extension_primary_detail_text(bool secondary_active) {
-  return secondary_active ? "Action: toggled active" : "Action: toggled inactive";
+  return secondary_active ? "Next Action: Toggled Active" : "Next Action: Toggled Inactive";
 }
 
 const char* extension_primary_detail_text_from_interaction(bool detail_interaction_applied, bool secondary_active) {
   if (!detail_interaction_applied) {
-    return "Action: waiting for toggle";
+    return "Next Action: Waiting for Toggle";
   }
 
   return extension_primary_detail_text(secondary_active);
@@ -473,7 +567,7 @@ void apply_extension_parent_routed_intent_outcome(
     return;
   }
 
-  state.card_display.detail_text = "Action: waiting for toggle";
+  state.card_display.detail_text = "Next Action: Waiting for Toggle";
 }
 
 void apply_extension_primary_summary_badge_variant(ngk::ui::Label& summary_label, bool secondary_active) {
@@ -732,7 +826,7 @@ void emit_extension_lane_startup_tokens(const ExtensionLaneState& state, const E
   std::cout << "widget_extension_layout_container_header_band_name=sandbox_extension_header_band\n";
   std::cout << "widget_extension_layout_container_header_band_role=layout_header_region\n";
   std::cout << "widget_extension_layout_container_header_band_owner=extension_parent_state\n";
-  std::cout << "widget_extension_layout_container_header_band_title=Runtime Panel\n";
+  std::cout << "widget_extension_layout_container_header_band_title=\n";
   std::cout << "widget_extension_layout_container_header_band_summary=" << extension_header_band_summary_text(state) << "\n";
   std::cout << "widget_extension_layout_container_header_band_summary_owner=extension_parent_state\n";
   std::cout << "widget_extension_layout_container_header_band_summary_child_dependency=none\n";
@@ -874,7 +968,7 @@ void emit_extension_visual_contract_frame_tokens(
   std::cout << "widget_extension_visual_layout_container_header_band_name=sandbox_extension_header_band\n";
   std::cout << "widget_extension_visual_layout_container_header_band_role=layout_header_region\n";
   std::cout << "widget_extension_visual_layout_container_header_band_owner=extension_parent_state\n";
-  std::cout << "widget_extension_visual_layout_container_header_band_title=Runtime Panel\n";
+  std::cout << "widget_extension_visual_layout_container_header_band_title=\n";
   std::cout << "widget_extension_visual_layout_container_header_band_summary=" << extension_header_band_summary_text(state) << "\n";
   std::cout << "widget_extension_visual_layout_container_header_band_summary_owner=extension_parent_state\n";
   std::cout << "widget_extension_visual_layout_container_header_band_summary_child_dependency=none\n";
@@ -1134,8 +1228,8 @@ bool handle_extension_interaction_mouse_button(
 
   lane_state.card_display.secondary_active = !lane_state.card_display.secondary_active;
   lane_state.secondary_placeholder_text = lane_state.card_display.secondary_active
-    ? "State summary: active"
-    : "State summary: inactive";
+    ? "State: Active"
+    : "State: Inactive";
   lane_state.card_display.summary_text = extension_primary_summary_text(lane_state.card_display.secondary_active);
   lane_state.card_display.summary_badge_variant = extension_primary_summary_badge_variant(lane_state.card_display.secondary_active);
   lane_state.card_display.detail_interaction_applied = true;
@@ -1270,7 +1364,7 @@ bool render_extension_lane_frame(
   std::cout << "widget_extension_render_layout_container_header_band_name=sandbox_extension_header_band\n";
   std::cout << "widget_extension_render_layout_container_header_band_role=layout_header_region\n";
   std::cout << "widget_extension_render_layout_container_header_band_owner=extension_parent_state\n";
-  std::cout << "widget_extension_render_layout_container_header_band_title=Runtime Panel\n";
+  std::cout << "widget_extension_render_layout_container_header_band_title=\n";
   std::cout << "widget_extension_render_layout_container_header_band_summary=" << extension_header_band_summary_text(extension_state) << "\n";
   std::cout << "widget_extension_render_layout_container_header_band_summary_owner=extension_parent_state\n";
   std::cout << "widget_extension_render_layout_container_header_band_summary_child_dependency=none\n";
@@ -1629,7 +1723,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
   ngk::ui::Label extension_info_card_summary(extension_state.card_display.summary_text);
   ngk::ui::VerticalLayout extension_subcomponent_panel(2);
   ngk::ui::VerticalLayout extension_header_band(1);
-  ngk::ui::Label extension_header_band_title("Runtime Panel");
+  ngk::ui::Label extension_header_band_title("");
   ngk::ui::Label extension_header_band_summary(extension_header_band_summary_text(extension_state));
   ngk::ui::VerticalLayout extension_body_region(1);
   ngk::ui::Label extension_body_region_title("State Overview");
@@ -1659,6 +1753,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
   ngk::ui::Button disabled_button;
   disabled_button.set_text("Disabled");
   disabled_button.set_enabled(false);
+  ngk::ui::Label footer_status_line("Footer: Ready");
 
   title.set_size(0, 36);
   status.set_size(0, 28);
@@ -1739,6 +1834,10 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
     text_field_label.set_size(0, 22);
     text_field_label.set_preferred_size(0, 22);
     text_field_label.set_background(0.12f, 0.16f, 0.19f, 1.0f);
+    text_field_label.set_text("Input");
+    footer_status_line.set_size(0, 22);
+    footer_status_line.set_preferred_size(0, 22);
+    footer_status_line.set_background(0.04f, 0.05f, 0.06f, 1.0f);
   }
   text_field_label.set_size(0, 24);
   text_field_label.set_preferred_size(0, 24);
@@ -1759,8 +1858,6 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
     if (extension_state.info_card_visible) {
       extension_info_card.add_child(&extension_info_card_title);
       extension_info_card.add_child(&extension_info_card_text);
-      extension_header_band.add_child(&extension_header_band_title);
-      extension_info_card.add_child(&extension_header_band);
       extension_info_card.add_child(&extension_info_card_summary);
       extension_info_card.add_child(&extension_info_card_detail);
       root.add_child(&extension_info_card);
@@ -1837,9 +1934,15 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
     emit_extension_lane_startup_tokens(extension_state, extension_layout, extension_mode_label);
     emit_extension_interaction_contract_startup_tokens(extension_interaction_state);
   }
-  root.add_child(&text_field_label);
+  if (!extension_state.active) {
+    root.add_child(&text_field_label);
+  }
   root.add_child(&text_field);
   root.add_child(&controls_row);
+  if (extension_state.active) {
+    root.add_child(&footer_status_line);
+    std::cout << "widget_extension_footer_line=" << footer_status_line.text() << "\n";
+  }
   controls_row.add_child(&increment_button);
   controls_row.add_child(&reset_button);
   controls_row.add_child(&disabled_button);
@@ -1902,6 +2005,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
   });
 
   int click_count = 0;
+  RuntimeControlState runtime_control_state;
   float render_avg_delta_ms = 16.0f;
   float render_jitter_ms = 0.0f;
   float max_render_jitter_ms = 0.0f;
@@ -2055,16 +2159,127 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
     ui_tree.invalidate();
   };
 
+  auto update_runtime_visible_state = [&] {
+    if (!extension_state.active) {
+      return;
+    }
+
+    const std::string lifecycle = runtime_lifecycle_state_name(runtime_control_state.lifecycle_state);
+    const std::string source = runtime_control_state.pending_step_from_textbox ? "textbox" : "default";
+    const std::string status_text =
+      "Status: State=" + lifecycle +
+      " Value=" + std::to_string(runtime_control_state.value) +
+      " Step=" + std::to_string(runtime_control_state.pending_step) +
+      " Source=" + source;
+
+    set_status(status_text);
+
+    if (extension_state.active) {
+      extension_info_card_summary.set_text("State: " + lifecycle + " Value=" + std::to_string(runtime_control_state.value));
+      if (runtime_control_state.lifecycle_state == RuntimeLifecycleState::Resetting) {
+        extension_info_card_detail.set_text("Next Action: Reset Path -> Idle");
+      } else {
+        extension_info_card_detail.set_text("Next Action: Increment by " + std::to_string(runtime_control_state.pending_step));
+      }
+      footer_status_line.set_text("Footer: State=" + lifecycle + " Value=" + std::to_string(runtime_control_state.value));
+    }
+
+    std::cout << "widget_runtime_state=" << lifecycle << "\n";
+    std::cout << "widget_runtime_parent_state_value=" << runtime_control_state.value << "\n";
+    std::cout << "widget_runtime_input_raw=" << runtime_control_state.pending_input_raw << "\n";
+    std::cout << "widget_runtime_input_step=" << runtime_control_state.pending_step << "\n";
+    std::cout << "widget_runtime_input_valid=" << (runtime_control_state.pending_step_valid ? 1 : 0) << "\n";
+    std::cout << "widget_runtime_input_source=" << source << "\n";
+    std::cout << "widget_runtime_status_text=" << status.text() << "\n";
+    if (extension_state.active) {
+      std::cout << "widget_runtime_card_summary_text=" << extension_info_card_summary.text() << "\n";
+      std::cout << "widget_runtime_card_detail_text=" << extension_info_card_detail.text() << "\n";
+      std::cout << "widget_runtime_footer_text=" << footer_status_line.text() << "\n";
+    }
+  };
+
+  auto update_runtime_input_from_textbox = [&] {
+    if (!extension_state.active) {
+      return;
+    }
+
+    if (runtime_control_state.lifecycle_state == RuntimeLifecycleState::Idle) {
+      runtime_apply_transition(runtime_control_state, RuntimeLifecycleState::Ready, "textbox_input");
+    }
+
+    runtime_control_state.pending_input_raw = text_field.value();
+    int parsed_step = 0;
+    runtime_control_state.pending_step_valid = try_parse_runtime_step(runtime_control_state.pending_input_raw, parsed_step);
+    if (runtime_control_state.pending_step_valid) {
+      runtime_control_state.pending_step = parsed_step;
+      runtime_control_state.pending_step_from_textbox = true;
+    } else {
+      runtime_control_state.pending_step = 1;
+      runtime_control_state.pending_step_from_textbox = false;
+    }
+
+    std::cout << "widget_runtime_textbox_raw=" << runtime_control_state.pending_input_raw << "\n";
+    std::cout << "widget_runtime_textbox_valid=" << (runtime_control_state.pending_step_valid ? 1 : 0) << "\n";
+    std::cout << "widget_runtime_textbox_step=" << runtime_control_state.pending_step << "\n";
+
+    update_runtime_visible_state();
+  };
+
   auto increment_status = [&] {
     click_count += 1;
-    set_status("status: clicks=" + std::to_string(click_count));
+    if (extension_state.active) {
+      if (runtime_control_state.lifecycle_state == RuntimeLifecycleState::Ready) {
+        runtime_apply_transition(runtime_control_state, RuntimeLifecycleState::Active, "increment_click");
+      }
+
+      const bool can_update_value = (runtime_control_state.lifecycle_state == RuntimeLifecycleState::Active);
+      std::cout << "widget_runtime_increment_value_update_legal=" << (can_update_value ? 1 : 0) << "\n";
+      if (!can_update_value) {
+        std::cout << "widget_runtime_increment_blocked_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+      }
+
+      if (can_update_value) {
+        runtime_control_state.value += runtime_control_state.pending_step;
+      }
+
+      update_runtime_visible_state();
+    } else {
+      set_status("status: clicks=" + std::to_string(click_count));
+    }
     std::cout << "widget_button_click_count=" << click_count << "\n";
+    if (extension_state.active) {
+      std::cout << "widget_runtime_increment_step=" << runtime_control_state.pending_step << "\n";
+      std::cout << "widget_runtime_increment_source=" << (runtime_control_state.pending_step_from_textbox ? "textbox" : "default") << "\n";
+      std::cout << "widget_runtime_increment_applied_value=" << runtime_control_state.value << "\n";
+    }
   };
 
   auto reset_status = [&] {
     click_count = 0;
-    set_status("status: reset");
+    if (extension_state.active) {
+      if (runtime_control_state.lifecycle_state == RuntimeLifecycleState::Active || runtime_control_state.lifecycle_state == RuntimeLifecycleState::Ready) {
+        runtime_apply_transition(runtime_control_state, RuntimeLifecycleState::Resetting, "reset_click");
+        update_runtime_visible_state();
+        runtime_apply_transition(runtime_control_state, RuntimeLifecycleState::Idle, "reset_complete");
+      } else {
+        std::cout << "widget_runtime_reset_legal_entry=0\n";
+      }
+
+      runtime_control_state.value = runtime_control_state.baseline_value;
+      text_field.set_value("");
+      runtime_control_state.pending_input_raw.clear();
+      runtime_control_state.pending_step = 1;
+      runtime_control_state.pending_step_valid = false;
+      runtime_control_state.pending_step_from_textbox = false;
+      runtime_apply_transition(runtime_control_state, RuntimeLifecycleState::Ready, "reset_ready");
+      update_runtime_visible_state();
+    } else {
+      set_status("status: reset");
+    }
     std::cout << "widget_button_reset=1\n";
+    if (extension_state.active) {
+      std::cout << "widget_runtime_reset_applied=1\n";
+    }
   };
 
   increment_button.set_on_click([&] {
@@ -2074,6 +2289,11 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
   reset_button.set_on_click([&] {
     reset_status();
   });
+
+  if (extension_state.active) {
+    runtime_apply_transition(runtime_control_state, RuntimeLifecycleState::Ready, "extension_startup");
+    update_runtime_visible_state();
+  }
 
   ui_tree.on_resize(kInitialWidth, kInitialHeight);
 
@@ -2246,6 +2466,10 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
       }
       log_button_states_if_changed();
       log_focus_if_changed();
+
+      if (extension_state.active && ui_tree.focused_element() == &text_field) {
+        update_runtime_input_from_textbox();
+      }
     }
   });
 
@@ -2255,6 +2479,9 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
       request_frame("INPUT", "text_changed");
       std::cout << "widget_char_routed=" << codepoint << "\n";
       std::cout << "widget_textbox_value=" << text_field.value() << "\n";
+      if (extension_state.active) {
+        update_runtime_input_from_textbox();
+      }
     }
   });
 
@@ -2582,7 +2809,16 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
       disabled_button.set_focused(false);
       std::cout << "widget_disabled_keyboard_blocked=" << (disabled_key_handled ? 0 : 1) << "\n";
       std::cout << "widget_disabled_noninteractive_demo=1\n";
+      std::cout << "widget_runtime_disabled_intent_blocked=" << ((mouse_blocked && !disabled_key_handled) ? 1 : 0) << "\n";
     });
+
+    if (extension_state.active) {
+      loop.set_timeout(std::chrono::milliseconds(2890), [&] {
+        text_field.set_value("2");
+        update_runtime_input_from_textbox();
+        std::cout << "widget_runtime_demo_textbox_numeric_seed=2\n";
+      });
+    }
 
     loop.set_timeout(std::chrono::milliseconds(2925), [&] {
       const int increment_center_x = increment_button.x() + (increment_button.width() / 2);
@@ -2971,8 +3207,8 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
       loop.set_timeout(std::chrono::milliseconds(due_ms), [&, step] {
         extension_state.card_display.secondary_active = ((step % 2) == 0);
         extension_state.secondary_placeholder_text = extension_state.card_display.secondary_active
-          ? "State summary: active"
-          : "State summary: inactive";
+          ? "State: Active"
+          : "State: Inactive";
         extension_state.card_display.summary_text = extension_primary_summary_text(extension_state.card_display.secondary_active);
         extension_state.card_display.summary_badge_variant = extension_primary_summary_badge_variant(extension_state.card_display.secondary_active);
         extension_state.card_display.detail_interaction_applied = true;
