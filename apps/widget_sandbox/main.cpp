@@ -218,6 +218,12 @@ struct RuntimeControlState {
   bool pending_step_from_textbox = false;
   std::string pending_input_raw;
   RuntimeLifecycleState lifecycle_state = RuntimeLifecycleState::Idle;
+  RuntimeLifecycleState last_valid_state = RuntimeLifecycleState::Idle;
+  int last_valid_value = 0;
+  bool rejection_active = false;
+  std::string rejection_action;
+  std::string rejection_reason;
+  bool recovery_pending = false;
 };
 
 const char* runtime_lifecycle_state_name(RuntimeLifecycleState state) {
@@ -255,6 +261,31 @@ bool runtime_is_legal_transition(RuntimeLifecycleState from, RuntimeLifecycleSta
   return false;
 }
 
+void runtime_record_valid_snapshot(RuntimeControlState& state) {
+  state.last_valid_state = state.lifecycle_state;
+  state.last_valid_value = state.value;
+}
+
+void runtime_clear_rejection(RuntimeControlState& state) {
+  state.rejection_active = false;
+  state.rejection_action.clear();
+  state.rejection_reason.clear();
+}
+
+void runtime_reject_action(RuntimeControlState& state, const char* action, const char* reason) {
+  state.rejection_active = true;
+  state.rejection_action = action;
+  state.rejection_reason = reason;
+  state.recovery_pending = true;
+  std::cout << "widget_runtime_rejection=1\n";
+  std::cout << "widget_runtime_rejection_action=" << state.rejection_action << "\n";
+  std::cout << "widget_runtime_rejection_reason=" << state.rejection_reason << "\n";
+  std::cout << "widget_runtime_rejection_preserved_state=" << runtime_lifecycle_state_name(state.lifecycle_state) << "\n";
+  std::cout << "widget_runtime_rejection_preserved_value=" << state.value << "\n";
+  std::cout << "widget_runtime_rejection_last_valid_state=" << runtime_lifecycle_state_name(state.last_valid_state) << "\n";
+  std::cout << "widget_runtime_rejection_last_valid_value=" << state.last_valid_value << "\n";
+}
+
 bool runtime_apply_transition(RuntimeControlState& state, RuntimeLifecycleState to, const char* trigger) {
   const RuntimeLifecycleState from = state.lifecycle_state;
   const bool legal = runtime_is_legal_transition(from, to);
@@ -264,10 +295,13 @@ bool runtime_apply_transition(RuntimeControlState& state, RuntimeLifecycleState 
   std::cout << "widget_runtime_transition_legal=" << (legal ? 1 : 0) << "\n";
 
   if (!legal) {
+    runtime_reject_action(state, trigger, "illegal_transition");
     return false;
   }
 
   state.lifecycle_state = to;
+  runtime_clear_rejection(state);
+  runtime_record_valid_snapshot(state);
   std::cout << "widget_runtime_state=" << runtime_lifecycle_state_name(state.lifecycle_state) << "\n";
   return true;
 }
@@ -2166,17 +2200,28 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
 
     const std::string lifecycle = runtime_lifecycle_state_name(runtime_control_state.lifecycle_state);
     const std::string source = runtime_control_state.pending_step_from_textbox ? "textbox" : "default";
-    const std::string status_text =
-      "Status: State=" + lifecycle +
-      " Value=" + std::to_string(runtime_control_state.value) +
-      " Step=" + std::to_string(runtime_control_state.pending_step) +
-      " Source=" + source;
+    std::string status_text;
+    if (runtime_control_state.rejection_active) {
+      status_text =
+        "Status: Rejected action=" + runtime_control_state.rejection_action +
+        " reason=" + runtime_control_state.rejection_reason +
+        " state=" + lifecycle +
+        " value=" + std::to_string(runtime_control_state.value);
+    } else {
+      status_text =
+        "Status: State=" + lifecycle +
+        " Value=" + std::to_string(runtime_control_state.value) +
+        " Step=" + std::to_string(runtime_control_state.pending_step) +
+        " Source=" + source;
+    }
 
     set_status(status_text);
 
     if (extension_state.active) {
       extension_info_card_summary.set_text("State: " + lifecycle + " Value=" + std::to_string(runtime_control_state.value));
-      if (runtime_control_state.lifecycle_state == RuntimeLifecycleState::Resetting) {
+      if (runtime_control_state.rejection_active) {
+        extension_info_card_detail.set_text("Next Action: Rejected " + runtime_control_state.rejection_action + " (state preserved)");
+      } else if (runtime_control_state.lifecycle_state == RuntimeLifecycleState::Resetting) {
         extension_info_card_detail.set_text("Next Action: Reset Path -> Idle");
       } else {
         extension_info_card_detail.set_text("Next Action: Increment by " + std::to_string(runtime_control_state.pending_step));
@@ -2190,6 +2235,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
     std::cout << "widget_runtime_input_step=" << runtime_control_state.pending_step << "\n";
     std::cout << "widget_runtime_input_valid=" << (runtime_control_state.pending_step_valid ? 1 : 0) << "\n";
     std::cout << "widget_runtime_input_source=" << source << "\n";
+    std::cout << "widget_runtime_rejection_active=" << (runtime_control_state.rejection_active ? 1 : 0) << "\n";
     std::cout << "widget_runtime_status_text=" << status.text() << "\n";
     if (extension_state.active) {
       std::cout << "widget_runtime_card_summary_text=" << extension_info_card_summary.text() << "\n";
@@ -2235,11 +2281,23 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
       const bool can_update_value = (runtime_control_state.lifecycle_state == RuntimeLifecycleState::Active);
       std::cout << "widget_runtime_increment_value_update_legal=" << (can_update_value ? 1 : 0) << "\n";
       if (!can_update_value) {
+        runtime_reject_action(runtime_control_state, "increment", "increment_not_allowed_from_state");
         std::cout << "widget_runtime_increment_blocked_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
       }
 
       if (can_update_value) {
+        if (runtime_control_state.recovery_pending) {
+          std::cout << "widget_runtime_recovery_after_rejection=1\n";
+          std::cout << "widget_runtime_recovery_action=increment\n";
+          std::cout << "widget_runtime_recovery_from_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+          std::cout << "widget_runtime_recovery_from_value=" << runtime_control_state.value << "\n";
+          runtime_control_state.recovery_pending = false;
+        }
+        runtime_clear_rejection(runtime_control_state);
         runtime_control_state.value += runtime_control_state.pending_step;
+        runtime_record_valid_snapshot(runtime_control_state);
+        std::cout << "widget_runtime_recovery_to_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_runtime_recovery_to_value=" << runtime_control_state.value << "\n";
       }
 
       update_runtime_visible_state();
@@ -2262,7 +2320,12 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
         update_runtime_visible_state();
         runtime_apply_transition(runtime_control_state, RuntimeLifecycleState::Idle, "reset_complete");
       } else {
+        runtime_reject_action(runtime_control_state, "reset", "reset_not_allowed_from_state");
         std::cout << "widget_runtime_reset_legal_entry=0\n";
+        update_runtime_visible_state();
+        std::cout << "widget_button_reset=1\n";
+        std::cout << "widget_runtime_reset_applied=0\n";
+        return;
       }
 
       runtime_control_state.value = runtime_control_state.baseline_value;
@@ -2271,7 +2334,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
       runtime_control_state.pending_step = 1;
       runtime_control_state.pending_step_valid = false;
       runtime_control_state.pending_step_from_textbox = false;
-      runtime_apply_transition(runtime_control_state, RuntimeLifecycleState::Ready, "reset_ready");
+      runtime_record_valid_snapshot(runtime_control_state);
       update_runtime_visible_state();
     } else {
       set_status("status: reset");
@@ -2292,6 +2355,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
 
   if (extension_state.active) {
     runtime_apply_transition(runtime_control_state, RuntimeLifecycleState::Ready, "extension_startup");
+    runtime_record_valid_snapshot(runtime_control_state);
     update_runtime_visible_state();
   }
 
@@ -2721,6 +2785,16 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
       input_router.on_key_message(vkTab, false, false);
       log_focus_if_changed();
       std::cout << "widget_focus_navigation_tab=4\n";
+    });
+
+    loop.set_timeout(std::chrono::milliseconds(1550), [&] {
+      increment_status();
+      std::cout << "widget_runtime_demo_invalid_increment_attempt=1\n";
+    });
+
+    loop.set_timeout(std::chrono::milliseconds(1600), [&] {
+      reset_status();
+      std::cout << "widget_runtime_demo_invalid_reset_attempt=1\n";
     });
 
     loop.set_timeout(std::chrono::milliseconds(1750), [&] {
