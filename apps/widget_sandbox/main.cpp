@@ -54,23 +54,23 @@ struct ExtensionCompositionModel {
 
 struct ExtensionCardDisplayData {
   bool secondary_active = false;
-  std::string summary_text = "secondary state: inactive";
+  std::string summary_text = "State summary: inactive";
   std::string summary_badge_variant = "neutral";
   bool detail_interaction_applied = false;
-  std::string detail_text = "interaction note: waiting for toggle";
+  std::string detail_text = "Action: waiting for toggle";
 };
 
 struct ExtensionStatusChipDisplayData {
   bool visible = true;
-  std::string text = "chip: standby";
+  std::string text = "System state: ready";
   std::string variant = "neutral";
   std::string source = "secondary_placeholder_state";
 };
 
 struct ExtensionStatusChipInputRecord {
   bool visible = true;
-  std::string text = "chip: standby";
-  std::string content_extra_line = "meta: ready";
+  std::string text = "System state: ready";
+  std::string content_extra_line = "Feedback: ready";
   std::string variant = "neutral";
   std::string presentation_variant = "base";
   std::string layout_variant = "compact";
@@ -83,14 +83,14 @@ struct ExtensionStatusChipInputRecord {
 
 struct ExtensionSecondaryIndicatorDisplayData {
   bool visible = true;
-  std::string text = "indicator: secondary inactive";
+  std::string text = "Support line: inactive";
   std::string variant = "neutral";
   std::string source = "secondary_placeholder_state";
 };
 
 struct ExtensionSecondaryIndicatorInputRecord {
   bool visible = true;
-  std::string text = "indicator: secondary inactive";
+  std::string text = "Support line: inactive";
   std::string variant = "neutral";
   std::string source = "secondary_placeholder_state";
   std::string owner = "extension_parent_state_secondary_indicator";
@@ -100,14 +100,14 @@ struct ExtensionSecondaryIndicatorInputRecord {
 
 struct ExtensionTertiaryMarkerDisplayData {
   bool visible = true;
-  std::string text = "marker: tertiary idle";
+  std::string text = "Note: idle";
   std::string variant = "muted";
   std::string source = "extension_parent_state";
 };
 
 struct ExtensionTertiaryMarkerInputRecord {
   bool visible = true;
-  std::string text = "marker: tertiary idle";
+  std::string text = "Note: idle";
   std::string variant = "muted";
   std::string source = "extension_parent_state";
   std::string owner = "extension_parent_state_tertiary_marker";
@@ -118,11 +118,11 @@ struct ExtensionTertiaryMarkerInputRecord {
 struct ExtensionLaneState {
   bool active = false;
   const char* mode_identity = "baseline";
-  const char* label_text = "extension mode: minimal slot active";
+  const char* label_text = "Extension mode: active";
   bool placeholder_visible = false;
   bool info_card_visible = false;
-  const char* info_card_title = "Extension Info Card";
-  const char* info_card_text = "phase 40.42: static extension block";
+  const char* info_card_title = "Runtime Control Card";
+  const char* info_card_text = "Primary controls and status";
   ExtensionCardDisplayData card_display;
   ExtensionStatusChipDisplayData status_chip;
   ExtensionSecondaryIndicatorDisplayData secondary_indicator;
@@ -138,7 +138,7 @@ struct ExtensionLaneState {
   const char* parent_conflict_rule_name = "parent_intent_priority_secondary_over_status_v1";
   std::string parent_conflict_last_mode = "none";
   std::string parent_conflict_winner_intent = "none";
-  std::string secondary_placeholder_text = "secondary slot: inactive";
+  std::string secondary_placeholder_text = "State summary: inactive";
   ExtensionCompositionModel composition;
 };
 
@@ -158,7 +158,7 @@ struct ExtensionLaneLayout {
   int info_card_x = 0;
   int info_card_y = 0;
   int info_card_width = 0;
-  int info_card_height = 136;
+  int info_card_height = 156;
   int status_chip_x = 0;
   int status_chip_y = 0;
   int status_chip_width = 180;
@@ -166,11 +166,11 @@ struct ExtensionLaneLayout {
   int secondary_indicator_x = 0;
   int secondary_indicator_y = 0;
   int secondary_indicator_width = 180;
-  int secondary_indicator_height = 18;
+  int secondary_indicator_height = 20;
   int tertiary_marker_x = 0;
   int tertiary_marker_y = 0;
   int tertiary_marker_width = 180;
-  int tertiary_marker_height = 16;
+  int tertiary_marker_height = 20;
 };
 
 enum class ExtensionInteractionInputKind {
@@ -213,6 +213,8 @@ const char* extension_status_chip_layout_variant(bool detail_interaction_applied
 const char* extension_status_chip_interaction_boundary_state(bool interaction_active);
 const char* extension_secondary_indicator_text(bool secondary_active);
 const char* extension_secondary_indicator_variant(bool secondary_active);
+const char* extension_header_band_summary_text(const ExtensionLaneState& state);
+const char* extension_footer_strip_status_text(const ExtensionLaneState& state);
 const char* extension_tertiary_marker_text(const ExtensionLaneState& state);
 const char* extension_tertiary_marker_variant(const ExtensionLaneState& state);
 bool extension_parent_visibility_rule_allows_secondary_indicator(const ExtensionLaneState& state);
@@ -241,7 +243,7 @@ ExtensionLaneState make_extension_lane_state(SandboxLane lane) {
   state.info_card_visible = state.composition.primary_visible;
   state.placeholder_visible = state.composition.secondary_visible;
   state.card_display.secondary_active = false;
-  state.card_display.summary_text = "secondary state: inactive";
+  state.card_display.summary_text = "State summary: inactive";
   state.card_display.summary_badge_variant = "neutral";
   state.card_display.detail_interaction_applied = false;
   state.card_display.detail_text = extension_primary_detail_text_from_interaction(
@@ -257,12 +259,12 @@ ExtensionLaneState make_extension_lane_state(SandboxLane lane) {
   refresh_extension_parent_visibility_rule(state);
   refresh_extension_parent_orchestration_rule(state);
   refresh_extension_parent_ordering_rule(state);
-  state.secondary_placeholder_text = "secondary slot: inactive";
+  state.secondary_placeholder_text = "State summary: inactive";
   return state;
 }
 
 const char* extension_primary_summary_text(bool secondary_active) {
-  return secondary_active ? "secondary state: active" : "secondary state: inactive";
+  return secondary_active ? "State summary: active" : "State summary: inactive";
 }
 
 const char* extension_primary_summary_badge_variant(bool secondary_active) {
@@ -274,12 +276,12 @@ const char* extension_layout_mode(bool secondary_active) {
 }
 
 const char* extension_primary_detail_text(bool secondary_active) {
-  return secondary_active ? "interaction note: toggled active" : "interaction note: toggled inactive";
+  return secondary_active ? "Action: toggled active" : "Action: toggled inactive";
 }
 
 const char* extension_primary_detail_text_from_interaction(bool detail_interaction_applied, bool secondary_active) {
   if (!detail_interaction_applied) {
-    return "interaction note: waiting for toggle";
+    return "Action: waiting for toggle";
   }
 
   return extension_primary_detail_text(secondary_active);
@@ -287,18 +289,18 @@ const char* extension_primary_detail_text_from_interaction(bool detail_interacti
 
 const char* extension_status_chip_text(bool detail_interaction_applied, bool secondary_active) {
   if (!detail_interaction_applied) {
-    return "chip: standby";
+    return "System state: ready";
   }
 
-  return secondary_active ? "chip: secondary active" : "chip: secondary inactive";
+  return secondary_active ? "System state: active" : "System state: inactive";
 }
 
 const char* extension_status_chip_extra_line(bool detail_interaction_applied, bool secondary_active) {
   if (!detail_interaction_applied) {
-    return "meta: ready";
+    return "Feedback: ready";
   }
 
-  return secondary_active ? "meta: active sync" : "meta: inactive sync";
+  return secondary_active ? "Feedback: active sync" : "Feedback: inactive sync";
 }
 
 const char* extension_status_chip_variant(bool secondary_active) {
@@ -326,28 +328,50 @@ const char* extension_status_chip_interaction_boundary_state(bool interaction_ac
 }
 
 const char* extension_secondary_indicator_text(bool secondary_active) {
-  return secondary_active ? "indicator: secondary active" : "indicator: secondary inactive";
+  return secondary_active ? "Support line: active" : "Support line: inactive";
 }
 
 const char* extension_secondary_indicator_variant(bool secondary_active) {
   return secondary_active ? "alert" : "neutral";
 }
 
-const char* extension_tertiary_marker_text(const ExtensionLaneState& state) {
+const char* extension_header_band_summary_text(const ExtensionLaneState& state) {
   if (state.parent_orchestration_active) {
-    return "marker: parent coordination active";
+    return "Mode: orchestration active";
   }
-  if (state.parent_conflict_last_mode == "both") {
-    return "marker: parent conflict isolated";
-  }
-  if (state.parent_conflict_last_mode == "secondary_alone") {
-    return "marker: parent secondary intent observed";
-  }
-  if (state.parent_conflict_last_mode == "status_alone") {
-    return "marker: parent status intent observed";
+  if (state.card_display.secondary_active) {
+    return "Mode: secondary active";
   }
 
-  return "marker: tertiary idle";
+  return "Mode: secondary inactive";
+}
+
+const char* extension_footer_strip_status_text(const ExtensionLaneState& state) {
+  if (state.parent_orchestration_active) {
+    return "Next action: orchestration active";
+  }
+  if (state.parent_secondary_indicator_visible) {
+    return "Next action: visibility active";
+  }
+
+  return "Next action: ready";
+}
+
+const char* extension_tertiary_marker_text(const ExtensionLaneState& state) {
+  if (state.parent_orchestration_active) {
+    return "Note: orchestration active";
+  }
+  if (state.parent_conflict_last_mode == "both") {
+    return "Note: conflict isolated";
+  }
+  if (state.parent_conflict_last_mode == "secondary_alone") {
+    return "Note: secondary intent";
+  }
+  if (state.parent_conflict_last_mode == "status_alone") {
+    return "Note: status intent";
+  }
+
+  return "Note: idle";
 }
 
 const char* extension_tertiary_marker_variant(const ExtensionLaneState& state) {
@@ -449,16 +473,16 @@ void apply_extension_parent_routed_intent_outcome(
     return;
   }
 
-  state.card_display.detail_text = "interaction note: waiting for toggle";
+  state.card_display.detail_text = "Action: waiting for toggle";
 }
 
 void apply_extension_primary_summary_badge_variant(ngk::ui::Label& summary_label, bool secondary_active) {
   if (secondary_active) {
-    summary_label.set_background(0.16f, 0.22f, 0.12f, 1.0f);
+    summary_label.set_background(0.10f, 0.13f, 0.15f, 1.0f);
     return;
   }
 
-  summary_label.set_background(0.12f, 0.12f, 0.16f, 1.0f);
+  summary_label.set_background(0.09f, 0.11f, 0.13f, 1.0f);
 }
 
 void apply_extension_status_chip_style(ngk::ui::Label& chip_label, const ExtensionStatusChipDisplayData& chip_data) {
@@ -472,20 +496,21 @@ void apply_extension_status_chip_style(ngk::ui::Label& chip_label, const Extensi
 
 void apply_extension_status_chip_style_from_input(ngk::ui::Label& chip_label, const ExtensionStatusChipInputRecord& chip_input) {
   if (chip_input.interaction_boundary_state == "active") {
-    chip_label.set_background(0.10f, 0.20f, 0.32f, 1.0f);
+    chip_label.set_background(0.11f, 0.14f, 0.16f, 1.0f);
     return;
   }
 
   if (chip_input.presentation_variant == "emphasis") {
-    chip_label.set_background(0.12f, 0.26f, 0.20f, 1.0f);
+    chip_label.set_background(0.10f, 0.13f, 0.15f, 1.0f);
     return;
   }
 
-  chip_label.set_background(0.10f, 0.10f, 0.14f, 1.0f);
+  chip_label.set_background(0.09f, 0.12f, 0.14f, 1.0f);
 }
 
 void apply_extension_status_chip_input_to_label(ngk::ui::Label& chip_label, const ExtensionStatusChipInputRecord& chip_input) {
-  chip_label.set_text(chip_input.text + "\n" + chip_input.content_extra_line);
+  // Keep the chip single-line so it cannot overrun its fixed slot height.
+  chip_label.set_text(chip_input.text);
   const int chip_height = (chip_input.layout_variant == "offset") ? 24 : 20;
   chip_label.set_size(0, chip_height);
   chip_label.set_preferred_size(0, chip_height);
@@ -497,7 +522,7 @@ ExtensionStatusChipInputRecord build_extension_status_chip_input_record(const Ex
   input.visible = state.status_chip.visible;
   input.text = state.status_chip.text;
   input.content_extra_line = state.parent_orchestration_active
-    ? "meta: parent emphasis bridge"
+    ? "State: parent emphasis bridge"
     : extension_status_chip_extra_line(
         state.card_display.detail_interaction_applied,
         state.card_display.secondary_active);
@@ -521,16 +546,16 @@ ExtensionStatusChipInputRecord build_extension_status_chip_input_record(const Ex
 
 void apply_extension_secondary_indicator_style_from_input(ngk::ui::Label& indicator_label, const ExtensionSecondaryIndicatorInputRecord& indicator_input) {
   if (indicator_input.variant == "mirror") {
-    indicator_label.set_background(0.18f, 0.16f, 0.08f, 1.0f);
+    indicator_label.set_background(0.08f, 0.10f, 0.12f, 1.0f);
     return;
   }
 
   if (indicator_input.variant == "alert") {
-    indicator_label.set_background(0.14f, 0.12f, 0.08f, 1.0f);
+    indicator_label.set_background(0.08f, 0.10f, 0.11f, 1.0f);
     return;
   }
 
-  indicator_label.set_background(0.10f, 0.10f, 0.12f, 1.0f);
+  indicator_label.set_background(0.08f, 0.10f, 0.12f, 1.0f);
 }
 
 void apply_extension_secondary_indicator_input_to_label(ngk::ui::Label& indicator_label, const ExtensionSecondaryIndicatorInputRecord& indicator_input) {
@@ -552,16 +577,16 @@ ExtensionSecondaryIndicatorInputRecord build_extension_secondary_indicator_input
 
 void apply_extension_tertiary_marker_style_from_input(ngk::ui::Label& marker_label, const ExtensionTertiaryMarkerInputRecord& marker_input) {
   if (marker_input.variant == "emphasis") {
-    marker_label.set_background(0.20f, 0.14f, 0.08f, 1.0f);
+    marker_label.set_background(0.08f, 0.09f, 0.10f, 1.0f);
     return;
   }
 
   if (marker_input.variant == "coordinated") {
-    marker_label.set_background(0.08f, 0.18f, 0.22f, 1.0f);
+    marker_label.set_background(0.08f, 0.10f, 0.11f, 1.0f);
     return;
   }
 
-  marker_label.set_background(0.08f, 0.08f, 0.10f, 1.0f);
+  marker_label.set_background(0.07f, 0.09f, 0.10f, 1.0f);
 }
 
 void apply_extension_tertiary_marker_input_to_label(ngk::ui::Label& marker_label, const ExtensionTertiaryMarkerInputRecord& marker_input) {
@@ -593,12 +618,13 @@ ExtensionLaneLayout compute_extension_lane_layout(int width, int height, bool se
   layout.info_card_x = UI_MARGIN;
   layout.info_card_y = layout.label_y + layout.label_height + 12;
   layout.info_card_width = std::max(0, width - (UI_MARGIN * 2));
+  layout.info_card_height = 156;
   layout.status_chip_x = layout.info_card_x + 10;
   layout.status_chip_width = std::max(0, layout.info_card_width - 20);
   layout.status_chip_height = 20;
   layout.secondary_indicator_x = layout.info_card_x + 10;
   layout.secondary_indicator_width = std::max(0, layout.info_card_width - 20);
-  layout.secondary_indicator_height = 18;
+  layout.secondary_indicator_height = 20;
   if (secondary_indicator_first) {
     layout.secondary_indicator_y = layout.info_card_y + 66;
     layout.status_chip_y = layout.secondary_indicator_y + layout.secondary_indicator_height + 2;
@@ -608,11 +634,11 @@ ExtensionLaneLayout compute_extension_lane_layout(int width, int height, bool se
   }
   layout.tertiary_marker_x = layout.info_card_x + 10;
   layout.tertiary_marker_width = std::max(0, layout.info_card_width - 20);
-  layout.tertiary_marker_height = 16;
+  layout.tertiary_marker_height = 20;
   layout.tertiary_marker_y = std::max(layout.status_chip_y, layout.secondary_indicator_y)
     + std::max(layout.status_chip_height, layout.secondary_indicator_height)
     + 2;
-  layout.placeholder_height = secondary_active ? 56 : 40;
+  layout.placeholder_height = secondary_active ? 22 : 16;
   layout.placeholder_x = UI_MARGIN;
   layout.placeholder_y = layout.info_card_y + layout.info_card_height + 12;
   layout.placeholder_width = std::max(0, width - (UI_MARGIN * 2));
@@ -698,6 +724,71 @@ void emit_extension_lane_startup_tokens(const ExtensionLaneState& state, const E
   std::cout << "widget_extension_parent_orchestration_rule_owner=extension_parent_state\n";
   std::cout << "widget_extension_parent_orchestration_rule_state=" << (state.parent_orchestration_active ? "active" : "inactive") << "\n";
   std::cout << "widget_extension_parent_orchestration_child_dependency=none\n";
+  std::cout << "widget_extension_layout_container_name=sandbox_extension_panel\n";
+  std::cout << "widget_extension_layout_container_role=subcomponent_layout_surface\n";
+  std::cout << "widget_extension_layout_container_owner=extension_parent_state\n";
+  std::cout << "widget_extension_layout_container_child_order=status_chip_v1,secondary_indicator_v1,tertiary_marker_subcomponent\n";
+  std::cout << "widget_extension_layout_container_child_count=3\n";
+  std::cout << "widget_extension_layout_container_header_band_name=sandbox_extension_header_band\n";
+  std::cout << "widget_extension_layout_container_header_band_role=layout_header_region\n";
+  std::cout << "widget_extension_layout_container_header_band_owner=extension_parent_state\n";
+  std::cout << "widget_extension_layout_container_header_band_title=Runtime Panel\n";
+  std::cout << "widget_extension_layout_container_header_band_summary=" << extension_header_band_summary_text(state) << "\n";
+  std::cout << "widget_extension_layout_container_header_band_summary_owner=extension_parent_state\n";
+  std::cout << "widget_extension_layout_container_header_band_summary_child_dependency=none\n";
+  std::cout << "widget_extension_layout_container_region_order=header_band,body_region,footer_strip\n";
+  std::cout << "widget_extension_layout_container_body_region_name=sandbox_extension_body_region\n";
+  std::cout << "widget_extension_layout_container_body_region_role=layout_body_region\n";
+  std::cout << "widget_extension_layout_container_body_region_owner=extension_parent_state\n";
+  std::cout << "widget_extension_layout_container_body_region_title=State Overview\n";
+  std::cout << "widget_extension_layout_container_body_region_child_order=status_chip_v1,secondary_indicator_v1,tertiary_marker_subcomponent\n";
+  std::cout << "widget_extension_layout_container_body_region_child_count=3\n";
+  std::cout << "widget_extension_layout_container_body_region_child_dependency=none\n";
+  std::cout << "widget_extension_layout_container_body_hierarchy_rule=first_child_primary_visual_weight_v1\n";
+  std::cout << "widget_extension_layout_container_body_hierarchy_primary_child=status_chip_v1\n";
+  std::cout << "widget_extension_layout_container_body_hierarchy_supporting_children=secondary_indicator_v1,tertiary_marker_subcomponent\n";
+  std::cout << "widget_extension_layout_container_body_hierarchy_owner=extension_parent_state\n";
+  std::cout << "widget_extension_layout_container_body_composition_rule=uniform_child_slot_height_v1\n";
+  std::cout << "widget_extension_layout_container_body_composition_slot_height=20\n";
+  std::cout << "widget_extension_layout_container_body_composition_owner=extension_parent_state\n";
+  std::cout << "widget_extension_layout_container_footer_strip_name=sandbox_extension_footer_strip\n";
+  std::cout << "widget_extension_layout_container_footer_strip_role=layout_footer_region\n";
+  std::cout << "widget_extension_layout_container_footer_strip_owner=extension_parent_state\n";
+  std::cout << "widget_extension_layout_container_footer_strip_title=Next Action\n";
+  std::cout << "widget_extension_layout_container_footer_strip_value=" << extension_footer_strip_status_text(state) << "\n";
+  std::cout << "widget_extension_layout_container_footer_strip_status_owner=extension_parent_state\n";
+  std::cout << "widget_extension_layout_container_footer_strip_child_dependency=none\n";
+  std::cout << "widget_extension_layout_container_region_backgrounds=header:0.10,0.12,0.14,1.00|body:0.11,0.13,0.15,1.00|footer:0.10,0.12,0.14,1.00\n";
+  std::cout << "widget_extension_layout_container_readability_profile=panel_calm_control_card_reconstruction_v1\n";
+  std::cout << "widget_extension_layout_container_readability_spacing=panel:11|header:12|body:11|footer:11\n";
+  std::cout << "widget_extension_layout_container_readability_typography=header_title:17|header_summary:15|body_title:16|footer_text:14|control_label:22\n";
+  std::cout << "widget_extension_layout_container_text_contrast_profile=calm_control_card_hierarchy_v1\n";
+  std::cout << "widget_extension_layout_container_visual_consolidation_profile=compact_control_surface_v1\n";
+  std::cout << "widget_extension_layout_container_visual_fragmentation=reduced\n";
+  std::cout << "widget_extension_layout_container_visual_grouping=header_body_footer_coherent\n";
+  std::cout << "widget_extension_layout_container_surface_grouping_profile=cohesive_body_surface_v1\n";
+  std::cout << "widget_extension_layout_container_body_grouping_style=single_grouped_content_area\n";
+  std::cout << "widget_extension_layout_container_body_row_striping=softened\n";
+  std::cout << "widget_extension_layout_container_body_padding_refinement=inner:10,8,10,8\n";
+  std::cout << "widget_extension_layout_container_primary_emphasis_profile=primary_card_focus_v1\n";
+  std::cout << "widget_extension_layout_container_primary_child_spacing=expanded_top_anchor\n";
+  std::cout << "widget_extension_layout_container_supporting_children_tone=deemphasized_readable_v1\n";
+  std::cout << "widget_extension_layout_container_footer_integration_profile=panel_footer_blend_v1\n";
+  std::cout << "widget_extension_layout_container_footer_padding_refinement=inner:9,4,9,4\n";
+  std::cout << "widget_extension_layout_container_footer_text_legibility=title:13|value:16\n";
+  std::cout << "widget_extension_layout_container_header_integration_profile=panel_header_blend_v1\n";
+  std::cout << "widget_extension_layout_container_header_padding_refinement=inner:9,5,9,4\n";
+  std::cout << "widget_extension_layout_container_header_text_legibility=title:17|summary:15\n";
+  std::cout << "widget_extension_layout_container_full_panel_cohesion_profile=unified_compact_surface_v1\n";
+  std::cout << "widget_extension_layout_container_divider_language=unified_control_card_surface_v1\n";
+  std::cout << "widget_extension_layout_container_region_spacing_rhythm=header:11|body:11|footer:11\n";
+  std::cout << "widget_extension_layout_container_controls_integration_profile=panel_controls_action_focus_v1\n";
+  std::cout << "widget_extension_layout_container_controls_surface=bg:0.12,0.16,0.19,1.00|label:0.12,0.16,0.19,1.00\n";
+  std::cout << "widget_extension_layout_container_controls_spacing=label:22|input:42|row:66\n";
+  std::cout << "widget_extension_layout_container_controls_padding_refinement=row:6\n";
+  std::cout << "widget_extension_layout_container_text_hierarchy_profile=intentional_label_cleanup_v1\n";
+  std::cout << "widget_extension_layout_container_text_debug_noise=reduced\n";
+  std::cout << "widget_extension_layout_container_text_label_style=title:clear|section:concise|status:compact\n";
   std::cout << "widget_extension_subcomponent_name=status_chip_v1\n";
   std::cout << "widget_extension_subcomponent_secondary_name=secondary_indicator_v1\n";
   std::cout << "widget_extension_subcomponent_tertiary_name=tertiary_marker_subcomponent\n";
@@ -780,6 +871,71 @@ void emit_extension_visual_contract_frame_tokens(
   std::cout << "widget_extension_visual_parent_orchestration_rule_owner=extension_parent_state\n";
   std::cout << "widget_extension_visual_parent_orchestration_rule_state=" << (state.parent_orchestration_active ? "active" : "inactive") << "\n";
   std::cout << "widget_extension_visual_parent_orchestration_child_dependency=none\n";
+  std::cout << "widget_extension_visual_layout_container_header_band_name=sandbox_extension_header_band\n";
+  std::cout << "widget_extension_visual_layout_container_header_band_role=layout_header_region\n";
+  std::cout << "widget_extension_visual_layout_container_header_band_owner=extension_parent_state\n";
+  std::cout << "widget_extension_visual_layout_container_header_band_title=Runtime Panel\n";
+  std::cout << "widget_extension_visual_layout_container_header_band_summary=" << extension_header_band_summary_text(state) << "\n";
+  std::cout << "widget_extension_visual_layout_container_header_band_summary_owner=extension_parent_state\n";
+  std::cout << "widget_extension_visual_layout_container_header_band_summary_child_dependency=none\n";
+  std::cout << "widget_extension_visual_layout_container_region_order=header_band,body_region,footer_strip\n";
+  std::cout << "widget_extension_visual_layout_container_body_region_name=sandbox_extension_body_region\n";
+  std::cout << "widget_extension_visual_layout_container_body_region_role=layout_body_region\n";
+  std::cout << "widget_extension_visual_layout_container_body_region_owner=extension_parent_state\n";
+  std::cout << "widget_extension_visual_layout_container_body_region_title=State Overview\n";
+  std::cout << "widget_extension_visual_layout_container_body_region_child_order=status_chip_v1,secondary_indicator_v1,tertiary_marker_subcomponent\n";
+  std::cout << "widget_extension_visual_layout_container_body_region_child_count=3\n";
+  std::cout << "widget_extension_visual_layout_container_body_region_child_dependency=none\n";
+  std::cout << "widget_extension_visual_layout_container_body_hierarchy_rule=first_child_primary_visual_weight_v1\n";
+  std::cout << "widget_extension_visual_layout_container_body_hierarchy_primary_child=status_chip_v1\n";
+  std::cout << "widget_extension_visual_layout_container_body_hierarchy_supporting_children=secondary_indicator_v1,tertiary_marker_subcomponent\n";
+  std::cout << "widget_extension_visual_layout_container_body_hierarchy_owner=extension_parent_state\n";
+  std::cout << "widget_extension_visual_layout_container_body_composition_rule=uniform_child_slot_height_v1\n";
+  std::cout << "widget_extension_visual_layout_container_body_composition_slot_height=20\n";
+  std::cout << "widget_extension_visual_layout_container_body_composition_owner=extension_parent_state\n";
+  std::cout << "widget_extension_visual_layout_container_footer_strip_name=sandbox_extension_footer_strip\n";
+  std::cout << "widget_extension_visual_layout_container_footer_strip_role=layout_footer_region\n";
+  std::cout << "widget_extension_visual_layout_container_footer_strip_owner=extension_parent_state\n";
+  std::cout << "widget_extension_visual_layout_container_footer_strip_title=Next Action\n";
+  std::cout << "widget_extension_visual_layout_container_footer_strip_value=" << extension_footer_strip_status_text(state) << "\n";
+  std::cout << "widget_extension_visual_layout_container_footer_strip_status_owner=extension_parent_state\n";
+  std::cout << "widget_extension_visual_layout_container_footer_strip_child_dependency=none\n";
+  std::cout << "widget_extension_visual_layout_container_region_backgrounds=header:0.10,0.12,0.14,1.00|body:0.11,0.13,0.15,1.00|footer:0.10,0.12,0.14,1.00\n";
+  std::cout << "widget_extension_visual_layout_container_readability_profile=panel_calm_control_card_reconstruction_v1\n";
+  std::cout << "widget_extension_visual_layout_container_readability_spacing=panel:11|header:12|body:11|footer:11\n";
+  std::cout << "widget_extension_visual_layout_container_readability_typography=header_title:17|header_summary:15|body_title:16|footer_text:14|control_label:22\n";
+  std::cout << "widget_extension_visual_layout_container_text_contrast_profile=calm_control_card_hierarchy_v1\n";
+  std::cout << "widget_extension_visual_layout_container_visual_consolidation_profile=compact_control_surface_v1\n";
+  std::cout << "widget_extension_visual_layout_container_visual_fragmentation=reduced\n";
+  std::cout << "widget_extension_visual_layout_container_visual_grouping=header_body_footer_coherent\n";
+  std::cout << "widget_extension_visual_layout_container_surface_grouping_profile=cohesive_body_surface_v1\n";
+  std::cout << "widget_extension_visual_layout_container_body_grouping_style=single_grouped_content_area\n";
+  std::cout << "widget_extension_visual_layout_container_body_row_striping=softened\n";
+  std::cout << "widget_extension_visual_layout_container_body_padding_refinement=inner:10,8,10,8\n";
+  std::cout << "widget_extension_visual_layout_container_primary_emphasis_profile=primary_card_focus_v1\n";
+  std::cout << "widget_extension_visual_layout_container_primary_child_spacing=expanded_top_anchor\n";
+  std::cout << "widget_extension_visual_layout_container_supporting_children_tone=deemphasized_readable_v1\n";
+  std::cout << "widget_extension_visual_layout_container_footer_integration_profile=panel_footer_blend_v1\n";
+  std::cout << "widget_extension_visual_layout_container_footer_padding_refinement=inner:9,4,9,4\n";
+  std::cout << "widget_extension_visual_layout_container_footer_text_legibility=title:13|value:16\n";
+  std::cout << "widget_extension_visual_layout_container_header_integration_profile=panel_header_blend_v1\n";
+  std::cout << "widget_extension_visual_layout_container_header_padding_refinement=inner:9,5,9,4\n";
+  std::cout << "widget_extension_visual_layout_container_header_text_legibility=title:17|summary:15\n";
+  std::cout << "widget_extension_visual_layout_container_full_panel_cohesion_profile=unified_compact_surface_v1\n";
+  std::cout << "widget_extension_visual_layout_container_divider_language=unified_control_card_surface_v1\n";
+  std::cout << "widget_extension_visual_layout_container_region_spacing_rhythm=header:11|body:11|footer:11\n";
+  std::cout << "widget_extension_visual_layout_container_controls_integration_profile=panel_controls_action_focus_v1\n";
+  std::cout << "widget_extension_visual_layout_container_controls_surface=bg:0.12,0.16,0.19,1.00|label:0.12,0.16,0.19,1.00\n";
+  std::cout << "widget_extension_visual_layout_container_controls_spacing=label:22|input:42|row:66\n";
+  std::cout << "widget_extension_visual_layout_container_controls_padding_refinement=row:6\n";
+  std::cout << "widget_extension_visual_layout_container_text_hierarchy_profile=intentional_label_cleanup_v1\n";
+  std::cout << "widget_extension_visual_layout_container_text_debug_noise=reduced\n";
+  std::cout << "widget_extension_visual_layout_container_text_label_style=title:clear|section:concise|status:compact\n";
+  std::cout << "widget_extension_visual_layout_container_name=sandbox_extension_panel\n";
+  std::cout << "widget_extension_visual_layout_container_role=subcomponent_layout_surface\n";
+  std::cout << "widget_extension_visual_layout_container_owner=extension_parent_state\n";
+  std::cout << "widget_extension_visual_layout_container_child_order=status_chip_v1,secondary_indicator_v1,tertiary_marker_subcomponent\n";
+  std::cout << "widget_extension_visual_layout_container_child_count=3\n";
   std::cout << "widget_extension_visual_subcomponent_input_record=status_chip_input_v1\n";
   std::cout << "widget_extension_visual_subcomponent_input_owner=" << status_chip_input.owner << "\n";
   std::cout << "widget_extension_visual_subcomponent_visible=" << (status_chip_input.visible ? 1 : 0) << "\n";
@@ -876,6 +1032,8 @@ bool handle_extension_interaction_mouse_button(
   int surface_height,
   ngk::ui::VerticalLayout& secondary_placeholder_panel,
   ngk::ui::Label& secondary_placeholder_label,
+  ngk::ui::Label& header_band_summary_label,
+  ngk::ui::Label& footer_strip_value_label,
   ngk::ui::Label& primary_summary_label,
   ngk::ui::Label& primary_detail_label,
   ExtensionStatusChipInputRecord& status_chip_input,
@@ -915,6 +1073,8 @@ bool handle_extension_interaction_mouse_button(
     apply_extension_tertiary_marker_input_to_label(subcomponent_tertiary_marker_label, tertiary_marker_input);
     subcomponent_tertiary_marker_label.set_visible(tertiary_marker_input.visible);
     subcomponent_secondary_indicator_label.set_visible(secondary_indicator_input.visible);
+    header_band_summary_label.set_text(extension_header_band_summary_text(lane_state));
+    footer_strip_value_label.set_text(extension_footer_strip_status_text(lane_state));
     primary_detail_label.set_text(lane_state.card_display.detail_text);
     interaction_state.status_chip_toggle_count += 1;
 
@@ -948,6 +1108,8 @@ bool handle_extension_interaction_mouse_button(
     tertiary_marker_input = build_extension_tertiary_marker_input_record(lane_state);
     apply_extension_tertiary_marker_input_to_label(subcomponent_tertiary_marker_label, tertiary_marker_input);
     subcomponent_tertiary_marker_label.set_visible(tertiary_marker_input.visible);
+    header_band_summary_label.set_text(extension_header_band_summary_text(lane_state));
+    footer_strip_value_label.set_text(extension_footer_strip_status_text(lane_state));
     primary_detail_label.set_text(lane_state.card_display.detail_text);
     interaction_state.secondary_indicator_intent_count += 1;
 
@@ -972,8 +1134,8 @@ bool handle_extension_interaction_mouse_button(
 
   lane_state.card_display.secondary_active = !lane_state.card_display.secondary_active;
   lane_state.secondary_placeholder_text = lane_state.card_display.secondary_active
-    ? "secondary slot: active"
-    : "secondary slot: inactive";
+    ? "State summary: active"
+    : "State summary: inactive";
   lane_state.card_display.summary_text = extension_primary_summary_text(lane_state.card_display.secondary_active);
   lane_state.card_display.summary_badge_variant = extension_primary_summary_badge_variant(lane_state.card_display.secondary_active);
   lane_state.card_display.detail_interaction_applied = true;
@@ -1003,6 +1165,8 @@ bool handle_extension_interaction_mouse_button(
   apply_extension_tertiary_marker_input_to_label(subcomponent_tertiary_marker_label, tertiary_marker_input);
   subcomponent_tertiary_marker_label.set_visible(tertiary_marker_input.visible);
   subcomponent_secondary_indicator_label.set_visible(secondary_indicator_input.visible);
+  header_band_summary_label.set_text(extension_header_band_summary_text(lane_state));
+  footer_strip_value_label.set_text(extension_footer_strip_status_text(lane_state));
   apply_extension_primary_summary_badge_variant(primary_summary_label, lane_state.card_display.secondary_active);
   interaction_state.secondary_toggle_count += 1;
 
@@ -1063,6 +1227,9 @@ bool render_extension_lane_frame(
   const ExtensionStatusChipInputRecord& status_chip_input,
   const ExtensionSecondaryIndicatorInputRecord& secondary_indicator_input,
   const ExtensionTertiaryMarkerInputRecord& tertiary_marker_input,
+  bool extension_stress_demo_mode,
+  std::uint64_t stress_transition_index,
+  std::uint64_t& stress_render_frame_count,
   bool extension_visual_baseline_mode,
   bool& extension_visual_contract_frame_logged
 ) {
@@ -1095,6 +1262,78 @@ bool render_extension_lane_frame(
   std::cout << "widget_extension_render_parent_orchestration_rule_name=" << extension_state.parent_orchestration_rule_name << "\n";
   std::cout << "widget_extension_render_parent_orchestration_rule_owner=extension_parent_state\n";
   std::cout << "widget_extension_render_parent_orchestration_rule_state=" << (extension_state.parent_orchestration_active ? "active" : "inactive") << "\n";
+  std::cout << "widget_extension_render_layout_container_name=sandbox_extension_panel\n";
+  std::cout << "widget_extension_render_layout_container_role=subcomponent_layout_surface\n";
+  std::cout << "widget_extension_render_layout_container_owner=extension_parent_state\n";
+  std::cout << "widget_extension_render_layout_container_child_order=status_chip_v1,secondary_indicator_v1,tertiary_marker_subcomponent\n";
+  std::cout << "widget_extension_render_layout_container_child_count=3\n";
+  std::cout << "widget_extension_render_layout_container_header_band_name=sandbox_extension_header_band\n";
+  std::cout << "widget_extension_render_layout_container_header_band_role=layout_header_region\n";
+  std::cout << "widget_extension_render_layout_container_header_band_owner=extension_parent_state\n";
+  std::cout << "widget_extension_render_layout_container_header_band_title=Runtime Panel\n";
+  std::cout << "widget_extension_render_layout_container_header_band_summary=" << extension_header_band_summary_text(extension_state) << "\n";
+  std::cout << "widget_extension_render_layout_container_header_band_summary_owner=extension_parent_state\n";
+  std::cout << "widget_extension_render_layout_container_header_band_summary_child_dependency=none\n";
+  std::cout << "widget_extension_render_layout_container_region_order=header_band,body_region,footer_strip\n";
+  std::cout << "widget_extension_render_layout_container_body_region_name=sandbox_extension_body_region\n";
+  std::cout << "widget_extension_render_layout_container_body_region_role=layout_body_region\n";
+  std::cout << "widget_extension_render_layout_container_body_region_owner=extension_parent_state\n";
+  std::cout << "widget_extension_render_layout_container_body_region_title=State Overview\n";
+  std::cout << "widget_extension_render_layout_container_body_region_child_order=status_chip_v1,secondary_indicator_v1,tertiary_marker_subcomponent\n";
+  std::cout << "widget_extension_render_layout_container_body_region_child_count=3\n";
+  std::cout << "widget_extension_render_layout_container_body_region_child_dependency=none\n";
+  std::cout << "widget_extension_render_layout_container_body_hierarchy_rule=first_child_primary_visual_weight_v1\n";
+  std::cout << "widget_extension_render_layout_container_body_hierarchy_primary_child=status_chip_v1\n";
+  std::cout << "widget_extension_render_layout_container_body_hierarchy_supporting_children=secondary_indicator_v1,tertiary_marker_subcomponent\n";
+  std::cout << "widget_extension_render_layout_container_body_hierarchy_owner=extension_parent_state\n";
+  std::cout << "widget_extension_render_layout_container_body_composition_rule=uniform_child_slot_height_v1\n";
+  std::cout << "widget_extension_render_layout_container_body_composition_slot_height=20\n";
+  std::cout << "widget_extension_render_layout_container_body_composition_owner=extension_parent_state\n";
+  std::cout << "widget_extension_render_layout_container_footer_strip_name=sandbox_extension_footer_strip\n";
+  std::cout << "widget_extension_render_layout_container_footer_strip_role=layout_footer_region\n";
+  std::cout << "widget_extension_render_layout_container_footer_strip_owner=extension_parent_state\n";
+  std::cout << "widget_extension_render_layout_container_footer_strip_title=Next Action\n";
+  std::cout << "widget_extension_render_layout_container_footer_strip_value=" << extension_footer_strip_status_text(extension_state) << "\n";
+  std::cout << "widget_extension_render_layout_container_footer_strip_status_owner=extension_parent_state\n";
+  std::cout << "widget_extension_render_layout_container_footer_strip_child_dependency=none\n";
+  std::cout << "widget_extension_render_layout_container_region_backgrounds=header:0.10,0.12,0.14,1.00|body:0.11,0.13,0.15,1.00|footer:0.10,0.12,0.14,1.00\n";
+  std::cout << "widget_extension_render_layout_container_readability_profile=panel_calm_control_card_reconstruction_v1\n";
+  std::cout << "widget_extension_render_layout_container_readability_spacing=panel:11|header:12|body:11|footer:11\n";
+  std::cout << "widget_extension_render_layout_container_readability_typography=header_title:17|header_summary:15|body_title:16|footer_text:14|control_label:22\n";
+  std::cout << "widget_extension_render_layout_container_text_contrast_profile=calm_control_card_hierarchy_v1\n";
+  std::cout << "widget_extension_render_layout_container_visual_consolidation_profile=compact_control_surface_v1\n";
+  std::cout << "widget_extension_render_layout_container_visual_fragmentation=reduced\n";
+  std::cout << "widget_extension_render_layout_container_visual_grouping=header_body_footer_coherent\n";
+  std::cout << "widget_extension_render_layout_container_surface_grouping_profile=cohesive_body_surface_v1\n";
+  std::cout << "widget_extension_render_layout_container_body_grouping_style=single_grouped_content_area\n";
+  std::cout << "widget_extension_render_layout_container_body_row_striping=softened\n";
+  std::cout << "widget_extension_render_layout_container_body_padding_refinement=inner:10,8,10,8\n";
+  std::cout << "widget_extension_render_layout_container_primary_emphasis_profile=primary_card_focus_v1\n";
+  std::cout << "widget_extension_render_layout_container_primary_child_spacing=expanded_top_anchor\n";
+  std::cout << "widget_extension_render_layout_container_supporting_children_tone=deemphasized_readable_v1\n";
+  std::cout << "widget_extension_render_layout_container_footer_integration_profile=panel_footer_blend_v1\n";
+  std::cout << "widget_extension_render_layout_container_footer_padding_refinement=inner:9,4,9,4\n";
+  std::cout << "widget_extension_render_layout_container_footer_text_legibility=title:13|value:16\n";
+  std::cout << "widget_extension_render_layout_container_header_integration_profile=panel_header_blend_v1\n";
+  std::cout << "widget_extension_render_layout_container_header_padding_refinement=inner:9,5,9,4\n";
+  std::cout << "widget_extension_render_layout_container_header_text_legibility=title:17|summary:15\n";
+  std::cout << "widget_extension_render_layout_container_full_panel_cohesion_profile=unified_compact_surface_v1\n";
+  std::cout << "widget_extension_render_layout_container_divider_language=unified_control_card_surface_v1\n";
+  std::cout << "widget_extension_render_layout_container_region_spacing_rhythm=header:11|body:11|footer:11\n";
+  std::cout << "widget_extension_render_layout_container_controls_integration_profile=panel_controls_action_focus_v1\n";
+  std::cout << "widget_extension_render_layout_container_controls_surface=bg:0.12,0.16,0.19,1.00|label:0.12,0.16,0.19,1.00\n";
+  std::cout << "widget_extension_render_layout_container_controls_spacing=label:22|input:42|row:66\n";
+  std::cout << "widget_extension_render_layout_container_controls_padding_refinement=row:6\n";
+  std::cout << "widget_extension_render_layout_container_text_hierarchy_profile=intentional_label_cleanup_v1\n";
+  std::cout << "widget_extension_render_layout_container_text_debug_noise=reduced\n";
+  std::cout << "widget_extension_render_layout_container_text_label_style=title:clear|section:concise|status:compact\n";
+  std::cout << "widget_extension_render_parent_state_snapshot=secondary_active:"
+            << (extension_state.card_display.secondary_active ? "1" : "0")
+            << "|orchestration:" << (extension_state.parent_orchestration_active ? "1" : "0")
+            << "|secondary_visible:" << (extension_state.parent_secondary_indicator_visible ? "1" : "0")
+            << "|order:" << (extension_state.parent_secondary_indicator_first ? "secondary_first" : "status_first")
+            << "|conflict:" << extension_state.parent_conflict_last_mode
+            << "\n";
   std::cout << "widget_extension_render_subcomponent_child_dependency=none\n";
   std::cout << "widget_extension_render_subcomponent_name=status_chip_v1\n";
   std::cout << "widget_extension_render_subcomponent_input_record=status_chip_input_v1\n";
@@ -1132,6 +1371,20 @@ bool render_extension_lane_frame(
   std::cout << "widget_extension_render_layout_child_order=" << (extension_state.parent_secondary_indicator_first ? "secondary_indicator_v1,status_chip_v1" : "status_chip_v1,secondary_indicator_v1") << "\n";
   std::cout << "widget_extension_render_subcomponent_coexistence=1\n";
   std::cout << "widget_extension_render_subcomponent_coexistence_three=1\n";
+  const bool frame_complete =
+    status_chip_input.visible &&
+    tertiary_marker_input.visible &&
+    (secondary_indicator_input.visible == extension_state.parent_secondary_indicator_visible);
+  std::cout << "widget_extension_render_stability_frame_complete=" << (frame_complete ? 1 : 0) << "\n";
+  if (!frame_complete) {
+    std::cout << "widget_extension_render_stability_violation=child_visibility_mismatch\n";
+  }
+  if (extension_stress_demo_mode) {
+    stress_render_frame_count += 1;
+    std::cout << "widget_extension_stress_frame_rendered=1\n";
+    std::cout << "widget_extension_stress_transition_index=" << stress_transition_index << "\n";
+    std::cout << "widget_extension_stress_render_frame_count=" << stress_render_frame_count << "\n";
+  }
   std::cout << "widget_extension_render_layout_mode=" << extension_layout_mode(extension_state.card_display.secondary_active) << "\n";
   std::cout << "widget_extension_info_card_present=" << (extension_state.info_card_visible ? 1 : 0) << "\n";
   std::cout << "widget_extension_secondary_placeholder_present=" << (extension_state.placeholder_visible ? 1 : 0) << "\n";
@@ -1235,6 +1488,29 @@ bool is_extension_visual_baseline_mode_enabled(int argc, char** argv) {
   return env_text == "1" || equals_ignore_case(env_text, "true") || equals_ignore_case(env_text, "on");
 }
 
+bool is_extension_stress_demo_mode_enabled(int argc, char** argv) {
+  if (argv) {
+    for (int index = 1; index < argc; ++index) {
+      if (!argv[index]) {
+        continue;
+      }
+
+      const std::string argument = argv[index];
+      if (argument == "--extension-stress-demo") {
+        return true;
+      }
+    }
+  }
+
+  const char* env_value = std::getenv("NGK_WIDGET_EXTENSION_STRESS_DEMO");
+  if (!env_value) {
+    return false;
+  }
+
+  const std::string env_text = env_value;
+  return env_text == "1" || equals_ignore_case(env_text, "true") || equals_ignore_case(env_text, "on");
+}
+
 SandboxLane read_sandbox_lane(int argc, char** argv) {
   if (argv) {
     for (int index = 1; index < argc; ++index) {
@@ -1277,7 +1553,7 @@ std::wstring to_wide(const std::string& text) {
   return wide;
 }
 
-int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_baseline_mode, SandboxLane lane) {
+int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_baseline_mode, bool extension_stress_demo_mode, SandboxLane lane) {
   const SandboxRunConfig run_cfg = normalize_run_config(demo_mode, visual_baseline_mode, extension_visual_baseline_mode, lane);
   demo_mode = run_cfg.demo_mode;
   visual_baseline_mode = run_cfg.visual_baseline_mode;
@@ -1290,8 +1566,19 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
   std::cout << "widget_demo_mode=" << (demo_mode ? 1 : 0) << "\n";
   std::cout << "widget_visual_baseline_mode=" << (visual_baseline_mode ? 1 : 0) << "\n";
   std::cout << "widget_extension_visual_baseline_mode=" << (extension_visual_baseline_mode ? 1 : 0) << "\n";
+  std::cout << "widget_extension_stress_demo_mode=" << (extension_stress_demo_mode ? 1 : 0) << "\n";
   std::cout << "widget_sandbox_lane=" << (lane == SandboxLane::Baseline ? "baseline" : "extension") << "\n";
   std::cout << "widget_backend_mode=d3d\n";
+  const char* launch_identity_env = std::getenv("NGK_WIDGET_LAUNCH_IDENTITY");
+  const std::string launch_identity = (launch_identity_env && *launch_identity_env)
+    ? std::string(launch_identity_env)
+    : std::string();
+  std::cout << "widget_launch_identity_present=" << (launch_identity.empty() ? 0 : 1) << "\n";
+  std::cout << "widget_launch_identity=" << (launch_identity.empty() ? "none" : launch_identity) << "\n";
+
+  const std::string window_title_prefix = launch_identity.empty()
+    ? "NGKsUI Runtime - Widget Sandbox"
+    : ("NGKsUI Runtime - Widget Sandbox - " + launch_identity);
 
   if (lane == SandboxLane::ExtensionSlot) {
     // Reserved inert extension lane: currently routes through stable baseline path.
@@ -1314,7 +1601,8 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
     extension_state.card_display.secondary_active,
     extension_state.parent_secondary_indicator_first);
 
-  if (!window.create(L"NGKsUI Runtime - Widget Sandbox", kInitialWidth, kInitialHeight)) {
+  const std::wstring window_title_wide = to_wide(window_title_prefix);
+  if (!window.create(window_title_wide.c_str(), kInitialWidth, kInitialHeight)) {
     std::cout << "widget_window_create_failed=1\n";
     return 1;
   }
@@ -1335,13 +1623,22 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
   ngk::ui::Label title("Phase 40: Runtime Update Loop Scheduler");
   ngk::ui::Label status("status: ready");
   ngk::ui::Label extension_mode_label(extension_state.label_text);
-  ngk::ui::VerticalLayout extension_info_card(6);
+  ngk::ui::VerticalLayout extension_info_card(4);
   ngk::ui::Label extension_info_card_title(extension_state.info_card_title);
   ngk::ui::Label extension_info_card_text(extension_state.info_card_text);
   ngk::ui::Label extension_info_card_summary(extension_state.card_display.summary_text);
+  ngk::ui::VerticalLayout extension_subcomponent_panel(2);
+  ngk::ui::VerticalLayout extension_header_band(1);
+  ngk::ui::Label extension_header_band_title("Runtime Panel");
+  ngk::ui::Label extension_header_band_summary(extension_header_band_summary_text(extension_state));
+  ngk::ui::VerticalLayout extension_body_region(1);
+  ngk::ui::Label extension_body_region_title("State Overview");
   ngk::ui::Label extension_status_chip(extension_state.status_chip.text);
   ngk::ui::Label extension_secondary_indicator(extension_state.secondary_indicator.text);
   ngk::ui::Label extension_tertiary_marker(extension_state.tertiary_marker.text);
+  ngk::ui::VerticalLayout extension_footer_strip(1);
+  ngk::ui::Label extension_footer_strip_title("Next Action");
+  ngk::ui::Label extension_footer_strip_value(extension_footer_strip_status_text(extension_state));
   ngk::ui::Label extension_info_card_detail(extension_state.card_display.detail_text);
   ngk::ui::VerticalLayout extension_secondary_placeholder(4);
   ngk::ui::Label extension_secondary_placeholder_text(extension_state.secondary_placeholder_text);
@@ -1349,7 +1646,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
   ngk::ui::InputBox text_field;
   ngk::ui::HorizontalLayout controls_row(CONTROL_SPACING);
   controls_row.set_padding(CONTROL_SPACING);
-  controls_row.set_background(0.10f, 0.10f, 0.14f, 1.0f);
+  controls_row.set_background(0.12f, 0.16f, 0.19f, 1.0f);
   controls_row.set_size(0, 68);
   controls_row.set_preferred_size(0, 68);
 
@@ -1365,18 +1662,42 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
 
   title.set_size(0, 36);
   status.set_size(0, 28);
-  extension_mode_label.set_size(0, 24);
-  extension_mode_label.set_preferred_size(0, 24);
-  extension_info_card.set_padding(10, 8, 10, 8);
-  extension_info_card.set_background(0.12f, 0.12f, 0.16f, 1.0f);
+  extension_mode_label.set_size(0, 22);
+  extension_mode_label.set_preferred_size(0, 22);
+  extension_mode_label.set_background(0.06f, 0.07f, 0.09f, 1.0f);
+  extension_info_card.set_padding(12, 5, 12, 5);
+  extension_info_card.set_background(0.10f, 0.12f, 0.14f, 1.0f);
   extension_info_card.set_size(0, extension_layout.info_card_height);
   extension_info_card.set_preferred_size(0, extension_layout.info_card_height);
-  extension_info_card_title.set_size(0, 28);
-  extension_info_card_title.set_preferred_size(0, 28);
-  extension_info_card_text.set_size(0, 24);
-  extension_info_card_text.set_preferred_size(0, 24);
-  extension_info_card_summary.set_size(0, 24);
-  extension_info_card_summary.set_preferred_size(0, 24);
+  extension_info_card_title.set_size(0, 18);
+  extension_info_card_title.set_preferred_size(0, 18);
+  extension_info_card_title.set_background(0.10f, 0.12f, 0.14f, 1.0f);
+  extension_info_card_text.set_size(0, 14);
+  extension_info_card_text.set_preferred_size(0, 14);
+  extension_info_card_text.set_background(0.10f, 0.12f, 0.14f, 1.0f);
+  extension_info_card_summary.set_size(0, 14);
+  extension_info_card_summary.set_preferred_size(0, 14);
+  extension_subcomponent_panel.set_padding(10, 4, 10, 4);
+  extension_subcomponent_panel.set_background(0.10f, 0.12f, 0.14f, 1.0f);
+  extension_subcomponent_panel.set_size(0, 154);
+  extension_subcomponent_panel.set_preferred_size(0, 154);
+  extension_header_band.set_padding(8, 2, 8, 2);
+  extension_header_band.set_background(0.0f, 0.0f, 0.0f, 1.0f);
+  extension_header_band.set_size(0, 20);
+  extension_header_band.set_preferred_size(0, 20);
+  extension_header_band_title.set_size(0, 13);
+  extension_header_band_title.set_preferred_size(0, 13);
+  extension_header_band_title.set_background(0.0f, 0.0f, 0.0f, 1.0f);
+  extension_header_band_summary.set_size(0, 11);
+  extension_header_band_summary.set_preferred_size(0, 11);
+  extension_header_band_summary.set_background(0.10f, 0.12f, 0.14f, 1.0f);
+  extension_body_region.set_padding(8, 4, 8, 4);
+  extension_body_region.set_background(0.10f, 0.12f, 0.14f, 1.0f);
+  extension_body_region.set_size(0, 88);
+  extension_body_region.set_preferred_size(0, 88);
+  extension_body_region_title.set_size(0, 12);
+  extension_body_region_title.set_preferred_size(0, 12);
+  extension_body_region_title.set_background(0.10f, 0.12f, 0.14f, 1.0f);
   extension_status_chip.set_size(0, extension_layout.status_chip_height);
   extension_status_chip.set_preferred_size(0, extension_layout.status_chip_height);
   apply_extension_status_chip_input_to_label(extension_status_chip, extension_status_chip_input);
@@ -1389,17 +1710,42 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
   extension_tertiary_marker.set_preferred_size(0, extension_layout.tertiary_marker_height);
   apply_extension_tertiary_marker_input_to_label(extension_tertiary_marker, extension_tertiary_marker_input);
   extension_tertiary_marker.set_visible(extension_tertiary_marker_input.visible);
-  extension_info_card_detail.set_size(0, 22);
-  extension_info_card_detail.set_preferred_size(0, 22);
+  extension_footer_strip.set_padding(8, 2, 8, 2);
+  extension_footer_strip.set_background(0.10f, 0.12f, 0.14f, 1.0f);
+  extension_footer_strip.set_size(0, 27);
+  extension_footer_strip.set_preferred_size(0, 27);
+  extension_footer_strip_title.set_size(0, 11);
+  extension_footer_strip_title.set_preferred_size(0, 11);
+  extension_footer_strip_title.set_background(0.10f, 0.12f, 0.14f, 1.0f);
+  extension_footer_strip_value.set_size(0, 13);
+  extension_footer_strip_value.set_preferred_size(0, 13);
+  extension_footer_strip_value.set_background(0.09f, 0.12f, 0.14f, 1.0f);
+  extension_info_card_detail.set_size(0, 14);
+  extension_info_card_detail.set_preferred_size(0, 14);
+  extension_info_card_detail.set_background(0.10f, 0.12f, 0.14f, 1.0f);
   apply_extension_primary_summary_badge_variant(extension_info_card_summary, extension_state.card_display.secondary_active);
-  extension_secondary_placeholder.set_padding(10, 8, 10, 8);
-  extension_secondary_placeholder.set_background(0.09f, 0.09f, 0.12f, 1.0f);
+  extension_secondary_placeholder.set_padding(8, 2, 8, 2);
+  extension_secondary_placeholder.set_background(0.04f, 0.05f, 0.06f, 1.0f);
   extension_secondary_placeholder.set_size(0, extension_layout.placeholder_height);
   extension_secondary_placeholder.set_preferred_size(0, extension_layout.placeholder_height);
-  extension_secondary_placeholder_text.set_size(0, 22);
-  extension_secondary_placeholder_text.set_preferred_size(0, 22);
+  extension_secondary_placeholder_text.set_size(0, 11);
+  extension_secondary_placeholder_text.set_preferred_size(0, 11);
+  extension_secondary_placeholder_text.set_background(0.04f, 0.05f, 0.06f, 1.0f);
+  if (extension_state.active) {
+    controls_row.set_padding(6);
+    controls_row.set_background(0.12f, 0.16f, 0.19f, 1.0f);
+    controls_row.set_size(0, 66);
+    controls_row.set_preferred_size(0, 66);
+    text_field_label.set_size(0, 22);
+    text_field_label.set_preferred_size(0, 22);
+    text_field_label.set_background(0.12f, 0.16f, 0.19f, 1.0f);
+  }
   text_field_label.set_size(0, 24);
   text_field_label.set_preferred_size(0, 24);
+  if (extension_state.active) {
+    text_field_label.set_size(0, 22);
+    text_field_label.set_preferred_size(0, 22);
+  }
   text_field.set_size(0, 40);
   text_field.set_preferred_size(0, 40);
   increment_button.set_fixed_height(40);
@@ -1413,10 +1759,9 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
     if (extension_state.info_card_visible) {
       extension_info_card.add_child(&extension_info_card_title);
       extension_info_card.add_child(&extension_info_card_text);
+      extension_header_band.add_child(&extension_header_band_title);
+      extension_info_card.add_child(&extension_header_band);
       extension_info_card.add_child(&extension_info_card_summary);
-      extension_info_card.add_child(&extension_status_chip);
-      extension_info_card.add_child(&extension_secondary_indicator);
-      extension_info_card.add_child(&extension_tertiary_marker);
       extension_info_card.add_child(&extension_info_card_detail);
       root.add_child(&extension_info_card);
       std::cout << "widget_extension_info_card_title=" << extension_info_card_title.text() << "\n";
@@ -1439,11 +1784,54 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
       std::cout << "widget_extension_subcomponent_tertiary_marker_visible=" << (extension_tertiary_marker_input.visible ? 1 : 0) << "\n";
       std::cout << "widget_extension_subcomponent_tertiary_marker_text=" << extension_tertiary_marker.text() << "\n";
       std::cout << "widget_extension_subcomponent_tertiary_marker_variant=" << extension_tertiary_marker_input.variant << "\n";
+      std::cout << "widget_extension_layout_container_name=sandbox_extension_panel\n";
+      std::cout << "widget_extension_layout_container_child_order=status_chip_v1,secondary_indicator_v1,tertiary_marker_subcomponent\n";
+      std::cout << "widget_extension_layout_container_child_count=3\n";
+      std::cout << "widget_extension_layout_container_header_band_name=sandbox_extension_header_band\n";
+      std::cout << "widget_extension_layout_container_header_band_title=" << extension_header_band_title.text() << "\n";
+      std::cout << "widget_extension_layout_container_header_band_summary=" << extension_header_band_summary.text() << "\n";
+      std::cout << "widget_extension_layout_container_header_band_summary_owner=extension_parent_state\n";
+      std::cout << "widget_extension_layout_container_header_band_summary_child_dependency=none\n";
+      std::cout << "widget_extension_layout_container_region_order=header_band,body_region,footer_strip\n";
+      std::cout << "widget_extension_layout_container_body_region_name=sandbox_extension_body_region\n";
+      std::cout << "widget_extension_layout_container_body_region_title=" << extension_body_region_title.text() << "\n";
+      std::cout << "widget_extension_layout_container_body_region_child_order=status_chip_v1,secondary_indicator_v1,tertiary_marker_subcomponent\n";
+      std::cout << "widget_extension_layout_container_body_region_child_count=3\n";
+      std::cout << "widget_extension_layout_container_body_region_child_dependency=none\n";
+      std::cout << "widget_extension_layout_container_body_hierarchy_rule=first_child_primary_visual_weight_v1\n";
+      std::cout << "widget_extension_layout_container_body_hierarchy_primary_child=status_chip_v1\n";
+      std::cout << "widget_extension_layout_container_body_hierarchy_supporting_children=secondary_indicator_v1,tertiary_marker_subcomponent\n";
+      std::cout << "widget_extension_layout_container_body_hierarchy_owner=extension_parent_state\n";
+      std::cout << "widget_extension_layout_container_body_composition_rule=uniform_child_slot_height_v1\n";
+      std::cout << "widget_extension_layout_container_body_composition_slot_height=20\n";
+      std::cout << "widget_extension_layout_container_body_composition_owner=extension_parent_state\n";
+      std::cout << "widget_extension_layout_container_footer_strip_name=sandbox_extension_footer_strip\n";
+      std::cout << "widget_extension_layout_container_footer_strip_role=layout_footer_region\n";
+      std::cout << "widget_extension_layout_container_footer_strip_owner=extension_parent_state\n";
+      std::cout << "widget_extension_layout_container_footer_strip_title=" << extension_footer_strip_title.text() << "\n";
+      std::cout << "widget_extension_layout_container_footer_strip_value=" << extension_footer_strip_value.text() << "\n";
+      std::cout << "widget_extension_layout_container_footer_strip_status_owner=extension_parent_state\n";
+      std::cout << "widget_extension_layout_container_footer_strip_child_dependency=none\n";
+      std::cout << "widget_extension_layout_container_region_backgrounds=header:0.10,0.12,0.14,1.00|body:0.11,0.13,0.15,1.00|footer:0.10,0.12,0.14,1.00\n";
+      std::cout << "widget_extension_layout_container_primary_emphasis_profile=primary_card_focus_v1\n";
+      std::cout << "widget_extension_layout_container_primary_child_spacing=expanded_top_anchor\n";
+      std::cout << "widget_extension_layout_container_supporting_children_tone=deemphasized_readable_v1\n";
+      std::cout << "widget_extension_layout_container_footer_integration_profile=panel_footer_blend_v1\n";
+      std::cout << "widget_extension_layout_container_footer_padding_refinement=inner:9,4,9,4\n";
+      std::cout << "widget_extension_layout_container_footer_text_legibility=title:13|value:16\n";
+      std::cout << "widget_extension_layout_container_header_integration_profile=panel_header_blend_v1\n";
+      std::cout << "widget_extension_layout_container_header_padding_refinement=inner:9,5,9,4\n";
+      std::cout << "widget_extension_layout_container_header_text_legibility=title:17|summary:15\n";
+      std::cout << "widget_extension_layout_container_full_panel_cohesion_profile=unified_compact_surface_v1\n";
+      std::cout << "widget_extension_layout_container_divider_language=unified_control_card_surface_v1\n";
+      std::cout << "widget_extension_layout_container_region_spacing_rhythm=header:11|body:11|footer:11\n";
+      std::cout << "widget_extension_layout_container_controls_integration_profile=panel_controls_action_focus_v1\n";
+      std::cout << "widget_extension_layout_container_controls_surface=bg:0.12,0.16,0.19,1.00|label:0.12,0.16,0.19,1.00\n";
+      std::cout << "widget_extension_layout_container_controls_spacing=label:22|input:42|row:66\n";
+      std::cout << "widget_extension_layout_container_controls_padding_refinement=row:6\n";
       std::cout << "widget_extension_info_card_detail=" << extension_info_card_detail.text() << "\n";
     }
     if (extension_state.placeholder_visible) {
-      extension_secondary_placeholder.add_child(&extension_secondary_placeholder_text);
-      root.add_child(&extension_secondary_placeholder);
       std::cout << "widget_extension_secondary_placeholder_text=" << extension_secondary_placeholder_text.text() << "\n";
     }
     emit_extension_lane_startup_tokens(extension_state, extension_layout, extension_mode_label);
@@ -1565,6 +1953,11 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
     std::cout << "widget_extension_visual_parent_orchestration_rule_owner=extension_parent_state\n";
     std::cout << "widget_extension_visual_parent_orchestration_rule_state=" << (extension_state.parent_orchestration_active ? "active" : "inactive") << "\n";
     std::cout << "widget_extension_visual_parent_orchestration_child_dependency=none\n";
+    std::cout << "widget_extension_visual_layout_container_name=sandbox_extension_panel\n";
+    std::cout << "widget_extension_visual_layout_container_role=subcomponent_layout_surface\n";
+    std::cout << "widget_extension_visual_layout_container_owner=extension_parent_state\n";
+    std::cout << "widget_extension_visual_layout_container_child_order=status_chip_v1,secondary_indicator_v1,tertiary_marker_subcomponent\n";
+    std::cout << "widget_extension_visual_layout_container_child_count=3\n";
     std::cout << "widget_extension_visual_primary_summary_text=" << extension_info_card_summary.text() << "\n";
     std::cout << "widget_extension_visual_primary_detail_text=" << extension_info_card_detail.text() << "\n";
     std::cout << "widget_extension_visual_subcomponent_text=" << extension_status_chip.text() << "\n";
@@ -1586,6 +1979,57 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
     std::cout << "widget_extension_visual_subcomponent_tertiary_parent_coexistence_state=" << extension_tertiary_marker_input.parent_coexistence_state << "\n";
     std::cout << "widget_extension_visual_subcomponent_tertiary_child_dependency=none\n";
     std::cout << "widget_extension_visual_subcomponent_coexistence_three=1\n";
+    std::cout << "widget_extension_visual_layout_container_header_band_name=sandbox_extension_header_band\n";
+    std::cout << "widget_extension_visual_layout_container_header_band_title=" << extension_header_band_title.text() << "\n";
+    std::cout << "widget_extension_visual_layout_container_header_band_summary=" << extension_header_band_summary.text() << "\n";
+    std::cout << "widget_extension_visual_layout_container_header_band_summary_owner=extension_parent_state\n";
+    std::cout << "widget_extension_visual_layout_container_header_band_summary_child_dependency=none\n";
+    std::cout << "widget_extension_visual_layout_container_region_order=header_band,body_region,footer_strip\n";
+    std::cout << "widget_extension_visual_layout_container_body_region_name=sandbox_extension_body_region\n";
+    std::cout << "widget_extension_visual_layout_container_body_region_role=layout_body_region\n";
+    std::cout << "widget_extension_visual_layout_container_body_region_owner=extension_parent_state\n";
+    std::cout << "widget_extension_visual_layout_container_body_region_title=" << extension_body_region_title.text() << "\n";
+    std::cout << "widget_extension_visual_layout_container_body_region_child_order=status_chip_v1,secondary_indicator_v1,tertiary_marker_subcomponent\n";
+    std::cout << "widget_extension_visual_layout_container_body_region_child_count=3\n";
+    std::cout << "widget_extension_visual_layout_container_body_region_child_dependency=none\n";
+    std::cout << "widget_extension_visual_layout_container_body_hierarchy_rule=first_child_primary_visual_weight_v1\n";
+    std::cout << "widget_extension_visual_layout_container_body_hierarchy_primary_child=status_chip_v1\n";
+    std::cout << "widget_extension_visual_layout_container_body_hierarchy_supporting_children=secondary_indicator_v1,tertiary_marker_subcomponent\n";
+    std::cout << "widget_extension_visual_layout_container_body_hierarchy_owner=extension_parent_state\n";
+    std::cout << "widget_extension_visual_layout_container_body_composition_rule=uniform_child_slot_height_v1\n";
+    std::cout << "widget_extension_visual_layout_container_body_composition_slot_height=20\n";
+    std::cout << "widget_extension_visual_layout_container_body_composition_owner=extension_parent_state\n";
+    std::cout << "widget_extension_visual_layout_container_footer_strip_name=sandbox_extension_footer_strip\n";
+    std::cout << "widget_extension_visual_layout_container_footer_strip_role=layout_footer_region\n";
+    std::cout << "widget_extension_visual_layout_container_footer_strip_owner=extension_parent_state\n";
+    std::cout << "widget_extension_visual_layout_container_footer_strip_title=" << extension_footer_strip_title.text() << "\n";
+    std::cout << "widget_extension_visual_layout_container_footer_strip_value=" << extension_footer_strip_value.text() << "\n";
+    std::cout << "widget_extension_visual_layout_container_footer_strip_status_owner=extension_parent_state\n";
+    std::cout << "widget_extension_visual_layout_container_footer_strip_child_dependency=none\n";
+    std::cout << "widget_extension_visual_layout_container_region_backgrounds=header:0.10,0.12,0.14,1.00|body:0.11,0.13,0.15,1.00|footer:0.10,0.12,0.14,1.00\n";
+    std::cout << "widget_extension_visual_layout_container_readability_profile=panel_calm_control_card_reconstruction_v1\n";
+    std::cout << "widget_extension_visual_layout_container_readability_spacing=panel:11|header:12|body:11|footer:11\n";
+    std::cout << "widget_extension_visual_layout_container_readability_typography=header_title:17|header_summary:15|body_title:16|footer_text:14|control_label:22\n";
+    std::cout << "widget_extension_visual_layout_container_text_contrast_profile=calm_control_card_hierarchy_v1\n";
+    std::cout << "widget_extension_visual_layout_container_visual_consolidation_profile=compact_control_surface_v1\n";
+    std::cout << "widget_extension_visual_layout_container_visual_fragmentation=reduced\n";
+    std::cout << "widget_extension_visual_layout_container_visual_grouping=header_body_footer_coherent\n";
+    std::cout << "widget_extension_visual_layout_container_primary_emphasis_profile=primary_card_focus_v1\n";
+    std::cout << "widget_extension_visual_layout_container_primary_child_spacing=expanded_top_anchor\n";
+    std::cout << "widget_extension_visual_layout_container_supporting_children_tone=deemphasized_readable_v1\n";
+    std::cout << "widget_extension_visual_layout_container_footer_integration_profile=panel_footer_blend_v1\n";
+    std::cout << "widget_extension_visual_layout_container_footer_padding_refinement=inner:9,4,9,4\n";
+    std::cout << "widget_extension_visual_layout_container_footer_text_legibility=title:13|value:16\n";
+    std::cout << "widget_extension_visual_layout_container_header_integration_profile=panel_header_blend_v1\n";
+    std::cout << "widget_extension_visual_layout_container_header_padding_refinement=inner:9,5,9,4\n";
+    std::cout << "widget_extension_visual_layout_container_header_text_legibility=title:17|summary:15\n";
+    std::cout << "widget_extension_visual_layout_container_full_panel_cohesion_profile=unified_compact_surface_v1\n";
+    std::cout << "widget_extension_visual_layout_container_divider_language=unified_control_card_surface_v1\n";
+    std::cout << "widget_extension_visual_layout_container_region_spacing_rhythm=header:11|body:11|footer:11\n";
+    std::cout << "widget_extension_visual_layout_container_controls_integration_profile=panel_controls_action_focus_v1\n";
+    std::cout << "widget_extension_visual_layout_container_controls_surface=bg:0.12,0.16,0.19,1.00|label:0.12,0.16,0.19,1.00\n";
+    std::cout << "widget_extension_visual_layout_container_controls_spacing=label:22|input:42|row:66\n";
+    std::cout << "widget_extension_visual_layout_container_controls_padding_refinement=row:6\n";
     std::cout << "widget_extension_visual_layout_child_order=" << (extension_state.parent_secondary_indicator_first ? "secondary_indicator_v1,status_chip_v1" : "status_chip_v1,secondary_indicator_v1") << "\n";
     std::cout << "widget_extension_visual_bounds_background=" << extension_layout.background_x << "," << extension_layout.background_y << "," << extension_layout.background_width << "," << extension_layout.background_height << "\n";
     std::cout << "widget_extension_visual_bounds_label=" << extension_layout.label_x << "," << extension_layout.label_y << "," << extension_layout.label_width << "," << extension_layout.label_height << "\n";
@@ -1594,11 +2038,18 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
     std::cout << "widget_extension_visual_bounds_status_chip=" << extension_layout.status_chip_x << "," << extension_layout.status_chip_y << "," << extension_layout.status_chip_width << "," << extension_layout.status_chip_height << "\n";
     std::cout << "widget_extension_visual_bounds_secondary_indicator=" << extension_layout.secondary_indicator_x << "," << extension_layout.secondary_indicator_y << "," << extension_layout.secondary_indicator_width << "," << extension_layout.secondary_indicator_height << "\n";
     std::cout << "widget_extension_visual_bounds_tertiary_marker=" << extension_layout.tertiary_marker_x << "," << extension_layout.tertiary_marker_y << "," << extension_layout.tertiary_marker_width << "," << extension_layout.tertiary_marker_height << "\n";
+    std::cout << "widget_extension_visual_bounds_layout_container=" << extension_subcomponent_panel.x() << "," << extension_subcomponent_panel.y() << "," << extension_subcomponent_panel.width() << "," << extension_subcomponent_panel.height() << "\n";
+    std::cout << "widget_extension_visual_bounds_layout_header_band=" << extension_header_band.x() << "," << extension_header_band.y() << "," << extension_header_band.width() << "," << extension_header_band.height() << "\n";
+    std::cout << "widget_extension_visual_bounds_layout_body_region=" << extension_body_region.x() << "," << extension_body_region.y() << "," << extension_body_region.width() << "," << extension_body_region.height() << "\n";
+    std::cout << "widget_extension_visual_bounds_layout_footer_strip=" << extension_footer_strip.x() << "," << extension_footer_strip.y() << "," << extension_footer_strip.width() << "," << extension_footer_strip.height() << "\n";
+    std::cout << "widget_extension_visual_bounds_header_title=" << extension_header_band_title.x() << "," << extension_header_band_title.y() << "," << extension_header_band_title.width() << "," << extension_header_band_title.height() << "\n";
+    std::cout << "widget_extension_visual_bounds_body_title=" << extension_body_region_title.x() << "," << extension_body_region_title.y() << "," << extension_body_region_title.width() << "," << extension_body_region_title.height() << "\n";
+    std::cout << "widget_extension_visual_bounds_footer_value=" << extension_footer_strip_value.x() << "," << extension_footer_strip_value.y() << "," << extension_footer_strip_value.width() << "," << extension_footer_strip_value.height() << "\n";
   };
 
   auto set_status = [&](const std::string& text) {
     status.set_text(text);
-    const std::wstring title_text = to_wide("NGKsUI Runtime - Widget Sandbox - " + text);
+    const std::wstring title_text = to_wide(window_title_prefix + " - " + text);
     SetWindowTextW(reinterpret_cast<HWND>(window.native_handle()), title_text.c_str());
     std::cout << "widget_status_text=" << status.text() << "\n";
     ui_tree.invalidate();
@@ -1757,6 +2208,8 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
           surface_height,
           extension_secondary_placeholder,
           extension_secondary_placeholder_text,
+          extension_header_band_summary,
+          extension_footer_strip_value,
           extension_info_card_summary,
           extension_info_card_detail,
           extension_status_chip_input,
@@ -1810,6 +2263,8 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
   bool frame_in_progress = false;
   bool visual_contract_frame_logged = false;
   bool extension_visual_contract_frame_logged = false;
+  std::uint64_t extension_stress_transition_index = 0;
+  std::uint64_t extension_stress_render_frame_count = 0;
 
   auto emit_first_frame_markers = [&] {
     std::cout << "widget_first_frame=1\n";
@@ -1875,6 +2330,9 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
         extension_status_chip_input,
         extension_secondary_indicator_input,
         extension_tertiary_marker_input,
+        extension_stress_demo_mode,
+        extension_stress_transition_index,
+        extension_stress_render_frame_count,
         extension_visual_baseline_mode,
         extension_visual_contract_frame_logged
       );
@@ -2397,6 +2855,8 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
           surface_height,
           extension_secondary_placeholder,
           extension_secondary_placeholder_text,
+          extension_header_band_summary,
+          extension_footer_strip_value,
           extension_info_card_summary,
           extension_info_card_detail,
           extension_status_chip_input,
@@ -2427,6 +2887,8 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
           surface_height,
           extension_secondary_placeholder,
           extension_secondary_placeholder_text,
+          extension_header_band_summary,
+          extension_footer_strip_value,
           extension_info_card_summary,
           extension_info_card_detail,
           extension_status_chip_input,
@@ -2457,6 +2919,8 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
           surface_height,
           extension_secondary_placeholder,
           extension_secondary_placeholder_text,
+          extension_header_band_summary,
+          extension_footer_strip_value,
           extension_info_card_summary,
           extension_info_card_detail,
           extension_status_chip_input,
@@ -2472,6 +2936,8 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
       loop.set_timeout(std::chrono::milliseconds(5310), [&] {
         apply_extension_parent_routed_intent_outcome(extension_state, true, true);
         extension_info_card_detail.set_text(extension_state.card_display.detail_text);
+        extension_header_band_summary.set_text(extension_header_band_summary_text(extension_state));
+        extension_footer_strip_value.set_text(extension_footer_strip_status_text(extension_state));
         extension_status_chip_input = build_extension_status_chip_input_record(extension_state);
         extension_secondary_indicator_input = build_extension_secondary_indicator_input_record(extension_state);
         extension_tertiary_marker_input = build_extension_tertiary_marker_input_record(extension_state);
@@ -2492,6 +2958,79 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
         request_frame("EXTENSION_INTERACTION", "parent_conflict_resolution_both");
       });
     }
+  }
+
+  if (extension_stress_demo_mode && extension_state.active && extension_state.placeholder_visible) {
+    constexpr std::uint64_t kStressTransitions = 14;
+    constexpr int kStressStartMs = 180;
+    constexpr int kStressStepMs = 85;
+    std::cout << "widget_extension_stress_transition_target=" << kStressTransitions << "\n";
+
+    for (std::uint64_t step = 0; step < kStressTransitions; ++step) {
+      const int due_ms = kStressStartMs + static_cast<int>(step * kStressStepMs);
+      loop.set_timeout(std::chrono::milliseconds(due_ms), [&, step] {
+        extension_state.card_display.secondary_active = ((step % 2) == 0);
+        extension_state.secondary_placeholder_text = extension_state.card_display.secondary_active
+          ? "State summary: active"
+          : "State summary: inactive";
+        extension_state.card_display.summary_text = extension_primary_summary_text(extension_state.card_display.secondary_active);
+        extension_state.card_display.summary_badge_variant = extension_primary_summary_badge_variant(extension_state.card_display.secondary_active);
+        extension_state.card_display.detail_interaction_applied = true;
+        extension_state.status_chip_interaction_active = ((step % 3) != 0);
+
+        refresh_extension_parent_visibility_rule(extension_state);
+        refresh_extension_parent_orchestration_rule(extension_state);
+        refresh_extension_parent_ordering_rule(extension_state);
+
+        const bool status_intent = ((step % 3) != 1);
+        const bool secondary_intent = ((step % 3) != 0);
+        apply_extension_parent_routed_intent_outcome(extension_state, status_intent, secondary_intent);
+
+        extension_status_chip_input = build_extension_status_chip_input_record(extension_state);
+        extension_secondary_indicator_input = build_extension_secondary_indicator_input_record(extension_state);
+        extension_tertiary_marker_input = build_extension_tertiary_marker_input_record(extension_state);
+
+        extension_layout = compute_extension_lane_layout(
+          surface_width,
+          surface_height,
+          extension_state.card_display.secondary_active,
+          extension_state.parent_secondary_indicator_first);
+
+        extension_secondary_placeholder.set_size(0, extension_layout.placeholder_height);
+        extension_secondary_placeholder.set_preferred_size(0, extension_layout.placeholder_height);
+        extension_secondary_placeholder_text.set_text(extension_state.secondary_placeholder_text);
+        extension_info_card_summary.set_text(extension_state.card_display.summary_text);
+        extension_info_card_detail.set_text(extension_state.card_display.detail_text);
+        extension_header_band_summary.set_text(extension_header_band_summary_text(extension_state));
+        extension_footer_strip_value.set_text(extension_footer_strip_status_text(extension_state));
+        apply_extension_primary_summary_badge_variant(extension_info_card_summary, extension_state.card_display.secondary_active);
+        apply_extension_status_chip_input_to_label(extension_status_chip, extension_status_chip_input);
+        apply_extension_secondary_indicator_input_to_label(extension_secondary_indicator, extension_secondary_indicator_input);
+        apply_extension_tertiary_marker_input_to_label(extension_tertiary_marker, extension_tertiary_marker_input);
+        extension_secondary_indicator.set_visible(extension_secondary_indicator_input.visible);
+        extension_tertiary_marker.set_visible(extension_tertiary_marker_input.visible);
+
+        extension_stress_transition_index = step + 1;
+        std::cout << "widget_extension_stress_transition_step=" << extension_stress_transition_index << "\n";
+        std::cout << "widget_extension_stress_parent_snapshot=secondary_active:"
+                  << (extension_state.card_display.secondary_active ? "1" : "0")
+                  << "|orchestration:" << (extension_state.parent_orchestration_active ? "1" : "0")
+                  << "|secondary_visible:" << (extension_state.parent_secondary_indicator_visible ? "1" : "0")
+                  << "|order:" << (extension_state.parent_secondary_indicator_first ? "secondary_first" : "status_first")
+                  << "|conflict:" << extension_state.parent_conflict_last_mode
+                  << "\n";
+        std::cout << "widget_extension_stress_layout_child_order="
+                  << (extension_state.parent_secondary_indicator_first ? "secondary_indicator_v1,status_chip_v1" : "status_chip_v1,secondary_indicator_v1")
+                  << "\n";
+        request_frame("EXTENSION_STRESS", "rapid_parent_state_transition");
+      });
+    }
+
+    loop.set_timeout(std::chrono::milliseconds(kStressStartMs + static_cast<int>(kStressTransitions * kStressStepMs) + 280), [&] {
+      std::cout << "widget_extension_stress_transition_completed=" << extension_stress_transition_index << "\n";
+      std::cout << "widget_extension_stress_render_frame_count_final=" << extension_stress_render_frame_count << "\n";
+      window.request_close();
+    });
   }
 
   if (visual_baseline_mode) {
@@ -2524,8 +3063,9 @@ int main(int argc, char** argv) {
     const bool demo_mode = is_demo_mode_enabled(argc, argv);
     const bool visual_baseline_mode = is_visual_baseline_mode_enabled(argc, argv);
     const bool extension_visual_baseline_mode = is_extension_visual_baseline_mode_enabled(argc, argv);
+    const bool extension_stress_demo_mode = is_extension_stress_demo_mode_enabled(argc, argv);
     const SandboxLane lane = read_sandbox_lane(argc, argv);
-    return run_app(demo_mode, visual_baseline_mode, extension_visual_baseline_mode, lane);
+    return run_app(demo_mode, visual_baseline_mode, extension_visual_baseline_mode, extension_stress_demo_mode, lane);
   } catch (const std::exception& ex) {
     std::cout << "widget_sandbox_exception=" << ex.what() << "\n";
     return 10;
@@ -2534,3 +3074,11 @@ int main(int argc, char** argv) {
     return 11;
   }
 }
+
+
+
+
+
+
+
+

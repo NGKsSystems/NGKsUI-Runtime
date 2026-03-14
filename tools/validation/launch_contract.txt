@@ -1,0 +1,23 @@
+NGKsUI Runtime Widget Sandbox Launch Contract
+
+Canonical launcher command:
+- pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\run_widget_sandbox.ps1
+
+Canonical executable paths:
+- Debug: build\debug\bin\widget_sandbox.exe
+- Release: build\release\bin\widget_sandbox.exe
+
+Forbidden launch paths:
+- artifacts\build\...\widget_sandbox.exe
+- _artifacts\...\widget_sandbox.exe
+- any ad-hoc copied widget_sandbox.exe outside canonical build\<config>\bin
+
+Safety rules:
+- Direct exe launching is banned for normal development use.
+- The launcher verifies repo root and rejects unsafe paths.
+- The launcher prints launch identity, config, build path, and build info timestamp.
+- If canonical exe is missing or unsafe path is requested, launcher exits nonzero.
+
+Reason:
+- Prevent stale binary confusion and accidental execution of copied or outdated artifacts.
+- Keep runtime debugging and proof logs tied to one canonical executable location.

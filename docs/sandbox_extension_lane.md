@@ -458,3 +458,440 @@ This remains intentionally bounded:
 - one tiny third child only,
 - no new widgets beyond this marker child, no timers, animation, or telemetry,
 - no baseline visual or behavior changes.
+
+## Phase 40.65 Render Stability Under Rapid State Change
+
+Extension lane now proves deterministic render stability while parent state changes rapidly:
+- stress mode: tiny deterministic transition burst (14 rapid parent updates over about 1.4 seconds),
+- parent updates: orchestration, visibility, ordering, and routed conflict snapshot state,
+- render verification: per-frame parent snapshot tokens and frame-complete composition tokens.
+
+Stability guarantees:
+- no partial composition: frame-complete token must stay `1` for stress frames,
+- no ordering instability: both deterministic child-order states appear under parent rule control,
+- child isolation preserved: all three children remain parent-input driven with child dependency `none`,
+- baseline isolation: baseline lane remains default and unchanged, validated by baseline gates.
+
+This remains intentionally bounded:
+- no new widgets or interaction types,
+- no animation or telemetry system expansion,
+- stress logic is extension-mode only and proof-focused.
+
+## Phase 40.66 Extension Sandbox Layout Container
+
+Extension lane now introduces the first structured layout surface for real composition growth:
+- container: `sandbox_extension_panel`,
+- scope: extension mode only,
+- hosted children: `status_chip_v1`, `secondary_indicator_v1`, `tertiary_marker_subcomponent`.
+
+Container guarantees:
+- layout-only role: container organizes child placement and does not own behavior,
+- parent ownership preserved: parent remains owner of state, orchestration, visibility, and ordering,
+- child isolation preserved: each child remains parent-input driven with child dependency markers fixed to `none`,
+- deterministic render: container and child-order markers are emitted from startup/render/visual contract paths.
+
+This remains intentionally bounded:
+- one simple extension layout container only,
+- no new interactions, animation systems, telemetry, or baseline redesign,
+- baseline lane behavior and visuals remain unchanged and independently validated.
+
+## Phase 40.67 Extension Header Band Proof
+
+Extension lane now adds the first tiny visible structured header inside the layout container:
+- header band: `sandbox_extension_header_band`,
+- placement: inside `sandbox_extension_panel`, above the existing three subcomponents,
+- content: one title (`Extension Panel`) and one read-only parent-owned summary value.
+
+Header guarantees:
+- extension-only presence: header exists only when extension lane is active,
+- parent-owned summary: summary text is derived from existing parent state and not child-owned,
+- deterministic render: startup/render/visual contract tokens emit header identity and summary ownership,
+- child isolation preserved: status/secondary/tertiary subcomponents remain input-record-driven beneath header.
+
+This remains intentionally bounded:
+- one tiny header surface only,
+- no new interactions, animation, timers, telemetry, or dashboard expansion,
+- baseline lane behavior and visuals remain unchanged and separately validated.
+
+## Phase 40.68 Extension Body Region Proof
+
+Extension lane now adds one tiny body region below the header to host existing children:
+- body region: `sandbox_extension_body_region`,
+- placement: inside `sandbox_extension_panel`, directly under `sandbox_extension_header_band`,
+- hosted children: `status_chip_v1`, `secondary_indicator_v1`, `tertiary_marker_subcomponent`.
+
+Body region guarantees:
+- layout-only role: body region is a structural surface and does not own behavior,
+- parent ownership preserved: parent remains owner of orchestration, visibility, ordering, and child input records,
+- deterministic render: startup/render/visual contract tokens emit body region identity, ordering, and ownership,
+- child isolation preserved: all hosted children remain parent-input-driven with child dependency `none`.
+
+This remains intentionally bounded:
+- one tiny body surface only,
+- no new interactions, animation, timers, telemetry, or dashboard expansion,
+- baseline lane behavior and visuals remain unchanged and separately validated.
+
+## Phase 40.70 Human-Visible Extension Structure Proof
+
+Extension lane now makes panel structure obvious to a human viewer at a glance:
+- header region: `sandbox_extension_header_band` labeled `Header Region`,
+- body region: `sandbox_extension_body_region` labeled `Body Region`,
+- footer strip: `sandbox_extension_footer_strip` labeled `Footer Status Strip`.
+
+Human-visible guarantees:
+- extension-only styling: region differentiation exists only in extension lane,
+- clear section contrast: header/body/footer use distinct background tones,
+- explicit region labels: each region has readable title text,
+- ordered composition: regions render in stable vertical order with non-overlapping bounds.
+
+Contract and safety guarantees:
+- parent ownership remains unchanged for orchestration, visibility, ordering, conflict handling, and routing,
+- child isolation remains unchanged with parent-input-driven subcomponents and child dependency `none`,
+- baseline lane remains default and unchanged and is validated independently before extension proof.
+
+## Phase 40.71 Sandbox Render Primitive Proof
+
+Extension lane now includes a direct render primitive proof surface to confirm the viewport draws visible regions:
+- header test: dark-blue rectangle labeled `HEADER REGION`,
+- body test: dark-gray rectangle labeled `BODY REGION`,
+- footer test: dark-green rectangle labeled `FOOTER REGION`.
+
+Primitive proof guarantees:
+- extension-only rendering: primitive test surface is emitted only in extension lane,
+- high-contrast visibility: each region has distinct fill color and explicit uppercase text,
+- ordered layout: regions render in top/middle/bottom order with separate bounds,
+- deterministic frame proof: render/visual tokens and bounds confirm all three regions are present in a stable frame.
+
+Safety guarantees:
+- no baseline lane changes,
+- no new UI system or animation behavior,
+- existing extension contracts and parent ownership rules remain intact.
+
+## Phase 40.72 Visible Extension Panel Reconstruction
+
+Extension lane now replaces temporary primitive proof bands with the first real visible panel structure:
+- header band: `sandbox_extension_header_band` titled `Extension Panel` with parent-owned summary,
+- body region: `sandbox_extension_body_region` hosting existing child components,
+- footer/status strip: `sandbox_extension_footer_strip` with parent-owned read-only status text.
+
+Visible panel guarantees:
+- obvious sectioning: top/middle/bottom regions are visually separated by contrast, spacing, and ordering,
+- child hosting preserved: status chip, secondary indicator, and tertiary marker render inside body region,
+- footer visibility preserved: status strip remains visible as a distinct bottom region,
+- deterministic contract path: startup/render/visual tokens and bounds verify region identity and layout ordering.
+
+Safety guarantees:
+- extension-only reconstruction; baseline remains unchanged,
+- no new interactions, no dashboard expansion, and no architecture bypass,
+- existing parent ownership and child dependency rules remain intact.
+
+## Phase 40.73 Extension Panel Readability Polish
+
+Extension lane now applies a readability-only polish pass to the same reconstructed panel:
+- cleaner spacing and padding across panel/header/body/footer,
+- clearer text hierarchy for title, body label, and footer status,
+- more balanced section heights for top/middle/bottom readability.
+
+Readability guarantees:
+- same single panel structure is preserved (no panel expansion),
+- existing child components remain hosted inside body region,
+- footer/status strip remains parent-owned and clearly readable,
+- contrast and deterministic region ordering remain intact.
+
+Safety guarantees:
+- extension-only visual adjustments,
+- no new interactions, widgets, timers, or behaviors,
+- baseline lane remains unchanged and independently validated.
+
+## Phase 40.74 Extension Body Composition Rule Proof
+
+Extension lane now applies one tiny deterministic body composition rule to existing body children:
+- rule: `uniform_child_slot_height_v1`,
+- owner: `extension_parent_state`,
+- applied slot height: `20` for `status_chip_v1`, `secondary_indicator_v1`, and `tertiary_marker_subcomponent`.
+
+Composition-rule guarantees:
+- extension-only policy: rule applies only to extension body composition,
+- deterministic layout: all three existing body children use the same fixed slot height,
+- parent ownership preserved: parent state owns rule selection and slot-height contract,
+- child isolation preserved: children remain input-record-driven with dependency `none`.
+
+Safety guarantees:
+- no baseline lane changes,
+- no new children, interactions, timers, telemetry, or panel expansion,
+- existing header/body/footer structure and validation gates remain intact.
+
+## Phase 40.75 Extension Body Hierarchy Proof
+
+Extension lane now adds one tiny deterministic body hierarchy rule without expanding feature scope:
+- hierarchy rule: `first_child_primary_visual_weight_v1`,
+- primary child: `status_chip_v1` (first child in body order),
+- supporting children: `secondary_indicator_v1`, `tertiary_marker_subcomponent`.
+
+Hierarchy guarantees:
+- extension-only application: hierarchy refinement applies only in extension lane,
+- deterministic policy: first child receives stronger visual weight consistently,
+- parent ownership preserved: hierarchy policy is emitted and owned by `extension_parent_state`,
+- child isolation preserved: supporting children remain input-record-driven with dependency `none`.
+
+Safety guarantees:
+- no baseline lane changes,
+- no new widgets, interactions, timers, animation, telemetry, or dashboard expansion,
+- existing composition/order/visibility/orchestration contracts remain intact and validated.
+
+## Phase 40.77 Extension Panel Visual Consolidation
+
+Extension lane now applies a visual-consolidation pass to make the existing panel read as one compact control surface:
+- reduced strip fragmentation across stacked extension rows,
+- tightened extension-only spacing and padding rhythm,
+- harmonized header/body/footer and info-card surfaces for coherent grouping.
+
+Consolidation guarantees:
+- existing sections preserved: header, body, footer,
+- existing child components preserved and visible in body region,
+- existing textbox and buttons preserved,
+- parent ownership and child input isolation rules remain unchanged.
+
+Safety guarantees:
+- extension-only visual pass,
+- no new widgets, interactions, timers, animation, telemetry, or dashboard expansion,
+- baseline lane remains unchanged and independently validated.
+
+## Phase 40.78 Extension Text Hierarchy Cleanup
+
+Extension lane now applies a text-only hierarchy cleanup so the existing panel reads less like debug scaffolding:
+- mode label simplified to `Extension mode: active`,
+- card copy retitled to `Control Surface` with concise descriptive text,
+- section labels tightened to `Controls` and `Status`,
+- summary/detail wording normalized (`Secondary: ...`, `Action: ...`),
+- subcomponent labels normalized to compact readable forms.
+
+Text-cleanup guarantees:
+- existing panel structure preserved: header, body, footer,
+- existing child components preserved: status chip, secondary indicator, tertiary marker,
+- existing interactions preserved with no new behavior branches,
+- parent ownership and child input isolation rules remain unchanged.
+
+Safety guarantees:
+- extension-only textual cleanup,
+- no new widgets, interactions, timers, animation, telemetry, or dashboard expansion,
+- baseline lane remains unchanged and independently validated.
+
+## Phase 40.79 Extension Surface Grouping Refinement
+
+Extension lane now applies a surface-grouping pass so the existing body reads as one coherent area instead of stacked strips:
+- refined body-surface treatment toward a single grouped content area,
+- softened internal row striping across existing child rows,
+- tightened body/internal padding and grouping rhythm,
+- preserved existing header/body/footer structure and child composition.
+
+Grouping guarantees:
+- existing sections preserved: header, body, footer,
+- existing child components preserved and visible in body region,
+- existing textbox and buttons preserved,
+- parent ownership and child input isolation rules remain unchanged.
+
+Safety guarantees:
+- extension-only visual grouping pass,
+- no new widgets, interactions, timers, animation, telemetry, or dashboard expansion,
+- baseline lane remains unchanged and independently validated.
+
+## Phase 40.80 Extension Primary Card Emphasis Refinement
+
+Extension lane now applies a primary-emphasis pass so the first child in the grouped body becomes the clear focal point:
+- strengthened primary child contrast and focal anchoring,
+- refined top spacing around the primary child to improve scan order,
+- softened supporting child surface tone so they remain readable but secondary,
+- preserved existing header/body/footer structure and child composition.
+
+Emphasis guarantees:
+- existing sections preserved: header, body, footer,
+- existing child components preserved and visible in body region,
+- existing textbox and buttons preserved,
+- parent ownership and child input isolation rules remain unchanged.
+
+Safety guarantees:
+- extension-only visual emphasis pass,
+- no new widgets, interactions, timers, animation, telemetry, or dashboard expansion,
+- baseline lane remains unchanged and independently validated.
+
+## Phase 40.81 Extension Footer Integration Refinement
+
+Extension lane now applies a footer-integration pass so the status strip reads as a natural panel region instead of a debug bar:
+- refined footer surface treatment to blend with panel body/header composition,
+- refined footer padding and strip height for cleaner panel rhythm,
+- improved footer value legibility while preserving existing footer information,
+- preserved existing header/body/footer structure and child composition.
+
+Integration guarantees:
+- existing sections preserved: header, body, footer,
+- existing footer title/value information preserved,
+- existing textbox and buttons preserved,
+- parent ownership and child input isolation rules remain unchanged.
+
+Safety guarantees:
+- extension-only footer integration pass,
+- no new widgets, interactions, timers, animation, telemetry, or dashboard expansion,
+- baseline lane remains unchanged and independently validated.
+
+## Phase 40.82 Extension Header Integration Refinement
+
+Extension lane now applies a header-integration pass so the header band reads as a natural panel region instead of a detached strip:
+- refined header surface treatment to blend with body/footer composition while preserving hierarchy,
+- refined header padding and band height for cleaner panel rhythm,
+- improved header title/summary legibility while preserving existing header information,
+- preserved existing header/body/footer structure and child composition.
+
+Integration guarantees:
+- existing sections preserved: header, body, footer,
+- existing header title/summary information preserved,
+- existing textbox and buttons preserved,
+- parent ownership and child input isolation rules remain unchanged.
+
+Safety guarantees:
+- extension-only header integration pass,
+- no new widgets, interactions, timers, animation, telemetry, or dashboard expansion,
+- baseline lane remains unchanged and independently validated.
+
+## Phase 40.83 Extension Full Panel Cohesion Refinement
+
+Extension lane now applies a full-panel cohesion pass so header, body, and footer read as one finished compact control surface:
+- unified shared surface treatment across header/body/footer while preserving section hierarchy,
+- normalized divider language and region spacing rhythm to reduce stacked-strip appearance,
+- kept existing readability/legibility refinements while improving whole-panel cohesion,
+- preserved existing visible information, controls, and child composition.
+
+Cohesion guarantees:
+- existing sections preserved: header, body, footer,
+- existing section content preserved: title/summary, body children, footer status,
+- existing textbox and buttons preserved,
+- parent ownership and child input isolation rules remain unchanged.
+
+Safety guarantees:
+- extension-only full-panel cohesion pass,
+- no new widgets, interactions, timers, animation, telemetry, or dashboard expansion,
+- baseline lane remains unchanged and independently validated.
+
+## Phase 40.84 Control Area Integration Refinement
+
+Extension lane now applies a control-area integration pass so textbox and buttons read as part of the same compact extension panel:
+- refined controls-row surface treatment to align with panel palette,
+- refined control-area spacing rhythm and row padding for better grouping,
+- refined textbox-label treatment for stronger visual continuity with surrounding surfaces,
+- preserved existing control inventory and behavior.
+
+Integration guarantees:
+- existing controls preserved: textbox, increment, reset, disabled button,
+- existing control behavior preserved: text input and button actions,
+- existing header/body/footer and child composition preserved,
+- parent ownership and child input isolation rules remain unchanged.
+
+Safety guarantees:
+- extension-only control-area integration pass,
+- no new widgets, interactions, timers, animation, telemetry, or dashboard expansion,
+- baseline lane remains unchanged and independently validated.
+
+## Phase 40.85 Visual Readability Refinement
+
+Extension lane now applies a readability-focused polish pass while preserving exact panel structure:
+- refined typography hierarchy across header/body/footer and controls label,
+- refined spacing rhythm and micro-padding for cleaner scan flow,
+- refined primary-vs-secondary text contrast for faster interpretation at a glance,
+- preserved existing controls, information, and interaction behavior.
+
+Readability guarantees:
+- existing structure preserved: header, body, footer, and controls area,
+- existing controls preserved: textbox plus increment/reset/disabled buttons,
+- existing information preserved with clearer legibility,
+- parent ownership and child input isolation rules remain unchanged.
+
+Safety guarantees:
+- extension-only readability pass,
+- no new widgets, controls, sections, interactions, timers, animation, or telemetry,
+- baseline lane remains unchanged and independently validated.
+
+## Phase 40.86 Interaction Clarity Refinement
+
+Extension lane now applies an interaction-clarity refinement pass while preserving exact structure and behavior:
+- strengthened actionable control emphasis for textbox and buttons through control-area surface and spacing tuning,
+- reduced visual competition from passive informational text so controls are easier to identify at a glance,
+- improved current status/readout legibility while preserving the same status information and ownership,
+- preserved existing panel composition, controls inventory, and interaction behavior.
+
+Interaction-clarity guarantees:
+- existing structure preserved: header, body, footer, and controls area,
+- existing controls preserved: textbox plus increment/reset/disabled buttons,
+- existing information preserved with clearer actionable-vs-informational distinction,
+- parent ownership and child input isolation rules remain unchanged.
+
+Safety guarantees:
+- extension-only interaction-clarity pass,
+- no new widgets, controls, sections, interactions, timers, animation, or telemetry,
+- baseline lane remains unchanged and independently validated.
+
+## Phase 40.87 Status Feedback Clarity Refinement
+
+Extension lane now applies a status-feedback clarity pass while preserving exact structure and behavior:
+- refined status wording in header/footer so current panel state is less ambiguous,
+- increased footer status value legibility and spacing so the active readout is faster to scan,
+- clarified status-chip feedback text while preserving the same information and ownership,
+- preserved existing panel composition, controls inventory, and interaction behavior.
+
+Status-feedback guarantees:
+- existing structure preserved: header, body, footer, and controls area,
+- existing controls preserved: textbox plus increment/reset/disabled buttons,
+- existing information preserved with clearer current-state interpretation,
+- parent ownership and child input isolation rules remain unchanged.
+
+Safety guarantees:
+- extension-only status-feedback clarity pass,
+- no new widgets, controls, sections, interactions, timers, animation, or telemetry,
+- baseline lane remains unchanged and independently validated.
+
+## Phase 40.88 Minimal UI Calmness Refinement
+
+Extension lane now applies a minimal-UI calmness pass while preserving exact structure and behavior:
+- reduced residual visual noise through softer internal seam language and calmer supporting surface balance,
+- tuned spacing rhythm and control-row padding to feel less crowded while remaining deterministic,
+- softened control/footer emphasis balance so status and controls stay clear without prototype harshness,
+- preserved existing panel composition, controls inventory, and interaction behavior.
+
+Calmness guarantees:
+- existing structure preserved: header, body, footer, and controls area,
+- existing controls preserved: textbox plus increment/reset/disabled buttons,
+- existing information preserved with calmer, more deliberate presentation,
+- parent ownership and child input isolation rules remain unchanged.
+
+Safety guarantees:
+- extension-only calmness refinement pass,
+- no new widgets, controls, sections, interactions, timers, animation, or telemetry,
+- baseline lane remains unchanged and independently validated.
+
+## Phase 40.89 Panel Spacing & Surface Hierarchy Standardization
+
+Extension lane now applies a spacing and surface-hierarchy standardization pass while preserving exact structure and behavior:
+- standardized major section rhythm so header, body, and footer spacing reads as intentional and consistent,
+- standardized internal row spacing and control-surface padding to reduce crowding,
+- applied subtle three-tier surface hierarchy (base, panel, control surface) without heavy separators,
+- quieted diagnostic/supporting rows relative to primary status and action surfaces while keeping all information visible.
+
+Standardization guarantees:
+- existing structure preserved: header, body, footer, and controls area,
+- existing controls preserved: textbox plus increment/reset/disabled buttons,
+- existing information preserved with clearer grouping and calmer hierarchy,
+- parent ownership and child input isolation rules remain unchanged.
+
+Safety guarantees:
+- extension-only spacing/surface standardization pass,
+- no new widgets, controls, sections, interactions, timers, animation, or telemetry,
+- baseline lane remains unchanged and independently validated.
+
+## Phase 40.90 Calm Control Card Reconstruction
+
+Extension lane visuals were reconstructed into one cohesive calm control card while preserving existing behavior and information:
+- same controls and ordering (status chip, support state, context marker),
+- same parent-owned deterministic state orchestration,
+- same textbox/actions and interaction outcomes,
+- extension-only visual/token updates with baseline protections unchanged.
+
+Validation for this phase relies on calm-card contract tokens across layout/render/visual streams, plus unchanged behavior, structure, and visibility gates.

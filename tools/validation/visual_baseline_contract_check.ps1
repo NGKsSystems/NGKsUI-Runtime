@@ -9,30 +9,9 @@ Set-Location $Root
 
 $reportPath = Join-Path $Root 'tools/validation/visual_baseline_contract.txt'
 $logPath = Join-Path $Root '_proof/phase40_30_visual_baseline_run.log'
-$planPath = Join-Path $Root 'build_graph/debug/ngksgraph_plan.json'
-
-if (-not (Test-Path -LiteralPath $planPath)) {
-  throw "Missing graph plan: $planPath"
-}
-
-$widgetExe = Join-Path $Root 'build/debug/bin/widget_sandbox.exe'
-if (-not (Test-Path -LiteralPath $widgetExe)) {
-  $plan = Get-Content -Raw -LiteralPath $planPath | ConvertFrom-Json
-  if ($plan.targets) {
-    foreach ($target in $plan.targets) {
-      if ($target.name -eq 'widget_sandbox' -and $target.output_path) {
-        $candidate = Join-Path $Root ([string]$target.output_path)
-        if (Test-Path -LiteralPath $candidate) {
-          $widgetExe = $candidate
-          break
-        }
-      }
-    }
-  }
-}
-
-if (-not (Test-Path -LiteralPath $widgetExe)) {
-  throw "widget sandbox executable not found"
+$launcher = Join-Path $Root 'tools/run_widget_sandbox.ps1'
+if (-not (Test-Path -LiteralPath $launcher)) {
+  throw "Missing canonical launcher: $launcher"
 }
 
 $oldForceFull = $env:NGK_RENDER_RECOVERY_FORCE_FULL
@@ -44,10 +23,18 @@ try {
   $env:NGK_WIDGET_SANDBOX_DEMO = '0'
   $env:NGK_WIDGET_VISUAL_BASELINE = '1'
 
-  $out = & $widgetExe --visual-baseline 2>&1
+  $out = & $launcher -Config Debug -PassArgs @('--visual-baseline') 2>&1
   $txt = ($out | Out-String)
   $exitCode = $LASTEXITCODE
   $txt | Set-Content -Path $logPath -Encoding UTF8
+
+  $widgetExe = '(unknown)'
+  foreach ($line in ($txt -split "`r?`n")) {
+    if ($line -like 'LAUNCH_EXE=*') {
+      $widgetExe = $line.Substring(11).Trim()
+      break
+    }
+  }
 
   function HasToken([string]$token) {
     return $txt -match [regex]::Escape($token)

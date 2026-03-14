@@ -15,10 +15,10 @@ $ts = Get-Date -Format 'yyyyMMdd_HHmmss'
 $pf = Join-Path $Root ('_proof/phase40_48_extension_data_shape_expansion_proof_' + $ts)
 New-Item -ItemType Directory -Path $pf -Force | Out-Null
 
-$runtimeOut = pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\runtime_contract_guard.ps1 2>&1
+$null = pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\runtime_contract_guard.ps1 2>&1
 $runtimePass = ($LASTEXITCODE -eq 0)
 
-$baselineVisualOut = pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\validation\visual_baseline_contract_check.ps1 2>&1
+$null = pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\validation\visual_baseline_contract_check.ps1 2>&1
 $baselineVisualPass = ($LASTEXITCODE -eq 0)
 
 $baselineOut = pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\phase40_28\phase40_28_baseline_lock_runner.ps1 2>&1
@@ -53,27 +53,12 @@ if ($baselinePass -and -not $baselineGatePass) {
   $baselinePass = $false
 }
 
-$extensionVisualOut = pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\validation\extension_visual_contract_check.ps1 2>&1
+$null = pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\validation\extension_visual_contract_check.ps1 2>&1
 $extensionVisualPass = ($LASTEXITCODE -eq 0)
 
-$planPath = Join-Path $Root 'build_graph/debug/ngksgraph_plan.json'
-$widgetExe = Join-Path $Root 'build/debug/bin/widget_sandbox.exe'
-if (-not (Test-Path -LiteralPath $widgetExe) -and (Test-Path -LiteralPath $planPath)) {
-  $plan = Get-Content -Raw -LiteralPath $planPath | ConvertFrom-Json
-  if ($plan.targets) {
-    foreach ($target in $plan.targets) {
-      if ($target.name -eq 'widget_sandbox' -and $target.output_path) {
-        $candidate = Join-Path $Root ([string]$target.output_path)
-        if (Test-Path -LiteralPath $candidate) {
-          $widgetExe = $candidate
-          break
-        }
-      }
-    }
-  }
-}
-if (-not (Test-Path -LiteralPath $widgetExe)) {
-  throw 'widget sandbox executable not found'
+$launcher = Join-Path $Root 'tools/run_widget_sandbox.ps1'
+if (-not (Test-Path -LiteralPath $launcher)) {
+  throw 'missing canonical launcher'
 }
 
 $oldForceFull = $env:NGK_RENDER_RECOVERY_FORCE_FULL
@@ -89,7 +74,7 @@ try {
   $env:NGK_WIDGET_EXTENSION_VISUAL_BASELINE = '0'
   $env:NGK_WIDGET_SANDBOX_LANE = 'extension'
 
-  $extensionLaunchOut = & $widgetExe --sandbox-extension --demo 2>&1
+  $extensionLaunchOut = & $launcher -Config Debug -PassArgs @('--sandbox-extension', '--demo') 2>&1
   $extensionLaunchExit = $LASTEXITCODE
 }
 finally {

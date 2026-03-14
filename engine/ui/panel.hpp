@@ -28,6 +28,8 @@ public:
 
     if (parent_ == nullptr) {
       renderer.clear(bg_r_, bg_g_, bg_b_, bg_a_);
+    } else {
+      renderer.queue_rect(x_, y_, width_, height_, bg_r_, bg_g_, bg_b_, bg_a_);
     }
 
     for (UIElement* child : children_) {

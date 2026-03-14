@@ -1,5 +1,5 @@
 PHASE 40.29 renderer API contract
-timestamp=2026-03-13T06:27:32.0824882+03:00
+timestamp=2026-03-14T12:46:16.6977161+03:00
 renderer_header=C:\Users\suppo\Desktop\NGKsSystems\NGKsUI Runtime\engine\gfx\win32\include\ngk\gfx\d3d11_renderer.hpp
 declared_method_count=14
 ui_called_method_count=3

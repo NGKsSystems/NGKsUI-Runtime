@@ -4,6 +4,7 @@
 #include <windows.h>
 
 #include <d3d11.h>
+#include <d3d11_1.h>
 #include <dxgi.h>
 
 #include <cstdlib>
@@ -192,25 +193,47 @@ void D3D11Renderer::clear(float r, float g, float b, float a) {
 }
 
 void D3D11Renderer::queue_rect(int x, int y, int w, int h, float r, float g, float b, float a) {
-  (void)x;
-  (void)y;
-  (void)w;
-  (void)h;
-  (void)r;
-  (void)g;
-  (void)b;
-  (void)a;
+  if (!ready_ || device_lost_ || !context_ || !rtv_) return;
+  if (w <= 0 || h <= 0) return;
+
+  const int max_w = (width_ > 0) ? width_ : 1;
+  const int max_h = (height_ > 0) ? height_ : 1;
+
+  int left = x;
+  int top = y;
+  int right = x + w;
+  int bottom = y + h;
+
+  if (left < 0) left = 0;
+  if (top < 0) top = 0;
+  if (right > max_w) right = max_w;
+  if (bottom > max_h) bottom = max_h;
+  if (right <= left || bottom <= top) return;
+
+  ID3D11DeviceContext1* context1 = nullptr;
+  HRESULT qhr = context_->QueryInterface(__uuidof(ID3D11DeviceContext1), reinterpret_cast<void**>(&context1));
+  if (FAILED(qhr) || !context1) {
+    return;
+  }
+
+  const float color[4] = { r, g, b, a };
+  D3D11_RECT rect{};
+  rect.left = left;
+  rect.top = top;
+  rect.right = right;
+  rect.bottom = bottom;
+  context1->ClearView(rtv_, color, &rect, 1);
+  context1->Release();
 }
 
 void D3D11Renderer::queue_rect_outline(int x, int y, int w, int h, float r, float g, float b, float a) {
-  (void)x;
-  (void)y;
-  (void)w;
-  (void)h;
-  (void)r;
-  (void)g;
-  (void)b;
-  (void)a;
+  if (w <= 0 || h <= 0) return;
+
+  const int thickness = 1;
+  queue_rect(x, y, w, thickness, r, g, b, a);
+  queue_rect(x, y + h - thickness, w, thickness, r, g, b, a);
+  queue_rect(x, y, thickness, h, r, g, b, a);
+  queue_rect(x + w - thickness, y, thickness, h, r, g, b, a);
 }
 
 void D3D11Renderer::debug_set_stage(const char* stage) {
