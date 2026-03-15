@@ -10,7 +10,7 @@ function Get-NgkRuntimeRepoRoot {
 
   while ($null -ne $cursor) {
     $candidate = $cursor.FullName
-    $markerA = Join-Path $candidate 'CMakeLists.txt'
+    $markerA = Join-Path $candidate '.git'
     $markerB = Join-Path $candidate 'apps/widget_sandbox/main.cpp'
     if ((Test-Path -LiteralPath $markerA) -and (Test-Path -LiteralPath $markerB)) {
       return $candidate

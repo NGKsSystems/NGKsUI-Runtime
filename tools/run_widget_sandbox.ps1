@@ -16,7 +16,7 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($repoRoot)) {
   throw 'unsafe_launch: launcher root resolution failed'
 }
-if (-not (Test-Path -LiteralPath (Join-Path $repoRoot 'CMakeLists.txt')) -or
+if (-not (Test-Path -LiteralPath (Join-Path $repoRoot '.git')) -or
     -not (Test-Path -LiteralPath (Join-Path $repoRoot 'apps/widget_sandbox/main.cpp'))) {
   throw ("unsafe_launch: launcher is not under NGKsUI Runtime repo root: " + $repoRoot)
 }

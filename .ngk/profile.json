@@ -1,12 +1,12 @@
 {
   "version": 1,
   "detected": {
-    "primary_path": "cmake_presets",
+    "primary_path": "ngks_build_graph",
     "confidence": {
       "score": 90,
       "reasons": [
-        "CMakePresets.json found",
-        "Multiple build ecosystems detected"
+        "NGKs build graph workspace detected",
+        "MSVC object/link pipeline present"
       ]
     }
   },
@@ -22,17 +22,17 @@
     "test": "",
     "package": ""
   },
-  "cmake": {
-    "preset_candidates": [
-      "win-msvc-debug",
-      "win-msvc-release"
+  "build_graph": {
+    "plan_candidates": [
+      "build_graph/debug/ngksgraph_plan.json",
+      "build_graph/release/ngksgraph_plan.json"
     ]
   },
   "msbuild": {
     "solution_candidates": []
   },
   "runner": {
-    "default_path": "cmake_presets",
+    "default_path": "ngks_build_graph",
     "overrides": {}
   }
 }

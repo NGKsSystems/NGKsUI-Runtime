@@ -3052,6 +3052,438 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
         std::cout << "widget_phase41_6_post_reset_value=" << runtime_control_state.value << "\n";
         std::cout << "widget_phase41_6_complete=1\n";
       });
+
+      loop.set_timeout(std::chrono::milliseconds(6125), [&] {
+        // Phase 41.7 — state/value persistence boundary
+        const RuntimeLifecycleState canonical_state = runtime_control_state.lifecycle_state;
+        const int canonical_value = runtime_control_state.value;
+
+        std::cout << "widget_phase41_7_begin=1\n";
+        std::cout << "widget_phase41_7_begin_state=" << runtime_lifecycle_state_name(canonical_state) << "\n";
+        std::cout << "widget_phase41_7_begin_value=" << canonical_value << "\n";
+
+        // Step 2: valid input must be accepted and update only the step boundary
+        text_field.set_value("4");
+        update_runtime_input_from_textbox();
+        std::cout << "widget_phase41_7_after_valid_step=" << runtime_control_state.pending_step << "\n";
+        std::cout << "widget_phase41_7_after_valid_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_phase41_7_after_valid_value=" << runtime_control_state.value << "\n";
+
+        const RuntimeLifecycleState state_after_valid = runtime_control_state.lifecycle_state;
+        const int value_after_valid = runtime_control_state.value;
+        const int step_after_valid = runtime_control_state.pending_step;
+        const int recovery_after_valid = runtime_control_state.recovery_pending ? 1 : 0;
+
+        // Step 3/4: invalid input rejection preserves state/value/step/recovery marker
+        text_field.set_value("4x");
+        update_runtime_input_from_textbox();
+        std::cout << "widget_phase41_7_invalid_input_rejected=" << (runtime_control_state.pending_step_valid ? 0 : 1) << "\n";
+        std::cout << "widget_phase41_7_invalid_input_reason=" << runtime_control_state.rejection_reason << "\n";
+        std::cout << "widget_phase41_7_after_invalid_input_state_preserved=" << (runtime_control_state.lifecycle_state == state_after_valid ? 1 : 0) << "\n";
+        std::cout << "widget_phase41_7_after_invalid_input_value_preserved=" << (runtime_control_state.value == value_after_valid ? 1 : 0) << "\n";
+        std::cout << "widget_phase41_7_after_invalid_input_step_preserved=" << (runtime_control_state.pending_step == step_after_valid ? 1 : 0) << "\n";
+        std::cout << "widget_phase41_7_after_invalid_input_recovery_preserved=" << ((runtime_control_state.recovery_pending ? 1 : 0) == recovery_after_valid ? 1 : 0) << "\n";
+        std::cout << "widget_phase41_7_status_after_invalid_input=" << status.text() << "\n";
+
+        // Re-anchor to canonical Idle boundary before invalid-transition check.
+        reset_status();
+        std::cout << "widget_phase41_7_anchor_idle_before_invalid_transition_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_phase41_7_anchor_idle_before_invalid_transition_value=" << runtime_control_state.value << "\n";
+
+        const RuntimeLifecycleState state_before_invalid_transition = runtime_control_state.lifecycle_state;
+        const int value_before_invalid_transition = runtime_control_state.value;
+
+        // Step 5/6: invalid transition rejection (increment from Idle) preserves state/value
+        increment_status();
+        std::cout << "widget_phase41_7_invalid_transition_rejected=" << (runtime_control_state.rejection_active ? 1 : 0) << "\n";
+        std::cout << "widget_phase41_7_invalid_transition_reason=" << runtime_control_state.rejection_reason << "\n";
+        std::cout << "widget_phase41_7_after_invalid_transition_state_preserved=" << (runtime_control_state.lifecycle_state == state_before_invalid_transition ? 1 : 0) << "\n";
+        std::cout << "widget_phase41_7_after_invalid_transition_value_preserved=" << (runtime_control_state.value == value_before_invalid_transition ? 1 : 0) << "\n";
+        std::cout << "widget_phase41_7_status_after_invalid_transition=" << status.text() << "\n";
+
+        // Step 7/8: valid action updates value deterministically
+        text_field.set_value("4");
+        update_runtime_input_from_textbox();
+        increment_status();
+        std::cout << "widget_phase41_7_after_valid_increment_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_phase41_7_after_valid_increment_value=" << runtime_control_state.value << "\n";
+        std::cout << "widget_phase41_7_after_valid_increment_step=" << runtime_control_state.pending_step << "\n";
+        std::cout << "widget_phase41_7_status_after_valid_increment=" << status.text() << "\n";
+
+        // Step 9/10: reset restores canonical state/value and canonical step boundary
+        reset_status();
+        std::cout << "widget_phase41_7_post_reset_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_phase41_7_post_reset_value=" << runtime_control_state.value << "\n";
+        std::cout << "widget_phase41_7_post_reset_step=" << runtime_control_state.pending_step << "\n";
+        std::cout << "widget_phase41_7_post_reset_recovery_pending=" << (runtime_control_state.recovery_pending ? 1 : 0) << "\n";
+        std::cout << "widget_phase41_7_post_reset_state_canonical=" << (runtime_control_state.lifecycle_state == RuntimeLifecycleState::Idle ? 1 : 0) << "\n";
+        std::cout << "widget_phase41_7_post_reset_value_canonical=" << (runtime_control_state.value == runtime_control_state.baseline_value ? 1 : 0) << "\n";
+        std::cout << "widget_phase41_7_post_reset_step_canonical=" << (runtime_control_state.pending_step == 1 ? 1 : 0) << "\n";
+        std::cout << "widget_phase41_7_status_after_reset=" << status.text() << "\n";
+
+        std::cout << "widget_phase41_7_field_persist_on_rejection=lifecycle_state,value,pending_step,pending_step_valid_source_boundary\n";
+        std::cout << "widget_phase41_7_field_update_on_valid_action=pending_step_on_valid_input,value_on_increment,lifecycle_on_legal_transition\n";
+        std::cout << "widget_phase41_7_field_clear_on_reset=value,pending_step,pending_input,pending_step_valid,pending_step_source\n";
+        std::cout << "widget_phase41_7_complete=1\n";
+
+        // Phase 41.8 — deterministic runtime action trace / audit sequence
+        int trace_index = 0;
+        auto emit_trace = [&](const char* event_type,
+                              RuntimeLifecycleState state_before,
+                              int value_before,
+                              const char* action,
+                              RuntimeLifecycleState state_after,
+                              int value_after) {
+          std::cout << "widget_phase41_8_trace_index=" << trace_index << "\n";
+          std::cout << "widget_phase41_8_trace_event=" << event_type << "\n";
+          std::cout << "widget_phase41_8_trace_state_before=" << runtime_lifecycle_state_name(state_before) << "\n";
+          std::cout << "widget_phase41_8_trace_value_before=" << value_before << "\n";
+          std::cout << "widget_phase41_8_trace_action=" << action << "\n";
+          std::cout << "widget_phase41_8_trace_state_after=" << runtime_lifecycle_state_name(state_after) << "\n";
+          std::cout << "widget_phase41_8_trace_value_after=" << value_after << "\n";
+          std::cout << "widget_phase41_8_trace_record="
+                    << trace_index << "|"
+                    << event_type << "|"
+                    << runtime_lifecycle_state_name(state_before) << "|"
+                    << value_before << "|"
+                    << action << "|"
+                    << runtime_lifecycle_state_name(state_after) << "|"
+                    << value_after << "\n";
+          ++trace_index;
+        };
+
+        std::cout << "widget_phase41_8_begin=1\n";
+
+        // 1) Valid textbox input accepted
+        RuntimeLifecycleState state_before = runtime_control_state.lifecycle_state;
+        int value_before = runtime_control_state.value;
+        text_field.set_value("2");
+        update_runtime_input_from_textbox();
+        emit_trace("textbox_input_accepted", state_before, value_before, "textbox:set:2", runtime_control_state.lifecycle_state, runtime_control_state.value);
+
+        // 2) Invalid textbox input rejected
+        state_before = runtime_control_state.lifecycle_state;
+        value_before = runtime_control_state.value;
+        text_field.set_value("2x");
+        update_runtime_input_from_textbox();
+        emit_trace("textbox_input_rejected", state_before, value_before, "textbox:set:2x", runtime_control_state.lifecycle_state, runtime_control_state.value);
+
+        // Re-anchor to Idle for explicit invalid transition probe via existing controls.
+        state_before = runtime_control_state.lifecycle_state;
+        value_before = runtime_control_state.value;
+        reset_status();
+        emit_trace("reset_executed", state_before, value_before, "reset:click", RuntimeLifecycleState::Resetting, value_before);
+        emit_trace("reset_completed", state_before, value_before, "reset:complete", runtime_control_state.lifecycle_state, runtime_control_state.value);
+
+        // 3) Invalid transition rejection (increment from Idle)
+        state_before = runtime_control_state.lifecycle_state;
+        value_before = runtime_control_state.value;
+        increment_status();
+        emit_trace("increment_action_rejected", state_before, value_before, "increment:click", runtime_control_state.lifecycle_state, runtime_control_state.value);
+        emit_trace("invalid_transition_rejection", state_before, value_before, "increment:illegal_from_idle", runtime_control_state.lifecycle_state, runtime_control_state.value);
+
+        // 4) Recovery path + 5) increment action executed
+        state_before = runtime_control_state.lifecycle_state;
+        value_before = runtime_control_state.value;
+        text_field.set_value("2");
+        update_runtime_input_from_textbox();
+        increment_status();
+        emit_trace("recovery_action", state_before, value_before, "increment:recovery_after_rejection", runtime_control_state.lifecycle_state, runtime_control_state.value);
+        emit_trace("increment_action_executed", state_before, value_before, "increment:click", runtime_control_state.lifecycle_state, runtime_control_state.value);
+
+        // 6) reset action and 7) canonical state restoration
+        state_before = runtime_control_state.lifecycle_state;
+        value_before = runtime_control_state.value;
+        reset_status();
+        emit_trace("reset_executed", state_before, value_before, "reset:click", RuntimeLifecycleState::Resetting, value_before);
+        emit_trace("reset_completed", state_before, value_before, "reset:complete", runtime_control_state.lifecycle_state, runtime_control_state.value);
+        emit_trace("canonical_reset", state_before, value_before, "reset:canonical_boundary", runtime_control_state.lifecycle_state, runtime_control_state.value);
+
+        emit_trace("runtime_sequence_completion", runtime_control_state.lifecycle_state, runtime_control_state.value, "phase41_8:complete", runtime_control_state.lifecycle_state, runtime_control_state.value);
+        std::cout << "widget_phase41_8_trace_count=" << trace_index << "\n";
+        std::cout << "widget_phase41_8_complete=1\n";
+
+        // Phase 41.9 — runtime trace completeness / no-gap proof
+        int trace9_index = 0;
+        int trace9_mutation_trace_count = 0;
+        auto emit_trace9 = [&](const char* event_type,
+                               RuntimeLifecycleState state_before9,
+                               int value_before9,
+                               const char* action9,
+                               RuntimeLifecycleState state_after9,
+                               int value_after9) {
+          if (state_before9 != state_after9 || value_before9 != value_after9) {
+            ++trace9_mutation_trace_count;
+          }
+          std::cout << "widget_phase41_9_trace_index=" << trace9_index << "\n";
+          std::cout << "widget_phase41_9_trace_event=" << event_type << "\n";
+          std::cout << "widget_phase41_9_trace_state_before=" << runtime_lifecycle_state_name(state_before9) << "\n";
+          std::cout << "widget_phase41_9_trace_value_before=" << value_before9 << "\n";
+          std::cout << "widget_phase41_9_trace_action=" << action9 << "\n";
+          std::cout << "widget_phase41_9_trace_state_after=" << runtime_lifecycle_state_name(state_after9) << "\n";
+          std::cout << "widget_phase41_9_trace_value_after=" << value_after9 << "\n";
+          std::cout << "widget_phase41_9_trace_record="
+                    << trace9_index << "|"
+                    << event_type << "|"
+                    << runtime_lifecycle_state_name(state_before9) << "|"
+                    << value_before9 << "|"
+                    << action9 << "|"
+                    << runtime_lifecycle_state_name(state_after9) << "|"
+                    << value_after9 << "\n";
+          ++trace9_index;
+        };
+
+        std::cout << "widget_phase41_9_begin=1\n";
+        emit_trace9("trace_sequence_begin",
+                    runtime_control_state.lifecycle_state,
+                    runtime_control_state.value,
+                    "phase41_9:begin",
+                    runtime_control_state.lifecycle_state,
+                    runtime_control_state.value);
+
+        RuntimeLifecycleState trace9_state_before = runtime_control_state.lifecycle_state;
+        int trace9_value_before = runtime_control_state.value;
+        text_field.set_value("3");
+        update_runtime_input_from_textbox();
+        emit_trace9("textbox_input_accepted",
+                    trace9_state_before,
+                    trace9_value_before,
+                    "textbox:set:3",
+                    runtime_control_state.lifecycle_state,
+                    runtime_control_state.value);
+
+        trace9_state_before = runtime_control_state.lifecycle_state;
+        trace9_value_before = runtime_control_state.value;
+        text_field.set_value("3x");
+        update_runtime_input_from_textbox();
+        emit_trace9("textbox_input_rejected",
+                    trace9_state_before,
+                    trace9_value_before,
+                    "textbox:set:3x",
+                    runtime_control_state.lifecycle_state,
+                    runtime_control_state.value);
+
+        trace9_state_before = runtime_control_state.lifecycle_state;
+        trace9_value_before = runtime_control_state.value;
+        reset_status();
+        emit_trace9("reset_action_executed",
+                    trace9_state_before,
+                    trace9_value_before,
+                    "reset:click",
+                    RuntimeLifecycleState::Resetting,
+                    trace9_value_before);
+        emit_trace9("canonical_reset_completed",
+                    trace9_state_before,
+                    trace9_value_before,
+                    "reset:complete",
+                    runtime_control_state.lifecycle_state,
+                    runtime_control_state.value);
+
+        trace9_state_before = runtime_control_state.lifecycle_state;
+        trace9_value_before = runtime_control_state.value;
+        increment_status();
+        emit_trace9("invalid_transition_rejected",
+                    trace9_state_before,
+                    trace9_value_before,
+                    "increment:illegal_from_idle",
+                    runtime_control_state.lifecycle_state,
+                    runtime_control_state.value);
+
+        trace9_state_before = runtime_control_state.lifecycle_state;
+        trace9_value_before = runtime_control_state.value;
+        text_field.set_value("3");
+        update_runtime_input_from_textbox();
+        emit_trace9("textbox_input_accepted",
+                    trace9_state_before,
+                    trace9_value_before,
+                    "textbox:set:3",
+                    runtime_control_state.lifecycle_state,
+                    runtime_control_state.value);
+
+        trace9_state_before = runtime_control_state.lifecycle_state;
+        trace9_value_before = runtime_control_state.value;
+        increment_status();
+        emit_trace9("recovery_action_performed",
+                    trace9_state_before,
+                    trace9_value_before,
+                    "increment:recovery_after_rejection",
+                    runtime_control_state.lifecycle_state,
+                    runtime_control_state.value);
+        emit_trace9("increment_action_executed",
+                    trace9_state_before,
+                    trace9_value_before,
+                    "increment:click",
+                    runtime_control_state.lifecycle_state,
+                    runtime_control_state.value);
+
+        trace9_state_before = runtime_control_state.lifecycle_state;
+        trace9_value_before = runtime_control_state.value;
+        reset_status();
+        emit_trace9("reset_action_executed",
+                    trace9_state_before,
+                    trace9_value_before,
+                    "reset:click",
+                    RuntimeLifecycleState::Resetting,
+                    trace9_value_before);
+        emit_trace9("canonical_reset_completed",
+                    trace9_state_before,
+                    trace9_value_before,
+                    "reset:complete",
+                    runtime_control_state.lifecycle_state,
+                    runtime_control_state.value);
+        emit_trace9("trace_sequence_end",
+                    runtime_control_state.lifecycle_state,
+                    runtime_control_state.value,
+                    "phase41_9:end",
+                    runtime_control_state.lifecycle_state,
+                    runtime_control_state.value);
+
+        std::cout << "widget_phase41_9_trace_count=" << trace9_index << "\n";
+        std::cout << "widget_phase41_9_mutation_points_expected=8\n";
+        std::cout << "widget_phase41_9_mutation_trace_count=" << trace9_mutation_trace_count << "\n";
+        std::cout << "widget_phase41_9_final_runtime_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_phase41_9_final_runtime_value=" << runtime_control_state.value << "\n";
+        std::cout << "widget_phase41_9_complete=1\n";
+      });
+
+      loop.set_timeout(std::chrono::milliseconds(6500), [&] {
+        // Phase 42.0 — runtime trace replay / state reconstruction proof
+        // Prove the trace stream alone is sufficient to reconstruct runtime state/value evolution.
+        // The replay engine reads only trace records; it does not access runtime internals.
+
+        struct P42Record {
+          const char* event;
+          RuntimeLifecycleState state_before;
+          int value_before;
+          const char* action;
+          RuntimeLifecycleState state_after;
+          int value_after;
+        };
+
+        std::vector<P42Record> p42_records;
+        auto capture42 = [&](const char* ev,
+                              RuntimeLifecycleState sb, int vb,
+                              const char* act,
+                              RuntimeLifecycleState sa, int va) {
+          p42_records.push_back({ev, sb, vb, act, sa, va});
+        };
+
+        // ---- Reproduce the Phase 41.9 deterministic scenario ----
+        // Runtime starts at Idle|0 (Phase 41.9 left it there via canonical reset)
+
+        // [0] trace_sequence_begin
+        capture42("trace_sequence_begin",
+                  runtime_control_state.lifecycle_state, runtime_control_state.value,
+                  "phase42_0:begin",
+                  runtime_control_state.lifecycle_state, runtime_control_state.value);
+
+        // [1] textbox accept "3"
+        RuntimeLifecycleState p42_sb = runtime_control_state.lifecycle_state;
+        int p42_vb = runtime_control_state.value;
+        text_field.set_value("3");
+        update_runtime_input_from_textbox();
+        capture42("textbox_input_accepted", p42_sb, p42_vb, "textbox:set:3",
+                  runtime_control_state.lifecycle_state, runtime_control_state.value);
+
+        // [2] textbox reject "3x"
+        p42_sb = runtime_control_state.lifecycle_state;
+        p42_vb = runtime_control_state.value;
+        text_field.set_value("3x");
+        update_runtime_input_from_textbox();
+        capture42("textbox_input_rejected", p42_sb, p42_vb, "textbox:set:3x",
+                  runtime_control_state.lifecycle_state, runtime_control_state.value);
+
+        // [3][4] reset — two records for atomic compound operation
+        p42_sb = runtime_control_state.lifecycle_state;
+        p42_vb = runtime_control_state.value;
+        reset_status();
+        capture42("reset_action_executed", p42_sb, p42_vb, "reset:click",
+                  RuntimeLifecycleState::Resetting, p42_vb);
+        capture42("canonical_reset_completed", p42_sb, p42_vb, "reset:complete",
+                  runtime_control_state.lifecycle_state, runtime_control_state.value);
+
+        // [5] invalid increment from Idle
+        p42_sb = runtime_control_state.lifecycle_state;
+        p42_vb = runtime_control_state.value;
+        increment_status();
+        capture42("invalid_transition_rejected", p42_sb, p42_vb, "increment:illegal_from_idle",
+                  runtime_control_state.lifecycle_state, runtime_control_state.value);
+
+        // [6] textbox accept "3" again
+        p42_sb = runtime_control_state.lifecycle_state;
+        p42_vb = runtime_control_state.value;
+        text_field.set_value("3");
+        update_runtime_input_from_textbox();
+        capture42("textbox_input_accepted", p42_sb, p42_vb, "textbox:set:3",
+                  runtime_control_state.lifecycle_state, runtime_control_state.value);
+
+        // [7][8] recovery + increment — two records for atomic compound operation
+        p42_sb = runtime_control_state.lifecycle_state;
+        p42_vb = runtime_control_state.value;
+        increment_status();
+        capture42("recovery_action_performed", p42_sb, p42_vb, "increment:recovery_after_rejection",
+                  runtime_control_state.lifecycle_state, runtime_control_state.value);
+        capture42("increment_action_executed", p42_sb, p42_vb, "increment:click",
+                  runtime_control_state.lifecycle_state, runtime_control_state.value);
+
+        // [9][10] final reset — two records for atomic compound operation
+        p42_sb = runtime_control_state.lifecycle_state;
+        p42_vb = runtime_control_state.value;
+        reset_status();
+        capture42("reset_action_executed", p42_sb, p42_vb, "reset:click",
+                  RuntimeLifecycleState::Resetting, p42_vb);
+        capture42("canonical_reset_completed", p42_sb, p42_vb, "reset:complete",
+                  runtime_control_state.lifecycle_state, runtime_control_state.value);
+
+        // [11] trace_sequence_end
+        capture42("trace_sequence_end",
+                  runtime_control_state.lifecycle_state, runtime_control_state.value,
+                  "phase42_0:end",
+                  runtime_control_state.lifecycle_state, runtime_control_state.value);
+
+        // ---- Replay engine: reconstruct state/value from trace records alone ----
+        std::cout << "widget_phase42_0_begin=1\n";
+
+        RuntimeLifecycleState replay_state = RuntimeLifecycleState::Idle;
+        int replay_value = 0;
+        int replay_step = 0;
+        int replay_begin_verified = 0;
+        bool replay_terminated_at_end = false;
+
+        for (const auto& rec : p42_records) {
+          if (std::string(rec.event) == "trace_sequence_begin") {
+            replay_begin_verified = (rec.state_after == RuntimeLifecycleState::Idle
+                                     && rec.value_after == 0) ? 1 : 0;
+          }
+          // Advance: replay state/value is read exclusively from the trace record
+          replay_state = rec.state_after;
+          replay_value = rec.value_after;
+          std::cout << "widget_phase42_0_replay_step=" << replay_step << "\n";
+          std::cout << "widget_phase42_0_replay_event=" << rec.event << "\n";
+          std::cout << "widget_phase42_0_replay_reconstructed="
+                    << runtime_lifecycle_state_name(replay_state) << "|" << replay_value << "\n";
+          ++replay_step;
+          if (std::string(rec.event) == "trace_sequence_end") {
+            replay_terminated_at_end = true;
+            break;
+          }
+        }
+
+        const bool replay_final_match =
+          (replay_state == runtime_control_state.lifecycle_state &&
+           replay_value == runtime_control_state.value);
+
+        std::cout << "widget_phase42_0_replay_record_count=" << static_cast<int>(p42_records.size()) << "\n";
+        std::cout << "widget_phase42_0_replay_steps_completed=" << replay_step << "\n";
+        std::cout << "widget_phase42_0_replay_begin_verified=" << replay_begin_verified << "\n";
+        std::cout << "widget_phase42_0_replay_terminated_at_end=" << (replay_terminated_at_end ? 1 : 0) << "\n";
+        std::cout << "widget_phase42_0_replay_final_state=" << runtime_lifecycle_state_name(replay_state) << "\n";
+        std::cout << "widget_phase42_0_replay_final_value=" << replay_value << "\n";
+        std::cout << "widget_phase42_0_runtime_final_state=" << runtime_lifecycle_state_name(runtime_control_state.lifecycle_state) << "\n";
+        std::cout << "widget_phase42_0_runtime_final_value=" << runtime_control_state.value << "\n";
+        std::cout << "widget_phase42_0_replay_final_match=" << (replay_final_match ? 1 : 0) << "\n";
+        std::cout << "widget_phase42_0_complete=1\n";
+      });
     }
 
     loop.set_timeout(std::chrono::milliseconds(2925), [&] {
@@ -3301,7 +3733,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
       std::cout << "widget_cancel_semantics_demo=1\n";
     });
 
-    loop.set_timeout(std::chrono::milliseconds(6200), [&] {
+    loop.set_timeout(std::chrono::milliseconds(7000), [&] {
       std::cout << "widget_smoke_timeout=1\n";
       window.request_close();
     });

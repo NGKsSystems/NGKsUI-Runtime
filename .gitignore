@@ -43,9 +43,6 @@ _artifacts/
 artifacts_proof/
 out/
 build/
-cmake-build*/
-cmake-build-*/
-CMakeFiles/
 Debug/
 Release/
 x64/
