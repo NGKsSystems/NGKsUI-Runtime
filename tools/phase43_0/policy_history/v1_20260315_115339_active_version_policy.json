@@ -1,0 +1,12 @@
+{
+  "policy_name": "phase42_8_active_version_policy",
+  "policy_version": "1",
+  "active_version": "v2",
+  "historical_versions": [
+    "v1"
+  ],
+  "default_resolution": "active_only",
+  "invalid_version_behavior": "fail_no_fallback",
+  "allow_explicit_historical_selection": true,
+  "version_chain_source": "tools/phase42_6/baseline_history_chain.json"
+}

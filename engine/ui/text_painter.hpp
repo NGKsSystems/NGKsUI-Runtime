@@ -9,6 +9,18 @@
 
 namespace ngk::ui::text_painter {
 
+inline int glyph_width() {
+  return 5;
+}
+
+inline int glyph_gap() {
+  return 2;
+}
+
+inline int glyph_advance() {
+  return glyph_width() + glyph_gap();
+}
+
 inline int text_origin_x(const UIElement& element) {
   return element.x() + 8;
 }
@@ -28,14 +40,14 @@ inline int measure_prefix_width(const std::string& text, int index) {
   if (index > static_cast<int>(text.size())) {
     index = static_cast<int>(text.size());
   }
-  return index * 8;
+  return index * glyph_advance();
 }
 
 inline int caret_index_from_x(const std::string& text, int x) {
   if (x <= 0) {
     return 0;
   }
-  const int idx = x / 8;
+  const int idx = x / glyph_advance();
   return std::clamp(idx, 0, static_cast<int>(text.size()));
 }
 
@@ -97,9 +109,9 @@ inline void draw(const UIElement& element, UIElement::Renderer& renderer, const 
     return;
   }
 
-  const int glyph_w = 5;
+  const int glyph_w = glyph_width();
   const int glyph_h = 7;
-  const int glyph_gap = 2;
+  const int glyph_spacing = glyph_gap();
   const int line_h = text_line_height();
 
   int cursor_x = text_origin_x(element);
@@ -141,7 +153,7 @@ inline void draw(const UIElement& element, UIElement::Renderer& renderer, const 
       }
     }
 
-    cursor_x += glyph_w + glyph_gap;
+    cursor_x += glyph_w + glyph_spacing;
   }
 }
 

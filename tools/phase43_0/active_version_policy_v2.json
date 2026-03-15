@@ -1,0 +1,15 @@
+{
+  "policy_name": "phase43_0_active_version_policy",
+  "policy_version": "2",
+  "active_version": "v2",
+  "historical_versions": [
+    "v1"
+  ],
+  "default_resolution": "active_only",
+  "invalid_version_behavior": "fail_no_fallback",
+  "allow_explicit_historical_selection": true,
+  "version_chain_source": "tools/phase42_6/baseline_history_chain.json",
+  "rotation_timestamp_utc": "2026-03-15T11:53:40Z",
+  "rotated_from_policy_version": "1",
+  "rotated_from_policy_sha256": "dd7eb070a11993d76710a216145e10c3ea673380aeaf612ade26e32528532938"
+}

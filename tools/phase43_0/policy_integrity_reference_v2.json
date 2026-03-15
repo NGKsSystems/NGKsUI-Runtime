@@ -1,0 +1,9 @@
+{
+  "protected_policy_file": "tools/phase43_0/active_version_policy_v2.json",
+  "expected_policy_sha256": "27e9f93cb7c61544147de942bd0ddfa5d69caf2096a9c0b94d3b47625241b3fc",
+  "created_timestamp_utc": "2026-03-15T11:53:40Z",
+  "policy_version_reference": "2",
+  "hash_method": "sha256_file_bytes_v1",
+  "rotated_from_version": "1",
+  "description": "Integrity reference for rotated policy v2 (phase43_0)"
+}

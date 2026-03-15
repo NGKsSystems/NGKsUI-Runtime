@@ -1,0 +1,6 @@
+{
+  "baseline_reference_file": "tools/phase42_4/certification_baseline_reference.json",
+  "expected_integrity_hash_sha256": "61c7830e17b778d1149101b26c810726751257e28c5cb752c2ee6045654d28a4",
+  "hash_method": "sha256_file_bytes_v1",
+  "description": "Trusted integrity hash for certification baseline reference file"
+}

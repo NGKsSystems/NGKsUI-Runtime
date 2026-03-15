@@ -1,0 +1,14 @@
+{
+  "phase": "42.6",
+  "description": "Rotated certified baseline reference — authorized rotation via phase42_6 runner",
+  "semantic_trace_fingerprint_sha256": "61ee12065d5b19969cab91524089742eaadbb840e638e7a7afcbb207c2207c00",
+  "trace_record_count": 12,
+  "final_runtime_state": "Idle",
+  "final_runtime_value": 0,
+  "replay_result": "PASS",
+  "normalization_method": "ordered_semantic_lines_v1|sha256_utf8_newline_delimited",
+  "rotation_version": "v2",
+  "rotation_timestamp": "20260315_104356",
+  "previous_baseline_archive": "tools/phase42_6/baseline_history/v1_20260315_104356_baseline_reference.json",
+  "source_proof_packet": "_proof/phase42_6_baseline_rotation_trust_chain_20260315_104356"
+}

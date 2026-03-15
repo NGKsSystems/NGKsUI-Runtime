@@ -3483,6 +3483,153 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
         std::cout << "widget_phase42_0_runtime_final_value=" << runtime_control_state.value << "\n";
         std::cout << "widget_phase42_0_replay_final_match=" << (replay_final_match ? 1 : 0) << "\n";
         std::cout << "widget_phase42_0_complete=1\n";
+
+        // Phase 42.1 — trace divergence detection proof
+        struct P42ValidationResult {
+          bool pass;
+          const char* reason;
+          int failed_index;
+          RuntimeLifecycleState final_state;
+          int final_value;
+          bool saw_begin;
+          bool saw_end;
+          int steps_completed;
+        };
+
+        const auto expected_p42_records = p42_records;
+
+        auto validate42_trace = [&](const std::vector<P42Record>& records) {
+          P42ValidationResult result{};
+          result.pass = false;
+          result.reason = "missing_begin_marker";
+          result.failed_index = -1;
+          result.final_state = RuntimeLifecycleState::Idle;
+          result.final_value = 0;
+          result.saw_begin = false;
+          result.saw_end = false;
+          result.steps_completed = 0;
+
+          if (records.empty()) {
+            result.reason = "missing_begin_marker";
+            result.failed_index = 0;
+            return result;
+          }
+
+          if (std::string(records.front().event) != "trace_sequence_begin") {
+            result.reason = "missing_begin_marker";
+            result.failed_index = 0;
+            return result;
+          }
+          result.saw_begin = true;
+
+          for (std::size_t i = 0; i < records.size(); ++i) {
+            if (std::string(records[i].event) == "trace_sequence_end") {
+              result.saw_end = true;
+              if (i != records.size() - 1) {
+                result.reason = "continued_past_end";
+                result.failed_index = static_cast<int>(i + 1);
+                result.final_state = records[i].state_after;
+                result.final_value = records[i].value_after;
+                result.steps_completed = static_cast<int>(i) + 1;
+                return result;
+              }
+            }
+          }
+
+          if (records.size() != expected_p42_records.size()) {
+            result.reason = result.saw_end ? "record_count_mismatch" : "missing_end_marker";
+            result.failed_index = static_cast<int>(std::min(records.size(), expected_p42_records.size()));
+            if (!records.empty()) {
+              result.final_state = records.back().state_after;
+              result.final_value = records.back().value_after;
+              result.steps_completed = static_cast<int>(records.size());
+            }
+            return result;
+          }
+
+          for (std::size_t i = 0; i < expected_p42_records.size(); ++i) {
+            const auto& actual = records[i];
+            const auto& expected = expected_p42_records[i];
+
+            if (std::string(actual.event) != std::string(expected.event)) {
+              result.reason = "event_mismatch";
+              result.failed_index = static_cast<int>(i);
+              return result;
+            }
+            if (actual.state_before != expected.state_before || actual.value_before != expected.value_before) {
+              result.reason = "state_before_mismatch";
+              result.failed_index = static_cast<int>(i);
+              return result;
+            }
+            if (actual.state_after != expected.state_after || actual.value_after != expected.value_after) {
+              result.reason = "state_after_mismatch";
+              result.failed_index = static_cast<int>(i);
+              return result;
+            }
+
+            result.steps_completed = static_cast<int>(i) + 1;
+            result.final_state = actual.state_after;
+            result.final_value = actual.value_after;
+          }
+
+          if (result.final_state != runtime_control_state.lifecycle_state ||
+              result.final_value != runtime_control_state.value) {
+            result.reason = "final_state_mismatch";
+            return result;
+          }
+
+          result.pass = true;
+          result.reason = "pass";
+          result.failed_index = -1;
+          return result;
+        };
+
+        auto emit_divergence_case = [&](const char* case_name, const P42ValidationResult& result) {
+          std::cout << "widget_phase42_1_case_name=" << case_name << "\n";
+          std::cout << "widget_phase42_1_case_pass=" << (result.pass ? 1 : 0) << "\n";
+          std::cout << "widget_phase42_1_case_reason=" << result.reason << "\n";
+          std::cout << "widget_phase42_1_case_failed_index=" << result.failed_index << "\n";
+          std::cout << "widget_phase42_1_case_final_state=" << runtime_lifecycle_state_name(result.final_state) << "\n";
+          std::cout << "widget_phase42_1_case_final_value=" << result.final_value << "\n";
+          std::cout << "widget_phase42_1_case_saw_begin=" << (result.saw_begin ? 1 : 0) << "\n";
+          std::cout << "widget_phase42_1_case_saw_end=" << (result.saw_end ? 1 : 0) << "\n";
+          std::cout << "widget_phase42_1_case_steps_completed=" << result.steps_completed << "\n";
+        };
+
+        std::cout << "widget_phase42_1_begin=1\n";
+
+        const auto valid_trace_result = validate42_trace(p42_records);
+        std::cout << "widget_phase42_1_valid_trace_pass=" << (valid_trace_result.pass ? 1 : 0) << "\n";
+        std::cout << "widget_phase42_1_valid_trace_reason=" << valid_trace_result.reason << "\n";
+        std::cout << "widget_phase42_1_valid_trace_steps_completed=" << valid_trace_result.steps_completed << "\n";
+
+        auto missing_record_records = p42_records;
+        missing_record_records.erase(missing_record_records.begin() + 6);
+        emit_divergence_case("missing_record", validate42_trace(missing_record_records));
+
+        auto reordered_records = p42_records;
+        std::swap(reordered_records[3], reordered_records[4]);
+        emit_divergence_case("reordered_events", validate42_trace(reordered_records));
+
+        auto corrupted_state_value_records = p42_records;
+        corrupted_state_value_records[7].state_after = RuntimeLifecycleState::Idle;
+        corrupted_state_value_records[7].value_after = 99;
+        emit_divergence_case("corrupted_state_value", validate42_trace(corrupted_state_value_records));
+
+        auto premature_termination_records = p42_records;
+        premature_termination_records.pop_back();
+        emit_divergence_case("premature_termination", validate42_trace(premature_termination_records));
+
+        auto duplicate_replay_step_records = p42_records;
+        duplicate_replay_step_records.insert(duplicate_replay_step_records.begin() + 8, p42_records[7]);
+        emit_divergence_case("duplicate_replay_step", validate42_trace(duplicate_replay_step_records));
+
+        auto missing_begin_marker_records = p42_records;
+        missing_begin_marker_records.erase(missing_begin_marker_records.begin());
+        emit_divergence_case("missing_begin_marker", validate42_trace(missing_begin_marker_records));
+
+        std::cout << "widget_phase42_1_divergence_case_count=6\n";
+        std::cout << "widget_phase42_1_complete=1\n";
       });
     }
 

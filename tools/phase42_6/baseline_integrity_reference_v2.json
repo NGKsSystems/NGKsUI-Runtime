@@ -1,0 +1,8 @@
+{
+  "baseline_reference_file": "tools/phase42_6/certification_baseline_reference_v2.json",
+  "expected_integrity_hash_sha256": "da57cf0ac6d1ca8dc25d410be843db83ae11caf2a2a66e9120727e566ae55b9c",
+  "hash_method": "sha256_file_bytes_v1",
+  "rotation_version": "v2",
+  "rotation_timestamp": "20260315_104356",
+  "previous_integrity_archive": "tools/phase42_6/baseline_history/v1_20260315_104356_integrity_reference.json"
+}

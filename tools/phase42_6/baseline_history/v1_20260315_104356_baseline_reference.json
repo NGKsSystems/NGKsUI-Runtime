@@ -1,0 +1,11 @@
+{
+  "phase": "42.3",
+  "description": "Certified semantic baseline fingerprint for deterministic extension runtime scenario",
+  "semantic_trace_fingerprint_sha256": "61ee12065d5b19969cab91524089742eaadbb840e638e7a7afcbb207c2207c00",
+  "trace_record_count": 12,
+  "final_runtime_state": "Idle",
+  "final_runtime_value": 0,
+  "replay_result": "PASS",
+  "normalization_method": "ordered_semantic_lines_v1|sha256_utf8_newline_delimited",
+  "source_proof_packet": "_proof/phase42_3_trace_certification_fingerprint_20260315_094443"
+}

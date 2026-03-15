@@ -1,0 +1,23 @@
+{
+  "rotation_timestamp": "20260315_104356",
+  "chain": [
+    {
+      "version": "v1",
+      "label": "previous_certified_baseline",
+      "baseline_file": "tools/phase42_6/baseline_history/v1_20260315_104356_baseline_reference.json",
+      "integrity_hash": "61c7830e17b778d1149101b26c810726751257e28c5cb752c2ee6045654d28a4",
+      "integrity_reference_file": "tools/phase42_6/baseline_history/v1_20260315_104356_integrity_reference.json",
+      "fingerprint": "61ee12065d5b19969cab91524089742eaadbb840e638e7a7afcbb207c2207c00",
+      "archived_at": "20260315_104356"
+    },
+    {
+      "version": "v2",
+      "label": "current_rotated_baseline",
+      "baseline_file": "tools/phase42_6/certification_baseline_reference_v2.json",
+      "integrity_hash": "da57cf0ac6d1ca8dc25d410be843db83ae11caf2a2a66e9120727e566ae55b9c",
+      "integrity_reference_file": "tools/phase42_6/baseline_integrity_reference_v2.json",
+      "fingerprint": "61ee12065d5b19969cab91524089742eaadbb840e638e7a7afcbb207c2207c00",
+      "created_at": "20260315_104356"
+    }
+  ]
+}
