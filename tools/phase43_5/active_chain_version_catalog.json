@@ -1,0 +1,19 @@
+{
+  "catalog_name": "phase43_5_active_chain_version_catalog",
+  "selection_mode": "explicit_only",
+  "default_fallback_allowed": false,
+  "versions": [
+    {
+      "chain_version": "v1",
+      "chain_state": "historical_operational",
+      "chain_file": "tools/phase43_0/policy_history_chain.json",
+      "integrity_reference_file": "tools/phase43_3/active_policy_chain_integrity_reference.json"
+    },
+    {
+      "chain_version": "v2",
+      "chain_state": "current_rotated",
+      "chain_file": "tools/phase43_4/policy_history_chain_rotated_v2.json",
+      "integrity_reference_file": "tools/phase43_4/active_policy_chain_integrity_reference_v2.json"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "baseline_version": "44.0",
+  "required_baseline_snapshot_file": "tools/phase44_0/catalog_baseline_snapshot.json",
+  "required_baseline_snapshot_sha256": "0010225dd51c0fbc9e8dfc3bfc9112b3f13c200edf83a2b4299eef52aa0481e3",
+  "required_rotation_runner": "tools/phase43_7/phase43_7_active_chain_catalog_rotation_runner.ps1",
+  "enforcement": "future_catalog_rotation_must_reference_frozen_baseline"
+}

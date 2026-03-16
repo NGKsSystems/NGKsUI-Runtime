@@ -1,0 +1,7 @@
+{
+  "hash_method": "sha256_file_bytes_v1",
+  "expected_catalog_sha256": "a4427d896755fb3ecc694b73a352ce8255b4d8b064c1f6c9448ee38eec2d1dbe",
+  "created_timestamp_utc": "2026-03-15T16:36:51Z",
+  "protected_catalog_file": "tools/phase43_6/_caseE_invalid_reference_catalog.json",
+  "description": "Case E invalid-reference catalog integrity reference"
+}

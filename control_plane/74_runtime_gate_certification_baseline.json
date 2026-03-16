@@ -1,0 +1,21 @@
+{
+  "baseline_version": 1,
+  "phase_locked": "45.3",
+  "coverage_fingerprint_hash": "526f05bf1729c2fb7bc495554a13bcd79743b0699698fabee9c64fff9c70abe5",
+  "ledger_head_hash": "34c9fe2a4b530b31d6af8be81a5bb6a13203699a992b56f84440c020a18fb803",
+  "entrypoint_inventory_hash": "cf443ee2b5e372008058a4edc1181f8aa841dbf687244f26570613b212ca2c6b",
+  "enforcement_map_hash": "8d247e6ee0b0f81758263d629e980224d1db5d9c8d588038f8f066c250004efd",
+  "timestamp_utc": "2026-03-16T04:42:50.9821472Z",
+  "source_phases": [
+    "44.8",
+    "44.9",
+    "45.0",
+    "45.1",
+    "45.2"
+  ],
+  "source_phase45_0_proof": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase45_0_trust_chain_runtime_gate_coverage_audit_20260316_071608",
+  "source_inventory_path": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase45_0_trust_chain_runtime_gate_coverage_audit_20260316_071608\\16_entrypoint_inventory.txt",
+  "source_enforcement_map_path": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase45_0_trust_chain_runtime_gate_coverage_audit_20260316_071608\\17_runtime_gate_enforcement_map.txt",
+  "trust_chain_ledger_path": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\control_plane\\70_guard_fingerprint_trust_chain.json",
+  "trust_chain_ledger_entry_count": 2
+}

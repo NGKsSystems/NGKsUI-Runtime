@@ -1,0 +1,10 @@
+{
+  "schema": "phase45_1_runtime_gate_coverage_fingerprint_reference_v1",
+  "generated_utc": "2026-03-16T04:24:12.2846799Z",
+  "source_phase45_0_proof": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase45_0_trust_chain_runtime_gate_coverage_audit_20260316_071608",
+  "source_inventory_artifact": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase45_0_trust_chain_runtime_gate_coverage_audit_20260316_071608\\16_entrypoint_inventory.txt",
+  "source_map_artifact": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase45_0_trust_chain_runtime_gate_coverage_audit_20260316_071608\\17_runtime_gate_enforcement_map.txt",
+  "inventory_operational_count": 10,
+  "map_operational_count": 10,
+  "coverage_fingerprint_sha256": "526f05bf1729c2fb7bc495554a13bcd79743b0699698fabee9c64fff9c70abe5"
+}

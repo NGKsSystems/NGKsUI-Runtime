@@ -1,0 +1,7 @@
+{
+  "protected_baseline_snapshot_file": "control_plane/71_guard_fingerprint_trust_chain_baseline.json",
+  "expected_baseline_snapshot_sha256": "c94bc6d4b03284131c6b356dba7ad86393c46da66a460e814e29a9387f13e24f",
+  "hash_method": "sha256_file_bytes_v1",
+  "baseline_kind": "guard_fingerprint_trust_chain_baseline_lock",
+  "phase_locked": "44.7"
+}

@@ -1,0 +1,32 @@
+{
+  "baseline_kind": "guard_fingerprint_trust_chain_baseline_lock",
+  "snapshot_schema": "phase44_7_guard_fingerprint_trust_chain_baseline_v1",
+  "phase_locked": "44.7",
+  "fingerprint_reference_file": "tools/phase44_4/guard_coverage_fingerprint_reference.json",
+  "fingerprint_reference_sha256": "99f9db51e221daacd013ccd5c677269d580a978dd974d92db0b077cf60b270d6",
+  "fingerprint_reference_payload": {
+    "fingerprint_schema": "phase44_4_guard_coverage_fingerprint_v1",
+    "source_phase": "44.3",
+    "source_inventory_file": "latest_phase44_3_pf/16_entrypoint_inventory.txt",
+    "reference_fingerprint_sha256": "cec1951165957ac873f5227b613bfee1873e9fc338103cff2c4f448b2328d9bc",
+    "hash_method": "sha256_utf8_json_v1",
+    "created_utc": "2026-03-15T18:46:54Z"
+  },
+  "trust_chain_ledger_file": "control_plane/70_guard_fingerprint_trust_chain.json",
+  "trust_chain_ledger_sha256": "f6dc199f0162001d371d30a40d95bea69b2834357d7ba82f776c66ec5e70c6ac",
+  "trust_chain_ledger_payload": {
+    "chain_version": 1,
+    "entries": [
+      {
+        "entry_id": "GF-0001",
+        "fingerprint_hash": "99f9db51e221daacd013ccd5c677269d580a978dd974d92db0b077cf60b270d6",
+        "timestamp_utc": "2026-03-15T19:11:25Z",
+        "phase_locked": "44.6",
+        "previous_hash": null
+      }
+    ]
+  },
+  "current_last_entry_hash": "39724f93eb4c54478fffcaeaa72af5f0d56630e2c8a187a7b4b198755ecdd229",
+  "current_ledger_length": 1,
+  "current_phase_lock_marker": "44.6"
+}

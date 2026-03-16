@@ -1,0 +1,7 @@
+{
+  "hash_method": "sha256_file_bytes_v1",
+  "expected_catalog_sha256": "32486c5774139631faaf0322dc2ca9065a7aafe9b2f60383fa814ddec73666f9",
+  "created_timestamp_utc": "2026-03-15T16:36:50Z",
+  "protected_catalog_file": "tools/phase43_6/_caseB_tampered_catalog.json",
+  "description": "Case B tampered catalog integrity reference"
+}

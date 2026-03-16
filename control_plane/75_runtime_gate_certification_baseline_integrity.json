@@ -1,0 +1,8 @@
+{
+  "baseline_snapshot_file": "control_plane/74_runtime_gate_certification_baseline.json",
+  "baseline_snapshot_semantic_sha256": "dbf0f545a596b594aef18e6881cb08443bb099ad3e4bda5faa2227f0194cf403",
+  "ledger_head_hash": "34c9fe2a4b530b31d6af8be81a5bb6a13203699a992b56f84440c020a18fb803",
+  "timestamp_utc": "2026-03-16T04:42:51.0560398Z",
+  "phase_locked": "45.3",
+  "hash_method": "sha256_semantic_json_v1"
+}

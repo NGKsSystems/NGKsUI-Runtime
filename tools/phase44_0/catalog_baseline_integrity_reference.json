@@ -1,0 +1,7 @@
+{
+  "protected_baseline_snapshot_file": "tools/phase44_0/catalog_baseline_snapshot.json",
+  "expected_baseline_snapshot_sha256": "0010225dd51c0fbc9e8dfc3bfc9112b3f13c200edf83a2b4299eef52aa0481e3",
+  "hash_method": "sha256_file_bytes_v1",
+  "baseline_version": "44.0",
+  "description": "Frozen certification baseline for catalog trust-chain continuity"
+}

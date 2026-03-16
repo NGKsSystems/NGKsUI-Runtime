@@ -1,0 +1,46 @@
+{
+  "chain_name": "phase43_4_policy_history_chain",
+  "chain_material_version": "2",
+  "default_resolution_chain_role": "active_policy_default_resolution",
+  "rotation_timestamp_utc": "2026-03-15T16:09:14Z",
+  "rotated_from_chain_file": "tools/phase43_0/policy_history_chain.json",
+  "rotated_from_chain_sha256": "0486ec52d197922cbc9ad5cdda640bb0c6dbe20691bd31a98d48efd3b6f41381",
+  "rotated_from_integrity_reference_file": "tools/phase43_3/active_policy_chain_integrity_reference.json",
+  "rotated_from_integrity_reference_sha256": "64306890a04cd0fb773b18816c0f3685fb1720224a07ea0233b933f41954ecef",
+  "chain_history": [
+    {
+      "prior_chain_file": "tools/phase43_0/policy_history_chain.json",
+      "prior_integrity_reference_file": "tools/phase43_3/active_policy_chain_integrity_reference.json",
+      "archived_chain_file": "tools/phase43_4/chain_history/phase43_3_20260315_160849_policy_history_chain.json",
+      "archived_integrity_reference_file": "tools/phase43_4/chain_history/phase43_3_20260315_160849_active_policy_chain_integrity_reference.json",
+      "prior_chain_sha256": "0486ec52d197922cbc9ad5cdda640bb0c6dbe20691bd31a98d48efd3b6f41381",
+      "prior_integrity_reference_sha256": "64306890a04cd0fb773b18816c0f3685fb1720224a07ea0233b933f41954ecef",
+      "prior_active_version": "v2",
+      "archive_sha256_verified": true
+    }
+  ],
+  "chain": [
+    {
+      "version": "v1",
+      "policy_version_number": "1",
+      "policy_file": "tools/phase42_8/active_version_policy.json",
+      "integrity_reference_file": "tools/phase42_9/policy_integrity_reference.json",
+      "policy_sha256": "dd7eb070a11993d76710a216145e10c3ea673380aeaf612ade26e32528532938",
+      "archive_policy_file": "tools/phase43_0/policy_history/v1_20260315_115339_active_version_policy.json",
+      "archive_integrity_file": "tools/phase43_0/policy_history/v1_20260315_115339_policy_integrity_reference.json",
+      "archive_sha256_verified": true,
+      "status": "active"
+    },
+    {
+      "version": "v2",
+      "policy_version_number": "2",
+      "policy_file": "tools/phase43_0/active_version_policy_v2.json",
+      "integrity_reference_file": "tools/phase43_0/policy_integrity_reference_v2.json",
+      "policy_sha256": "27e9f93cb7c61544147de942bd0ddfa5d69caf2096a9c0b94d3b47625241b3fc",
+      "archive_policy_file": "",
+      "archive_integrity_file": "",
+      "archive_sha256_verified": true,
+      "status": "historical"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "chain_name": "phase43_0_policy_history_chain",
+  "rotation_timestamp": "20260315_115339",
+  "chain": [
+    {
+      "version": "v1",
+      "policy_version_number": "1",
+      "policy_file": "tools/phase42_8/active_version_policy.json",
+      "integrity_reference_file": "tools/phase42_9/policy_integrity_reference.json",
+      "policy_sha256": "dd7eb070a11993d76710a216145e10c3ea673380aeaf612ade26e32528532938",
+      "archive_policy_file": "tools/phase43_0/policy_history/v1_20260315_115339_active_version_policy.json",
+      "archive_integrity_file": "tools/phase43_0/policy_history/v1_20260315_115339_policy_integrity_reference.json",
+      "archive_sha256_verified": true,
+      "status": "active"
+    },
+    {
+      "version": "v2",
+      "policy_version_number": "2",
+      "policy_file": "tools/phase43_0/active_version_policy_v2.json",
+      "integrity_reference_file": "tools/phase43_0/policy_integrity_reference_v2.json",
+      "policy_sha256": "27e9f93cb7c61544147de942bd0ddfa5d69caf2096a9c0b94d3b47625241b3fc",
+      "archive_policy_file": "",
+      "archive_integrity_file": "",
+      "archive_sha256_verified": true,
+      "status": "historical"
+    }
+  ]
+}

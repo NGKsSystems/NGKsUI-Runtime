@@ -1,0 +1,12 @@
+{
+  "protected_chain_file": "tools/phase43_4/policy_history_chain_rotated_v2.json",
+  "expected_chain_sha256": "c0e8824c03af2c9a3aad7c3882d4ee0557dc1642878bec35f6976003287730a4",
+  "created_timestamp_utc": "2026-03-15T16:09:15Z",
+  "hash_method": "sha256_file_bytes_v1",
+  "chain_material_version": "2",
+  "rotated_from_chain_file": "tools/phase43_0/policy_history_chain.json",
+  "rotated_from_chain_sha256": "0486ec52d197922cbc9ad5cdda640bb0c6dbe20691bd31a98d48efd3b6f41381",
+  "rotated_from_integrity_reference_file": "tools/phase43_3/active_policy_chain_integrity_reference.json",
+  "rotated_from_integrity_reference_sha256": "64306890a04cd0fb773b18816c0f3685fb1720224a07ea0233b933f41954ecef",
+  "description": "Trusted integrity reference for rotated active policy chain material used by default resolution"
+}

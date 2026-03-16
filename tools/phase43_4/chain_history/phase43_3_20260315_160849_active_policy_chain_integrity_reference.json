@@ -1,0 +1,7 @@
+{
+  "protected_chain_file": "tools/phase43_0/policy_history_chain.json",
+  "expected_chain_sha256": "0486ec52d197922cbc9ad5cdda640bb0c6dbe20691bd31a98d48efd3b6f41381",
+  "created_timestamp_utc": "2026-03-15T12:30:00Z",
+  "hash_method": "sha256_file_bytes_v1",
+  "description": "Trusted integrity reference for active policy chain source used by default resolution"
+}

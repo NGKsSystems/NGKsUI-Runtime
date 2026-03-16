@@ -1,0 +1,26 @@
+{
+  "baseline_version": "44.0",
+  "baseline_kind": "catalog_trust_chain_certification_lock",
+  "active_catalog_version": "v2",
+  "catalog_trust_chain_file": "tools/phase43_9/catalog_trust_chain.json",
+  "catalog_trust_chain_sha256": "407c7ba68f48678ff6873143096ff68f8b977f5b95e9e0d8538770c0e430fa20",
+  "catalog_history_chain_file": "tools/phase43_7/catalog_history_chain.json",
+  "catalog_history_chain_sha256": "84a2e7edda66d72622a445225f5c6467ed5445a1a78f1e0eba6afbff06c76095",
+  "active_catalog_file": "tools/phase43_7/active_chain_version_catalog_v2.json",
+  "active_catalog_sha256": "0e41993ab079f997659d2286149e2bffba91517ba4c8ca5d3728600b01d37aa4",
+  "active_catalog_integrity_file": "tools/phase43_7/active_chain_version_catalog_integrity_reference_v2.json",
+  "active_catalog_integrity_sha256": "d518dce73ae18d961e72d30fe47a71ec67f8cdf0c9225a122eeb26950276accc",
+  "archived_catalog_history": [
+    {
+      "file": "tools/phase43_7/catalog_history/phase43_6_20260315_165643_active_chain_version_catalog_integrity_reference.json",
+      "sha256": "2e08fb181ceb46044b92e94087467ae6718cb558278204a59c3ff447f085c8ac",
+      "size": 406
+    },
+    {
+      "file": "tools/phase43_7/catalog_history/phase43_6_20260315_165643_active_chain_version_catalog.json",
+      "sha256": "32486c5774139631faaf0322dc2ca9065a7aafe9b2f60383fa814ddec73666f9",
+      "size": 683
+    }
+  ],
+  "rotation_runner_required_reference": "tools/phase43_7/phase43_7_active_chain_catalog_rotation_runner.ps1"
+}

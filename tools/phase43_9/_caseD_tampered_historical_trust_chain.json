@@ -1,0 +1,26 @@
+{
+  "chain_name": "phase43_9_catalog_trust_chain",
+  "chain_source": "tools/phase43_7/catalog_history_chain.json",
+  "chain": [
+    {
+      "catalog_version": "v1",
+      "catalog_file_path": "tools/phase43_9/_caseD_tampered_historical_catalog.json",
+      "catalog_hash": "32486c5774139631faaf0322dc2ca9065a7aafe9b2f60383fa814ddec73666f9",
+      "previous_catalog_hash": "",
+      "integrity_reference": "tools/phase43_7/catalog_history/phase43_6_20260315_165643_active_chain_version_catalog_integrity_reference.json",
+      "timestamp": "2026-03-15T16:31:00Z",
+      "archive_path": "tools/phase43_7/catalog_history/phase43_6_20260315_165643_active_chain_version_catalog.json",
+      "status": "historical"
+    },
+    {
+      "catalog_version": "v2",
+      "catalog_file_path": "tools/phase43_7/active_chain_version_catalog_v2.json",
+      "catalog_hash": "0e41993ab079f997659d2286149e2bffba91517ba4c8ca5d3728600b01d37aa4",
+      "previous_catalog_hash": "32486c5774139631faaf0322dc2ca9065a7aafe9b2f60383fa814ddec73666f9",
+      "integrity_reference": "tools/phase43_7/active_chain_version_catalog_integrity_reference_v2.json",
+      "timestamp": "2026-03-15T16:57:08Z",
+      "archive_path": "tools/phase43_7/active_chain_version_catalog_v2.json",
+      "status": "active"
+    }
+  ]
+}

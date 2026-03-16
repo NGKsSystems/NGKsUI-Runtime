@@ -1,0 +1,8 @@
+{
+  "fingerprint_schema": "phase44_4_guard_coverage_fingerprint_v1",
+  "source_phase": "44.3",
+  "source_inventory_file": "latest_phase44_3_pf/16_entrypoint_inventory.txt",
+  "reference_fingerprint_sha256": "cec1951165957ac873f5227b613bfee1873e9fc338103cff2c4f448b2328d9bc",
+  "hash_method": "sha256_utf8_json_v1",
+  "created_utc": "2026-03-15T18:46:54Z"
+}

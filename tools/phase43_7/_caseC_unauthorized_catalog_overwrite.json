@@ -1,0 +1,25 @@
+{
+  "catalog_name": "phase43_7_active_chain_version_catalog",
+  "catalog_version": "2",
+  "selection_mode": "explicit_only",
+  "default_fallback_allowed": false,
+  "rotated_from_catalog_file": "tools/phase43_5/active_chain_version_catalog.json",
+  "rotated_from_catalog_sha256": "32486c5774139631faaf0322dc2ca9065a7aafe9b2f60383fa814ddec73666f9",
+  "rotated_from_integrity_reference_file": "tools/phase43_6/active_chain_version_catalog_integrity_reference.json",
+  "rotated_from_integrity_reference_sha256": "2e08fb181ceb46044b92e94087467ae6718cb558278204a59c3ff447f085c8ac",
+  "rotation_timestamp_utc": "2026-03-15T16:57:08Z",
+  "versions": [
+    {
+      "chain_version": "v1",
+      "chain_state": "historical_operational",
+      "chain_file": "tools/phase43_0/nonexistent_chain.json",
+      "integrity_reference_file": "tools/phase43_3/active_policy_chain_integrity_reference.json"
+    },
+    {
+      "chain_version": "v2",
+      "chain_state": "current_rotated",
+      "chain_file": "tools/phase43_4/policy_history_chain_rotated_v2.json",
+      "integrity_reference_file": "tools/phase43_4/active_policy_chain_integrity_reference_v2.json"
+    }
+  ]
+}
