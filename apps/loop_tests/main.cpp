@@ -8,11 +8,17 @@
 #include <thread>
 #include <vector>
 
+#include "../runtime_phase53_guard.hpp"
 #include "ngk/event_loop.hpp"
 
 static void line(const std::string& s) { std::cout << s << "\n"; }
 
 int main() {
+  const int guard_rc = ngk::runtime_guard::enforce_phase53_2();
+  if (guard_rc != 0) {
+    return guard_rc;
+  }
+
   using namespace std::chrono;
 
   bool ok = true;

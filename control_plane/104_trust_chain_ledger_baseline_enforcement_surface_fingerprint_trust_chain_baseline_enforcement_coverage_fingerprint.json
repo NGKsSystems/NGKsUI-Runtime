@@ -1,0 +1,30 @@
+{
+  "artifact_version": "51.7",
+  "phase_locked": "51.6",
+  "description": "Coverage fingerprint for the 51.4/51.5/51.6 frozen-baseline enforcement surface. Seals the completeness result from Phase 51.6 coverage audit.",
+  "source_phase51_6_proof_folder": "phase51_6_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_audit_20260318_213352",
+  "coverage_fingerprint_sha256": "5b45296f258747b55076a76ec6ac1ed0c69fca7b09dff613aeb416f5b7f35045",
+  "section_hashes": {
+    "inventory_sha256": "720520b1e52d0ca948defbdf60f638d262f9817012270b3f6cdd69471e99a9b4",
+    "enforcement_map_sha256": "6e24685bd00ad7a2ba40c80b71e2bab2c7f43b7e9268ada289c56e478d943db1",
+    "unguarded_report_sha256": "2a264c06f548963ac4236756fdd033b84d104aca44715f9fd0c3a8b87a0ad97c",
+    "crosscheck_report_sha256": "28825cd830e9b298ddea180a725f4784c396eafb2eae9e8ee4f6ccd9caa95734"
+  },
+  "canonical_row_counts": {
+    "inventory_rows": 13,
+    "enforcement_map_rows": 19,
+    "unguarded_report_rows": 1,
+    "crosscheck_report_rows": 14
+  },
+  "canonicalization_rules": {
+    "inventory_semantic_fields": "function_name,role,operational,direct_gate_present,transitive_gate_present,frozen_baseline_relevant_operation_type,coverage_classification",
+    "inventory_dropped_fields": "file_path,notes,gate_source_path",
+    "enforcement_map_retained_sections": "DIRECTLY_GATED,TRANSITIVELY_GATED,STATIC_CALL_CHAIN,DYNAMIC_VERIFICATION",
+    "enforcement_map_dropped_sections": "NON_OPERATIONAL_TEST_INFRASTRUCTURE",
+    "crosscheck_dropped_fields": "proof_folder",
+    "all_sections_sorted_and_deduped": "true",
+    "whitespace_stripped_from_all_rows": "true",
+    "blank_and_comment_lines_skipped": "true"
+  },
+  "generated_utc": "2026-03-19T06:35:28Z"
+}

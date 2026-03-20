@@ -1,0 +1,2 @@
+plan_path=C:\Users\suppo\Desktop\NGKsSystems\NGKsUI Runtime\build_graph\debug\ngksbuildcore_plan.json
+plan_sha256=fdc1b4d8a9b67abd36a2e15979b83c9719e4031316da3065a4fd57e0b210ba39

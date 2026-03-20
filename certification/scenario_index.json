@@ -1,0 +1,21 @@
+{
+  "_bootstrap_managed": true,
+  "generator_version": "1.0.0",
+  "template_version": "1.0.0",
+  "template_origin": "certification_bootstrap_generator",
+  "generation_mode": "bootstrap_placeholder",
+  "placeholder_status": "template_not_real_certification_result",
+  "component": "project_init_auto_bootstrap",
+  "schema_version": "1.0",
+  "generated_at": "2000-01-01T00:00:00+00:00",
+  "scenarios": [
+    {
+      "scenario_id": "bootstrap_baseline_scenario",
+      "scenario_name": "Bootstrap Baseline Scenario",
+      "expected_gate": "PASS",
+      "required": true,
+      "description": "Bootstrap baseline scenario \u2014 replace with real scenario definitions"
+    }
+  ],
+  "notes": "Bootstrap placeholder \u2014 replace with real certification outputs after first run"
+}

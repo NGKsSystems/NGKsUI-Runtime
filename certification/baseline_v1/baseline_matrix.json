@@ -1,0 +1,30 @@
+{
+  "_bootstrap_managed": true,
+  "generator_version": "1.0.0",
+  "template_version": "1.0.0",
+  "template_origin": "certification_bootstrap_generator",
+  "generation_mode": "bootstrap_placeholder",
+  "placeholder_status": "template_not_real_certification_result",
+  "component": "project_init_auto_bootstrap",
+  "baseline_version": "v1",
+  "generated_at": "2000-01-01T00:00:00+00:00",
+  "scenario_count": 1,
+  "scenarios": [
+    {
+      "scenario_id": "bootstrap_baseline_scenario",
+      "scenario_name": "Bootstrap Baseline Scenario",
+      "expected_gate": "PASS",
+      "actual_gate": "PASS",
+      "diagnostic_score": 0.5,
+      "scores": {
+        "detection_accuracy": 0.5,
+        "component_ownership_accuracy": 0.5,
+        "root_cause_accuracy": 0.5,
+        "remediation_quality": 0.5,
+        "proof_quality": 0.5
+      },
+      "notes": "bootstrap_placeholder_replace_with_real_results"
+    }
+  ],
+  "notes": "Bootstrap placeholder \u2014 replace with real certification outputs after first run"
+}

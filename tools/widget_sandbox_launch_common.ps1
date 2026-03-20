@@ -1,5 +1,28 @@
 Set-StrictMode -Version Latest
 
+function Invoke-Phase532MandatoryGuard {
+  param(
+    [string]$RepoRoot
+  )
+
+  $runner = Join-Path $RepoRoot 'tools\phase53_2\phase53_2_runtime_gate_enforce.ps1'
+  if (-not (Test-Path -LiteralPath $runner)) {
+    throw ('phase53_2_guard_missing_runner: ' + $runner)
+  }
+
+  Push-Location $RepoRoot
+  try {
+    $out = & powershell -NoProfile -ExecutionPolicy Bypass -File $runner 2>&1
+    if ($LASTEXITCODE -ne 0) {
+      $snippet = ($out | Select-Object -First 8) -join '; '
+      throw ('phase53_2_guard_failed exit=' + $LASTEXITCODE + ' detail=' + $snippet)
+    }
+  }
+  finally {
+    Pop-Location
+  }
+}
+
 function Get-NgkRuntimeRepoRoot {
   param(
     [string]$StartPath = $PSScriptRoot

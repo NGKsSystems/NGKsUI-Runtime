@@ -1,0 +1,25 @@
+{
+  "baseline_version": 1,
+  "ledger_file": "70_guard_fingerprint_trust_chain.json",
+  "entry_count": 6,
+  "entry_ids": [
+    "GF-0001",
+    "GF-0002",
+    "GF-0003",
+    "GF-0004",
+    "GF-0005",
+    "GF-0006"
+  ],
+  "ledger_sha256": "ba3d00045e200a98462bdd730350f2dc57cb6aae1799a48fda1dc25481cea36d",
+  "entry_hashes": {
+    "GF-0001": "03d757496e98d01d01cbdbcc6b3c411b9f74f47815774efc28a83dbed3fbf60e",
+    "GF-0002": "99707930ea54a316ca77dec6419040661eda16306506040d3418d215f12c5ce6",
+    "GF-0003": "6897a9a9f6dbb08f58d59ad5dc5e02231bd3888f910ef88b632128d52bc70c1f",
+    "GF-0004": "6a588fa6f6ec5f04e7a87fb0eea3b6fea1085646f26fa43f8e06fe4697121f62",
+    "GF-0005": "03306ef2203e0c6cdde4f27b4e80f4cc0838e7c2fc2691b3bdf6de841d98c6d4",
+    "GF-0006": "5fa3f2cf443e3cb8954b72a9b3762aa9c891a40faf5bc8537cf5b9cb0dd77cb4"
+  },
+  "head_entry": "GF-0006",
+  "head_hash": "5fa3f2cf443e3cb8954b72a9b3762aa9c891a40faf5bc8537cf5b9cb0dd77cb4",
+  "phase_locked": "47.7"
+}

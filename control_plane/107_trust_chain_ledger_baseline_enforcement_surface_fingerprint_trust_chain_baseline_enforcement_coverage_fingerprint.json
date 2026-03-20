@@ -1,0 +1,19 @@
+﻿{
+  "artifact_id": "107",
+  "title": "trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint",
+  "phase": "52.3",
+  "source_phase": "52.2",
+  "coverage_fingerprint_sha256": "c5aa7e10f342447a800c951eab9e4c68c983e25bcc4c07e404dda32b4af15513",
+  "canonical_item_count": 21,
+  "fb_relevant_operational_entrypoint_count": 17,
+  "unguarded_paths": 0,
+  "bypass_tested_entrypoints": 8,
+  "bypass_tested_names": "GatedCanonicalHashOp,GatedChainContinuationValidation,GatedFingerprintValidation,GatedIntegrityRecordLoad,GatedLedgerHeadValidation,GatedRuntimeInit,GatedSemanticFieldComparison,GatedSnapshotLoad",
+  "xcheck_status": "TRUE",
+  "xcheck_missing": 0,
+  "source_proof_folder": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase52_2_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_audit_20260319_085259",
+  "source_inventory_file": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase52_2_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_audit_20260319_085259\\16_entrypoint_inventory.txt",
+  "source_unguarded_report_file": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase52_2_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_audit_20260319_085259\\18_unguarded_path_report.txt",
+  "source_crosscheck_file": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase52_2_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_audit_20260319_085259\\19_bypass_crosscheck_report.txt",
+  "generated_at": "20260319_093500"
+}

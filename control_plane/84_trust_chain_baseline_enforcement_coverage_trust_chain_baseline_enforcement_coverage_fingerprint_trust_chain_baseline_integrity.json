@@ -1,0 +1,9 @@
+{
+  "baseline_snapshot_file": "control_plane/83_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint_trust_chain_baseline.json",
+  "baseline_snapshot_semantic_sha256": "2cec0d380860dad7d9bf09be672947bd7903e2b48dce7ebe5515585958d9b399",
+  "ledger_head_hash": "f32e24929e6c407abdde9cf27bc5a406ee37e5ec5f53ad0fa662596fd6a2abf6",
+  "coverage_fingerprint_hash": "6d79c961e7f875b291426490455dec2ee1f3f2343336251bbb2e86c4482e6d82",
+  "timestamp_utc": "2026-03-16T13:40:51.7633473Z",
+  "phase_locked": "47.1",
+  "hash_method": "sha256_semantic_json_v1"
+}

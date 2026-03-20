@@ -1,0 +1,19 @@
+{
+  "artifact": "93_trust_chain_ledger_baseline_enforcement_coverage_fingerprint",
+  "phase_locked": "49.3",
+  "source_phase": "49.2",
+  "source_artifacts": [
+    "16_entrypoint_inventory.txt",
+    "17_frozen_baseline_enforcement_map.txt",
+    "18_unguarded_path_report.txt",
+    "19_bypass_crosscheck_report.txt"
+  ],
+  "coverage_fingerprint_sha256": "d43507fcaad53b3ea24a2e0b05dfcca2bc725793f10aa263befb88a0381f344c",
+  "canonical_input_hashes": {
+    "inventory_semantic_hash": "744c399c816a7e589243c2ec62c4b1f9405e02b4a7c7d7671eaa602cb2e697c0",
+    "map_semantic_hash": "29ee61eb09e7f64e45f4ddbb88bd744dafa75d0b7aace154a295369fcf766f0b",
+    "unguarded_semantic_hash": "6694af9093fcedb9643ea0c67df01632fe2ded5276819f93ead36afc124fde71",
+    "bypass_crosscheck_semantic_hash": "b20c202b393669d0f9756d3374a8d744cb0b6cdceccc9408ec9c5a6e3ab65355"
+  },
+  "generated_utc": "2026-03-17T07:27:16Z"
+}

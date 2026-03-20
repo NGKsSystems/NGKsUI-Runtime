@@ -1,0 +1,15 @@
+{
+  "baseline_version": 1,
+  "phase_locked": "47.1",
+  "ledger_head_hash": "f32e24929e6c407abdde9cf27bc5a406ee37e5ec5f53ad0fa662596fd6a2abf6",
+  "ledger_length": 5,
+  "coverage_fingerprint_hash": "6d79c961e7f875b291426490455dec2ee1f3f2343336251bbb2e86c4482e6d82",
+  "latest_entry_id": "GF-0005",
+  "latest_entry_phase_locked": "47.0",
+  "timestamp_utc": "2026-03-16T13:40:51.7212274Z",
+  "source_phases": [
+    "46.8",
+    "46.9",
+    "47.0"
+  ]
+}

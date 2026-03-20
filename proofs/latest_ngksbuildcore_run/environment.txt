@@ -1,0 +1,3 @@
+REDACTED_ENVIRONMENT_CAPTURE=TRUE
+NOTE=Sensitive values removed for repository safety.
+SAFE_KEYS_INCLUDED=NONE

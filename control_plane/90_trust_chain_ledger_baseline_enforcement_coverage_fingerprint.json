@@ -1,0 +1,16 @@
+{
+  "reference_version": 1,
+  "phase_locked": "48.7",
+  "source_phase": "48.6",
+  "source_proof_folder": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase48_6_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_audit_20260317_074612",
+  "coverage_fingerprint_sha256": "6b2b2014cf600730f2b589f7988d3fda89a058b3ad068ed2d80f75a7fecbb20e",
+  "semantic_model_hash": "4e5901df688a6e42a1fc15b15d144f72cc83095be8a890535a41291559b75276",
+  "fingerprint_input_hash": "6b2b2014cf600730f2b589f7988d3fda89a058b3ad068ed2d80f75a7fecbb20e",
+  "canonical_input_hashes": {
+    "entrypoint_inventory_hash": "b798b404b659c9162865b6758a9a2d4fb91e16b027a4a4799bd01cb154fe2a9c",
+    "enforcement_map_hash": "69963b93502d09ed67c25ea7bb1626d30fc1cb0eed5009203a41f7a64d050495",
+    "unguarded_path_report_hash": "acc62564b00f2f6fe7973d690564f0d745cb867048f071ea949d82b6223eea7c",
+    "bypass_crosscheck_report_hash": "a7b6e8df971a02220f941a483b4cdcde297bd8ea2063e271ebc111bf995dfe20"
+  },
+  "generated_utc": "2026-03-17T05:39:46Z"
+}

@@ -1,0 +1,12 @@
+{
+  "schema": "phase45_7_certification_baseline_coverage_fingerprint_reference_v1",
+  "generated_utc": "2026-03-16T06:49:58.7138196Z",
+  "source_phase45_6_proof": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase45_6_certification_baseline_enforcement_coverage_audit_20260316_090331",
+  "source_inventory_artifact": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase45_6_certification_baseline_enforcement_coverage_audit_20260316_090331\\16_entrypoint_inventory.txt",
+  "source_enforcement_map_artifact": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase45_6_certification_baseline_enforcement_coverage_audit_20260316_090331\\17_certification_baseline_enforcement_map.txt",
+  "source_unguarded_report_artifact": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase45_6_certification_baseline_enforcement_coverage_audit_20260316_090331\\18_unguarded_path_report.txt",
+  "inventory_operational_count": 21,
+  "map_operational_count": 21,
+  "unguarded_operational_path_count": 0,
+  "coverage_fingerprint_sha256": "60efa5f7ea8c2060abe011af0876ab398895a0e2e1f6cd73c58d34e615fd7799"
+}

@@ -1,10 +1,16 @@
 #include <iostream>
 #include <chrono>
 #include <cstdint>
+#include "../runtime_phase53_guard.hpp"
 #include "ngk/core.hpp"
 #include "ngk/event_loop.hpp"
 
 int main() {
+  const int guard_rc = ngk::runtime_guard::enforce_phase53_2();
+  if (guard_rc != 0) {
+    return guard_rc;
+  }
+
   std::cout << "NGKsUI Runtime Sandbox\n";
   std::cout << "core version: " << ngk::version() << "\n";
 

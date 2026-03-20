@@ -1,0 +1,18 @@
+{
+  "_bootstrap_managed": true,
+  "generator_version": "1.0.0",
+  "template_version": "1.0.0",
+  "template_origin": "certification_bootstrap_generator",
+  "generation_mode": "bootstrap_placeholder",
+  "placeholder_status": "template_not_real_certification_result",
+  "component": "project_init_auto_bootstrap",
+  "baseline_version": "v1",
+  "creation_timestamp": "2000-01-01T00:00:00+00:00",
+  "schema_version": "1.0",
+  "project_name": "NGKsUI Runtime",
+  "scenario_count": 1,
+  "notes": [
+    "Bootstrap baseline \u2014 placeholder values.",
+    "Replace with real baseline after first successful certification run."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "phase46_9_trust_chain_baseline_enforcement_coverage_fingerprint_reference_v1",
+  "generated_utc": "2026-03-16T12:49:26.7338582Z",
+  "source_phase46_8_proof": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase46_8_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_audit_20260316_151420",
+  "source_inventory_artifact": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase46_8_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_audit_20260316_151420\\16_entrypoint_inventory.txt",
+  "source_enforcement_map_artifact": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase46_8_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_audit_20260316_151420\\17_frozen_baseline_enforcement_map.txt",
+  "source_unguarded_report_artifact": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase46_8_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_audit_20260316_151420\\18_unguarded_path_report.txt",
+  "source_bypass_crosscheck_artifact": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase46_8_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_audit_20260316_151420\\19_bypass_crosscheck_report.txt",
+  "inventory_operational_count": 25,
+  "map_operational_count": 25,
+  "inventory_minus_map_count": 0,
+  "map_minus_inventory_count": 0,
+  "coverage_fingerprint_sha256": "6d79c961e7f875b291426490455dec2ee1f3f2343336251bbb2e86c4482e6d82",
+  "canonical_input_hashes": {
+    "inventory_hash": "62b241cc29974639aca18d0ab0775cb455b7c0d1ff932d3d8a51759f862aab89",
+    "enforcement_map_hash": "3dcfc66f77aa74f53d93ded651e05d5ba61cb690344dbabffcd60bbf0d03d54f",
+    "unguarded_semantic_hash": "73ef8cd74bebbb79f954dfa4e4f20625ce472c99135d8392e7fe3691e41c3f1d",
+    "bypass_semantic_hash": "39b0231477c9b688afa845b943d00de089d4e3c492c6bf1d5610d74c4ce3eb06",
+    "binding_hash": "bf3c3ce8688e2568d3462814bb963f49e01e98abf8980388b28edf161af4dc53",
+    "canonical_payload_hash": "6d79c961e7f875b291426490455dec2ee1f3f2343336251bbb2e86c4482e6d82"
+  }
+}

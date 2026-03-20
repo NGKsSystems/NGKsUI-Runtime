@@ -25,6 +25,8 @@ if (-not $cwd.Equals($repoRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
   throw ("unsafe_launch: repo root mismatch, expected cwd=" + $repoRoot + ", actual cwd=" + $cwd)
 }
 
+Invoke-Phase532MandatoryGuard -RepoRoot $repoRoot
+
 $exe = Resolve-CanonicalWidgetSandboxExe -RepoRoot $repoRoot -Config $Config -RequestedExePath $ExePath
 $buildInfo = Get-WidgetSandboxBuildInfo -ExePath $exe -Config $Config -RepoRoot $repoRoot
 

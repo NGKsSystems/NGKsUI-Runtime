@@ -1,0 +1,10 @@
+{
+  "schema": "ngks.project.rules.v1",
+  "project_root": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime",
+  "autodetect": [
+    "flutter",
+    "node",
+    "python",
+    "dotnet"
+  ]
+}

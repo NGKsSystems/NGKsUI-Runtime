@@ -1,0 +1,13 @@
+{
+  "artifact": "trust_chain_baseline_enforcement_surface_fingerprint",
+  "phase_locked": "51.1",
+  "source_phase": "51.0",
+  "entrypoint_count": 20,
+  "operational_entrypoint_count": 18,
+  "direct_gate_count": 10,
+  "transitive_gate_count": 7,
+  "unguarded_paths": 0,
+  "coverage_fingerprint_sha256": "436a23699c8e2d33ebea94101548919db1b69dd4215d3c3f21ec877eba90f49c",
+  "canonicalization_rules": "semantic_row_sort_dedupe",
+  "timestamp_utc": "2026-03-18T14:18:43Z"
+}

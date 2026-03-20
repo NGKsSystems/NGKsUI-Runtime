@@ -1,5 +1,4 @@
 {
-  "chain_version": 1,
   "entries": [
     {
       "entry_id": "GF-0001",
@@ -16,6 +15,131 @@
       "timestamp_utc": "2026-03-16T04:37:41Z",
       "phase_locked": "45.2",
       "previous_hash": "39724f93eb4c54478fffcaeaa72af5f0d56630e2c8a187a7b4b198755ecdd229"
+    },
+    {
+      "entry_id": "GF-0003",
+      "artifact": "certification_baseline_coverage_fingerprint",
+      "coverage_fingerprint": "60efa5f7ea8c2060abe011af0876ab398895a0e2e1f6cd73c58d34e615fd7799",
+      "fingerprint_hash": "14b74027bc1cb742d2850c0363fc6819d554c8e4f9086fe2c661267c9d275f00",
+      "timestamp_utc": "2026-03-16T07:17:52Z",
+      "phase_locked": "45.8",
+      "previous_hash": "34c9fe2a4b530b31d6af8be81a5bb6a13203699a992b56f84440c020a18fb803"
+    },
+    {
+      "entry_id": "GF-0004",
+      "artifact": "trust_chain_baseline_enforcement_coverage_fingerprint",
+      "coverage_fingerprint": "9d2865dc919b0a66a145638007918205adb74373bb955d1d69e93bc8760d8bcf",
+      "fingerprint_hash": "00cc689f40b7683709851a8adbaa0dd689fdb4ed5181c96ae0500e9e76483cf3",
+      "timestamp_utc": "2026-03-16T09:49:52Z",
+      "phase_locked": "46.4",
+      "previous_hash": "4f893c8a69a5fa0c08fee84ab1d6706444b8ebff1d0fac6a0bb1aa767232dec1"
+    },
+    {
+      "entry_id": "GF-0005",
+      "artifact": "trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint",
+      "coverage_fingerprint": "6d79c961e7f875b291426490455dec2ee1f3f2343336251bbb2e86c4482e6d82",
+      "fingerprint_hash": "1a6f60cf0206b4901e7f108d103c1fb2886cb918d302288d2af6a4542fd2ed2a",
+      "timestamp_utc": "2026-03-16T13:15:25Z",
+      "phase_locked": "47.0",
+      "previous_hash": "757c18ef84e87dd6b1008032a39b513790f68a7550fcfeebed2939f3c5085e42"
+    },
+    {
+      "entry_id": "GF-0006",
+      "artifact": "trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint",
+      "coverage_fingerprint": "4c979a24c363a6f81c2e7277347e723dd2a0bbfc506a45b89ee3ae26a07f8959",
+      "fingerprint_hash": "cb9de75cb51a3cc9ac4e0baf1d1d2bae44df3fc0d53c0de28fa634bb3f243677",
+      "timestamp_utc": "2026-03-16T15:38:44Z",
+      "phase_locked": "47.6",
+      "previous_hash": "f32e24929e6c407abdde9cf27bc5a406ee37e5ec5f53ad0fa662596fd6a2abf6"
+    },
+    {
+      "entry_id": "GF-0007",
+      "artifact": "trust_chain_ledger_baseline_enforcement_coverage_fingerprint",
+      "coverage_fingerprint": "10dca1b923ba73be8ef246f612c5569558cd3391dc30e96f4345f025243ffb0f",
+      "fingerprint_hash": "3a62b1352733e245a50d697ddeea212397696dfc6d6f1e92efe2d5d18a3012c4",
+      "timestamp_utc": "2026-03-17T03:12:13Z",
+      "phase_locked": "48.2",
+      "previous_hash": "cda8348bdb2a70f77d27fb6ead3c57642087dc121b3e0931e90f7c7d2e6662f0"
+    },
+    {
+      "entry_id": "GF-0008",
+      "artifact": "trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_seal",
+      "coverage_fingerprint": "6b2b2014cf600730f2b589f7988d3fda89a058b3ad068ed2d80f75a7fecbb20e",
+      "fingerprint_hash": "c68d9ad2a8d9db79a984f7373069349e00f9a888c285d070b8fc092ea91d6949",
+      "reference_artifact": "control_plane/90_trust_chain_ledger_baseline_enforcement_coverage_fingerprint.json",
+      "timestamp_utc": "2026-03-17T05:52:38Z",
+      "phase_locked": "48.8",
+      "previous_hash": "3a3b5c3c7ac8f7d17dda5f6e2b915eba86c6e6d615d26db48114576ce5145201"
+    },
+    {
+      "entry_id": "GF-0009",
+      "artifact": "trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_seal",
+      "coverage_fingerprint": "d43507fcaad53b3ea24a2e0b05dfcca2bc725793f10aa263befb88a0381f344c",
+      "fingerprint_hash": "e98fc6cf81fb91a7386daa278cc2e13f4383782b7aa76d502b98470e3cf93130",
+      "reference_artifact": "control_plane/93_trust_chain_ledger_baseline_enforcement_coverage_fingerprint.json",
+      "timestamp_utc": "2026-03-17T07:37:56Z",
+      "phase_locked": "49.4",
+      "previous_hash": "073eea8ef2dec4e0c6176d0033fe6caaea69a6e62c798462ed10af1577b3c42a"
+    },
+    {
+      "entry_id": "GF-0010",
+      "artifact": "trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint_seal",
+      "coverage_fingerprint": "76cde3f75fbae3e732c3685b2b204fec1921756d8627732624af36bddb2aa951",
+      "fingerprint_hash": "05e69d11e5c1ca712798b40928b40dc5fa77c101321731faea69968d04b956db",
+      "reference_artifact": "control_plane/96_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint.json",
+      "timestamp_utc": "2026-03-18T03:48:20Z",
+      "phase_locked": "50.0",
+      "previous_hash": "7e2db183c793d75529fb39d823a9b31eb36830715b0c08b1736753489f2bacc2"
+    },
+    {
+      "entry_id": "GF-0011",
+      "artifact": "trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_seal",
+      "coverage_fingerprint": "9accf03b9f93e0356936e5713ce903e06f55daf6d01a3f05fa4670b6945c2cb7",
+      "fingerprint_hash": "ed4a2bd78291708aaa286ba6baba7c6ff2b9b544900288642a044f8413789314",
+      "reference_artifact": "control_plane/98_trust_chain_ledger_baseline_enforcement_coverage_fingerprint.json",
+      "timestamp_utc": "2026-03-18T11:14:14Z",
+      "phase_locked": "50.6",
+      "previous_hash": "43d876739b399a442dbab79818e75ce90c3d0610b14e5fb501127db7e03e22a2"
+    },
+    {
+      "entry_id": "GF-0012",
+      "artifact": "trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_seal",
+      "coverage_fingerprint": "436a23699c8e2d33ebea94101548919db1b69dd4215d3c3f21ec877eba90f49c",
+      "fingerprint_hash": "1a3343a656606ece2185b7b21d8b6a189393d8dabc414010b58d405e17be0610",
+      "reference_artifact": "control_plane/101_trust_chain_ledger_baseline_enforcement_surface_fingerprint.json",
+      "timestamp_utc": "2026-03-18T15:24:23Z",
+      "phase_locked": "51.2",
+      "previous_hash": "7c6bdb05b4ca1cb2314616a24762b4ddc6b3b4067a9d9889f5d1f31fca0519e9"
+    },
+    {
+      "entry_id": "GF-0013",
+      "artifact": "trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_seal",
+      "reference_artifact": "104_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint.json",
+      "coverage_fingerprint": "5b45296f258747b55076a76ec6ac1ed0c69fca7b09dff613aeb416f5b7f35045",
+      "fingerprint_hash": "757a2328f8236e11c63ad89407cd5674539d0c753645ff1651654b8f0f8f8bfe",
+      "timestamp_utc": "2026-03-19T07:01:37Z",
+      "phase_locked": "51.8",
+      "previous_hash": "a210378d08375317df5667661a548c018993f0d6911307fd8e732439efd5267b"
+    },
+    {
+      "entry_id": "GF-0014",
+      "artifact": "trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_seal",
+      "reference_artifact": "107_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint.json",
+      "coverage_fingerprint": "c5aa7e10f342447a800c951eab9e4c68c983e25bcc4c07e404dda32b4af15513",
+      "fingerprint_hash": "b22d931717bb6030b886688422bf051382faffbf564374b5819f06a978125d78",
+      "timestamp_utc": "2026-03-19T11:35:02Z",
+      "phase_locked": "52.4",
+      "previous_hash": "509744304e7810c28dbcc113d7f3576399465806690fb5c3cc9c48f7413f7917"
+    },
+    {
+      "entry_id": "GF-0015",
+      "artifact": "trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_seal",
+      "reference_artifact": "110_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint_regression_anchor.json",
+      "coverage_fingerprint": "234451637df78f4e655919bf671a4aee1ace2f3c03dfcd86706e6ce52a8215fe",
+      "fingerprint_hash": "a1144b0c446b8c625213228b611c75df2827a3c8ac4284763006cf74c3985e8d",
+      "timestamp_utc": "2026-03-19T16:30:58Z",
+      "phase_locked": "53.0",
+      "previous_hash": "35b1258f474ca92b5771d85647b117f9ef3163736a07ee6894e8792f94bad881"
     }
   ]
 }

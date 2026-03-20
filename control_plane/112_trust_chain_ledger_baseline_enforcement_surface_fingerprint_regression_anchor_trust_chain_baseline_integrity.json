@@ -1,0 +1,9 @@
+{
+  "artifact_id": "112",
+  "phase_locked": "53.1",
+  "baseline_snapshot_hash": "71e6fdb50715269ce624ee81a6acbb568362f4e2fb01afefd82c65efdf339353",
+  "ledger_head_hash": "c17e6b6ee0acd7905dedc1355e8bd2f070867250d0bfdb88f689e4ef15c67e22",
+  "coverage_fingerprint_hash": "234451637df78f4e655919bf671a4aee1ace2f3c03dfcd86706e6ce52a8215fe",
+  "source_artifact": "111_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline.json",
+  "timestamp_utc": "2026-03-19T17:14:43Z"
+}

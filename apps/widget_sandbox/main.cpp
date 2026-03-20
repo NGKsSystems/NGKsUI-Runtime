@@ -9,6 +9,15 @@
 #include <sstream>
 #include <string>
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#include "../runtime_phase53_guard.hpp"
 #include "ngk/event_loop.hpp"
 #include "ngk/gfx/d3d11_renderer.hpp"
 #include "ngk/platform/win32_clipboard.hpp"
@@ -22,8 +31,6 @@
 #include "text_painter.hpp"
 #include "ui_tree.hpp"
 #include "vertical_layout.hpp"
-
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 namespace {
@@ -4109,6 +4116,11 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
 
 int main(int argc, char** argv) {
   try {
+    const int guard_rc = ngk::runtime_guard::enforce_phase53_2();
+    if (guard_rc != 0) {
+      return guard_rc;
+    }
+
     const bool demo_mode = is_demo_mode_enabled(argc, argv);
     const bool visual_baseline_mode = is_visual_baseline_mode_enabled(argc, argv);
     const bool extension_visual_baseline_mode = is_extension_visual_baseline_mode_enabled(argc, argv);

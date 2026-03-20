@@ -1,0 +1,240 @@
+{
+  "files": [
+    {
+      "mtime_ns": 1771656570363616200,
+      "path": "apps/loop_tests/main.cpp",
+      "size": 3457
+    },
+    {
+      "mtime_ns": 1771656570362615900,
+      "path": "apps/sandbox_app/main.cpp",
+      "size": 651
+    },
+    {
+      "mtime_ns": 1773555809821973900,
+      "path": "apps/widget_sandbox/main.cpp",
+      "size": 239012
+    },
+    {
+      "mtime_ns": 1773217384098920600,
+      "path": "apps/win32_sandbox/main.cpp",
+      "size": 28895
+    },
+    {
+      "mtime_ns": 1771563232773548500,
+      "path": "engine/core/include/ngk/core.hpp",
+      "size": 76
+    },
+    {
+      "mtime_ns": 1771656570362615900,
+      "path": "engine/core/include/ngk/event_loop.hpp",
+      "size": 840
+    },
+    {
+      "mtime_ns": 1771569859378031900,
+      "path": "engine/core/include/ngk/time.hpp",
+      "size": 193
+    },
+    {
+      "mtime_ns": 1771563232807622900,
+      "path": "engine/core/src/core.cpp",
+      "size": 88
+    },
+    {
+      "mtime_ns": 1771656570362615900,
+      "path": "engine/core/src/event_loop.cpp",
+      "size": 6403
+    },
+    {
+      "mtime_ns": 1773228532131443300,
+      "path": "engine/core/src/event_queue.cpp",
+      "size": 87
+    },
+    {
+      "mtime_ns": 1773228532131443300,
+      "path": "engine/core/src/task_queue.cpp",
+      "size": 87
+    },
+    {
+      "mtime_ns": 1773228532141529400,
+      "path": "engine/core/src/timer.cpp",
+      "size": 87
+    },
+    {
+      "mtime_ns": 1771563233062265100,
+      "path": "engine/gfx/include/ngk/gfx/gfx.hpp",
+      "size": 87
+    },
+    {
+      "mtime_ns": 1771563233104354800,
+      "path": "engine/gfx/src/gfx.cpp",
+      "size": 101
+    },
+    {
+      "mtime_ns": 1773228532121932500,
+      "path": "engine/gfx/win32/include/ngk/gfx/d3d11_renderer.hpp",
+      "size": 1507
+    },
+    {
+      "mtime_ns": 1773407216350514300,
+      "path": "engine/gfx/win32/src/d3d11_renderer.cpp",
+      "size": 7108
+    },
+    {
+      "mtime_ns": 1771563232905830800,
+      "path": "engine/platform/win32/include/ngk/platform/platform.hpp",
+      "size": 91
+    },
+    {
+      "mtime_ns": 1773114556024115000,
+      "path": "engine/platform/win32/include/ngk/platform/win32_clipboard.hpp",
+      "size": 1440
+    },
+    {
+      "mtime_ns": 1773228532121932500,
+      "path": "engine/platform/win32/include/ngk/platform/win32_window.hpp",
+      "size": 2631
+    },
+    {
+      "mtime_ns": 1771563232973338300,
+      "path": "engine/platform/win32/src/platform_win32.cpp",
+      "size": 116
+    },
+    {
+      "mtime_ns": 1773228532121932500,
+      "path": "engine/platform/win32/src/win32_window.cpp",
+      "size": 11592
+    },
+    {
+      "mtime_ns": 1773227315164086400,
+      "path": "engine/ui/button.cpp",
+      "size": 7552
+    },
+    {
+      "mtime_ns": 1773227315163085800,
+      "path": "engine/ui/button.hpp",
+      "size": 1616
+    },
+    {
+      "mtime_ns": 1773227315164086400,
+      "path": "engine/ui/horizontal_layout.hpp",
+      "size": 1720
+    },
+    {
+      "mtime_ns": 1771563233219754800,
+      "path": "engine/ui/include/ngk/ui/ui.hpp",
+      "size": 80
+    },
+    {
+      "mtime_ns": 1773492926874690100,
+      "path": "engine/ui/input_box.hpp",
+      "size": 13154
+    },
+    {
+      "mtime_ns": 1773227315164086400,
+      "path": "engine/ui/input_router.hpp",
+      "size": 3397
+    },
+    {
+      "mtime_ns": 1773228532121932500,
+      "path": "engine/ui/label.cpp",
+      "size": 48
+    },
+    {
+      "mtime_ns": 1773227315164086400,
+      "path": "engine/ui/label.hpp",
+      "size": 618
+    },
+    {
+      "mtime_ns": 1773228532121932500,
+      "path": "engine/ui/panel.cpp",
+      "size": 48
+    },
+    {
+      "mtime_ns": 1773408492311114500,
+      "path": "engine/ui/panel.hpp",
+      "size": 963
+    },
+    {
+      "mtime_ns": 1771563233265376500,
+      "path": "engine/ui/src/ui.cpp",
+      "size": 99
+    },
+    {
+      "mtime_ns": 1773555809822971900,
+      "path": "engine/ui/text_painter.hpp",
+      "size": 7371
+    },
+    {
+      "mtime_ns": 1773228532121932500,
+      "path": "engine/ui/ui_element.cpp",
+      "size": 53
+    },
+    {
+      "mtime_ns": 1773227315164086400,
+      "path": "engine/ui/ui_element.hpp",
+      "size": 6112
+    },
+    {
+      "mtime_ns": 1773227315164086400,
+      "path": "engine/ui/ui_tree.hpp",
+      "size": 6624
+    },
+    {
+      "mtime_ns": 1773228532121932500,
+      "path": "engine/ui/vertical_layout.cpp",
+      "size": 58
+    },
+    {
+      "mtime_ns": 1773227315164086400,
+      "path": "engine/ui/vertical_layout.hpp",
+      "size": 1598
+    }
+  ],
+  "headers": [
+    "engine/core/include/ngk/core.hpp",
+    "engine/core/include/ngk/event_loop.hpp",
+    "engine/core/include/ngk/time.hpp",
+    "engine/gfx/include/ngk/gfx/gfx.hpp",
+    "engine/gfx/win32/include/ngk/gfx/d3d11_renderer.hpp",
+    "engine/platform/win32/include/ngk/platform/platform.hpp",
+    "engine/platform/win32/include/ngk/platform/win32_clipboard.hpp",
+    "engine/platform/win32/include/ngk/platform/win32_window.hpp",
+    "engine/ui/button.hpp",
+    "engine/ui/horizontal_layout.hpp",
+    "engine/ui/include/ngk/ui/ui.hpp",
+    "engine/ui/input_box.hpp",
+    "engine/ui/input_router.hpp",
+    "engine/ui/label.hpp",
+    "engine/ui/panel.hpp",
+    "engine/ui/text_painter.hpp",
+    "engine/ui/ui_element.hpp",
+    "engine/ui/ui_tree.hpp",
+    "engine/ui/vertical_layout.hpp"
+  ],
+  "qrc_referenced": [],
+  "qrcs": [],
+  "schema_version": 1,
+  "sources": [
+    "apps/loop_tests/main.cpp",
+    "apps/sandbox_app/main.cpp",
+    "apps/widget_sandbox/main.cpp",
+    "apps/win32_sandbox/main.cpp",
+    "engine/core/src/core.cpp",
+    "engine/core/src/event_loop.cpp",
+    "engine/core/src/event_queue.cpp",
+    "engine/core/src/task_queue.cpp",
+    "engine/core/src/timer.cpp",
+    "engine/gfx/src/gfx.cpp",
+    "engine/gfx/win32/src/d3d11_renderer.cpp",
+    "engine/platform/win32/src/platform_win32.cpp",
+    "engine/platform/win32/src/win32_window.cpp",
+    "engine/ui/button.cpp",
+    "engine/ui/label.cpp",
+    "engine/ui/panel.cpp",
+    "engine/ui/src/ui.cpp",
+    "engine/ui/ui_element.cpp",
+    "engine/ui/vertical_layout.cpp"
+  ],
+  "uis": []
+}

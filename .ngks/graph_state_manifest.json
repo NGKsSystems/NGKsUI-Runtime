@@ -1,0 +1,2073 @@
+{
+  "generated_at": "2026-03-19T12:52:06.554151+00:00",
+  "project_root": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime",
+  "manifest_hash": "9aa16f42a9300143cc64ff1386295f497b4263957ccf4a225d0613e73c81b63b",
+  "tracked_file_count": 344,
+  "changed_since_last": true,
+  "rows": [
+    {
+      "path": ".graph_state/graph_state.json",
+      "size": 658,
+      "mtime_ns": 1773924719717495900,
+      "sha256": "da2aa545c67f133d49ac2c795a45d3090ee1ff12afd83f7a0f7de3ba9297a771"
+    },
+    {
+      "path": ".ngk/profile.json",
+      "size": 774,
+      "mtime_ns": 1773552549432045100,
+      "sha256": "86c6558091616791a7d18eda1584907cac0096ac93c4c8325d90c806c88e06e0"
+    },
+    {
+      "path": ".ngks/profile.default.json",
+      "size": 95,
+      "mtime_ns": 1773924335560200400,
+      "sha256": "d919fa9a1c7bdb98862aab9ca8aac0b660e43ecfbe9064e9829e05a194f1ff4a"
+    },
+    {
+      "path": ".ngks/project.json",
+      "size": 201,
+      "mtime_ns": 1773924335559205400,
+      "sha256": "d76ff085347bb11793d4b2c6fc0cf8d2f66dc2792c86b6a5d78d634264404bb1"
+    },
+    {
+      "path": ".ngks/README.txt",
+      "size": 85,
+      "mtime_ns": 1773924335560200400,
+      "sha256": "993264544d753c457ac57226c45467cedf018188703a2d764eba035eb51525fd"
+    },
+    {
+      "path": ".ngksgraph_cache/cache_version.txt",
+      "size": 1,
+      "mtime_ns": 1773758144862033000,
+      "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "path": ".ngksgraph_cache/profile_debug/plan.json",
+      "size": 4147,
+      "mtime_ns": 1773758144863036100,
+      "sha256": "19ef6c5b4a3e1eb2f47fbe8267673dfae53861fa683520abcc00817480f2581e"
+    },
+    {
+      "path": ".ngksgraph_cache/profile_debug/plan_key.json",
+      "size": 752,
+      "mtime_ns": 1773758144865034900,
+      "sha256": "756e9c3987213d9fe445fb9f8ead14f93598e9adf976d092b20193c654cef957"
+    },
+    {
+      "path": ".ngksgraph_cache/profile_debug/scan_fingerprint.json",
+      "size": 6336,
+      "mtime_ns": 1773758144866031800,
+      "sha256": "19e8ca843600bf3f8d73419b11a0d849dd2c16e56a7966a5a98293ca25a81f03"
+    },
+    {
+      "path": ".vscode/extensions.json",
+      "size": 101,
+      "mtime_ns": 1773555809819211500,
+      "sha256": "bc04e4197991c26bdfe6798041469e8db2869865fc23b00c0abd838a67305c9d"
+    },
+    {
+      "path": ".vscode/settings.json",
+      "size": 444,
+      "mtime_ns": 1772819524618662600,
+      "sha256": "dcd52ec1170775e78fa258ccc46c472c1d4eecf4f7c21d5e16e117d7ba9c59f5"
+    },
+    {
+      "path": ".vscode/tasks.json",
+      "size": 14584,
+      "mtime_ns": 1773717719357238200,
+      "sha256": "a0fed757a8943b76abe26be065d73af082de7405ed7526276b518607c71aface"
+    },
+    {
+      "path": "_artifacts/runtime/phase_runner_inventory.txt",
+      "size": 5286,
+      "mtime_ns": 1773567091399469400,
+      "sha256": "6b92815e437357c1b2b0848cddb32368c872a200ec6d679de01904e53f9672cc"
+    },
+    {
+      "path": "_artifacts/runtime/validation_script_inventory.txt",
+      "size": 431,
+      "mtime_ns": 1773567093201049200,
+      "sha256": "101dcbb6d1d0df9b4a3aa94fb11788791e5b1c5fea8727d82f745d71bc3089a2"
+    },
+    {
+      "path": "_artifacts/runtime/widget_token_lines.txt",
+      "size": 113662,
+      "mtime_ns": 1773567095064166300,
+      "sha256": "623cc9cb5c6ce902a5aea0e3483965ce7e98f8c432f54c65756a1cd9f64229a5"
+    },
+    {
+      "path": "_proof_quarantine_failed_migration/run_build/run_build_20260306_210910_944750/doctor.json",
+      "size": 551,
+      "mtime_ns": 1772820550986095900,
+      "sha256": "bd241c7486f47040d0b2f5546bc81d6bda9b84632a0e9ed227da76d8c5f80fad"
+    },
+    {
+      "path": "_proof_quarantine_failed_migration/run_build/run_build_20260306_210910_944750/doctor.txt",
+      "size": 154,
+      "mtime_ns": 1772820550986095900,
+      "sha256": "42f2f26a940376c6f216f36e275d4342990b5f376221de59b2ab02fc5c5709a7"
+    },
+    {
+      "path": "apps/loop_tests/.ngk/profile.json",
+      "size": 728,
+      "mtime_ns": 1773552550314178300,
+      "sha256": "e96c6f67ad1e3b873b0cdc819f453199468afcd32fd0d1205ccbab1f9220ad7e"
+    },
+    {
+      "path": "apps/loop_tests/CMakeLists.txt",
+      "size": 99,
+      "mtime_ns": 1771579342630533000,
+      "sha256": "da11714e38ccd986d272f1acda7a0eac14bd0db3158093c6c1280c0f7754806a"
+    },
+    {
+      "path": "apps/sandbox_app/.ngk/profile.json",
+      "size": 728,
+      "mtime_ns": 1773552551264793100,
+      "sha256": "e96c6f67ad1e3b873b0cdc819f453199468afcd32fd0d1205ccbab1f9220ad7e"
+    },
+    {
+      "path": "apps/sandbox_app/CMakeLists.txt",
+      "size": 95,
+      "mtime_ns": 1771563233350248600,
+      "sha256": "65f45664f6acfdcea3add004b67f38eb4151246be1f8bf7d74c7f3f8f6223a6a"
+    },
+    {
+      "path": "apps/win32_sandbox/.ngk/profile.json",
+      "size": 728,
+      "mtime_ns": 1773552552027632600,
+      "sha256": "e96c6f67ad1e3b873b0cdc819f453199468afcd32fd0d1205ccbab1f9220ad7e"
+    },
+    {
+      "path": "build_graph/debug/.graph_state/graph_state.json",
+      "size": 698,
+      "mtime_ns": 1773755276115320100,
+      "sha256": "f2dd01f18582e9abfc47ff70e538d91fa43e73938e7d36e74f4a51dda484022c"
+    },
+    {
+      "path": "build_graph/debug/.ngks/graph_state_manifest.json",
+      "size": 2615,
+      "mtime_ns": 1773755276397087800,
+      "sha256": "01d9384b974721614a280e58932aebacfb8a35b500528e1799843f7ac1b37222"
+    },
+    {
+      "path": "build_graph/debug/.ngks/profile.default.json",
+      "size": 95,
+      "mtime_ns": 1773755276763277900,
+      "sha256": "d919fa9a1c7bdb98862aab9ca8aac0b660e43ecfbe9064e9829e05a194f1ff4a"
+    },
+    {
+      "path": "build_graph/debug/.ngks/project.json",
+      "size": 221,
+      "mtime_ns": 1773755276763277900,
+      "sha256": "e0f8b536c224241a00c7d371c71047a1af2a5c43926b2419e92f2823ab33e8e1"
+    },
+    {
+      "path": "build_graph/debug/.ngks/README.txt",
+      "size": 85,
+      "mtime_ns": 1773755276763277900,
+      "sha256": "993264544d753c457ac57226c45467cedf018188703a2d764eba035eb51525fd"
+    },
+    {
+      "path": "build_graph/debug/certification/baseline_v1/baseline_manifest.json",
+      "size": 632,
+      "mtime_ns": 1773754980736151400,
+      "sha256": "c4017b1f12a7f197f59be84e12517ce5fbd079b57526883c5be637a4454dc086"
+    },
+    {
+      "path": "build_graph/debug/certification/baseline_v1/baseline_matrix.json",
+      "size": 1041,
+      "mtime_ns": 1773754980736151400,
+      "sha256": "f2978cae6e2fd9d3bd9da2a0afb3f19b40457aa98925dfc309e2194750929b84"
+    },
+    {
+      "path": "build_graph/debug/certification/baseline_v1/diagnostic_metrics.json",
+      "size": 761,
+      "mtime_ns": 1773754980736151400,
+      "sha256": "c548761db177183364a8791dd25a8ca3d507af25f7f529c3b1a82b60f5b426e6"
+    },
+    {
+      "path": "build_graph/debug/certification/scenario_index.json",
+      "size": 796,
+      "mtime_ns": 1773754980736151400,
+      "sha256": "90de3c82d79386556f42d10028f38ecebecfd9b8d48c3875de723ff114a70803"
+    },
+    {
+      "path": "build_graph/debug/certification_target.json",
+      "size": 1036,
+      "mtime_ns": 1773754980736151400,
+      "sha256": "0bea5a345aebd6f1ac9a342a4512b9310d0411e25205c1f6af9c203190fdfaa0"
+    },
+    {
+      "path": "build_graph/debug/ngksbuildcore_plan.json",
+      "size": 15205,
+      "mtime_ns": 1773851772347312900,
+      "sha256": "fdc1b4d8a9b67abd36a2e15979b83c9719e4031316da3065a4fd57e0b210ba39"
+    },
+    {
+      "path": "build_graph/debug/ngksgraph_plan.json",
+      "size": 16834,
+      "mtime_ns": 1773851771330696200,
+      "sha256": "bf3b8361e810b24255d1e3aef3a5e8343136ea41ef003a5058f2ee1d5406fd17"
+    },
+    {
+      "path": "build_graph/debug/resolution/10_target_spec.json",
+      "size": 669,
+      "mtime_ns": 1773851772331248300,
+      "sha256": "d0aaf59b453b85405e3a56521a7e73b13430fbaf8c6076494e8497d5aae3912b"
+    },
+    {
+      "path": "build_graph/debug/resolution/11_capability_inventory.json",
+      "size": 1799,
+      "mtime_ns": 1773851772333262200,
+      "sha256": "35fd1c3a8881602a1c8d6c8c6dab680fb086ccfc809c229e1f9db4527892912f"
+    },
+    {
+      "path": "build_graph/debug/resolution/12_required_vs_available.json",
+      "size": 2443,
+      "mtime_ns": 1773851772333262200,
+      "sha256": "c7defc6c03cf1c8aa28f4bc22a91c9c9d482f570bf0030f1219bf645c97cd5fe"
+    },
+    {
+      "path": "build_graph/debug/resolution/13_capability_conflicts.json",
+      "size": 33,
+      "mtime_ns": 1773851772333262200,
+      "sha256": "67e8b6dac74e960fcd75db28d1469adfc6904d371f07efe7d680c9366d435f53"
+    },
+    {
+      "path": "build_graph/debug/resolution/14_resolution_report.json",
+      "size": 2609,
+      "mtime_ns": 1773851772335278100,
+      "sha256": "ed678bb7bf41ecacc18968b52a9c3d07a704525cff9948597342a7ef3c70bba2"
+    },
+    {
+      "path": "build_graph/debug/resolution/15_build_plan_resolution_context.json",
+      "size": 340,
+      "mtime_ns": 1773851772335278100,
+      "sha256": "d6735a1572c2b25e29d3e582c609067dc5434bbff5fa0a044782e12fba88d5c7"
+    },
+    {
+      "path": "build_graph/debug/resolution/16_fix_recommendations.json",
+      "size": 33,
+      "mtime_ns": 1773851772335278100,
+      "sha256": "67e8b6dac74e960fcd75db28d1469adfc6904d371f07efe7d680c9366d435f53"
+    },
+    {
+      "path": "build_graph/debug/resolution/17_resolution_summary.md",
+      "size": 277,
+      "mtime_ns": 1773851772337291600,
+      "sha256": "f5391edaaffb6738ab1d902076c8b774c2763473550437c81c01aed4ba7085bd"
+    },
+    {
+      "path": "certification/baseline_v1/baseline_manifest.json",
+      "size": 641,
+      "mtime_ns": 1773832442354535900,
+      "sha256": "f9956b214777de726db9780c0b21fc26a01c7cde99f3336fb8ba79eba6e07942"
+    },
+    {
+      "path": "certification/baseline_v1/baseline_matrix.json",
+      "size": 1041,
+      "mtime_ns": 1773832442354535900,
+      "sha256": "f2978cae6e2fd9d3bd9da2a0afb3f19b40457aa98925dfc309e2194750929b84"
+    },
+    {
+      "path": "certification/baseline_v1/diagnostic_metrics.json",
+      "size": 761,
+      "mtime_ns": 1773832442356537100,
+      "sha256": "c548761db177183364a8791dd25a8ca3d507af25f7f529c3b1a82b60f5b426e6"
+    },
+    {
+      "path": "certification/scenario_index.json",
+      "size": 796,
+      "mtime_ns": 1773832442353534700,
+      "sha256": "90de3c82d79386556f42d10028f38ecebecfd9b8d48c3875de723ff114a70803"
+    },
+    {
+      "path": "certification_target.json",
+      "size": 1045,
+      "mtime_ns": 1773832442352429800,
+      "sha256": "14b71a9fdc31063484f5fc14fd282919d1c28f7d35a33360723175bf3607ffdf"
+    },
+    {
+      "path": "control_plane/100_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_integrity.json",
+      "size": 362,
+      "mtime_ns": 1773835247741511100,
+      "sha256": "d1931d4399806726f6c572a151730473f83271e80628c71974a41b109762a8f0"
+    },
+    {
+      "path": "control_plane/101_trust_chain_ledger_baseline_enforcement_surface_fingerprint.json",
+      "size": 483,
+      "mtime_ns": 1773843523837738100,
+      "sha256": "8eeb1de3e21454c7b346100dc14ee9086521096f92eed0fc4f388c22e22989e3"
+    },
+    {
+      "path": "control_plane/102_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline.json",
+      "size": 1488,
+      "mtime_ns": 1773849320771018300,
+      "sha256": "5ad4c82fc382c108318413d0c561113208e77860cf8d9725a9691afcb694f517"
+    },
+    {
+      "path": "control_plane/103_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_integrity.json",
+      "size": 362,
+      "mtime_ns": 1773849320823527000,
+      "sha256": "a485010fc2733d28acdf29b1b58ed52af3cf16f71de9eb22617d6c16b362871f"
+    },
+    {
+      "path": "control_plane/104_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint.json",
+      "size": 1802,
+      "mtime_ns": 1773891328525832700,
+      "sha256": "e4e6242f0ad2f3d467c5313e6c274a72510b695b47145d5d1ba6e792a7eddf46"
+    },
+    {
+      "path": "control_plane/105_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline.json",
+      "size": 454,
+      "mtime_ns": 1773894848750611800,
+      "sha256": "4ef6aaa9bb47ff501d756ea386ad6752623b328ea221cb7e31dc39ac88ee25bf"
+    },
+    {
+      "path": "control_plane/106_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_integrity.json",
+      "size": 362,
+      "mtime_ns": 1773894848815787700,
+      "sha256": "fc8695afe4d9541e2ed45e4e184da31d87b04bf12a9a162bc3eaaf01d7a0a1bf"
+    },
+    {
+      "path": "control_plane/107_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint.json",
+      "size": 1780,
+      "mtime_ns": 1773902100639327700,
+      "sha256": "b799ddcbb39297c59c17d94dc56914945336fb2e92c2cdeed83760c428f9437b"
+    },
+    {
+      "path": "control_plane/108_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline.json",
+      "size": 454,
+      "mtime_ns": 1773917175207173600,
+      "sha256": "3d8272f1717fd994bca74bb3da4db7236ee764ccf16327a4f99b1601c3606960"
+    },
+    {
+      "path": "control_plane/109_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_integrity.json",
+      "size": 535,
+      "mtime_ns": 1773917175302096000,
+      "sha256": "58e70fab00b12f2f4da4656adf66e440e99187e3a34cb24cb7b5a9d2eb12dbf2"
+    },
+    {
+      "path": "control_plane/70_guard_fingerprint_trust_chain.json",
+      "size": 7838,
+      "mtime_ns": 1773909302326837600,
+      "sha256": "35aa86ae3d566e7b3c8a688f15ffc011fd81121f64f9302ad40bc657605edaec"
+    },
+    {
+      "path": "control_plane/71_guard_fingerprint_trust_chain_baseline.json",
+      "size": 1492,
+      "mtime_ns": 1773629732724143200,
+      "sha256": "c94bc6d4b03284131c6b356dba7ad86393c46da66a460e814e29a9387f13e24f"
+    },
+    {
+      "path": "control_plane/72_guard_fingerprint_trust_chain_baseline_integrity.json",
+      "size": 350,
+      "mtime_ns": 1773629732746393500,
+      "sha256": "7b69d07802b2710a66d08319b5de70f2c8c275ee5ae60510889b7b29a4db4d71"
+    },
+    {
+      "path": "control_plane/73_runtime_gate_coverage_fingerprint.json",
+      "size": 852,
+      "mtime_ns": 1773635052292517100,
+      "sha256": "5c6d5a8939f35c3d6c89f299e5fb6da89b6436bd174be294216a93822a938960"
+    },
+    {
+      "path": "control_plane/74_runtime_gate_certification_baseline.json",
+      "size": 1324,
+      "mtime_ns": 1773636170990758800,
+      "sha256": "f6f4312b5095d451ce220894776f3531b8e8397df21ff2423ea98199e18fa5be"
+    },
+    {
+      "path": "control_plane/75_runtime_gate_certification_baseline_integrity.json",
+      "size": 416,
+      "mtime_ns": 1773636171056106300,
+      "sha256": "9dd5f3251e7a941f61acbeeceb833cdfeb6ad175fa78e1b8be782b39a53087c0"
+    },
+    {
+      "path": "control_plane/76_certification_baseline_coverage_fingerprint.json",
+      "size": 1168,
+      "mtime_ns": 1773643798717312100,
+      "sha256": "14b74027bc1cb742d2850c0363fc6819d554c8e4f9086fe2c661267c9d275f00"
+    },
+    {
+      "path": "control_plane/77_certification_baseline_coverage_trust_chain_baseline.json",
+      "size": 461,
+      "mtime_ns": 1773646997899813800,
+      "sha256": "3f90ac1c7ebd7b67549b95b10b4e3432e820f6609a92421511aae7d62f57742d"
+    },
+    {
+      "path": "control_plane/78_certification_baseline_coverage_trust_chain_baseline_integrity.json",
+      "size": 533,
+      "mtime_ns": 1773646997929203200,
+      "sha256": "7a96b4187f336995eaf513913070e801abf142088a38ad708980d0e224e67f61"
+    },
+    {
+      "path": "control_plane/79_trust_chain_baseline_enforcement_coverage_fingerprint.json",
+      "size": 1163,
+      "mtime_ns": 1773653886473204700,
+      "sha256": "00cc689f40b7683709851a8adbaa0dd689fdb4ed5181c96ae0500e9e76483cf3"
+    },
+    {
+      "path": "control_plane/80_trust_chain_baseline_enforcement_coverage_trust_chain_baseline.json",
+      "size": 461,
+      "mtime_ns": 1773656617625828500,
+      "sha256": "72a3d27bb191b2c51a81e7a398e6c7abf690725083462aa03b5d17453ecf19b6"
+    },
+    {
+      "path": "control_plane/81_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_integrity.json",
+      "size": 543,
+      "mtime_ns": 1773656617653158100,
+      "sha256": "6784c459c99d0b96d7f0858f0c53a523e44a5676404e1e476f28ef4ebb27effc"
+    },
+    {
+      "path": "control_plane/82_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint.json",
+      "size": 2224,
+      "mtime_ns": 1773665366750405900,
+      "sha256": "1a6f60cf0206b4901e7f108d103c1fb2886cb918d302288d2af6a4542fd2ed2a"
+    },
+    {
+      "path": "control_plane/83_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint_trust_chain_baseline.json",
+      "size": 461,
+      "mtime_ns": 1773668451733987400,
+      "sha256": "ca0d01202ffd749c2cdc5fef4c87bfb60a51218017c36009715900186ec50de9"
+    },
+    {
+      "path": "control_plane/84_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_integrity.json",
+      "size": 597,
+      "mtime_ns": 1773668451764988400,
+      "sha256": "87e4944bac4db28cdda19ea13b47764e114c9b67e1914b9a1c1542274d772d98"
+    },
+    {
+      "path": "control_plane/85_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint.json",
+      "size": 1245,
+      "mtime_ns": 1773674408653215300,
+      "sha256": "cb9de75cb51a3cc9ac4e0baf1d1d2bae44df3fc0d53c0de28fa634bb3f243677"
+    },
+    {
+      "path": "control_plane/86_guard_fingerprint_trust_chain_baseline.json",
+      "size": 985,
+      "mtime_ns": 1773678753811816100,
+      "sha256": "3b3adec4b3cf604fc769759b7e512632c720201a109889cae9d1d685467011a1"
+    },
+    {
+      "path": "control_plane/87_trust_chain_ledger_baseline_enforcement_coverage_fingerprint.json",
+      "size": 1163,
+      "mtime_ns": 1773691298332387500,
+      "sha256": "3a62b1352733e245a50d697ddeea212397696dfc6d6f1e92efe2d5d18a3012c4"
+    },
+    {
+      "path": "control_plane/88_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline.json",
+      "size": 1153,
+      "mtime_ns": 1773718655975520700,
+      "sha256": "18c4e2c4f2b2966c7917de89f566cd2fb6e083fa42fa4d807047cdc3252605a8"
+    },
+    {
+      "path": "control_plane/89_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_integrity.json",
+      "size": 362,
+      "mtime_ns": 1773718655998929100,
+      "sha256": "d0509cf12dabde1bd1277febfa74e101d620ceed26c3f2f80e610f9a4d295502"
+    },
+    {
+      "path": "control_plane/90_trust_chain_ledger_baseline_enforcement_coverage_fingerprint.json",
+      "size": 1093,
+      "mtime_ns": 1773725986195659600,
+      "sha256": "f1fd7caddc8ec92d273bebdb253557b431422432f5a92c1076b2fd84d504426b"
+    },
+    {
+      "path": "control_plane/91_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline.json",
+      "size": 1151,
+      "mtime_ns": 1773728800206237700,
+      "sha256": "2f8d4afd35c7d92ad17914d63d429ec34cdf8e8d0cd9d64e4d17cb11e227b8d7"
+    },
+    {
+      "path": "control_plane/92_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_integrity.json",
+      "size": 362,
+      "mtime_ns": 1773728800242211300,
+      "sha256": "caaeac2e363672f545da98ffe6657f2e5e01f639885aa2d15d39c35afb5a4228"
+    },
+    {
+      "path": "control_plane/93_trust_chain_ledger_baseline_enforcement_coverage_fingerprint.json",
+      "size": 913,
+      "mtime_ns": 1773732436671212300,
+      "sha256": "12f44eab70eb22f5e20c5fe40e0bee46746a1d43a0e48b57f1d2369b75f14d7f"
+    },
+    {
+      "path": "control_plane/94_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline.json",
+      "size": 1235,
+      "mtime_ns": 1773733525823259800,
+      "sha256": "07eb9c0fbf41f728b4457bc8fcecbffd197413051f4da19b85fdb8ae5f653bdd"
+    },
+    {
+      "path": "control_plane/95_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_integrity.json",
+      "size": 362,
+      "mtime_ns": 1773733525858168900,
+      "sha256": "88ed59adc54cc896ef40b8b9b93ac73ebbd9e290cb1ee5964fda35cfa50e8d9b"
+    },
+    {
+      "path": "control_plane/96_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline.json",
+      "size": 1320,
+      "mtime_ns": 1773807388220822900,
+      "sha256": "f776955a3becd62a69a8af593deb0c203ac5618403c9455729dceaa6362b1ac5"
+    },
+    {
+      "path": "control_plane/96_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint.json",
+      "size": 967,
+      "mtime_ns": 1773805642601137100,
+      "sha256": "f711622c12b77c0c35b9732e5b4196c23fbb3eeea202109cc852a1e4250fb78f"
+    },
+    {
+      "path": "control_plane/97_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_integrity.json",
+      "size": 362,
+      "mtime_ns": 1773807388238390600,
+      "sha256": "39a19e2562261e75e8476e4609871c06aaef06b0baea7079f3525275e70f9aa6"
+    },
+    {
+      "path": "control_plane/98_trust_chain_ledger_baseline_enforcement_coverage_fingerprint.json",
+      "size": 2017,
+      "mtime_ns": 1773829905784533100,
+      "sha256": "70298ae6f10759c24ecf3d16bb4896e13dce715cdc20ebc11d83b6c064ce8bed"
+    },
+    {
+      "path": "control_plane/99_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline.json",
+      "size": 1404,
+      "mtime_ns": 1773835247703231800,
+      "sha256": "79392a34cfcbcb654e24f43e3cd990aecb13163831ced189a8cbef9b60063162"
+    },
+    {
+      "path": "docs/capability_inventory_code_read_2026-03-15.md",
+      "size": 15156,
+      "mtime_ns": 1773567159640710400,
+      "sha256": "40457f14ad37b67aa5fe9af750b398daa88702ccdbc787b5ea41b82fdffceee5"
+    },
+    {
+      "path": "docs/sandbox_extension_lane.md",
+      "size": 46526,
+      "mtime_ns": 1773471043290459200,
+      "sha256": "522ef2831a0ca4c776ca7e8e51a38de937cd153fc9f419d2b5a6798af5ab4798"
+    },
+    {
+      "path": "docs/sandbox_module_contract.md",
+      "size": 1758,
+      "mtime_ns": 1773237017455964800,
+      "sha256": "fe0bd0897b4c24808e4ca0134a94c0f839e753d6f076df0a47c68c90da61779f"
+    },
+    {
+      "path": "engine/core/.ngk/profile.json",
+      "size": 728,
+      "mtime_ns": 1773552552911455000,
+      "sha256": "e96c6f67ad1e3b873b0cdc819f453199468afcd32fd0d1205ccbab1f9220ad7e"
+    },
+    {
+      "path": "engine/gfx/.ngk/profile.json",
+      "size": 728,
+      "mtime_ns": 1773552553603531200,
+      "sha256": "e96c6f67ad1e3b873b0cdc819f453199468afcd32fd0d1205ccbab1f9220ad7e"
+    },
+    {
+      "path": "engine/gfx/CMakeLists.txt",
+      "size": 24,
+      "mtime_ns": 1771585332582222100,
+      "sha256": "62223ea58417428a5ec3c225d13c6731498ba0dcb43ff1ba2ea601276738970c"
+    },
+    {
+      "path": "engine/gfx/win32/.ngk/profile.json",
+      "size": 728,
+      "mtime_ns": 1773552557466262000,
+      "sha256": "e96c6f67ad1e3b873b0cdc819f453199468afcd32fd0d1205ccbab1f9220ad7e"
+    },
+    {
+      "path": "engine/platform/win32/.ngk/profile.json",
+      "size": 728,
+      "mtime_ns": 1773552557428944200,
+      "sha256": "e96c6f67ad1e3b873b0cdc819f453199468afcd32fd0d1205ccbab1f9220ad7e"
+    },
+    {
+      "path": "ngksgraph.toml",
+      "size": 3035,
+      "mtime_ns": 1773924452450350000,
+      "sha256": "ae7221da903e7e5a1386cc96961d19da15ccd7f2baf40c70f481c0053db81288"
+    },
+    {
+      "path": "proofs/LATEST_NGKSBUILDCORE_PROOF_DIR.txt",
+      "size": 101,
+      "mtime_ns": 1773758145719676900,
+      "sha256": "a3052789615ca1cf194495a97058118f973e5f6f89aad49a8f5ff64ba0f64555"
+    },
+    {
+      "path": "proofs/latest_ngksbuildcore_run/environment.txt",
+      "size": 15928,
+      "mtime_ns": 1773758145519941500,
+      "sha256": "81430c2aa5e33ce97da1ae1c0c1e2bc0c96719a652c5a7151952319467ab93a0"
+    },
+    {
+      "path": "proofs/latest_ngksbuildcore_run/git_head.txt",
+      "size": 42,
+      "mtime_ns": 1773758145662156600,
+      "sha256": "30fca2785f785ee0c10f7285d16c9a4b829ac00633d83989cb5b66c6374a55e0"
+    },
+    {
+      "path": "proofs/latest_ngksbuildcore_run/git_status.txt",
+      "size": 3344,
+      "mtime_ns": 1773758145626070600,
+      "sha256": "af8d1081d70d6daebccb017de8614a9e3e74bde4e9f9486f5870e98043f3031a"
+    },
+    {
+      "path": "proofs/latest_ngksbuildcore_run/inputs_env_capsule.txt",
+      "size": 43,
+      "mtime_ns": 1773758145662156600,
+      "sha256": "162ff63101514e5d558b018ebdfc98d557f9b6ccb6d382f38375ec7d4c051153"
+    },
+    {
+      "path": "proofs/latest_ngksbuildcore_run/inputs_plan_hash.txt",
+      "size": 181,
+      "mtime_ns": 1773758145663157700,
+      "sha256": "ff750378c1b6bec91f192e21da6606b7c175ecb81616c143c49f521036492d5b"
+    },
+    {
+      "path": "proofs/latest_ngksbuildcore_run/summary.json",
+      "size": 5304,
+      "mtime_ns": 1773758145702679000,
+      "sha256": "975138d2cc45aebb5a14e718bc970fddfdb8b0777c1ecb97ebc5f916fc486258"
+    },
+    {
+      "path": "proofs/latest_ngksbuildcore_run/summary.txt",
+      "size": 196,
+      "mtime_ns": 1773758145703678900,
+      "sha256": "c3eee7337b7c3ba02de77c0b3b69e5c7b8e7d08f72670b232c5b31f08cfb3b76"
+    },
+    {
+      "path": "proofs/latest_ngksbuildcore_run/tool_versions.txt",
+      "size": 82,
+      "mtime_ns": 1773758145570740700,
+      "sha256": "0e2666587836586ac864bf7cb2aadeae8401dd59c7f970f41127c8f9f43356ad"
+    },
+    {
+      "path": "README.md",
+      "size": 544,
+      "mtime_ns": 1773770170039796700,
+      "sha256": "97c0ec7454791f4d9f9bae3dfdfe1fe37b5045496b2f17a91d45bd4519814255"
+    },
+    {
+      "path": "tools/enter_msvc_env.ps1",
+      "size": 4846,
+      "mtime_ns": 1773217384106520900,
+      "sha256": "f5ede2caac183f0220c0d70d0527867850842be14d9db933be10448698988d0b"
+    },
+    {
+      "path": "tools/phase14_5_analyze_jitter.py",
+      "size": 7792,
+      "mtime_ns": 1771701079627463200,
+      "sha256": "709555568724c85ea101b98391bbf3bb2a2a85ce68081ff6e96a32b526b8dce1"
+    },
+    {
+      "path": "tools/phase40_28/phase40_28_baseline_lock_runner.ps1",
+      "size": 11289,
+      "mtime_ns": 1773230256288171500,
+      "sha256": "e1ac7e7345f46bc261c7904b881d1f6b2ae240bad313c9677f8e52334585597e"
+    },
+    {
+      "path": "tools/phase40_28r/phase40_28r_ui_header_restoration_runner.ps1",
+      "size": 6549,
+      "mtime_ns": 1773227315164086400,
+      "sha256": "fd4a14c15e2097465a295fd917ec247f8d570876188a0be8a931e030f8c0d853"
+    },
+    {
+      "path": "tools/phase40_47/phase40_47_extension_presentation_variant_runner.ps1",
+      "size": 9993,
+      "mtime_ns": 1773462641556529400,
+      "sha256": "d43dee14159563c0bd80bc02946ee4c10b68a340e206ea658ff32ecc0bdc3cad"
+    },
+    {
+      "path": "tools/phase40_48/phase40_48_extension_data_shape_expansion_runner.ps1",
+      "size": 10565,
+      "mtime_ns": 1773462641557530300,
+      "sha256": "0e2fdd715bdc0763cf3a90515db433034753c50016d04057da53db5de3e02bbd"
+    },
+    {
+      "path": "tools/phase40_49/phase40_49_extension_layout_variation_runner.ps1",
+      "size": 10136,
+      "mtime_ns": 1773462641557530300,
+      "sha256": "cd352388783c0d3c8ee3c91acc677ed82a14916988a13edbcd88cf092ceac317"
+    },
+    {
+      "path": "tools/phase40_50/phase40_50_extension_content_density_runner.ps1",
+      "size": 10467,
+      "mtime_ns": 1773300865165289000,
+      "sha256": "e07286fd12f3aeafe0d6170f49350ae3f5da457b6b3e3cf27b9de6abd62fe9fc"
+    },
+    {
+      "path": "tools/phase40_51/phase40_51_extension_interaction_driven_content_update_runner.ps1",
+      "size": 10909,
+      "mtime_ns": 1773313544983330400,
+      "sha256": "39bf7d925f7d1a20dba7d30a2949b89e4242b54fca4f55cb93a8bbfef7f6b4ea"
+    },
+    {
+      "path": "tools/phase40_52/phase40_52_extension_subcomponent_boundary_runner.ps1",
+      "size": 11337,
+      "mtime_ns": 1773313544973730300,
+      "sha256": "c381605cf9953d9d394de0fda14051976714bf657a3626234361481e99ad2be1"
+    },
+    {
+      "path": "tools/phase40_53/phase40_53_extension_subcomponent_state_ownership_runner.ps1",
+      "size": 11639,
+      "mtime_ns": 1773316182374491800,
+      "sha256": "9f8c41c9299e00f0e7ef5a659ba3df498578b2e40cc98b86fba4e0c92fa88752"
+    },
+    {
+      "path": "tools/phase40_54/phase40_54_extension_subcomponent_presentation_variant_runner.ps1",
+      "size": 11011,
+      "mtime_ns": 1773318686504378400,
+      "sha256": "f9ed91539fe79548a0897d97913db0a110d9345a5bb93b9b3cc45d413ba8dce9"
+    },
+    {
+      "path": "tools/phase40_55/phase40_55_extension_subcomponent_layout_variation_runner.ps1",
+      "size": 11240,
+      "mtime_ns": 1773319931964153900,
+      "sha256": "50b9509f62fa2f9e46ce1c90404769426b76d242a8ba0d7a2190c36bb5c05561"
+    },
+    {
+      "path": "tools/phase40_56/phase40_56_extension_subcomponent_content_density_runner.ps1",
+      "size": 10853,
+      "mtime_ns": 1773322697179851100,
+      "sha256": "a6d485d6f094b168eb2b27ca7dc6eba5776d6efa47f3e9c86bed7733fb48b5a5"
+    },
+    {
+      "path": "tools/phase40_57/phase40_57_extension_subcomponent_interaction_boundary_runner.ps1",
+      "size": 11097,
+      "mtime_ns": 1773323299768465600,
+      "sha256": "c8b1cbd24c093a747de404202e40903bd310c7fc7342efc9b68859c93854b833"
+    },
+    {
+      "path": "tools/phase40_58/phase40_58_extension_multi_subcomponent_coexistence_runner.ps1",
+      "size": 10895,
+      "mtime_ns": 1773334967025545000,
+      "sha256": "31b92c08b753f4d3ec23dbc81f1b79ff477c1e154a13f101c0358cd3d019a9f4"
+    },
+    {
+      "path": "tools/phase40_59/phase40_59_extension_parent_orchestration_rule_runner.ps1",
+      "size": 10952,
+      "mtime_ns": 1773334967008304600,
+      "sha256": "8a11e3a1a55a3ff3d42e9adf48284796f073bc79338917b792c6ae615cf879ac"
+    },
+    {
+      "path": "tools/phase40_60/phase40_60_extension_parent_visibility_rule_runner.ps1",
+      "size": 10837,
+      "mtime_ns": 1773336454080508600,
+      "sha256": "79d30ef20b387530acb7598c27064e7357ff0c3230c44a13e46f535645b39f5a"
+    },
+    {
+      "path": "tools/phase40_61/phase40_61_extension_parent_ordering_rule_runner.ps1",
+      "size": 10520,
+      "mtime_ns": 1773370432802868300,
+      "sha256": "617aa45e2f631d9d69e8188b58e08d90fc57a5d58d4a2b50cf6667036768e27c"
+    },
+    {
+      "path": "tools/phase40_62/phase40_62_extension_multi_child_interaction_routing_runner.ps1",
+      "size": 10490,
+      "mtime_ns": 1773371418549498900,
+      "sha256": "08bb10f0e911a643b7a926df55163975b24c0766224c6c4814e7a86be2bce9ce"
+    },
+    {
+      "path": "tools/phase40_63/phase40_63_extension_parent_intent_conflict_rule_runner.ps1",
+      "size": 10654,
+      "mtime_ns": 1773371418549498900,
+      "sha256": "0a0bc56b06b1004d73f348142ff6d4186a60b693df766aa9caea7c83ab23bcf2"
+    },
+    {
+      "path": "tools/phase40_64/phase40_64_extension_third_subcomponent_isolation_runner.ps1",
+      "size": 10407,
+      "mtime_ns": 1773373173538333900,
+      "sha256": "9bb2e4ad6e565c27defc97015ef753a74415de1eb1b0f1c33d2fe5f8d31da7cf"
+    },
+    {
+      "path": "tools/phase40_65/phase40_65_render_stability_under_state_change_runner.ps1",
+      "size": 10946,
+      "mtime_ns": 1773373781418212200,
+      "sha256": "87b88f209cdecd4aba382d2ec84227a94dbc64a334ffd720fe48db324bfa2c5d"
+    },
+    {
+      "path": "tools/phase40_66/phase40_66_extension_layout_container_runner.ps1",
+      "size": 10347,
+      "mtime_ns": 1773462641559993900,
+      "sha256": "bebbde5fd016d3c8e4d807b5f456f2c5ff43ed9af48b9601d71fc3eca52d2d26"
+    },
+    {
+      "path": "tools/phase40_67/phase40_67_extension_header_band_proof_runner.ps1",
+      "size": 11274,
+      "mtime_ns": 1773378753653549100,
+      "sha256": "cbaa8b33d8fb60394df0fb9cc712a6f0d378faa69f656cf0dc6091180b354a4e"
+    },
+    {
+      "path": "tools/phase40_68/phase40_68_extension_body_region_proof_runner.ps1",
+      "size": 10539,
+      "mtime_ns": 1773379915825863900,
+      "sha256": "3946767793a01525b12786b1b9abe829dafa0b180da13ca280432324402ca263"
+    },
+    {
+      "path": "tools/phase40_70/phase40_70_human_visible_extension_structure_runner.ps1",
+      "size": 14459,
+      "mtime_ns": 1773381454579461000,
+      "sha256": "b463a7a3b6815137274e3628d31eda0f37556a372b6bad3c62ca2d4a033daa2d"
+    },
+    {
+      "path": "tools/phase40_71/phase40_71_sandbox_render_primitives_runner.ps1",
+      "size": 14128,
+      "mtime_ns": 1773388756190284600,
+      "sha256": "946c1a3ff6786f4171b14b6ec943e04c751c9b72c6608763a0c41d5b6752adc1"
+    },
+    {
+      "path": "tools/phase40_72/phase40_72_visible_extension_panel_reconstruction_runner.ps1",
+      "size": 14927,
+      "mtime_ns": 1773393374024429900,
+      "sha256": "883f2fe962d0953fac1642dae2ee879ffcf5d1560608943b4bb160ec47e13cb2"
+    },
+    {
+      "path": "tools/phase40_73/phase40_73_extension_panel_readability_polish_runner.ps1",
+      "size": 14125,
+      "mtime_ns": 1773394580941529900,
+      "sha256": "b88ff4ba0432a30eed41319d97cb9a8959d8bd07e77651e271b9a7e1625cd640"
+    },
+    {
+      "path": "tools/phase40_74/phase40_74_extension_body_composition_rule_runner.ps1",
+      "size": 12402,
+      "mtime_ns": 1773400816121534000,
+      "sha256": "e1ccecbbe8e5b56a72281e4a8fca479c4d26d336d60c40af691ebd4fafed3d70"
+    },
+    {
+      "path": "tools/phase40_75/phase40_75_extension_body_hierarchy_proof_runner.ps1",
+      "size": 12203,
+      "mtime_ns": 1773403742869866600,
+      "sha256": "b3fdaef2fc7d50b90514a22995068ac409902a12ae8a730b9be1240890aa13c0"
+    },
+    {
+      "path": "tools/phase40_76/phase40_76_wrong_exe_prevention_runner.ps1",
+      "size": 8386,
+      "mtime_ns": 1773413029148818200,
+      "sha256": "0573f8bbb9e96ca175636dd74a934ca0d99d622f9c17658d2b196ffb78572708"
+    },
+    {
+      "path": "tools/phase40_77/phase40_77_extension_panel_visual_consolidation_runner.ps1",
+      "size": 13629,
+      "mtime_ns": 1773417762083105500,
+      "sha256": "b456fda0e9c6d92ced876477b635bc0299148683940976e58a9690196d643073"
+    },
+    {
+      "path": "tools/phase40_78/phase40_78_extension_text_hierarchy_cleanup_runner.ps1",
+      "size": 13523,
+      "mtime_ns": 1773422994721399600,
+      "sha256": "111e3ec847382df94365f8456873c710aca8c123163d4a87536ac822a7f36505"
+    },
+    {
+      "path": "tools/phase40_79/phase40_79_extension_surface_grouping_refinement_runner.ps1",
+      "size": 14313,
+      "mtime_ns": 1773434590087258900,
+      "sha256": "7e44c0c73b11d60d7393571927fd14500efb2249b1a88a566a54637721e5ef02"
+    },
+    {
+      "path": "tools/phase40_80/phase40_80_extension_primary_card_emphasis_refinement_runner.ps1",
+      "size": 13928,
+      "mtime_ns": 1773458752902122600,
+      "sha256": "ea1e4130796e6a780552d93eebb0f17a81699982728b7b22e5caec78ead316eb"
+    },
+    {
+      "path": "tools/phase40_81/phase40_81_extension_footer_integration_refinement_runner.ps1",
+      "size": 13956,
+      "mtime_ns": 1773462641565984800,
+      "sha256": "fe3aad37df2664e42f19fc03316afe26a8cdf0aa62bdad7e25be25d9615756c6"
+    },
+    {
+      "path": "tools/phase40_82/phase40_82_extension_header_integration_refinement_runner.ps1",
+      "size": 13973,
+      "mtime_ns": 1773462641565984800,
+      "sha256": "57af98c8be5c5d030c0dfdd634eb59dd467b7dd966d4c009124175651eafb474"
+    },
+    {
+      "path": "tools/phase40_83/phase40_83_extension_full_panel_cohesion_refinement_runner.ps1",
+      "size": 17200,
+      "mtime_ns": 1773466661482773200,
+      "sha256": "2b18c590f23aab9a84f0d68c723c6dd0b7e70600afc91f8df42e0f8810f16a6c"
+    },
+    {
+      "path": "tools/phase40_84/phase40_84_control_area_integration_refinement_runner.ps1",
+      "size": 15174,
+      "mtime_ns": 1773466661482773200,
+      "sha256": "0635c8b5d616cfca91ce8ead79965c42460e59e5549605e107cd5bf42384e6b7"
+    },
+    {
+      "path": "tools/phase40_85/phase40_85_visual_readability_refinement_runner.ps1",
+      "size": 16251,
+      "mtime_ns": 1773466661482773200,
+      "sha256": "37efee419d53ce0d9685af45ee6d65bdb8ab4541142474a56d6e9a2b1c769704"
+    },
+    {
+      "path": "tools/phase40_86/phase40_86_interaction_clarity_refinement_runner.ps1",
+      "size": 16708,
+      "mtime_ns": 1773467844817043200,
+      "sha256": "3e657e4b7fd2eb29d42e7b91f1429198614d21c434dc837db3c619c60be9ba98"
+    },
+    {
+      "path": "tools/phase40_87/phase40_87_status_feedback_clarity_refinement_runner.ps1",
+      "size": 17225,
+      "mtime_ns": 1773469275592031000,
+      "sha256": "4c8f0c0a1b3a0c2ea3dfe4a25e96a91544de1f8b4a3886a514772f3fae8a0d6d"
+    },
+    {
+      "path": "tools/phase40_88/phase40_88_minimal_ui_calmness_refinement_runner.ps1",
+      "size": 17065,
+      "mtime_ns": 1773469339456653000,
+      "sha256": "5ec1fd52cf118f2b8171e2955033466289c5cad2b363107635f95315229ba2a3"
+    },
+    {
+      "path": "tools/phase40_89/phase40_89_panel_spacing_surface_standardization_runner.ps1",
+      "size": 19556,
+      "mtime_ns": 1773471043293461000,
+      "sha256": "bb0e493e069cccee212dc3c0652f7055f2a1fdbf4532c475e0e280909d3070fe"
+    },
+    {
+      "path": "tools/phase40_90/phase40_90_calm_control_card_reconstruction_runner.ps1",
+      "size": 19548,
+      "mtime_ns": 1773471043308101900,
+      "sha256": "6c09aaa879de621a63d176472ea757f690729466c0b1e11b40afa65be6351e00"
+    },
+    {
+      "path": "tools/phase40_91/phase40_91_primary_control_card_architecture_runner.ps1",
+      "size": 19677,
+      "mtime_ns": 1773472982119940000,
+      "sha256": "7c341548aea3bc6208dd8bb2251d45fcf351194da1bdd1df9941e266e9174bd9"
+    },
+    {
+      "path": "tools/phase40_92/phase40_92_panel_meaning_clarity_refinement_runner.ps1",
+      "size": 19907,
+      "mtime_ns": 1773486265501177900,
+      "sha256": "a7923476d57196f09c92598c6cd30cd3942363276ce879c044d0f82ebb47fd4d"
+    },
+    {
+      "path": "tools/phase40_93/phase40_93_panel_layout_stabilization_runner.ps1",
+      "size": 14498,
+      "mtime_ns": 1773492927201258100,
+      "sha256": "8e6d39a7af9c0a94f50be84371fa467ec2a262a6b335837af86f6cfaacc0c91f"
+    },
+    {
+      "path": "tools/phase40_94/phase40_94_label_normalization_runner.ps1",
+      "size": 7189,
+      "mtime_ns": 1773492926919080800,
+      "sha256": "e1053c1e6f00ec9b34d5622620e2e41f8ce848ef3d5a1933add6688964d11a76"
+    },
+    {
+      "path": "tools/phase41_0/phase41_0_real_control_path_activation_runner.ps1",
+      "size": 12908,
+      "mtime_ns": 1773493746150286100,
+      "sha256": "8de4c049494a1df5af2fdb89bf69226366f71f51a030632f9811d5d5e6688712"
+    },
+    {
+      "path": "tools/phase41_1/phase41_1_runtime_state_transition_proof_runner.ps1",
+      "size": 14348,
+      "mtime_ns": 1773498349105574000,
+      "sha256": "9ff0814151aefa500bd117188794b076993d18a9f2ff652882920595abe6af4c"
+    },
+    {
+      "path": "tools/phase41_2/phase41_2_invalid_transition_handling_proof_runner.ps1",
+      "size": 14060,
+      "mtime_ns": 1773498349115573500,
+      "sha256": "551b2e3baa26ee10472792cb1bf4f9be487cd003ccd668ac3d0845c42a9e310f"
+    },
+    {
+      "path": "tools/phase41_3/phase41_3_recovery_after_rejection_proof_runner.ps1",
+      "size": 13673,
+      "mtime_ns": 1773502135711950200,
+      "sha256": "8f4c31353948300b7a470dd02d20e310df55b03a60f1bfab595405154b78c1b4"
+    },
+    {
+      "path": "tools/phase41_4/phase41_4_repeated_rejection_recovery_stability_runner.ps1",
+      "size": 16597,
+      "mtime_ns": 1773506954407519800,
+      "sha256": "3fab6e90a7af1f2b66d673d86600d2591019edd62076e9662922f02604a8353a"
+    },
+    {
+      "path": "tools/phase41_5/phase41_5_input_validation_value_domain_proof_runner.ps1",
+      "size": 19247,
+      "mtime_ns": 1773510438649275800,
+      "sha256": "0266a0c218a6ed56700663c7bdae936b3843a3aa80f7298f35ff3a21f1d47dc0"
+    },
+    {
+      "path": "tools/phase41_6/phase41_6_post_validation_action_continuity_runner.ps1",
+      "size": 17449,
+      "mtime_ns": 1773512171833288500,
+      "sha256": "626b583aa29d144d6c988ecb560a12701a918afbf488434c9c4c0d6075068d02"
+    },
+    {
+      "path": "tools/phase41_7/phase41_7_state_value_persistence_boundary_runner.ps1",
+      "size": 17787,
+      "mtime_ns": 1773552557470385700,
+      "sha256": "46eac5fdc48abff26ddaa04ed140655d0c7d6e90c214b6aa7f67a57e86d730fa"
+    },
+    {
+      "path": "tools/phase41_8/phase41_8_runtime_action_trace_audit_runner.ps1",
+      "size": 17077,
+      "mtime_ns": 1773552560272065600,
+      "sha256": "8e0994d9cc2ad94f966aa389ba7148154cf5fdf5e7d77b9390c467ea8700ae0f"
+    },
+    {
+      "path": "tools/phase41_9/phase41_9_runtime_trace_completeness_no_gap_runner.ps1",
+      "size": 16759,
+      "mtime_ns": 1773555809819211500,
+      "sha256": "8202f24620d8a47ec12df79de9c7b21b8b318e72ccad95ccaa1b32080670884a"
+    },
+    {
+      "path": "tools/phase42_0/phase42_0_runtime_trace_replay_reconstruction_runner.ps1",
+      "size": 17411,
+      "mtime_ns": 1773555809819211500,
+      "sha256": "0fc5dba938cb503e7f71e0be09a2cfc0924e2f21aa313c47fbbb6cc76f8522f4"
+    },
+    {
+      "path": "tools/phase42_1/phase42_1_trace_divergence_detection_runner.ps1",
+      "size": 15876,
+      "mtime_ns": 1773555809819211500,
+      "sha256": "37ddff14879e918ec1d358c09aaa3a6b352b2b9669b2f82a0134743ee2d18a8f"
+    },
+    {
+      "path": "tools/phase42_2/phase42_2_replay_invariance_identical_trace_runner.ps1",
+      "size": 22639,
+      "mtime_ns": 1773556423506554200,
+      "sha256": "d5c6f1516be3966a47b4ec63f3b9aa524a482be03f2d64d1a4c2ad23d71cc177"
+    },
+    {
+      "path": "tools/phase42_3/phase42_3_trace_certification_fingerprint_runner.ps1",
+      "size": 18837,
+      "mtime_ns": 1773557034232519500,
+      "sha256": "61f601e8df9b417b151c0f9f3565abcb18dfee365c40829485f7ad2e79ba48a2"
+    },
+    {
+      "path": "tools/phase42_4/certification_baseline_reference.json",
+      "size": 539,
+      "mtime_ns": 1773558911479210600,
+      "sha256": "61c7830e17b778d1149101b26c810726751257e28c5cb752c2ee6045654d28a4"
+    },
+    {
+      "path": "tools/phase42_4/phase42_4_fingerprint_enforcement_baseline_compare_runner.ps1",
+      "size": 21880,
+      "mtime_ns": 1773558911508760400,
+      "sha256": "6a694094abcfad74e4fa2eef76326b5c3042f4723689a46f6c497845e50d6cca"
+    },
+    {
+      "path": "tools/phase42_5/baseline_integrity_reference.json",
+      "size": 325,
+      "mtime_ns": 1773560997927774900,
+      "sha256": "dc8b5570c1e37b54980a30ddfb5299ac868a37946f1490b20190d612c3b831b6"
+    },
+    {
+      "path": "tools/phase42_5/phase42_5_baseline_integrity_tamper_detection_runner.ps1",
+      "size": 23863,
+      "mtime_ns": 1773560997929775200,
+      "sha256": "36fba6364ade1528780f1f8941bcd76f32f023e15913a28eae96c2d5ab6162e7"
+    },
+    {
+      "path": "tools/phase42_6/baseline_history/v1_20260315_104101_baseline_reference.json",
+      "size": 539,
+      "mtime_ns": 1773558911479210600,
+      "sha256": "61c7830e17b778d1149101b26c810726751257e28c5cb752c2ee6045654d28a4"
+    },
+    {
+      "path": "tools/phase42_6/baseline_history/v1_20260315_104101_integrity_reference.json",
+      "size": 325,
+      "mtime_ns": 1773558976780080200,
+      "sha256": "dc8b5570c1e37b54980a30ddfb5299ac868a37946f1490b20190d612c3b831b6"
+    },
+    {
+      "path": "tools/phase42_6/baseline_history/v1_20260315_104356_baseline_reference.json",
+      "size": 539,
+      "mtime_ns": 1773558911479210600,
+      "sha256": "61c7830e17b778d1149101b26c810726751257e28c5cb752c2ee6045654d28a4"
+    },
+    {
+      "path": "tools/phase42_6/baseline_history/v1_20260315_104356_integrity_reference.json",
+      "size": 325,
+      "mtime_ns": 1773558976780080200,
+      "sha256": "dc8b5570c1e37b54980a30ddfb5299ac868a37946f1490b20190d612c3b831b6"
+    },
+    {
+      "path": "tools/phase42_6/baseline_history_chain.json",
+      "size": 1075,
+      "mtime_ns": 1773560682570317200,
+      "sha256": "41510ed1f86f6e7db55446d3dc7ab199a8d76719577aa7a6482ebec10d9a0116"
+    },
+    {
+      "path": "tools/phase42_6/baseline_integrity_reference_v2.json",
+      "size": 428,
+      "mtime_ns": 1773560682563920000,
+      "sha256": "e3ae4bbc7fff3a9774b5a3ee6336764193492b4742a4a0923e4f53bf77928b69"
+    },
+    {
+      "path": "tools/phase42_6/certification_baseline_reference_v2.json",
+      "size": 718,
+      "mtime_ns": 1773560682542757200,
+      "sha256": "da57cf0ac6d1ca8dc25d410be843db83ae11caf2a2a66e9120727e566ae55b9c"
+    },
+    {
+      "path": "tools/phase42_6/phase42_6_baseline_rotation_trust_chain_runner.ps1",
+      "size": 37459,
+      "mtime_ns": 1773560997930775600,
+      "sha256": "debf8bb784a5465ad45cf798ab3bde9656cb230380546c4e1e176839830d9f04"
+    },
+    {
+      "path": "tools/phase42_7/phase42_7_baseline_version_selection_historical_validation_runner.ps1",
+      "size": 29861,
+      "mtime_ns": 1773562918519124400,
+      "sha256": "e8d95186c7f667cb6d6c61a3b152f6aae572a631f3707d1580072918902407ce"
+    },
+    {
+      "path": "tools/phase42_8/active_version_policy.json",
+      "size": 368,
+      "mtime_ns": 1773562918519124400,
+      "sha256": "dd7eb070a11993d76710a216145e10c3ea673380aeaf612ade26e32528532938"
+    },
+    {
+      "path": "tools/phase42_8/phase42_8_active_version_policy_deprecation_runner.ps1",
+      "size": 31688,
+      "mtime_ns": 1773562918519124400,
+      "sha256": "531654df243d328b6940e5a958a9f3793ff569abdc757223ea3777cb210909b7"
+    },
+    {
+      "path": "tools/phase42_9/.policy_hash.txt",
+      "size": 66,
+      "mtime_ns": 1773562967297663500,
+      "sha256": "fb1a483f3d4d3b0ae08254810791c4c9bd370e97e0432d43bac1324c13f6c056"
+    },
+    {
+      "path": "tools/phase42_9/phase42_9_policy_integrity_tamper_detection_runner.ps1",
+      "size": 29056,
+      "mtime_ns": 1773565049876820400,
+      "sha256": "730d46bba643620988f4fb2cbc80b284ceca7febb382834a88d03db11cc46b26"
+    },
+    {
+      "path": "tools/phase42_9/policy_integrity_reference.json",
+      "size": 381,
+      "mtime_ns": 1773565049817847900,
+      "sha256": "968142074e3d0de68e1e6385055e82d3953046129cce8024d059018aa1f8f387"
+    },
+    {
+      "path": "tools/phase43_0/_tampered_policy_v2.json",
+      "size": 559,
+      "mtime_ns": 1773564820577521600,
+      "sha256": "d263e4caa35a93aa448c6c41941f75d54e844514a4d7ce6731c7fc1f22eb8ff6"
+    },
+    {
+      "path": "tools/phase43_0/active_version_policy_v2.json",
+      "size": 559,
+      "mtime_ns": 1773564820430622100,
+      "sha256": "27e9f93cb7c61544147de942bd0ddfa5d69caf2096a9c0b94d3b47625241b3fc"
+    },
+    {
+      "path": "tools/phase43_0/phase43_0_policy_rotation_trust_chain_runner.ps1",
+      "size": 33037,
+      "mtime_ns": 1773565049817847900,
+      "sha256": "94b2b78bdcf50daca46f876e3f98f7502e5d89294bac5db6918f818d054837e7"
+    },
+    {
+      "path": "tools/phase43_0/policy_history/v1_20260315_115321_active_version_policy.json",
+      "size": 368,
+      "mtime_ns": 1773562918519124400,
+      "sha256": "dd7eb070a11993d76710a216145e10c3ea673380aeaf612ade26e32528532938"
+    },
+    {
+      "path": "tools/phase43_0/policy_history/v1_20260315_115321_policy_integrity_reference.json",
+      "size": 381,
+      "mtime_ns": 1773562982872967600,
+      "sha256": "968142074e3d0de68e1e6385055e82d3953046129cce8024d059018aa1f8f387"
+    },
+    {
+      "path": "tools/phase43_0/policy_history/v1_20260315_115339_active_version_policy.json",
+      "size": 368,
+      "mtime_ns": 1773562918519124400,
+      "sha256": "dd7eb070a11993d76710a216145e10c3ea673380aeaf612ade26e32528532938"
+    },
+    {
+      "path": "tools/phase43_0/policy_history/v1_20260315_115339_policy_integrity_reference.json",
+      "size": 381,
+      "mtime_ns": 1773562982872967600,
+      "sha256": "968142074e3d0de68e1e6385055e82d3953046129cce8024d059018aa1f8f387"
+    },
+    {
+      "path": "tools/phase43_0/policy_history_chain.json",
+      "size": 1202,
+      "mtime_ns": 1773564820552917900,
+      "sha256": "0486ec52d197922cbc9ad5cdda640bb0c6dbe20691bd31a98d48efd3b6f41381"
+    },
+    {
+      "path": "tools/phase43_0/policy_integrity_reference_v2.json",
+      "size": 414,
+      "mtime_ns": 1773564820549916900,
+      "sha256": "669f25b280e80f0a4e10a52ce337d82ae6b02d37d225a002479d13cdc4fce22a"
+    },
+    {
+      "path": "tools/phase43_1/phase43_1_policy_version_selection_historical_validation_runner.ps1",
+      "size": 31559,
+      "mtime_ns": 1773567254819266100,
+      "sha256": "baa9ce5716e47d65fbdd13bdb752291c21b733d517294f219013bde77082aaad"
+    },
+    {
+      "path": "tools/phase43_2/phase43_2_active_policy_default_resolution_enforcement_runner.ps1",
+      "size": 31738,
+      "mtime_ns": 1773567254819266100,
+      "sha256": "817ed35b84af12f2662b2544f7232da2d74808dbfd93b8ba7ffe965123421733"
+    },
+    {
+      "path": "tools/phase43_3/_caseB_chain_hash_mismatch.json",
+      "size": 1202,
+      "mtime_ns": 1773567918967166700,
+      "sha256": "c7018977365f1110ecfebcd0cf7f6c8badc67b19c972177c02279d18278e7f24"
+    },
+    {
+      "path": "tools/phase43_3/_caseC_chain_malformed.json",
+      "size": 66,
+      "mtime_ns": 1773567918983779400,
+      "sha256": "b9a24a2c8feb14b43cde04fdc4882c7a3041bb88e8129393372a7ae5a1e3ef57"
+    },
+    {
+      "path": "tools/phase43_3/_caseE_chain_policy_mismatch.json",
+      "size": 1199,
+      "mtime_ns": 1773567919009562800,
+      "sha256": "f17166784416b75a240e846820342e317e8fb1c6da665059b09d1026c133ba2f"
+    },
+    {
+      "path": "tools/phase43_3/active_policy_chain_integrity_reference.json",
+      "size": 374,
+      "mtime_ns": 1773579818293354600,
+      "sha256": "64306890a04cd0fb773b18816c0f3685fb1720224a07ea0233b933f41954ecef"
+    },
+    {
+      "path": "tools/phase43_3/phase43_3_active_policy_chain_integrity_default_resolution_tamper_runner.ps1",
+      "size": 32141,
+      "mtime_ns": 1773579818349844800,
+      "sha256": "0c66d1cf55eecce5427491224c8396a888393e147a57c43392856067d8c4d9a5"
+    },
+    {
+      "path": "tools/phase43_4/_caseC_unauthorized_chain_overwrite.json",
+      "size": 2480,
+      "mtime_ns": 1773580155083902500,
+      "sha256": "a00b0811863179b9e223b24bc1fb14dfef89c4bf95c7251bec80ba199d054ce0"
+    },
+    {
+      "path": "tools/phase43_4/active_policy_chain_integrity_reference_v2.json",
+      "size": 824,
+      "mtime_ns": 1773580155035115300,
+      "sha256": "7c320c4d3d067562f23b05d836aab8a20a90bb6575a0440cf7720a4cf96c9900"
+    },
+    {
+      "path": "tools/phase43_4/chain_history/phase43_3_20260315_160800_active_policy_chain_integrity_reference.json",
+      "size": 374,
+      "mtime_ns": 1773579818293354600,
+      "sha256": "64306890a04cd0fb773b18816c0f3685fb1720224a07ea0233b933f41954ecef"
+    },
+    {
+      "path": "tools/phase43_4/chain_history/phase43_3_20260315_160800_policy_history_chain.json",
+      "size": 1202,
+      "mtime_ns": 1773564820552917900,
+      "sha256": "0486ec52d197922cbc9ad5cdda640bb0c6dbe20691bd31a98d48efd3b6f41381"
+    },
+    {
+      "path": "tools/phase43_4/chain_history/phase43_3_20260315_160849_active_policy_chain_integrity_reference.json",
+      "size": 374,
+      "mtime_ns": 1773579818293354600,
+      "sha256": "64306890a04cd0fb773b18816c0f3685fb1720224a07ea0233b933f41954ecef"
+    },
+    {
+      "path": "tools/phase43_4/chain_history/phase43_3_20260315_160849_policy_history_chain.json",
+      "size": 1202,
+      "mtime_ns": 1773564820552917900,
+      "sha256": "0486ec52d197922cbc9ad5cdda640bb0c6dbe20691bd31a98d48efd3b6f41381"
+    },
+    {
+      "path": "tools/phase43_4/phase43_4_active_policy_chain_rotation_continuity_runner.ps1",
+      "size": 42402,
+      "mtime_ns": 1773580335706808800,
+      "sha256": "7d8def950bd471b3b7741e056aa814500fae180ca570cc366d4c73c7a75d35aa"
+    },
+    {
+      "path": "tools/phase43_4/policy_history_chain_rotated_v2.json",
+      "size": 2480,
+      "mtime_ns": 1773580154982704900,
+      "sha256": "c0e8824c03af2c9a3aad7c3882d4ee0557dc1642878bec35f6976003287730a4"
+    },
+    {
+      "path": "tools/phase43_5/active_chain_version_catalog.json",
+      "size": 683,
+      "mtime_ns": 1773581470374408700,
+      "sha256": "32486c5774139631faaf0322dc2ca9065a7aafe9b2f60383fa814ddec73666f9"
+    },
+    {
+      "path": "tools/phase43_5/phase43_5_active_chain_version_selection_historical_validation_runner.ps1",
+      "size": 36399,
+      "mtime_ns": 1773581470374408700,
+      "sha256": "a1801a5a5a3080adef5792f0cc881d398316ceb303efa632425b3575d6dbb574"
+    },
+    {
+      "path": "tools/phase43_6/_caseB_tampered_catalog.json",
+      "size": 675,
+      "mtime_ns": 1773581810932713400,
+      "sha256": "3a28a4ffcb9c94c0aead397834a02da31671a544dedc1eabaa460324c66db542"
+    },
+    {
+      "path": "tools/phase43_6/_caseB_tampered_catalog_integrity_reference.json",
+      "size": 337,
+      "mtime_ns": 1773581810941418600,
+      "sha256": "a0023bf31b0f430ca9a2ddeb17e89bf40b3b22a94396b0cdb15f8ba356c5310d"
+    },
+    {
+      "path": "tools/phase43_6/_caseC_corrupt_catalog.json",
+      "size": 59,
+      "mtime_ns": 1773581810973141000,
+      "sha256": "59859046eb1bfb42fa9685da1545b316be1e11008bb8c7d25f9e3e0ebd80076f"
+    },
+    {
+      "path": "tools/phase43_6/_caseC_corrupt_catalog_integrity_reference.json",
+      "size": 335,
+      "mtime_ns": 1773581810977854300,
+      "sha256": "a456122be08cd8f324508dc6ff110742fd4d517f18b607d4adeb0d7b1fe088be"
+    },
+    {
+      "path": "tools/phase43_6/_caseE_invalid_reference_catalog.json",
+      "size": 672,
+      "mtime_ns": 1773581811040054300,
+      "sha256": "a4427d896755fb3ecc694b73a352ce8255b4d8b064c1f6c9448ee38eec2d1dbe"
+    },
+    {
+      "path": "tools/phase43_6/_caseE_invalid_reference_catalog_integrity_reference.json",
+      "size": 355,
+      "mtime_ns": 1773581811040054300,
+      "sha256": "1355637939cf7ccf953c86d1dd2ea05caa8b7347d7b8064014cdb9192a7911a1"
+    },
+    {
+      "path": "tools/phase43_6/active_chain_version_catalog_integrity_reference.json",
+      "size": 406,
+      "mtime_ns": 1773582859687516100,
+      "sha256": "2e08fb181ceb46044b92e94087467ae6718cb558278204a59c3ff447f085c8ac"
+    },
+    {
+      "path": "tools/phase43_6/phase43_6_active_chain_catalog_integrity_runner.ps1",
+      "size": 34643,
+      "mtime_ns": 1773582859687516100,
+      "sha256": "bf95c8f6356546f95555c9018829450e8da102c662d93220f89843b11c525e49"
+    },
+    {
+      "path": "tools/phase43_7/_caseC_unauthorized_catalog_overwrite.json",
+      "size": 1178,
+      "mtime_ns": 1773583028555850000,
+      "sha256": "e8a2b06e1e4e28fab046e8ad07574f282275fab6bd0876180fc62b220e9475f1"
+    },
+    {
+      "path": "tools/phase43_7/active_chain_version_catalog_integrity_reference_v2.json",
+      "size": 815,
+      "mtime_ns": 1773583028503285200,
+      "sha256": "d518dce73ae18d961e72d30fe47a71ec67f8cdf0c9225a122eeb26950276accc"
+    },
+    {
+      "path": "tools/phase43_7/active_chain_version_catalog_v2.json",
+      "size": 1181,
+      "mtime_ns": 1773583028479305600,
+      "sha256": "0e41993ab079f997659d2286149e2bffba91517ba4c8ca5d3728600b01d37aa4"
+    },
+    {
+      "path": "tools/phase43_7/catalog_history/phase43_6_20260315_165643_active_chain_version_catalog.json",
+      "size": 683,
+      "mtime_ns": 1773581470374408700,
+      "sha256": "32486c5774139631faaf0322dc2ca9065a7aafe9b2f60383fa814ddec73666f9"
+    },
+    {
+      "path": "tools/phase43_7/catalog_history/phase43_6_20260315_165643_active_chain_version_catalog_integrity_reference.json",
+      "size": 406,
+      "mtime_ns": 1773582859687516100,
+      "sha256": "2e08fb181ceb46044b92e94087467ae6718cb558278204a59c3ff447f085c8ac"
+    },
+    {
+      "path": "tools/phase43_7/catalog_history_chain.json",
+      "size": 1272,
+      "mtime_ns": 1773583028520475400,
+      "sha256": "84a2e7edda66d72622a445225f5c6467ed5445a1a78f1e0eba6afbff06c76095"
+    },
+    {
+      "path": "tools/phase43_7/phase43_7_active_chain_catalog_rotation_runner.ps1",
+      "size": 33096,
+      "mtime_ns": 1773586144290634400,
+      "sha256": "a6017c55f38b8a5c3898772c423d2e99fa3ae8d6fd52546677fb25a410f43f55"
+    },
+    {
+      "path": "tools/phase43_8/phase43_8_catalog_version_selection_runner.ps1",
+      "size": 29468,
+      "mtime_ns": 1773586144290634400,
+      "sha256": "37fce6c85ffb4893a115453ba4c4f5fe58a18ed4dabee382ed88328284994e5d"
+    },
+    {
+      "path": "tools/phase43_9/_caseC_broken_trust_chain.json",
+      "size": 1348,
+      "mtime_ns": 1773586276978757400,
+      "sha256": "2b5531eb1e808a83c4a17f25694195c5a589ddf21f7217c54302d7f651d89c1b"
+    },
+    {
+      "path": "tools/phase43_9/_caseD_tampered_historical_catalog.json",
+      "size": 686,
+      "mtime_ns": 1773586277019600600,
+      "sha256": "6df2e5edf02f9c83a3dae37152bcffc14229c6a718d2cdd17746b5dfc5d46035"
+    },
+    {
+      "path": "tools/phase43_9/_caseD_tampered_historical_trust_chain.json",
+      "size": 1312,
+      "mtime_ns": 1773586277019600600,
+      "sha256": "0cc2e8ac96143a16cbdfc3d3c0e9dbe1e8110d00e7dc30086152ee7eb3983623"
+    },
+    {
+      "path": "tools/phase43_9/catalog_trust_chain.json",
+      "size": 1348,
+      "mtime_ns": 1773597036105132600,
+      "sha256": "407c7ba68f48678ff6873143096ff68f8b977f5b95e9e0d8538770c0e430fa20"
+    },
+    {
+      "path": "tools/phase43_9/phase43_9_catalog_trust_chain_runner.ps1",
+      "size": 24570,
+      "mtime_ns": 1773597036105132600,
+      "sha256": "f21fa03e59eadf2351440bde9ecbfd1c09be3bf85c50645db781766c5e92388a"
+    },
+    {
+      "path": "tools/phase44_0/_caseC_tampered_baseline_snapshot.json",
+      "size": 1512,
+      "mtime_ns": 1773590405899178700,
+      "sha256": "91d0fd4105071adad6a6f9ba65a905a905524ee551c7e1eeda41330f59058638"
+    },
+    {
+      "path": "tools/phase44_0/catalog_baseline_integrity_reference.json",
+      "size": 359,
+      "mtime_ns": 1773590405869001200,
+      "sha256": "7b0ce632b95dca1b11b41f3b22954b58dbd530fef77e35c0533c815884da413d"
+    },
+    {
+      "path": "tools/phase44_0/catalog_baseline_lock_policy.json",
+      "size": 407,
+      "mtime_ns": 1773590405958536200,
+      "sha256": "c26fc3b1ebe83e2a94f8c3303141c2371add8c3af22054b4ea45fcc64ccb78ee"
+    },
+    {
+      "path": "tools/phase44_0/catalog_baseline_snapshot.json",
+      "size": 1512,
+      "mtime_ns": 1773590405847704700,
+      "sha256": "0010225dd51c0fbc9e8dfc3bfc9112b3f13c200edf83a2b4299eef52aa0481e3"
+    },
+    {
+      "path": "tools/phase44_0/phase44_0_catalog_baseline_lock_runner.ps1",
+      "size": 18613,
+      "mtime_ns": 1773597036105132600,
+      "sha256": "bdc286034c7d275eccca863413a8027fa08ec470d4af97d1f8620ace98f4c3b3"
+    },
+    {
+      "path": "tools/phase44_1/phase44_1_baseline_enforcement_runtime_guard_runner.ps1",
+      "size": 29945,
+      "mtime_ns": 1773597036117593000,
+      "sha256": "d6a71e57594e4bf4cfd046d379e2f91a09363118e05f283bcb48b7cc962db390"
+    },
+    {
+      "path": "tools/phase44_2/phase44_2_baseline_guard_bypass_resistance_runner.ps1",
+      "size": 24530,
+      "mtime_ns": 1773599148046802000,
+      "sha256": "99b20f7c738835dc89ba190e5985f49fe477c5b3dca903f65b2b929bc1132f12"
+    },
+    {
+      "path": "tools/phase44_3/phase44_3_baseline_guard_coverage_audit_runner.ps1",
+      "size": 21801,
+      "mtime_ns": 1773600612876064500,
+      "sha256": "e0226de81640b8dfa97cc099c3020491b848bfc56fca638234ecd23ec97f1844"
+    },
+    {
+      "path": "tools/phase44_4/guard_coverage_fingerprint_reference.json",
+      "size": 363,
+      "mtime_ns": 1773600414168270100,
+      "sha256": "99f9db51e221daacd013ccd5c677269d580a978dd974d92db0b077cf60b270d6"
+    },
+    {
+      "path": "tools/phase44_4/phase44_4_guard_coverage_fingerprint_runner.ps1",
+      "size": 19296,
+      "mtime_ns": 1773600612880177100,
+      "sha256": "dcc454bf9e3d7f31b731c4ee2ea06213284650795b1249610423e2104401bd5e"
+    },
+    {
+      "path": "tools/phase44_5/phase44_5_guard_fingerprint_enforcement_runner.ps1",
+      "size": 18013,
+      "mtime_ns": 1773629525287768800,
+      "sha256": "284709ad1890854b65f46417a1446ffd240eada6b4b8873f5f5a444788800d40"
+    },
+    {
+      "path": "tools/phase44_6/phase44_6_guard_fingerprint_trust_chain_runner.ps1",
+      "size": 22527,
+      "mtime_ns": 1773629525287768800,
+      "sha256": "debbff15f4bb8524a3a1ed5423693990b91d82af87a1d07be8c75af3f279d0ce"
+    },
+    {
+      "path": "tools/phase44_7/phase44_7_guard_fingerprint_trust_chain_baseline_lock_runner.ps1",
+      "size": 21120,
+      "mtime_ns": 1773630473564126500,
+      "sha256": "7fd52f3c1dff84bd4d23f95c2048ba933c5163deb66ecce819d1ec67f8f430b4"
+    },
+    {
+      "path": "tools/phase44_8/phase44_8_trust_chain_baseline_runtime_enforcement_runner.ps1",
+      "size": 37005,
+      "mtime_ns": 1773633818476352200,
+      "sha256": "328c3e24863325874133a4afbcbff6ab8adf1b1340c6115fb2959a630c4f9111"
+    },
+    {
+      "path": "tools/phase44_9/phase44_9_trust_chain_runtime_gate_bypass_resistance_runner.ps1",
+      "size": 37492,
+      "mtime_ns": 1773634268597810900,
+      "sha256": "b2f6bc26b23698f29a132581d1ab694de30020b4855e997cf968b14793109f6f"
+    },
+    {
+      "path": "tools/phase45_0/phase45_0_trust_chain_runtime_gate_coverage_audit_runner.ps1",
+      "size": 24114,
+      "mtime_ns": 1773634966634926300,
+      "sha256": "d691aaa7096ccbf48a80fb9aed77fe9397c4fb3b3f0095818accb189d67f16f9"
+    },
+    {
+      "path": "tools/phase45_1/phase45_1_runtime_gate_coverage_fingerprint_runner.ps1",
+      "size": 16795,
+      "mtime_ns": 1773635748473286400,
+      "sha256": "04961ad6c764855d164e97620701b7cd62ee74a303617c25119365b203b1891e"
+    },
+    {
+      "path": "tools/phase45_2/phase45_2_runtime_gate_coverage_fingerprint_trust_chain_runner.ps1",
+      "size": 19793,
+      "mtime_ns": 1773636164820057000,
+      "sha256": "e9dd9a3c114fad89762f51485f06a00f1fab9d36abf43df76e5ea54529109c5e"
+    },
+    {
+      "path": "tools/phase45_3/phase45_3_runtime_gate_certification_baseline_runner.ps1",
+      "size": 19161,
+      "mtime_ns": 1773636164821054900,
+      "sha256": "ea4e4fa5463da911441f2071c9f29400dd2543f1fd9c1c63f790adbc4b375a95"
+    },
+    {
+      "path": "tools/phase45_4/phase45_4_runtime_gate_certification_baseline_enforcement_runner.ps1",
+      "size": 34346,
+      "mtime_ns": 1773639489518564700,
+      "sha256": "34e198f6f5bfe29dc2042ccc5df1738b1b664b15560d4736a6f2deb8508448cd"
+    },
+    {
+      "path": "tools/phase45_5/phase45_5_certification_baseline_enforcement_bypass_resistance_runner.ps1",
+      "size": 62741,
+      "mtime_ns": 1773640635696442800,
+      "sha256": "c1518b2cfecd94e58dcf62602ce0c7474340da6bef96041bb5c7a3a5fc4f77de"
+    },
+    {
+      "path": "tools/phase45_6/phase45_6_certification_baseline_enforcement_coverage_audit_runner.ps1",
+      "size": 31265,
+      "mtime_ns": 1773643677278789200,
+      "sha256": "6fe99bc9429b9328585bd320c898c02d3e84bfac1b4896c13eba14b689550a67"
+    },
+    {
+      "path": "tools/phase45_7/phase45_7_certification_baseline_coverage_fingerprint_runner.ps1",
+      "size": 23566,
+      "mtime_ns": 1773645373095484200,
+      "sha256": "47a02d1780b250a295d13a3764b68eaac1b6b18d96eb93b0724b385e8f5abfe6"
+    },
+    {
+      "path": "tools/phase45_8/phase45_8_certification_baseline_coverage_fingerprint_trust_chain_runner.ps1",
+      "size": 20867,
+      "mtime_ns": 1773645904096435600,
+      "sha256": "690dcbd5d2ba1e0d2aa454cc9a41fc114fd039556599b3485680f9a83a8d1cfe"
+    },
+    {
+      "path": "tools/phase45_9/phase45_9_certification_baseline_coverage_trust_chain_baseline_lock_runner.ps1",
+      "size": 27854,
+      "mtime_ns": 1773653145875437900,
+      "sha256": "e1ec12353dbb8462604ee5fa3c28e2da6f8bb60e4f555cd461a0174234aa9ef3"
+    },
+    {
+      "path": "tools/phase46_0/phase46_0_certification_baseline_coverage_trust_chain_baseline_enforcement_runner.ps1",
+      "size": 31907,
+      "mtime_ns": 1773653145873439300,
+      "sha256": "73e7ba6c00bb6d440579e2b3a3acd0153599cb21cfe77fe39c917ac5f8fa7011"
+    },
+    {
+      "path": "tools/phase46_1/phase46_1_trust_chain_baseline_enforcement_bypass_resistance_runner.ps1",
+      "size": 52011,
+      "mtime_ns": 1773653145852383100,
+      "sha256": "9207eb70d5dd425c3dc418623f3da76733d92b1c60513afcc2548b19d69e02c4"
+    },
+    {
+      "path": "tools/phase46_2/phase46_2_trust_chain_baseline_enforcement_coverage_audit_runner.ps1",
+      "size": 35932,
+      "mtime_ns": 1773653793124977700,
+      "sha256": "7f7d35d3dbb6ea4414a016d29ad6043e062af4ad4a186eb9f476000ba46a416b"
+    },
+    {
+      "path": "tools/phase46_3/phase46_3_trust_chain_baseline_enforcement_coverage_fingerprint_runner.ps1",
+      "size": 29078,
+      "mtime_ns": 1773656562519206600,
+      "sha256": "2a8edca9a25bac67e071868efaf009ef69b39075c812db1f7623e07063f2cb03"
+    },
+    {
+      "path": "tools/phase46_4/phase46_4_trust_chain_baseline_enforcement_coverage_fingerprint_trust_chain_runner.ps1",
+      "size": 22144,
+      "mtime_ns": 1773656562519206600,
+      "sha256": "845c49d493926b46eceff8c4232267ad1d7f775cf63120832752b923bf40b513"
+    },
+    {
+      "path": "tools/phase46_5/phase46_5_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_lock_runner.ps1",
+      "size": 29891,
+      "mtime_ns": 1773662828850606200,
+      "sha256": "53a6d936e0b984bb29d33f28506880985009848bceda5af4952e06aa5ac0bf97"
+    },
+    {
+      "path": "tools/phase46_6/phase46_6_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_runner.ps1",
+      "size": 32577,
+      "mtime_ns": 1773662828850606200,
+      "sha256": "3e85c1e72f5d3855ecc52e6be9fed7039dc1bdae6e2c8391d23adf1c7fc27da4"
+    },
+    {
+      "path": "tools/phase46_7/phase46_7_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_bypass_resistance_runner.ps1",
+      "size": 13364,
+      "mtime_ns": 1773662828851608000,
+      "sha256": "8e65726542cdeb157cd8f61e56f59d062513759e76a8ff130589385f6fdb5c96"
+    },
+    {
+      "path": "tools/phase46_8/phase46_8_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_audit_runner.ps1",
+      "size": 37142,
+      "mtime_ns": 1773665043253491900,
+      "sha256": "6d8b94f5a88fdc773d5a886a2043962f24447b85f7d71bfe8f2318301b7f453d"
+    },
+    {
+      "path": "tools/phase46_9/phase46_9_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint_runner.ps1",
+      "size": 32453,
+      "mtime_ns": 1773669358218878300,
+      "sha256": "6805a257323decb513aaad5bda8def7146a2067321fbf5bca4107f5850133f30"
+    },
+    {
+      "path": "tools/phase47_0/phase47_0_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint_trust_chain_runner.ps1",
+      "size": 22696,
+      "mtime_ns": 1773669358219884500,
+      "sha256": "586cabc81ce8b0fa2334416bcc30ce64a5050425258cda7ee174542d53807f72"
+    },
+    {
+      "path": "tools/phase47_1/phase47_1_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_lock_runner.ps1",
+      "size": 30426,
+      "mtime_ns": 1773669358219884500,
+      "sha256": "2deff8f27cb970011241f126caccaf142b459d185efe89fb6d326d6366f68395"
+    },
+    {
+      "path": "tools/phase47_2/phase47_2_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_runner.ps1",
+      "size": 33039,
+      "mtime_ns": 1773669506107125300,
+      "sha256": "204e6dd9adf2f66fe1550728a1a9d87905087d40ad83f42c81078eb2ebe734f1"
+    },
+    {
+      "path": "tools/phase47_3/phase47_3_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_bypass_resistance_runner.ps1",
+      "size": 26485,
+      "mtime_ns": 1773672343769685500,
+      "sha256": "21be8ee3a84d7828d23d5e09747d2a319540a2b1120a568fba6991b446cb3443"
+    },
+    {
+      "path": "tools/phase47_4/phase47_4_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_audit_runner.ps1",
+      "size": 24819,
+      "mtime_ns": 1773672769158307500,
+      "sha256": "9b56063a59491f4ca527095dda2c4e8863a15d745bf302e79d99501e91f005c1"
+    },
+    {
+      "path": "tools/phase47_5/phase47_5_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint_runner.ps1",
+      "size": 26349,
+      "mtime_ns": 1773680269744265200,
+      "sha256": "1f51e8c521bb742c6659e7fe68627dd9925d9196e8a2b6a7cb66ec8be03c194e"
+    },
+    {
+      "path": "tools/phase47_6/phase47_6_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint_trust_chain_runner.ps1",
+      "size": 27919,
+      "mtime_ns": 1773680269744265200,
+      "sha256": "14e359c554373ae535d7e674fa51eddf75d88877fb44027c768189190b14c980"
+    },
+    {
+      "path": "tools/phase47_7/phase47_7_trust_chain_ledger_baseline_lock_runner.ps1",
+      "size": 20871,
+      "mtime_ns": 1773680269729233300,
+      "sha256": "158c1181a59b6dd5702215cdaf5b0aeae809762ab3b285ce95d24817e067bbbe"
+    },
+    {
+      "path": "tools/phase47_8/phase47_8_trust_chain_ledger_baseline_enforcement_runner.ps1",
+      "size": 31832,
+      "mtime_ns": 1773689722954705400,
+      "sha256": "57ff8327d3c21037e82746dabb53594a22af95366d79ef625aa0a708ae2620d2"
+    },
+    {
+      "path": "tools/phase47_9/phase47_9_trust_chain_ledger_baseline_enforcement_bypass_resistance_runner.ps1",
+      "size": 22939,
+      "mtime_ns": 1773689722955703500,
+      "sha256": "7237194ba75e007b52278ed1b949f36024151e1bf4533cf10016fe7d759cb272"
+    },
+    {
+      "path": "tools/phase48_0/phase48_0_trust_chain_ledger_baseline_enforcement_coverage_audit_runner.ps1",
+      "size": 25965,
+      "mtime_ns": 1773689722955703500,
+      "sha256": "586c322575695153298753352c349bd5cb2f449610a986e9039c26a4ed3eede2"
+    },
+    {
+      "path": "tools/phase48_1/phase48_1_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_runner.ps1",
+      "size": 24597,
+      "mtime_ns": 1773716744104945900,
+      "sha256": "2026306c85c85f909df7d76bd9adc23e27773162c210e673d605ee22161f0769"
+    },
+    {
+      "path": "tools/phase48_2/phase48_2_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_runner.ps1",
+      "size": 30682,
+      "mtime_ns": 1773717719357238200,
+      "sha256": "7717f1bd99b14b99763144ab8c02d14c09f3279da979ee5fdbfbbd97a1fa5c7c"
+    },
+    {
+      "path": "tools/phase48_3/phase48_3_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_lock_runner.ps1",
+      "size": 28391,
+      "mtime_ns": 1773720873658033700,
+      "sha256": "4b705669e4faf8962b5c0074b2c2f78e9d5566a2e1f7d403af3710adddba7ef6"
+    },
+    {
+      "path": "tools/phase48_4/phase48_4_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_runner.ps1",
+      "size": 33999,
+      "mtime_ns": 1773720873658033700,
+      "sha256": "20d96b5ddc0713d1ec063cefd80d860afb7c418fe77da7b6d6871480c858a13b"
+    },
+    {
+      "path": "tools/phase48_5/phase48_5_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_bypass_resistance_runner.ps1",
+      "size": 38053,
+      "mtime_ns": 1773722463958526800,
+      "sha256": "9b792c32770402b600c20c9ca19668f89fdd4f4ff7885b10c1ef2bae36d13ab4"
+    },
+    {
+      "path": "tools/phase48_6/phase48_6_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_audit_runner.ps1",
+      "size": 30562,
+      "mtime_ns": 1773723849926822300,
+      "sha256": "a80bc2634712d5de7bdc3fdbb063b13126e82ea5569770f5d57491348b8924e1"
+    },
+    {
+      "path": "tools/phase48_7/phase48_7_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint_runner.ps1",
+      "size": 30057,
+      "mtime_ns": 1773729880032141000,
+      "sha256": "a07b4b82dd4e5238a6897a6b4c8f4dc6fe0fb5c207c28efa41c50abed50e1ba4"
+    },
+    {
+      "path": "tools/phase48_8/phase48_8_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_runner.ps1",
+      "size": 21259,
+      "mtime_ns": 1773729880037680700,
+      "sha256": "a9a88a7fbe7796ad01e5141ea67bc4a0e3b1d4a095eb0eacd9fd062d2fafa0e5"
+    },
+    {
+      "path": "tools/phase48_9/phase48_9_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_lock_runner.ps1",
+      "size": 27657,
+      "mtime_ns": 1773729880054807100,
+      "sha256": "9b639f4b609c572254fbfe02206c8931322ed951bef1b024548de4627dff45de"
+    },
+    {
+      "path": "tools/phase49_0/phase49_0_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_runner.ps1",
+      "size": 34044,
+      "mtime_ns": 1773729880054807100,
+      "sha256": "37062841b462eaa01572ad40f70559f300349880f13c081b14db2d525cb57c0e"
+    },
+    {
+      "path": "tools/phase49_1/phase49_1_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_bypass_resistance_runner.ps1",
+      "size": 38069,
+      "mtime_ns": 1773732371659768400,
+      "sha256": "bb1526eabd5533811b77c499c106cf5261ab0bd5f1e7a910d42dceb56456210c"
+    },
+    {
+      "path": "tools/phase49_2/phase49_2_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_audit_runner.ps1",
+      "size": 28145,
+      "mtime_ns": 1773732371659768400,
+      "sha256": "ac5b6b23698bc2d16f24467c41792f7bef920702b35b3a29b376625eca5569b7"
+    },
+    {
+      "path": "tools/phase49_3/phase49_3_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint_runner.ps1",
+      "size": 32537,
+      "mtime_ns": 1773733886514868500,
+      "sha256": "d977224c078e3990d8b7f8e7f86e6ae9ad5eb06e2122dcbf6996ceb959a63410"
+    },
+    {
+      "path": "tools/phase49_4/phase49_4_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_runner.ps1",
+      "size": 21347,
+      "mtime_ns": 1773733886526784200,
+      "sha256": "fa9249d1439aac2721a974dc551f521762a16481bc2aea432523d710d1dcfa14"
+    },
+    {
+      "path": "tools/phase49_5/phase49_5_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_lock_runner.ps1",
+      "size": 27657,
+      "mtime_ns": 1773733886526784200,
+      "sha256": "51b2790820b63a8d501745a508b393b91d5f01099df91c0561f829a935ef8260"
+    },
+    {
+      "path": "tools/phase49_6/phase49_6_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_runner.ps1",
+      "size": 34247,
+      "mtime_ns": 1773809675494761200,
+      "sha256": "2113c1519096934851af435def3db24403e3f369c311fcdca6a622a29fa86a60"
+    },
+    {
+      "path": "tools/phase49_7/phase49_7_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_bypass_resistance_runner.ps1",
+      "size": 34706,
+      "mtime_ns": 1773809675491203100,
+      "sha256": "6a0e9ef5b9b489f54ff5a2eeb3bb743387615a26c7010fb2ad5f9e2f06106ecc"
+    },
+    {
+      "path": "tools/phase49_8/phase49_8_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_audit_runner.ps1",
+      "size": 28732,
+      "mtime_ns": 1773754824069374700,
+      "sha256": "6e671b340aeafc4e9c22ab623d98a3cfca385df14e1f7f7a175f015b5c7d291c"
+    },
+    {
+      "path": "tools/phase49_9/phase49_9_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint_runner.ps1",
+      "size": 32800,
+      "mtime_ns": 1773754825529597500,
+      "sha256": "8a0fbedcf6120350ea9088ac8959f02a3fb458099b46e4b94ddcf66d249b9884"
+    },
+    {
+      "path": "tools/phase50_0/phase50_0_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint_trust_chain_runner.ps1",
+      "size": 21605,
+      "mtime_ns": 1773754825659790500,
+      "sha256": "aa3f7508f747691fdbca62cd8e6420e1b5c0eab30db4e9fe97acb3d7d9bad5a4"
+    },
+    {
+      "path": "tools/phase50_1/phase50_1_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_lock_runner.ps1",
+      "size": 28709,
+      "mtime_ns": 1773809675455909600,
+      "sha256": "690044a6ff76fc27aa72ea71de72f6dbd3ff742e48abdcdf49435703c12ed9ea"
+    },
+    {
+      "path": "tools/phase50_2/phase50_2_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_runner.ps1",
+      "size": 34186,
+      "mtime_ns": 1773813179251062000,
+      "sha256": "dd51ed866aaebe7c7aa5744436a66110c53669215da8ca9c6fdcdec04daf3be8"
+    },
+    {
+      "path": "tools/phase50_3/phase50_3_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_bypass_resistance_runner.ps1",
+      "size": 38330,
+      "mtime_ns": 1773819370899034200,
+      "sha256": "b08f0ebfac9eee0dc901f0b1e59a5c34a310152675dce2161d332f7fb1da6702"
+    },
+    {
+      "path": "tools/phase50_4/phase50_4_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_audit_runner.ps1",
+      "size": 23316,
+      "mtime_ns": 1773819370899034200,
+      "sha256": "07e239ffec7b824727fbdb145b9338c6023dced289d28331fcf75605a9b204a3"
+    },
+    {
+      "path": "tools/phase50_5/phase50_5_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint_runner.ps1",
+      "size": 36474,
+      "mtime_ns": 1773830077233969900,
+      "sha256": "522fba42d605298327d46f5c635d6b365a94e50ea61570d2c6dbd5bc94e02420"
+    },
+    {
+      "path": "tools/phase50_6/phase50_6_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_runner.ps1",
+      "size": 22341,
+      "mtime_ns": 1773836285490661000,
+      "sha256": "ba7131fad73ffe6d7ec97dc49df5008fd0247261de8b560e99d0e8dbf8c61631"
+    },
+    {
+      "path": "tools/phase50_7/phase50_7_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_lock_runner.ps1",
+      "size": 31924,
+      "mtime_ns": 1773836285490661000,
+      "sha256": "3688a5626c5b81180ba1ba6f3677d30b7704acbb89880c20fef30dd6a48c3646"
+    },
+    {
+      "path": "tools/phase50_8/phase50_8_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_runner.ps1",
+      "size": 34085,
+      "mtime_ns": 1773844510917279300,
+      "sha256": "5ab8faab7da625557420840f1b4d79028b3700aeefcc6abd01e989233f804f06"
+    },
+    {
+      "path": "tools/phase50_9/phase50_9_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_bypass_resistance_runner.ps1",
+      "size": 38282,
+      "mtime_ns": 1773844510919281600,
+      "sha256": "e3398f99b1f8f29a04d56179e087cf0c27e6389c59fd0acb5f354239bd944f99"
+    },
+    {
+      "path": "tools/phase51_0/phase51_0_trust_chain_ledger_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_audit_runner.ps1",
+      "size": 24848,
+      "mtime_ns": 1773844510884497700,
+      "sha256": "84b9cec91429b72896982fb267ea5f610110f1237969b82c850c5c488fe19175"
+    },
+    {
+      "path": "tools/phase51_1/phase51_1_trust_chain_ledger_baseline_enforcement_surface_fingerprint_lock_runner.ps1",
+      "size": 24994,
+      "mtime_ns": 1773844510914277100,
+      "sha256": "8be43078acbbe423c82d2079126a681cbcea8515a988847fc1156c128ef9b96a"
+    },
+    {
+      "path": "tools/phase51_2/phase51_2_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_runner.ps1",
+      "size": 22931,
+      "mtime_ns": 1773849078104048000,
+      "sha256": "f2707370486012ed1c339ee584d038a6dc9b8ac1d7c9a00e1c737672063d6912"
+    },
+    {
+      "path": "tools/phase51_3/phase51_3_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_lock_runner.ps1",
+      "size": 30139,
+      "mtime_ns": 1773849618671365100,
+      "sha256": "e7eca7abae69316b094dc7799cd4404373027459c4908d5e15c45a7e5e6aa931"
+    },
+    {
+      "path": "tools/phase51_4/phase51_4_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_runner.ps1",
+      "size": 38090,
+      "mtime_ns": 1773853488905334500,
+      "sha256": "0c87792eeb418beaa228cfa91449d9b98ba2895793a19fab5c5de9b55968fa2a"
+    },
+    {
+      "path": "tools/phase51_5/phase51_5_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_bypass_resistance_runner.ps1",
+      "size": 39764,
+      "mtime_ns": 1773857862362714900,
+      "sha256": "777eaeea302c2c6b6573febac8d622cbdc69fabf3b5b03396389eb42d2d9406b"
+    },
+    {
+      "path": "tools/phase51_6/phase51_6_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_audit_runner.ps1",
+      "size": 55700,
+      "mtime_ns": 1773890838434456100,
+      "sha256": "051cb86e0eaf2eadc9a1efdbe75a37568a3791eff230e84484647b042d9987b8"
+    },
+    {
+      "path": "tools/phase51_7/phase51_7_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint_runner.ps1",
+      "size": 42750,
+      "mtime_ns": 1773892612695208400,
+      "sha256": "18d7a199be6ab4fae25edd6cd0d53d49daa809767724386b9ed18dadf858d341"
+    },
+    {
+      "path": "tools/phase51_8/phase51_8_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_runner.ps1",
+      "size": 35303,
+      "mtime_ns": 1773894534315005200,
+      "sha256": "5ef469e584f75e402d88ba24a8d6834e0c2ae11dfd1c8424c5f103964e98deb0"
+    },
+    {
+      "path": "tools/phase51_9/phase51_9_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_lock_runner.ps1",
+      "size": 39002,
+      "mtime_ns": 1773895089641064000,
+      "sha256": "74e27ac205a3eddfbb0826859cbde6f8fba780f9be70a494f3af9f3f8eac62b5"
+    },
+    {
+      "path": "tools/phase52_0/phase52_0_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_runner.ps1",
+      "size": 43886,
+      "mtime_ns": 1773897043229363900,
+      "sha256": "aa1f847380a440db36be6ef99853255a9150e528b2e1b5c858f71954edc0b677"
+    },
+    {
+      "path": "tools/phase52_1/phase52_1_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_bypass_resistance_runner.ps1",
+      "size": 49704,
+      "mtime_ns": 1773897043229363900,
+      "sha256": "a94ed6d0958493d47ab548f22067658cb25ef150dc5286567b69b3db460c3cb3"
+    },
+    {
+      "path": "tools/phase52_2/phase52_2_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_audit_runner.ps1",
+      "size": 44173,
+      "mtime_ns": 1773899542007596300,
+      "sha256": "12241eb3c5aae9f920db9e4b0dc5bdf6db2b9f93799f4ffa930ecb088a31fe9a"
+    },
+    {
+      "path": "tools/phase52_3/phase52_3_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint_runner.ps1",
+      "size": 39655,
+      "mtime_ns": 1773902702758698900,
+      "sha256": "74b2077f98f25e8a9b469789af91746a3564177a9f584f112ce7d59b36f86666"
+    },
+    {
+      "path": "tools/phase52_4/phase52_4_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_runner.ps1",
+      "size": 31440,
+      "mtime_ns": 1773915418624699200,
+      "sha256": "d57fbcbb347135ddaa970a737ea781cd15f9cc571dad4afe2042777cd4cbbe6a"
+    },
+    {
+      "path": "tools/phase52_5/phase52_5_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_lock_runner.ps1",
+      "size": 36433,
+      "mtime_ns": 1773918883654163800,
+      "sha256": "efe791fd39c85e0df6eaaedc4b63c2def4e0d8372000bda39722daa7e201e08e"
+    },
+    {
+      "path": "tools/phase52_6/phase52_6_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_runner.ps1",
+      "size": 38206,
+      "mtime_ns": 1773923326132001200,
+      "sha256": "4a75c002be1a726f17323abec3724f11370f83c6e1ca190908fc73eec4888f73"
+    },
+    {
+      "path": "tools/phase52_7/phase52_7_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_bypass_resistance_runner.ps1",
+      "size": 42404,
+      "mtime_ns": 1773923326128317600,
+      "sha256": "4d6bdfb032ca30fd57b02d580aea38d5702c18217bae09ac6e03f5e923083264"
+    },
+    {
+      "path": "tools/phase52_8/phase52_8_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_audit_runner.ps1",
+      "size": 29850,
+      "mtime_ns": 1773924401804597900,
+      "sha256": "9e0ede5d84be918623723dad189720d04ad2c70e97c4b37f2b385252e6fc5250"
+    },
+    {
+      "path": "tools/run_widget_sandbox.ps1",
+      "size": 2903,
+      "mtime_ns": 1773552557469261600,
+      "sha256": "fcf9b33a6fdc5b5ebf56f9c22b487a02987231f363c393fe639b58f8a31dc729"
+    },
+    {
+      "path": "tools/runtime_contract_guard.ps1",
+      "size": 6948,
+      "mtime_ns": 1773230256288171500,
+      "sha256": "28cbb010ca34069f9a0576781df27e0fed5cef88c06e89633abba3490b07d41e"
+    },
+    {
+      "path": "tools/runtime_runner_common.ps1",
+      "size": 756,
+      "mtime_ns": 1773230978696604000,
+      "sha256": "1484ecb3c82e3145290481a3056132566b56f3732f2109f74d258ea9efcf6fcc"
+    },
+    {
+      "path": "tools/validation/build_graph_integrity.txt",
+      "size": 815,
+      "mtime_ns": 1773563094812555000,
+      "sha256": "facd99c4f9e0d6e53777a1c487dc8dfb5d455f74e62c5b19dd9d337ea70c808b"
+    },
+    {
+      "path": "tools/validation/extension_visual_contract.txt",
+      "size": 18683,
+      "mtime_ns": 1773481589571883500,
+      "sha256": "3bd465e9dad5c635323ee3d6fdc7a704dc2fba2ead0166297f17b58a4581b9b6"
+    },
+    {
+      "path": "tools/validation/extension_visual_contract_check.ps1",
+      "size": 48625,
+      "mtime_ns": 1773478618215750800,
+      "sha256": "dfa3e9760bf1b4712ca1d9f755c363d6f498cbb6c6724e920228113e7cf7a4ad"
+    },
+    {
+      "path": "tools/validation/launch_contract.txt",
+      "size": 963,
+      "mtime_ns": 1773410985791266900,
+      "sha256": "b6a404f640064a13a396ed09560f1f7f737cf72d107af128c7aed89606a5a951"
+    },
+    {
+      "path": "tools/validation/renderer_api_contract.txt",
+      "size": 378,
+      "mtime_ns": 1773563094820555600,
+      "sha256": "90e1205e8ad259ca4e012a1080d21ed852e1631968edfb080f0aed5f095d6389"
+    },
+    {
+      "path": "tools/validation/run_permanent_validation_suite.ps1",
+      "size": 1426,
+      "mtime_ns": 1773230978709209000,
+      "sha256": "207f6e3888bf14120ddc6106d1303de792db88d5b30e05eae36b92feff4f9389"
+    },
+    {
+      "path": "tools/validation/source_tree_contract_report.txt",
+      "size": 626,
+      "mtime_ns": 1773563094788948400,
+      "sha256": "83fcee8512f0d82fb47517f273ddd9192871e602a784b0a77b1f23ae245eb968"
+    },
+    {
+      "path": "tools/validation/visual_baseline_contract.txt",
+      "size": 769,
+      "mtime_ns": 1773563090780111100,
+      "sha256": "328f0cfc000e0f4b51d98b704a3e79dd8df4f2f86ba23439c4829da2bf5a73f4"
+    },
+    {
+      "path": "tools/validation/visual_baseline_contract_check.ps1",
+      "size": 3503,
+      "mtime_ns": 1773410985791266900,
+      "sha256": "4001ab1d9af2198a21a158abdfdb40e178e2f44bbac34eb528a70c2f0417e582"
+    },
+    {
+      "path": "tools/widget_sandbox_launch_common.ps1",
+      "size": 4791,
+      "mtime_ns": 1773552557469261600,
+      "sha256": "9cf74ba0991f66d967de30c6119b37c09c98d3924c9a10d124d03e0f9222404e"
+    }
+  ]
+}

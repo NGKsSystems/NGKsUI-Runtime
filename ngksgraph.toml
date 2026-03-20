@@ -1,0 +1,116 @@
+# Auto-detected repo family: engine-multi-target
+out_dir = "build"
+warnings = "default"
+
+cxx_std = 20
+include_dirs = ["engine/core/include", "engine/gfx/include", "engine/gfx/win32/include", "engine/platform/win32/include", "engine/ui", "engine/ui/include"]
+defines = ["UNICODE", "_UNICODE"]
+cflags = []
+ldflags = []
+libs = []
+lib_dirs = []
+
+[profiles.debug]
+cflags = ["/Od", "/Zi"]
+defines = ["DEBUG"]
+ldflags = []
+
+[profiles.release]
+cflags = ["/O2"]
+defines = ["NDEBUG"]
+ldflags = []
+
+[build]
+default_target = "widget_sandbox"
+
+[[targets]]
+name = "engine"
+type = "staticlib"
+src_glob = ["engine/**/*.cpp", "engine/**/*.c"]
+include_dirs = ["engine/core/include", "engine/gfx/include", "engine/gfx/win32/include", "engine/platform/win32/include", "engine/ui", "engine/ui/include"]
+defines = ["UNICODE", "_UNICODE"]
+cflags = []
+libs = []
+lib_dirs = []
+ldflags = []
+cxx_std = 20
+links = []
+
+[[targets]]
+name = "loop_tests"
+type = "exe"
+src_glob = ["apps/loop_tests/**/*.cpp", "apps/loop_tests/**/*.c"]
+include_dirs = ["engine/core/include", "engine/gfx/include", "engine/gfx/win32/include", "engine/platform/win32/include", "engine/ui", "engine/ui/include"]
+defines = ["UNICODE", "_UNICODE"]
+cflags = []
+libs = ["d3d11", "dxgi", "gdi32", "user32"]
+lib_dirs = []
+ldflags = []
+cxx_std = 20
+links = ["engine"]
+
+[[targets]]
+name = "sandbox_app"
+type = "exe"
+src_glob = ["apps/sandbox_app/**/*.cpp", "apps/sandbox_app/**/*.c"]
+include_dirs = ["engine/core/include", "engine/gfx/include", "engine/gfx/win32/include", "engine/platform/win32/include", "engine/ui", "engine/ui/include"]
+defines = ["UNICODE", "_UNICODE"]
+cflags = []
+libs = ["d3d11", "dxgi", "gdi32", "user32"]
+lib_dirs = []
+ldflags = []
+cxx_std = 20
+links = ["engine"]
+
+[[targets]]
+name = "widget_sandbox"
+type = "exe"
+src_glob = ["apps/widget_sandbox/**/*.cpp", "apps/widget_sandbox/**/*.c"]
+include_dirs = ["engine/core/include", "engine/gfx/include", "engine/gfx/win32/include", "engine/platform/win32/include", "engine/ui", "engine/ui/include"]
+defines = ["UNICODE", "_UNICODE"]
+cflags = []
+libs = ["d3d11", "dxgi", "gdi32", "user32"]
+lib_dirs = []
+ldflags = []
+cxx_std = 20
+links = ["engine"]
+
+[[targets]]
+name = "win32_sandbox"
+type = "exe"
+src_glob = ["apps/win32_sandbox/**/*.cpp", "apps/win32_sandbox/**/*.c"]
+include_dirs = ["engine/core/include", "engine/gfx/include", "engine/gfx/win32/include", "engine/platform/win32/include", "engine/ui", "engine/ui/include"]
+defines = ["UNICODE", "_UNICODE"]
+cflags = []
+libs = ["d3d11", "dxgi", "gdi32", "user32"]
+lib_dirs = []
+ldflags = []
+cxx_std = 20
+links = ["engine"]
+
+[qt]
+enabled = false
+qt_root = ""
+prefix = ""
+version = 6
+modules = []
+moc_path = ""
+uic_path = ""
+rcc_path = ""
+include_dirs = []
+lib_dirs = []
+libs = []
+
+[ai]
+enabled = false
+plugin = ""
+mode = "advise"
+max_actions = 3
+log_tail_lines = 200
+redact_paths = true
+redact_env = true
+
+[ai.provider]
+model = ""
+endpoint = ""
+api_key_env = ""

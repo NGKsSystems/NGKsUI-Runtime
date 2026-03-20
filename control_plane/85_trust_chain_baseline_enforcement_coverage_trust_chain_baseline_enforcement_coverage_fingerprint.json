@@ -1,0 +1,21 @@
+{
+  "phase_locked": "47.5",
+  "source_phase": "47.4",
+  "fingerprint_type": "trust_chain_baseline_enforcement_coverage_fingerprint",
+  "coverage_fingerprint_sha256": "4c979a24c363a6f81c2e7277347e723dd2a0bbfc506a45b89ee3ae26a07f8959",
+  "canonical_input_hashes": {
+    "inventory_sha256": "0f9f2527916750e26a8442c85b920be3c3f04ce9cdaea53a913e79fa21ebd05d",
+    "enforcement_map_sha256": "59dd01023a22ac2e49d3250411433a43974c05c0ad346af2aa97fb4930590877",
+    "unguarded_sha256": "4dd2512751d087347e1610ca67b1b77dc73d6abdcc73466181feade7e2364740",
+    "bypass_crosscheck_sha256": "e34d13a5ce8eda00bf100045ded48578788ef657ab52617663671750545ca372",
+    "model_sha256": "4c979a24c363a6f81c2e7277347e723dd2a0bbfc506a45b89ee3ae26a07f8959"
+  },
+  "source_proof_path": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase47_4_trust_chain_baseline_enforcement_coverage_trust_chain_baseline_enforcement_coverage_fingerprint_trust_chain_baseline_enforcement_coverage_audit_20260316_174915",
+  "source_artifacts": [
+    "16_entrypoint_inventory.txt",
+    "17_frozen_baseline_enforcement_map.txt",
+    "18_unguarded_path_report.txt",
+    "19_bypass_crosscheck_report.txt"
+  ],
+  "generated_utc": "2026-03-16T15:20:08Z"
+}

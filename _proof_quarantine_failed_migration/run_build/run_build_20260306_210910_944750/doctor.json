@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "proof_dir": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\run_build\\run_build_20260306_210910_944750",
+  "checks": [
+    {
+      "name": "python_version",
+      "ok": true,
+      "detail": "3.13.5"
+    },
+    {
+      "name": "state_dir_write",
+      "ok": true,
+      "detail": "writable"
+    },
+    {
+      "name": "proof_root_write",
+      "ok": true,
+      "detail": "writable"
+    },
+    {
+      "name": "process_spawn",
+      "ok": true,
+      "detail": "SPAWN_OK"
+    }
+  ]
+}

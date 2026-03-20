@@ -10,6 +10,7 @@
 #include <string>
 #include <thread>
 
+#include "../runtime_phase53_guard.hpp"
 #include "ngk/event_loop.hpp"
 #include "ngk/platform/win32_window.hpp"
 #include "ngk/gfx/d3d11_renderer.hpp"
@@ -761,6 +762,11 @@ static int run_app() {
 }
 
 int main() {
+  const int guard_rc = ngk::runtime_guard::enforce_phase53_2();
+  if (guard_rc != 0) {
+    return guard_rc;
+  }
+
   PVOID veh_handle = AddVectoredExceptionHandler(1, ngks_veh_handler);
   std::cout << "crash_capture_veh_installed=" << (veh_handle ? 1 : 0) << "\n";
 

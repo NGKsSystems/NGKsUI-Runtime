@@ -1,0 +1,12 @@
+{
+  "schema": "phase46_3_trust_chain_baseline_enforcement_coverage_fingerprint_reference_v1",
+  "generated_utc": "2026-03-16T09:38:06.4630713Z",
+  "source_phase46_2_proof": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase46_2_trust_chain_baseline_enforcement_coverage_audit_20260316_123011",
+  "source_inventory_artifact": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase46_2_trust_chain_baseline_enforcement_coverage_audit_20260316_123011\\16_entrypoint_inventory.txt",
+  "source_enforcement_map_artifact": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase46_2_trust_chain_baseline_enforcement_coverage_audit_20260316_123011\\17_frozen_baseline_enforcement_map.txt",
+  "source_unguarded_report_artifact": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\phase46_2_trust_chain_baseline_enforcement_coverage_audit_20260316_123011\\18_unguarded_path_report.txt",
+  "inventory_operational_count": 17,
+  "map_operational_count": 17,
+  "unguarded_operational_path_count": 0,
+  "coverage_fingerprint_sha256": "9d2865dc919b0a66a145638007918205adb74373bb955d1d69e93bc8760d8bcf"
+}
