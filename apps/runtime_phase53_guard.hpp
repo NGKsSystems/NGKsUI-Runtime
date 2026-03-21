@@ -93,6 +93,7 @@ inline int enforce_runtime_trust(const char* context) {
     runtime_observe_event("enforce_fail", context, rc);
     std::cout << "runtime_trust_guard=FAIL context=" << normalize_runtime_context(context) << " exit=" << rc << "\n";
     std::cout << "runtime_trust_guard_elapsed_ms=" << elapsed_ms << " context=" << normalize_runtime_context(context) << "\n";
+    std::cout << "runtime_trust_guard_reason_code=TRUST_CHAIN_BLOCKED context=" << normalize_runtime_context(context) << "\n";
     std::cout << "runtime_trust_guard_action=BLOCK_EXECUTION context=" << normalize_runtime_context(context) << "\n";
     return 120;
   }
