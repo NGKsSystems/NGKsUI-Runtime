@@ -14,10 +14,13 @@
 static void line(const std::string& s) { std::cout << s << "\n"; }
 
 int main() {
+  ngk::runtime_guard::runtime_observe_lifecycle("loop_tests", "main_enter");
   const int guard_rc = ngk::runtime_guard::enforce_phase53_2();
   if (guard_rc != 0) {
+    ngk::runtime_guard::runtime_observe_lifecycle("loop_tests", "guard_blocked");
     return guard_rc;
   }
+  ngk::runtime_guard::runtime_observe_lifecycle("loop_tests", "guard_pass");
 
   using namespace std::chrono;
 
@@ -131,5 +134,6 @@ int main() {
   }
 
   line(ok ? "SUMMARY: PASS" : "SUMMARY: FAIL");
+  ngk::runtime_guard::runtime_observe_lifecycle("loop_tests", "main_exit");
   return ok ? 0 : 1;
 }

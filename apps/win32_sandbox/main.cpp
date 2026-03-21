@@ -763,10 +763,13 @@ static int run_app() {
 }
 
 int main() {
+  ngk::runtime_guard::runtime_observe_lifecycle("win32_sandbox", "main_enter");
   const int guard_rc = ngk::runtime_guard::enforce_phase53_2();
   if (guard_rc != 0) {
+    ngk::runtime_guard::runtime_observe_lifecycle("win32_sandbox", "guard_blocked");
     return guard_rc;
   }
+  ngk::runtime_guard::runtime_observe_lifecycle("win32_sandbox", "guard_pass");
 
   ngk::runtime_guard::require_runtime_trust("execution_pipeline");
 
@@ -794,6 +797,7 @@ int main() {
     std::cout << "crash_capture_veh_removed=1\n";
   }
 
+  ngk::runtime_guard::runtime_observe_lifecycle("win32_sandbox", "main_exit");
   return rc;
 }
 

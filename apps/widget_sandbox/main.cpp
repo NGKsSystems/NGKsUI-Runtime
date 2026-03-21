@@ -4128,22 +4128,29 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
 } // namespace
 
 int main(int argc, char** argv) {
+  ngk::runtime_guard::runtime_observe_lifecycle("widget_sandbox", "main_enter");
   try {
     const int guard_rc = ngk::runtime_guard::enforce_phase53_2();
     if (guard_rc != 0) {
+      ngk::runtime_guard::runtime_observe_lifecycle("widget_sandbox", "guard_blocked");
       return guard_rc;
     }
+    ngk::runtime_guard::runtime_observe_lifecycle("widget_sandbox", "guard_pass");
 
     const bool demo_mode = is_demo_mode_enabled(argc, argv);
     const bool visual_baseline_mode = is_visual_baseline_mode_enabled(argc, argv);
     const bool extension_visual_baseline_mode = is_extension_visual_baseline_mode_enabled(argc, argv);
     const bool extension_stress_demo_mode = is_extension_stress_demo_mode_enabled(argc, argv);
     const SandboxLane lane = read_sandbox_lane(argc, argv);
-    return run_app(demo_mode, visual_baseline_mode, extension_visual_baseline_mode, extension_stress_demo_mode, lane);
+    const int app_rc = run_app(demo_mode, visual_baseline_mode, extension_visual_baseline_mode, extension_stress_demo_mode, lane);
+    ngk::runtime_guard::runtime_observe_lifecycle("widget_sandbox", "main_exit");
+    return app_rc;
   } catch (const std::exception& ex) {
+    ngk::runtime_guard::runtime_observe_lifecycle("widget_sandbox", "main_exception");
     std::cout << "widget_sandbox_exception=" << ex.what() << "\n";
     return 10;
   } catch (...) {
+    ngk::runtime_guard::runtime_observe_lifecycle("widget_sandbox", "main_exception");
     std::cout << "widget_sandbox_exception=unknown\n";
     return 11;
   }

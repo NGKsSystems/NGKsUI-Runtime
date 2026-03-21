@@ -6,10 +6,13 @@
 #include "ngk/event_loop.hpp"
 
 int main() {
+  ngk::runtime_guard::runtime_observe_lifecycle("sandbox_app", "main_enter");
   const int guard_rc = ngk::runtime_guard::enforce_phase53_2();
   if (guard_rc != 0) {
+    ngk::runtime_guard::runtime_observe_lifecycle("sandbox_app", "guard_blocked");
     return guard_rc;
   }
+  ngk::runtime_guard::runtime_observe_lifecycle("sandbox_app", "guard_pass");
 
   std::cout << "NGKsUI Runtime Sandbox\n";
   std::cout << "core version: " << ngk::version() << "\n";
@@ -33,5 +36,6 @@ int main() {
 
   loop.run();
   std::cout << "shutdown ok\n";
+  ngk::runtime_guard::runtime_observe_lifecycle("sandbox_app", "main_exit");
   return 0;
 }

@@ -12,7 +12,37 @@
 namespace ngk {
 namespace runtime_guard {
 
+inline const char* normalize_runtime_context(const char* context) {
+  return (context && *context) ? context : "runtime_init";
+}
+
+inline bool runtime_observe_enabled() {
+  const char* value = std::getenv("NGKS_RUNTIME_OBS");
+  if (value == nullptr || value[0] == '\0') {
+    return false;
+  }
+  return !(value[0] == '0' && value[1] == '\0');
+}
+
+inline void runtime_observe_event(const char* event, const char* context, int rc) {
+  if (!runtime_observe_enabled()) {
+    return;
+  }
+  std::cout << "runtime_observe event=" << ((event && *event) ? event : "unknown")
+            << " context=" << normalize_runtime_context(context)
+            << " rc=" << rc << "\n";
+}
+
+inline void runtime_observe_lifecycle(const char* app, const char* stage) {
+  if (!runtime_observe_enabled()) {
+    return;
+  }
+  std::cout << "runtime_observe lifecycle app=" << ((app && *app) ? app : "unknown")
+            << " stage=" << ((stage && *stage) ? stage : "unknown") << "\n";
+}
+
 inline int enforce_runtime_trust(const char* context) {
+  runtime_observe_event("enforce_begin", context, 0);
 #ifdef _WIN32
   std::wstring command = L"powershell -NoProfile -ExecutionPolicy Bypass -File \"tools\\TrustChainRuntime.ps1\" -Context \"";
   if (context && *context) {
@@ -31,10 +61,12 @@ inline int enforce_runtime_trust(const char* context) {
   const int rc = std::system(command.c_str());
 #endif
   if (rc != 0) {
-    std::cout << "runtime_trust_guard=FAIL context=" << ((context && *context) ? context : "runtime_init") << " exit=" << rc << "\n";
+    runtime_observe_event("enforce_fail", context, rc);
+    std::cout << "runtime_trust_guard=FAIL context=" << normalize_runtime_context(context) << " exit=" << rc << "\n";
     return 120;
   }
-  std::cout << "runtime_trust_guard=PASS context=" << ((context && *context) ? context : "runtime_init") << "\n";
+  runtime_observe_event("enforce_pass", context, rc);
+  std::cout << "runtime_trust_guard=PASS context=" << normalize_runtime_context(context) << "\n";
   return 0;
 }
 
@@ -45,8 +77,10 @@ inline int enforce_phase53_2() {
 inline void require_runtime_trust(const char* context) {
   const int rc = enforce_runtime_trust(context);
   if (rc != 0) {
-    throw std::runtime_error(std::string("runtime_trust_blocked:") + ((context && *context) ? context : "runtime_init"));
+    runtime_observe_event("require_throw", context, rc);
+    throw std::runtime_error(std::string("runtime_trust_blocked:") + normalize_runtime_context(context));
   }
+  runtime_observe_event("require_pass", context, rc);
 }
 
 }  // namespace runtime_guard
