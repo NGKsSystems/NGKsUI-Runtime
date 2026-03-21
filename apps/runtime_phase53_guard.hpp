@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdlib>
+#include <chrono>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -53,20 +54,29 @@ inline int enforce_runtime_trust(const char* context) {
     command += L"runtime_init";
   }
   command += L"\"";
-  const int rc = _wsystem(command.c_str());
 #else
   std::string command = "pwsh -NoProfile -ExecutionPolicy Bypass -File \"tools/TrustChainRuntime.ps1\" -Context \"";
   command += (context && *context) ? context : "runtime_init";
   command += "\"";
+#endif
+  const auto _ngk_t0 = std::chrono::steady_clock::now();
+#ifdef _WIN32
+  const int rc = _wsystem(command.c_str());
+#else
   const int rc = std::system(command.c_str());
 #endif
+  const long long elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::steady_clock::now() - _ngk_t0).count();
   if (rc != 0) {
     runtime_observe_event("enforce_fail", context, rc);
     std::cout << "runtime_trust_guard=FAIL context=" << normalize_runtime_context(context) << " exit=" << rc << "\n";
+    std::cout << "runtime_trust_guard_elapsed_ms=" << elapsed_ms << " context=" << normalize_runtime_context(context) << "\n";
+    std::cout << "runtime_trust_guard_action=BLOCK_EXECUTION context=" << normalize_runtime_context(context) << "\n";
     return 120;
   }
   runtime_observe_event("enforce_pass", context, rc);
   std::cout << "runtime_trust_guard=PASS context=" << normalize_runtime_context(context) << "\n";
+  std::cout << "runtime_trust_guard_elapsed_ms=" << elapsed_ms << " context=" << normalize_runtime_context(context) << "\n";
   return 0;
 }
 
@@ -78,6 +88,7 @@ inline void require_runtime_trust(const char* context) {
   const int rc = enforce_runtime_trust(context);
   if (rc != 0) {
     runtime_observe_event("require_throw", context, rc);
+    std::cout << "runtime_trust_guard_action=RAISE_EXCEPTION context=" << normalize_runtime_context(context) << "\n";
     throw std::runtime_error(std::string("runtime_trust_blocked:") + normalize_runtime_context(context));
   }
   runtime_observe_event("require_pass", context, rc);
