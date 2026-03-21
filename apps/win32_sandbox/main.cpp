@@ -769,6 +769,7 @@ int main() {
     ngk::runtime_guard::runtime_observe_lifecycle("win32_sandbox", "guard_blocked");
     ngk::runtime_guard::runtime_emit_startup_summary("win32_sandbox", "runtime_init", guard_rc);
     ngk::runtime_guard::runtime_emit_termination_summary("win32_sandbox", "runtime_init", guard_rc);
+    ngk::runtime_guard::runtime_emit_final_status("BLOCKED");
     return guard_rc;
   }
   ngk::runtime_guard::runtime_observe_lifecycle("win32_sandbox", "guard_pass");
@@ -783,6 +784,7 @@ int main() {
   const bool forceCrashEnabled = is_force_test_crash_enabled(forceCrash);
 
   int rc = 0;
+  bool exception_exit = false;
   __try {
     if (forceCrashEnabled) {
       printf("FORCE_TEST_CRASH=1 triggering_fatal_now\n");
@@ -792,6 +794,7 @@ int main() {
     rc = run_app();
   }
   __except (ngks_seh_filter(GetExceptionInformation())) {
+    exception_exit = true;
     rc = 128;
   }
 
@@ -802,6 +805,7 @@ int main() {
 
   ngk::runtime_guard::runtime_observe_lifecycle("win32_sandbox", "main_exit");
   ngk::runtime_guard::runtime_emit_termination_summary("win32_sandbox", "runtime_init", rc == 0 ? 0 : 1);
+  ngk::runtime_guard::runtime_emit_final_status(exception_exit ? "EXCEPTION_EXIT" : "RUN_OK");
   return rc;
 }
 

@@ -20,6 +20,7 @@ int main() {
     ngk::runtime_guard::runtime_observe_lifecycle("loop_tests", "guard_blocked");
     ngk::runtime_guard::runtime_emit_startup_summary("loop_tests", "runtime_init", guard_rc);
     ngk::runtime_guard::runtime_emit_termination_summary("loop_tests", "runtime_init", guard_rc);
+    ngk::runtime_guard::runtime_emit_final_status("BLOCKED");
     return guard_rc;
   }
   ngk::runtime_guard::runtime_observe_lifecycle("loop_tests", "guard_pass");
@@ -139,5 +140,6 @@ int main() {
   line(ok ? "SUMMARY: PASS" : "SUMMARY: FAIL");
   ngk::runtime_guard::runtime_observe_lifecycle("loop_tests", "main_exit");
   ngk::runtime_guard::runtime_emit_termination_summary("loop_tests", "runtime_init", ok ? 0 : 1);
+  ngk::runtime_guard::runtime_emit_final_status("RUN_OK");
   return ok ? 0 : 1;
 }

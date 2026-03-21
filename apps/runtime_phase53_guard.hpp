@@ -64,6 +64,10 @@ inline void runtime_emit_termination_summary(const char* target, const char* con
             << "\n";
 }
 
+inline void runtime_emit_final_status(const char* status) {
+  std::cout << "runtime_final_status=" << ((status && *status) ? status : "unknown") << "\n";
+}
+
 inline int enforce_runtime_trust(const char* context) {
   runtime_observe_event("enforce_begin", context, 0);
 #ifdef _WIN32
