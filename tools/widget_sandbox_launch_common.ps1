@@ -5,17 +5,17 @@ function Invoke-Phase532MandatoryGuard {
     [string]$RepoRoot
   )
 
-  $runner = Join-Path $RepoRoot 'tools\phase53_2\phase53_2_runtime_gate_enforce.ps1'
+  $runner = Join-Path $RepoRoot 'tools\TrustChainRuntime.ps1'
   if (-not (Test-Path -LiteralPath $runner)) {
-    throw ('phase53_2_guard_missing_runner: ' + $runner)
+    throw ('runtime_trust_guard_missing_runner: ' + $runner)
   }
 
   Push-Location $RepoRoot
   try {
-    $out = & powershell -NoProfile -ExecutionPolicy Bypass -File $runner 2>&1
+    $out = & powershell -NoProfile -ExecutionPolicy Bypass -File $runner -Context runtime_init 2>&1
     if ($LASTEXITCODE -ne 0) {
       $snippet = ($out | Select-Object -First 8) -join '; '
-      throw ('phase53_2_guard_failed exit=' + $LASTEXITCODE + ' detail=' + $snippet)
+      throw ('runtime_trust_guard_failed exit=' + $LASTEXITCODE + ' detail=' + $snippet)
     }
   }
   finally {
@@ -53,7 +53,7 @@ function Get-CanonicalWidgetSandboxExePath {
   )
 
   $cfgLower = $Config.ToLowerInvariant()
-  return (Join-Path $RepoRoot ("build\\$cfgLower\\bin\\widget_sandbox.exe"))
+  return (Join-Path $RepoRoot ("build\$cfgLower\bin\widget_sandbox.exe"))
 }
 
 function Test-IsForbiddenWidgetSandboxPath {
@@ -110,7 +110,7 @@ function Resolve-CanonicalWidgetSandboxExe {
     throw ("unsafe_launch: canonical exe missing: " + $canonical)
   }
 
-  $planPath = Join-Path $RepoRoot ("build_graph\\" + $Config.ToLowerInvariant() + "\\ngksgraph_plan.json")
+  $planPath = Join-Path $RepoRoot ("build_graph\" + $Config.ToLowerInvariant() + "\ngksgraph_plan.json")
   if (Test-Path -LiteralPath $planPath) {
     $plan = Get-Content -Raw -LiteralPath $planPath | ConvertFrom-Json
     if ($plan.targets) {

@@ -390,6 +390,7 @@ static int run_app() {
   bool jitter_csv_active = false;
   std::string jitter_csv_path;
   if (jitter_csv_enabled == 1) {
+    ngk::runtime_guard::require_runtime_trust("file_load");
     jitter_csv_path = (jitter_csv_path_env && *jitter_csv_path_env) ? std::string(jitter_csv_path_env) : make_default_jitter_csv_path();
     jitter_csv.open(jitter_csv_path, std::ios::out | std::ios::trunc);
     if (jitter_csv.is_open()) {
@@ -766,6 +767,8 @@ int main() {
   if (guard_rc != 0) {
     return guard_rc;
   }
+
+  ngk::runtime_guard::require_runtime_trust("execution_pipeline");
 
   PVOID veh_handle = AddVectoredExceptionHandler(1, ngks_veh_handler);
   std::cout << "crash_capture_veh_installed=" << (veh_handle ? 1 : 0) << "\n";

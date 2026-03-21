@@ -8,16 +8,29 @@ if ((Get-Location).Path -ne $Root) {
     exit 1
 }
 
+$ExePath = Join-Path $Root 'build\debug\bin\widget_sandbox.exe'
+
+# Fail-closed on suspicious runtime control env injection.
+foreach ($envName in @('NGKS_RUNTIME_ROOT', 'NGKS_BYPASS_GUARD')) {
+    $envValue = [Environment]::GetEnvironmentVariable($envName)
+    if (-not [string]::IsNullOrWhiteSpace($envValue)) {
+        Write-Output 'GATE=FAIL'
+        Write-Output ('BLOCK=env_injection_detected name=' + $envName)
+        exit 1
+    }
+}
+
 $Art70 = Join-Path $Root 'control_plane\70_guard_fingerprint_trust_chain.json'
 $Art110 = Join-Path $Root 'control_plane\110_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint_regression_anchor.json'
 $Art111 = Join-Path $Root 'control_plane\111_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline.json'
 $Art112 = Join-Path $Root 'control_plane\112_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_integrity.json'
 
 $Expected111RawHash = '8ee2a7e9ecff6553e8fa6ee2f31a2d495b4e080196dba222ad6ad0ffcb42ff43'
+$ExpectedExeRawHash = '0768c5cb66790500486dbba466c0516a7a76823c823c885da3e8af22be017ea8'
 $ExpectedLedgerHead = 'c17e6b6ee0acd7905dedc1355e8bd2f070867250d0bfdb88f689e4ef15c67e22'
 $ExpectedCoverageFingerprint = '234451637df78f4e655919bf671a4aee1ace2f3c03dfcd86706e6ce52a8215fe'
 
-foreach ($path in @($Art70, $Art110, $Art111, $Art112)) {
+foreach ($path in @($Art70, $Art110, $Art111, $Art112, $ExePath)) {
     if (-not (Test-Path -LiteralPath $path)) {
         Write-Output ('GATE=FAIL')
         Write-Output ('BLOCK=missing_artifact:' + $path)
@@ -42,6 +55,14 @@ $hash111 = Get-BytesSha256Hex -Bytes $raw111
 if ($hash111 -ne $Expected111RawHash) {
     Write-Output 'GATE=FAIL'
     Write-Output ('BLOCK=baseline_snapshot_hash_mismatch live=' + $hash111 + ' expected=' + $Expected111RawHash)
+    exit 1
+}
+
+$rawExe = [System.IO.File]::ReadAllBytes($ExePath)
+$hashExe = Get-BytesSha256Hex -Bytes $rawExe
+if ($hashExe -ne $ExpectedExeRawHash) {
+    Write-Output 'GATE=FAIL'
+    Write-Output ('BLOCK=binary_hash_mismatch live=' + $hashExe + ' expected=' + $ExpectedExeRawHash)
     exit 1
 }
 

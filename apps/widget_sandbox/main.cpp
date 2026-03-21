@@ -295,7 +295,16 @@ void runtime_reject_action(RuntimeControlState& state, const char* action, const
   std::cout << "widget_runtime_rejection_last_valid_value=" << state.last_valid_value << "\n";
 }
 
+void runtime_abort_due_to_trust_failure(const char* context) {
+  throw std::runtime_error(std::string("runtime_trust_blocked:") + context);
+}
+
 bool runtime_apply_transition(RuntimeControlState& state, RuntimeLifecycleState to, const char* trigger) {
+  if (ngk::runtime_guard::enforce_runtime_trust("execution_pipeline") != 0) {
+    runtime_reject_action(state, trigger, "trust_chain_runtime_validation_failed", false);
+    runtime_abort_due_to_trust_failure("execution_pipeline");
+  }
+
   const RuntimeLifecycleState from = state.lifecycle_state;
   const bool legal = runtime_is_legal_transition(from, to);
   std::cout << "widget_runtime_transition_from=" << runtime_lifecycle_state_name(from) << "\n";
@@ -1726,6 +1735,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
     : ("NGKsUI Runtime - Widget Sandbox - " + launch_identity);
 
   if (lane == SandboxLane::ExtensionSlot) {
+    ngk::runtime_guard::require_runtime_trust("plugin_load");
     // Reserved inert extension lane: currently routes through stable baseline path.
     std::cout << "widget_extension_lane_stub=1\n";
   }
@@ -1758,6 +1768,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
   }
 
   if (const char* forensicPath = std::getenv("NGK_FORENSICS_LOG")) {
+    ngk::runtime_guard::require_runtime_trust("file_load");
     renderer.debug_set_forensic_log_path(forensicPath);
   }
 
@@ -4104,6 +4115,8 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
   }
 
   loop.run();
+
+  ngk::runtime_guard::require_runtime_trust("save_export");
 
   renderer.shutdown();
   window.destroy();

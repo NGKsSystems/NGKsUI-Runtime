@@ -59,9 +59,9 @@ function Get-CanonicalObjectHash {
 
 function New-SessionId {
     $timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
-    $procId = [System.Diagnostics.Process]::GetCurrentProcess().Id
-    $randomPart = '{0:x8}' -f (Get-Random -Maximum 0x100000000)
-    return "SID_${timestamp}_${procId}_${randomPart}"
+    $processIdValue = [System.Diagnostics.Process]::GetCurrentProcess().Id
+    $randomPart = (Get-Random -Minimum 0 -Maximum 99999999).ToString('x8')
+    return "SID_${timestamp}_${processIdValue}_${randomPart}"
 }
 
 function New-LiveState {

@@ -99,10 +99,10 @@ function Copy-Object {
 
 function New-SessionId {
     $ts = Get-Date -Format 'yyyyMMdd_HHmmss'
-    $procId = [System.Diagnostics.Process]::GetCurrentProcess().Id
+    $processIdValue = [System.Diagnostics.Process]::GetCurrentProcess().Id
     $rand = Get-Random -Minimum 0 -Maximum 99999999
     $randHex = $rand.ToString('x8')
-    return "SID_${ts}_${procId}_${randHex}"
+    return "SID_${ts}_${processIdValue}_${randHex}"
 }
 
 function Get-LiveHashes {

@@ -1,2 +1,0 @@
-python --version => Python 3.13.5
-git --version => git version 2.51.2.windows.1
