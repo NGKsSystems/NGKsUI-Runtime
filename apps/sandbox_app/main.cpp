@@ -10,9 +10,12 @@ int main() {
   const int guard_rc = ngk::runtime_guard::enforce_phase53_2();
   if (guard_rc != 0) {
     ngk::runtime_guard::runtime_observe_lifecycle("sandbox_app", "guard_blocked");
+    ngk::runtime_guard::runtime_emit_startup_summary("sandbox_app", "runtime_init", guard_rc);
+    ngk::runtime_guard::runtime_emit_termination_summary("sandbox_app", "runtime_init", guard_rc);
     return guard_rc;
   }
   ngk::runtime_guard::runtime_observe_lifecycle("sandbox_app", "guard_pass");
+  ngk::runtime_guard::runtime_emit_startup_summary("sandbox_app", "runtime_init", guard_rc);
 
   std::cout << "NGKsUI Runtime Sandbox\n";
   std::cout << "core version: " << ngk::version() << "\n";
@@ -37,5 +40,6 @@ int main() {
   loop.run();
   std::cout << "shutdown ok\n";
   ngk::runtime_guard::runtime_observe_lifecycle("sandbox_app", "main_exit");
+  ngk::runtime_guard::runtime_emit_termination_summary("sandbox_app", "runtime_init", 0);
   return 0;
 }

@@ -767,9 +767,12 @@ int main() {
   const int guard_rc = ngk::runtime_guard::enforce_phase53_2();
   if (guard_rc != 0) {
     ngk::runtime_guard::runtime_observe_lifecycle("win32_sandbox", "guard_blocked");
+    ngk::runtime_guard::runtime_emit_startup_summary("win32_sandbox", "runtime_init", guard_rc);
+    ngk::runtime_guard::runtime_emit_termination_summary("win32_sandbox", "runtime_init", guard_rc);
     return guard_rc;
   }
   ngk::runtime_guard::runtime_observe_lifecycle("win32_sandbox", "guard_pass");
+  ngk::runtime_guard::runtime_emit_startup_summary("win32_sandbox", "runtime_init", guard_rc);
 
   ngk::runtime_guard::require_runtime_trust("execution_pipeline");
 
@@ -798,6 +801,7 @@ int main() {
   }
 
   ngk::runtime_guard::runtime_observe_lifecycle("win32_sandbox", "main_exit");
+  ngk::runtime_guard::runtime_emit_termination_summary("win32_sandbox", "runtime_init", rc == 0 ? 0 : 1);
   return rc;
 }
 

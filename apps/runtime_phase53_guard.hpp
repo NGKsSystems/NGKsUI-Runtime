@@ -42,6 +42,28 @@ inline void runtime_observe_lifecycle(const char* app, const char* stage) {
             << " stage=" << ((stage && *stage) ? stage : "unknown") << "\n";
 }
 
+inline void runtime_emit_startup_summary(const char* target, const char* context, int enforce_rc) {
+  std::cout << "runtime_process_summary"
+            << " phase=startup"
+            << " target=" << ((target && *target) ? target : "unknown")
+            << " context=" << normalize_runtime_context(context)
+            << " enforcement=" << (enforce_rc == 0 ? "PASS" : "FAIL")
+            << " obs=" << (runtime_observe_enabled() ? "ON" : "OFF")
+            << " elapsed_timing=present"
+            << "\n";
+}
+
+inline void runtime_emit_termination_summary(const char* target, const char* context, int enforce_rc) {
+  std::cout << "runtime_process_summary"
+            << " phase=termination"
+            << " target=" << ((target && *target) ? target : "unknown")
+            << " context=" << normalize_runtime_context(context)
+            << " enforcement=" << (enforce_rc == 0 ? "PASS" : "FAIL")
+            << " obs=" << (runtime_observe_enabled() ? "ON" : "OFF")
+            << " elapsed_timing=present"
+            << "\n";
+}
+
 inline int enforce_runtime_trust(const char* context) {
   runtime_observe_event("enforce_begin", context, 0);
 #ifdef _WIN32

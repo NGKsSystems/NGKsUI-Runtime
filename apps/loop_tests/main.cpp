@@ -18,9 +18,12 @@ int main() {
   const int guard_rc = ngk::runtime_guard::enforce_phase53_2();
   if (guard_rc != 0) {
     ngk::runtime_guard::runtime_observe_lifecycle("loop_tests", "guard_blocked");
+    ngk::runtime_guard::runtime_emit_startup_summary("loop_tests", "runtime_init", guard_rc);
+    ngk::runtime_guard::runtime_emit_termination_summary("loop_tests", "runtime_init", guard_rc);
     return guard_rc;
   }
   ngk::runtime_guard::runtime_observe_lifecycle("loop_tests", "guard_pass");
+  ngk::runtime_guard::runtime_emit_startup_summary("loop_tests", "runtime_init", guard_rc);
 
   using namespace std::chrono;
 
@@ -135,5 +138,6 @@ int main() {
 
   line(ok ? "SUMMARY: PASS" : "SUMMARY: FAIL");
   ngk::runtime_guard::runtime_observe_lifecycle("loop_tests", "main_exit");
+  ngk::runtime_guard::runtime_emit_termination_summary("loop_tests", "runtime_init", ok ? 0 : 1);
   return ok ? 0 : 1;
 }
