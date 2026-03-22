@@ -139,7 +139,64 @@ if ((@($rows | Where-Object { $_.clean_guard_pass -ne 'YES' -or $_.invalid_fail_
 $scope = 'phase56_runtime_signal_contract_baseline'
 $objective = 'Establish deterministic runtime signal contract checks (obs OFF/ON + fail-closed guard regression) as post-Phase-55 baseline.'
 $changes = 'tools/phase56_0_runtime_signal_contract_runner.ps1 (auditable baseline runner + contract matrix + proof packaging)'
-$status = if ($newReg -eq 'NO') { 'IN_PROGRESS' } else { 'PARTIAL' }
+
+# PASS requires both regression-free signals and complete proof artifacts.
+$requiredFiles = @(
+  '40_phase56_0_signal_contract_matrix.csv',
+  '20_sandbox_obs_off_stdout.txt',
+  '20_sandbox_obs_off_stderr.txt',
+  '21_sandbox_obs_on_stdout.txt',
+  '21_sandbox_obs_on_stderr.txt'
+)
+foreach ($t in $targets) {
+  $requiredFiles += @(
+    ('10_plan_' + $t + '.txt'),
+    ('11_buildcore_' + $t + '.txt'),
+    ('30_' + $t + '_clean_stdout.txt'),
+    ('30_' + $t + '_clean_stderr.txt'),
+    ('31_' + $t + '_invalid_stdout.txt'),
+    ('31_' + $t + '_invalid_stderr.txt')
+  )
+}
+
+$missingArtifacts = @()
+foreach ($f in $requiredFiles) {
+  $p = Join-Path $pf $f
+  if (-not (Test-Path -LiteralPath $p)) {
+    $missingArtifacts += $f
+  }
+}
+
+$matrixRows = @()
+if (Test-Path -LiteralPath $matrix) {
+  try {
+    $matrixRows = Import-Csv -LiteralPath $matrix
+  }
+  catch {
+    $matrixRows = @()
+  }
+}
+
+$matrixTargets = @($matrixRows | ForEach-Object { $_.target })
+$matrixComplete = ($matrixRows.Count -eq $targets.Count)
+foreach ($t in $targets) {
+  if (-not ($matrixTargets -contains $t)) {
+    $matrixComplete = $false
+    break
+  }
+}
+
+$artifactsComplete = ($missingArtifacts.Count -eq 0) -and $matrixComplete
+
+if ($newReg -eq 'NO' -and $artifactsComplete) {
+  $status = 'PASS'
+}
+elseif ($newReg -eq 'NO') {
+  $status = 'IN_PROGRESS'
+}
+else {
+  $status = 'PARTIAL'
+}
 
 $summary = @(
   'next_phase_selected=PHASE56_RUNTIME_SIGNAL_CONTRACT_BASELINE',
@@ -151,6 +208,17 @@ $summary = @(
   'proof_folder=' + $pf
 )
 Write-Txt '99_phase56_contract_summary.txt' $summary | Out-Null
+Write-Txt '99_contract_summary.txt' $summary | Out-Null
+
+if ($missingArtifacts.Count -gt 0 -or -not $matrixComplete) {
+  $diag = @(
+    'artifacts_complete=' + $(if ($artifactsComplete) { 'YES' } else { 'NO' }),
+    'matrix_complete=' + $(if ($matrixComplete) { 'YES' } else { 'NO' }),
+    'missing_artifact_count=' + $missingArtifacts.Count,
+    'missing_artifacts=' + $(if ($missingArtifacts.Count -gt 0) { ($missingArtifacts -join ',') } else { 'none' })
+  )
+  Write-Txt '98_phase56_contract_completeness.txt' $diag | Out-Null
+}
 
 $zip = "$pf.zip"
 if (Test-Path -LiteralPath $zip) { Remove-Item -LiteralPath $zip -Force }
