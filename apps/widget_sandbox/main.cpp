@@ -74,7 +74,8 @@ class NativeWindowPump {
     UpdateTick,
     InputActivity,
     FocusChange,
-    LifecycleChange
+    LifecycleChange,
+    ActionInvoked
   };
 
   struct SignalEventRecord {
@@ -103,6 +104,18 @@ class NativeWindowPump {
     bool connected = false;
   };
 
+  struct ActionRecord {
+    int id = -1;
+    std::string label{};
+    bool enabled = false;
+    int trigger_vkey = 0;
+  };
+
+  struct ActionInvocation {
+    std::uint64_t order = 0;
+    int action_id = -1;
+  };
+
   HWND hwnd_ = nullptr;
   MSG msg_ = {};
   bool initialization_complete_ = false;
@@ -123,6 +136,10 @@ class NativeWindowPump {
   int next_state_id_ = 1;
   int next_binding_id_ = 1;
   std::uint64_t state_update_sequence_ = 0;
+  std::vector<ActionRecord> actions_{};
+  std::vector<ActionInvocation> pending_action_invocations_{};
+  int next_action_id_ = 1;
+  std::uint64_t action_invocation_sequence_ = 0;
 
   static constexpr UINT kLifecycleTickTimerId = 0x804u;
 
@@ -179,6 +196,11 @@ class NativeWindowPump {
 
     // PHASE81_1: Minimal state and binding seed.
     if (!initialize_state_binding_seed()) {
+      return false;
+    }
+
+    // PHASE81_2: Minimal commands/actions seed.
+    if (!initialize_action_seed()) {
       return false;
     }
 
@@ -387,6 +409,12 @@ class NativeWindowPump {
   void tick_component_updates() {
     ++update_tick_counter_;
     emit_signal_event(SignalEventType::UpdateTick, -1);
+
+    const bool allow_actions = !components_.empty();
+    for (const ActionRecord& action : actions_) {
+      set_action_enabled(action.id, allow_actions);
+    }
+
     for (ComponentRecord& component : components_) {
       if (!component.alive || !component.attached) {
         continue;
@@ -622,6 +650,106 @@ class NativeWindowPump {
     return update_state_value(state_id, 1);
   }
 
+  int register_action(const std::string& label, int trigger_vkey, bool enabled) {
+    ActionRecord action{};
+    action.id = next_action_id_++;
+    action.label = label;
+    action.enabled = enabled;
+    action.trigger_vkey = trigger_vkey;
+    actions_.push_back(action);
+    return action.id;
+  }
+
+  bool set_action_enabled(int action_id, bool enabled) {
+    for (ActionRecord& action : actions_) {
+      if (action.id == action_id) {
+        action.enabled = enabled;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool evaluate_action_enabled(int action_id) {
+    for (const ActionRecord& action : actions_) {
+      if (action.id == action_id) {
+        return action.enabled;
+      }
+    }
+    return false;
+  }
+
+  bool queue_action_invocation(int action_id) {
+    if (!evaluate_action_enabled(action_id)) {
+      return false;
+    }
+    ActionInvocation invocation{};
+    invocation.order = ++action_invocation_sequence_;
+    invocation.action_id = action_id;
+    pending_action_invocations_.push_back(invocation);
+    return true;
+  }
+
+  void execute_action(int action_id) {
+    if (!evaluate_action_enabled(action_id)) {
+      return;
+    }
+
+    emit_signal_event(SignalEventType::ActionInvoked, -1);
+
+    if (!states_.empty()) {
+      const int next_value = states_.front().value + 1;
+      update_state_value(states_.front().id, next_value);
+    } else {
+      trigger_binding_propagation();
+    }
+  }
+
+  void process_pending_actions_deterministic() {
+    std::sort(
+      pending_action_invocations_.begin(),
+      pending_action_invocations_.end(),
+      [](const ActionInvocation& lhs, const ActionInvocation& rhs) {
+        if (lhs.action_id != rhs.action_id) {
+          return lhs.action_id < rhs.action_id;
+        }
+        return lhs.order < rhs.order;
+      });
+
+    for (const ActionInvocation& invocation : pending_action_invocations_) {
+      execute_action(invocation.action_id);
+    }
+    pending_action_invocations_.clear();
+  }
+
+  void trigger_actions_from_key(int vkey) {
+    for (const ActionRecord& action : actions_) {
+      if (action.trigger_vkey == vkey) {
+        queue_action_invocation(action.id);
+      }
+    }
+    process_pending_actions_deterministic();
+  }
+
+  bool initialize_action_seed() {
+    actions_.clear();
+    pending_action_invocations_.clear();
+    next_action_id_ = 1;
+    action_invocation_sequence_ = 0;
+
+    const int action_refresh = register_action("refresh_layout", VK_F5, true);
+    const int action_sync = register_action("sync_bindings", VK_F5, true);
+    if (action_refresh < 0 || action_sync < 0) {
+      return false;
+    }
+
+    // Evaluate and lock initial enabled state.
+    const bool allow_actions = !components_.empty();
+    set_action_enabled(action_refresh, allow_actions);
+    set_action_enabled(action_sync, allow_actions);
+    return true;
+  }
+
   // Idle state: message pump maintains idle by waiting in GetMessage
   // GetMessage blocks when no messages available, allowing low CPU idle
 
@@ -664,6 +792,10 @@ class NativeWindowPump {
     next_state_id_ = 1;
     next_binding_id_ = 1;
     state_update_sequence_ = 0;
+    actions_.clear();
+    pending_action_invocations_.clear();
+    next_action_id_ = 1;
+    action_invocation_sequence_ = 0;
     update_tick_counter_ = 0;
     if (hwnd_) {
       DestroyWindow(hwnd_);
@@ -808,6 +940,7 @@ class NativeWindowPump {
     // vkey: virtual key code (VK_A, VK_ESCAPE, etc.)
     (void)vkey;
     emit_signal_event(SignalEventType::InputActivity, -1);
+    trigger_actions_from_key(vkey);
     invalidate_ui_tree();
   }
 
@@ -5028,6 +5161,10 @@ int main(int argc, char** argv) {
     // PHASE81_1: Minimal state and binding seed on native runtime.
     std::cout << "phase81_1_state_binding_seed_available=1\n";
     std::cout << "phase81_1_state_binding_features=observable_state_update_register_propagate_deterministic_order\n";
+
+    // PHASE81_2: Minimal commands/actions seed on native runtime.
+    std::cout << "phase81_2_commands_actions_seed_available=1\n";
+    std::cout << "phase81_2_commands_actions_features=action_record_register_invoke_enable_eval_input_signal_deterministic_order\n";
 
     const bool demo_mode = is_demo_mode_enabled(argc, argv);
     const bool visual_baseline_mode = is_visual_baseline_mode_enabled(argc, argv);
