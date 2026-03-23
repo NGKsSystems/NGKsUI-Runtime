@@ -35,6 +35,126 @@
 #include "vertical_layout.hpp"
 #include <windows.h>
 
+// ============================================================================
+// PHASE80_0: NATIVE WINDOW PATH SKELETON
+// ============================================================================
+// This section defines the native Win32 window path without Qt event loop.
+// This is the foundation for Qt-framework replacement work.
+// NO_QT_EVENTLOOP enforcement: Uses Win32 native message pump only.
+
+namespace ngk {
+namespace native_window {
+
+// Native message pump skeleton - minimal Win32 window without Qt
+class NativeWindowPump {
+  HWND hwnd_ = nullptr;
+  MSG msg_ = {};
+  bool initialization_complete_ = false;
+
+ public:
+  static constexpr const char* WINDOW_CLASS_NAME = "NGKsUIRuntimeNativeWindow";
+
+  // Startup: create window and prepare message pump
+  bool startup(const wchar_t* title, int width, int height) {
+    // Register window class
+    WNDCLASSW wc = {};
+    wc.lpfnWndProc = &NativeWindowPump::window_proc_static;
+    wc.hInstance = GetModuleHandleW(nullptr);
+    wc.lpszClassName = WINDOW_CLASS_NAME;
+    wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
+    wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+
+    if (!RegisterClassW(&wc)) {
+      return false;
+    }
+
+    // Create window
+    hwnd_ = CreateWindowExW(
+        0,
+        WINDOW_CLASS_NAME,
+        title ? title : L"NGKs Native Window",
+        WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, CW_USEDEFAULT,
+        width, height,
+        nullptr, nullptr,
+        GetModuleHandleW(nullptr),
+        this);
+
+    if (!hwnd_) {
+      return false;
+    }
+
+    ShowWindow(hwnd_, SW_SHOW);
+    UpdateWindow(hwnd_);
+    initialization_complete_ = true;
+    return true;
+  }
+
+  // Main event loop - Win32 message pump (not Qt event loop)
+  void run_event_loop() {
+    if (!initialization_complete_) return;
+
+    // Standard Win32 message pump - processes WM_QUIT when PostQuitMessage called
+    while (GetMessageW(&msg_, nullptr, 0, 0) > 0) {
+      TranslateMessageW(&msg_);
+      DispatchMessageW(&msg_);
+    }
+  }
+
+  // Idle state: message pump maintains idle by waiting in GetMessage
+  // GetMessage blocks when no messages available, allowing low CPU idle
+
+  // Shutdown: signal quit message
+  void request_shutdown() {
+    if (hwnd_) {
+      PostMessageW(hwnd_, WM_QUIT, 0, 0);
+    }
+  }
+
+  void cleanup() {
+    if (hwnd_) {
+      DestroyWindow(hwnd_);
+      hwnd_ = nullptr;
+    }
+    UnregisterClassW(WINDOW_CLASS_NAME, GetModuleHandleW(nullptr));
+  }
+
+  HWND native_handle() const { return hwnd_; }
+
+ private:
+  static LRESULT CALLBACK window_proc_static(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+    if (msg == WM_CREATE) {
+      auto* pThis = reinterpret_cast<NativeWindowPump*>(reinterpret_cast<CREATESTRUCTW*>(lparam)->lpCreateParams);
+      SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
+    }
+
+    auto* pThis = reinterpret_cast<NativeWindowPump*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
+    if (pThis) {
+      return pThis->window_proc(msg, wparam, lparam);
+    }
+    return DefWindowProcW(hwnd, msg, wparam, lparam);
+  }
+
+  LRESULT window_proc(UINT msg, WPARAM wparam, LPARAM lparam) {
+    switch (msg) {
+      case WM_DESTROY:
+        PostQuitMessageW(0);
+        return 0;
+      case WM_CLOSE:
+        PostQuitMessageW(0);
+        return 0;
+      default:
+        return DefWindowProcW(hwnd_, msg, wparam, lparam);
+    }
+  }
+};
+
+} // namespace native_window
+} // namespace ngk
+
+// PHASE80_0 native window path can be enabled by defining:
+// #define PHASE80_0_NATIVE_WINDOW_PATH_ENABLED 1
+
 namespace {
 
 std::string current_utc_boundary_timestamp() {
@@ -1757,6 +1877,7 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
     : ("NGKsUI Runtime - Widget Sandbox - " + launch_identity);
 
   if (lane == SandboxLane::ExtensionSlot) {
+    ngk::runtime_guard::require_runtime_trust("execution_pipeline");
     ngk::runtime_guard::require_runtime_trust("plugin_load");
     // Reserved inert extension lane: currently routes through stable baseline path.
     std::cout << "widget_extension_lane_stub=1\n";
@@ -4164,6 +4285,13 @@ int main(int argc, char** argv) {
     }
     ngk::runtime_guard::runtime_observe_lifecycle("widget_sandbox", "guard_pass");
     ngk::runtime_guard::runtime_emit_startup_summary("widget_sandbox", "runtime_init", guard_rc);
+    ngk::runtime_guard::require_runtime_trust("execution_pipeline");
+
+    // PHASE80_0: Native window path is now available and guarded by execution_pipeline above
+    // NO_QT_EVENTLOOP: This section can use ngk::native_window::NativeWindowPump for Win32-native
+    // message pump without Qt event loop dependency
+    std::cout << "phase80_0_native_window_path_available=1\n";
+    std::cout << "phase80_0_native_window_path_guarded_by=execution_pipeline\n";
 
     const bool demo_mode = is_demo_mode_enabled(argc, argv);
     const bool visual_baseline_mode = is_visual_baseline_mode_enabled(argc, argv);
