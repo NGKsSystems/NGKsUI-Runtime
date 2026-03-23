@@ -62,6 +62,14 @@ class NativeWindowPump {
     std::vector<int> children{};
   };
 
+  struct ComponentRecord {
+    int id = -1;
+    int node_id = -1;
+    bool attached = false;
+    bool alive = false;
+    bool redraw_requested = false;
+  };
+
   HWND hwnd_ = nullptr;
   MSG msg_ = {};
   bool initialization_complete_ = false;
@@ -72,6 +80,10 @@ class NativeWindowPump {
   std::vector<UiNode> ui_nodes_{};
   int ui_root_id_ = -1;
   bool ui_tree_invalidated_ = false;
+  std::vector<ComponentRecord> components_{};
+  std::uint64_t update_tick_counter_ = 0;
+
+  static constexpr UINT kLifecycleTickTimerId = 0x804u;
 
  public:
   static constexpr const char* WINDOW_CLASS_NAME = "NGKsUIRuntimeNativeWindow";
@@ -118,6 +130,13 @@ class NativeWindowPump {
     if (!initialize_ui_tree_seed(width, height)) {
       return false;
     }
+
+    // PHASE80_4: Minimal component lifecycle seed.
+    if (!initialize_component_lifecycle_seed()) {
+      return false;
+    }
+
+    SetTimer(hwnd_, kLifecycleTickTimerId, 16u, nullptr);
 
     initialization_complete_ = true;
     return true;
@@ -262,6 +281,104 @@ class NativeWindowPump {
     request_redraw();
   }
 
+  int create_component(int node_id) {
+    if (node_id < 0 || node_id >= static_cast<int>(ui_nodes_.size())) {
+      return -1;
+    }
+    ComponentRecord component{};
+    component.id = static_cast<int>(components_.size());
+    component.node_id = node_id;
+    component.attached = false;
+    component.alive = true;
+    component.redraw_requested = true;
+    components_.push_back(component);
+    return component.id;
+  }
+
+  bool attach_component(int component_id) {
+    if (component_id < 0 || component_id >= static_cast<int>(components_.size())) {
+      return false;
+    }
+    ComponentRecord& component = components_[component_id];
+    if (!component.alive) {
+      return false;
+    }
+    component.attached = true;
+    component.redraw_requested = true;
+    invalidate_ui_tree();
+    return true;
+  }
+
+  bool detach_component(int component_id) {
+    if (component_id < 0 || component_id >= static_cast<int>(components_.size())) {
+      return false;
+    }
+    ComponentRecord& component = components_[component_id];
+    if (!component.alive) {
+      return false;
+    }
+    component.attached = false;
+    return true;
+  }
+
+  bool destroy_component(int component_id) {
+    if (component_id < 0 || component_id >= static_cast<int>(components_.size())) {
+      return false;
+    }
+    ComponentRecord& component = components_[component_id];
+    if (!component.alive) {
+      return false;
+    }
+    component.attached = false;
+    component.alive = false;
+    component.redraw_requested = false;
+    return true;
+  }
+
+  void tick_component_updates() {
+    ++update_tick_counter_;
+    for (ComponentRecord& component : components_) {
+      if (!component.alive || !component.attached) {
+        continue;
+      }
+      component.redraw_requested = true;
+    }
+    enforce_redraw_discipline();
+  }
+
+  void enforce_redraw_discipline() {
+    bool redraw_needed = false;
+    for (const ComponentRecord& component : components_) {
+      if (component.alive && component.attached && component.redraw_requested) {
+        redraw_needed = true;
+        break;
+      }
+    }
+    if (redraw_needed) {
+      invalidate_ui_tree();
+    }
+  }
+
+  bool initialize_component_lifecycle_seed() {
+    components_.clear();
+
+    int target_node_id = ui_root_id_;
+    if (ui_root_id_ >= 0 && ui_root_id_ < static_cast<int>(ui_nodes_.size()) &&
+        !ui_nodes_[ui_root_id_].children.empty()) {
+      target_node_id = ui_nodes_[ui_root_id_].children.front();
+    }
+
+    const int component_id = create_component(target_node_id);
+    if (component_id < 0) {
+      return false;
+    }
+
+    if (!attach_component(component_id)) {
+      return false;
+    }
+    return true;
+  }
+
   // Idle state: message pump maintains idle by waiting in GetMessage
   // GetMessage blocks when no messages available, allowing low CPU idle
 
@@ -273,10 +390,20 @@ class NativeWindowPump {
   }
 
   void cleanup() {
+    if (hwnd_) {
+      KillTimer(hwnd_, kLifecycleTickTimerId);
+    }
+
+    for (int i = 0; i < static_cast<int>(components_.size()); ++i) {
+      destroy_component(i);
+    }
+
     render_surface_initialized_ = false;
     ui_nodes_.clear();
     ui_root_id_ = -1;
     ui_tree_invalidated_ = false;
+    components_.clear();
+    update_tick_counter_ = 0;
     if (hwnd_) {
       DestroyWindow(hwnd_);
       hwnd_ = nullptr;
@@ -363,6 +490,14 @@ class NativeWindowPump {
         return 0;
       }
 
+      case WM_TIMER: {
+        if (wparam == kLifecycleTickTimerId) {
+          tick_component_updates();
+          return 0;
+        }
+        break;
+      }
+
       // ====================================================================
       // PHASE80_2: RENDER SURFACE
       // ====================================================================
@@ -377,6 +512,13 @@ class NativeWindowPump {
         clear_surface();
         end_frame();
         present_surface();
+
+        for (ComponentRecord& component : components_) {
+          if (component.alive && component.attached && component.redraw_requested) {
+            component.redraw_requested = false;
+          }
+        }
+
         EndPaint(hwnd_, &ps);
         return 0;
       }
@@ -422,21 +564,33 @@ class NativeWindowPump {
     // Mouse button down handler
     // button: 0=left, 1=right, 2=middle
     (void)button;
+    if (!components_.empty()) {
+      attach_component(0);
+    }
     invalidate_ui_tree();
   }
 
   void handle_mouse_button_up(int button) {
     // Mouse button up handler
     (void)button;
+    if (!components_.empty()) {
+      detach_component(0);
+    }
   }
 
   void handle_focus_gain() {
     // Window gained focus
+    if (!components_.empty()) {
+      attach_component(0);
+    }
     invalidate_ui_tree();
   }
 
   void handle_focus_loss() {
     // Window lost focus
+    if (!components_.empty()) {
+      detach_component(0);
+    }
   }
 };
 
@@ -4596,6 +4750,10 @@ int main(int argc, char** argv) {
     // PHASE80_3: Minimal UI tree/layout seed on native runtime.
     std::cout << "phase80_3_ui_tree_seed_available=1\n";
     std::cout << "phase80_3_ui_tree_features=root_child_bounds_layout_invalidation_redraw\n";
+
+    // PHASE80_4: Minimal component lifecycle model on native runtime.
+    std::cout << "phase80_4_component_lifecycle_available=1\n";
+    std::cout << "phase80_4_component_lifecycle_features=create_attach_detach_destroy_update_tick_redraw\n";
 
     const bool demo_mode = is_demo_mode_enabled(argc, argv);
     const bool visual_baseline_mode = is_visual_baseline_mode_enabled(argc, argv);
