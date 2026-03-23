@@ -116,6 +116,22 @@ class NativeWindowPump {
     int action_id = -1;
   };
 
+  enum class PrimitiveKind {
+    Label,
+    Button,
+    Container
+  };
+
+  struct WidgetPrimitiveRecord {
+    int id = -1;
+    PrimitiveKind kind = PrimitiveKind::Label;
+    int node_id = -1;
+    int component_id = -1;
+    int action_id = -1;
+    std::string text{};
+    bool pressed = false;
+  };
+
   HWND hwnd_ = nullptr;
   MSG msg_ = {};
   bool initialization_complete_ = false;
@@ -140,6 +156,10 @@ class NativeWindowPump {
   std::vector<ActionInvocation> pending_action_invocations_{};
   int next_action_id_ = 1;
   std::uint64_t action_invocation_sequence_ = 0;
+  std::vector<WidgetPrimitiveRecord> primitives_{};
+  int next_primitive_id_ = 1;
+  int last_mouse_x_ = 0;
+  int last_mouse_y_ = 0;
 
   static constexpr UINT kLifecycleTickTimerId = 0x804u;
 
@@ -201,6 +221,11 @@ class NativeWindowPump {
 
     // PHASE81_2: Minimal commands/actions seed.
     if (!initialize_action_seed()) {
+      return false;
+    }
+
+    // PHASE82_0: Minimal widget primitives seed.
+    if (!initialize_widget_primitives_seed()) {
       return false;
     }
 
@@ -335,6 +360,19 @@ class NativeWindowPump {
       ui_nodes_[child_id].bounds.width = std::max(120, surface_width_ - 32);
       ui_nodes_[child_id].bounds.height = 40;
       next_y += 48;
+
+      // Container child propagation: lay out children of each direct child vertically.
+      int inner_y = ui_nodes_[child_id].bounds.y + 8;
+      for (const int nested_id : ui_nodes_[child_id].children) {
+        if (nested_id < 0 || nested_id >= static_cast<int>(ui_nodes_.size())) {
+          continue;
+        }
+        ui_nodes_[nested_id].bounds.x = ui_nodes_[child_id].bounds.x + 8;
+        ui_nodes_[nested_id].bounds.y = inner_y;
+        ui_nodes_[nested_id].bounds.width = std::max(100, ui_nodes_[child_id].bounds.width - 16);
+        ui_nodes_[nested_id].bounds.height = 30;
+        inner_y += 36;
+      }
     }
   }
 
@@ -750,6 +788,108 @@ class NativeWindowPump {
     return true;
   }
 
+  int register_primitive(
+      PrimitiveKind kind,
+      int node_id,
+      int component_id,
+      const std::string& text,
+      int action_id) {
+    if (node_id < 0 || node_id >= static_cast<int>(ui_nodes_.size())) {
+      return -1;
+    }
+    if (component_id < 0 || component_id >= static_cast<int>(components_.size())) {
+      return -1;
+    }
+
+    WidgetPrimitiveRecord primitive{};
+    primitive.id = next_primitive_id_++;
+    primitive.kind = kind;
+    primitive.node_id = node_id;
+    primitive.component_id = component_id;
+    primitive.action_id = action_id;
+    primitive.text = text;
+    primitive.pressed = false;
+    primitives_.push_back(primitive);
+    return primitive.id;
+  }
+
+  bool point_in_node_bounds(int node_id, int x, int y) const {
+    if (node_id < 0 || node_id >= static_cast<int>(ui_nodes_.size())) {
+      return false;
+    }
+    const UiBounds& b = ui_nodes_[node_id].bounds;
+    return (x >= b.x && y >= b.y && x < (b.x + b.width) && y < (b.y + b.height));
+  }
+
+  void render_label_primitives(HDC hdc) {
+    for (const WidgetPrimitiveRecord& primitive : primitives_) {
+      if (primitive.kind != PrimitiveKind::Label) {
+        continue;
+      }
+      if (primitive.node_id < 0 || primitive.node_id >= static_cast<int>(ui_nodes_.size())) {
+        continue;
+      }
+      const UiBounds& b = ui_nodes_[primitive.node_id].bounds;
+      std::wstring text_w(primitive.text.begin(), primitive.text.end());
+      if (text_w.empty()) {
+        text_w = L"label";
+      }
+      TextOutW(hdc, b.x + 4, b.y + 4, text_w.c_str(), static_cast<int>(text_w.size()));
+    }
+  }
+
+  bool initialize_widget_primitives_seed() {
+    primitives_.clear();
+    next_primitive_id_ = 1;
+
+    if (ui_root_id_ < 0 || ui_root_id_ >= static_cast<int>(ui_nodes_.size())) {
+      return false;
+    }
+
+    // Container primitive.
+    const int panel_node = create_ui_node(ui_root_id_, UiBounds{12, 12, 320, 160});
+    if (panel_node < 0) {
+      return false;
+    }
+    const int panel_component = create_component(panel_node);
+    if (panel_component < 0 || !attach_component(panel_component)) {
+      return false;
+    }
+    if (register_primitive(PrimitiveKind::Container, panel_node, panel_component, "panel", -1) < 0) {
+      return false;
+    }
+
+    // Label primitive.
+    const int label_node = create_ui_node(panel_node, UiBounds{16, 16, 200, 28});
+    if (label_node < 0) {
+      return false;
+    }
+    const int label_component = create_component(label_node);
+    if (label_component < 0 || !attach_component(label_component)) {
+      return false;
+    }
+    if (register_primitive(PrimitiveKind::Label, label_node, label_component, "PHASE82_0 Label", -1) < 0) {
+      return false;
+    }
+
+    // Button primitive with action binding.
+    const int button_action = register_action("button_click_action", 0, true);
+    const int button_node = create_ui_node(panel_node, UiBounds{16, 52, 180, 32});
+    if (button_action < 0 || button_node < 0) {
+      return false;
+    }
+    const int button_component = create_component(button_node);
+    if (button_component < 0 || !attach_component(button_component)) {
+      return false;
+    }
+    if (register_primitive(PrimitiveKind::Button, button_node, button_component, "Button", button_action) < 0) {
+      return false;
+    }
+
+    invalidate_ui_tree();
+    return true;
+  }
+
   // Idle state: message pump maintains idle by waiting in GetMessage
   // GetMessage blocks when no messages available, allowing low CPU idle
 
@@ -796,6 +936,10 @@ class NativeWindowPump {
     pending_action_invocations_.clear();
     next_action_id_ = 1;
     action_invocation_sequence_ = 0;
+    primitives_.clear();
+    next_primitive_id_ = 1;
+    last_mouse_x_ = 0;
+    last_mouse_y_ = 0;
     update_tick_counter_ = 0;
     if (hwnd_) {
       DestroyWindow(hwnd_);
@@ -843,11 +987,15 @@ class NativeWindowPump {
         // GET_X_LPARAM and GET_Y_LPARAM are in windowsx.h
         int x = static_cast<int>(static_cast<short>(LOWORD(lparam)));
         int y = static_cast<int>(static_cast<short>(HIWORD(lparam)));
+        last_mouse_x_ = x;
+        last_mouse_y_ = y;
         handle_mouse_move(x, y);
         return 0;
       }
 
       case WM_LBUTTONDOWN: {
+        last_mouse_x_ = static_cast<int>(static_cast<short>(LOWORD(lparam)));
+        last_mouse_y_ = static_cast<int>(static_cast<short>(HIWORD(lparam)));
         handle_mouse_button_down(0);  // left button
         return 0;
       }
@@ -861,6 +1009,8 @@ class NativeWindowPump {
       }
 
       case WM_LBUTTONUP: {
+        last_mouse_x_ = static_cast<int>(static_cast<short>(LOWORD(lparam)));
+        last_mouse_y_ = static_cast<int>(static_cast<short>(HIWORD(lparam)));
         handle_mouse_button_up(0);  // left button
         return 0;
       }
@@ -912,6 +1062,8 @@ class NativeWindowPump {
           }
         }
 
+        render_label_primitives(ps.hdc);
+
         EndPaint(hwnd_, &ps);
         return 0;
       }
@@ -961,6 +1113,13 @@ class NativeWindowPump {
     // button: 0=left, 1=right, 2=middle
     (void)button;
     emit_signal_event(SignalEventType::InputActivity, -1);
+
+    for (WidgetPrimitiveRecord& primitive : primitives_) {
+      if (primitive.kind == PrimitiveKind::Button && point_in_node_bounds(primitive.node_id, last_mouse_x_, last_mouse_y_)) {
+        primitive.pressed = true;
+      }
+    }
+
     if (!components_.empty()) {
       attach_component(0);
     }
@@ -970,6 +1129,19 @@ class NativeWindowPump {
   void handle_mouse_button_up(int button) {
     // Mouse button up handler
     (void)button;
+
+    for (WidgetPrimitiveRecord& primitive : primitives_) {
+      if (primitive.kind != PrimitiveKind::Button) {
+        continue;
+      }
+      const bool was_pressed = primitive.pressed;
+      primitive.pressed = false;
+      if (was_pressed && point_in_node_bounds(primitive.node_id, last_mouse_x_, last_mouse_y_) && primitive.action_id > 0) {
+        queue_action_invocation(primitive.action_id);
+      }
+    }
+    process_pending_actions_deterministic();
+
     if (!components_.empty()) {
       detach_component(0);
     }
@@ -5165,6 +5337,10 @@ int main(int argc, char** argv) {
     // PHASE81_2: Minimal commands/actions seed on native runtime.
     std::cout << "phase81_2_commands_actions_seed_available=1\n";
     std::cout << "phase81_2_commands_actions_features=action_record_register_invoke_enable_eval_input_signal_deterministic_order\n";
+
+    // PHASE82_0: Core widget primitives first slice.
+    std::cout << "phase82_0_widget_primitives_available=1\n";
+    std::cout << "phase82_0_widget_primitives_features=label_button_container_node_lifecycle_layout_invalidation\n";
 
     const bool demo_mode = is_demo_mode_enabled(argc, argv);
     const bool visual_baseline_mode = is_visual_baseline_mode_enabled(argc, argv);
