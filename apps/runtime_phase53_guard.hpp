@@ -8,6 +8,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -98,7 +99,42 @@ inline void runtime_emit_guard_boundary(const char* context, const char* stage) 
 }
 
 #ifdef _WIN32
+inline bool runtime_guard_hardening_disabled() {
+  const char* value = std::getenv("NGKS_RUNTIME_TRUST_GUARD_DISABLE_HARDENED_PATH");
+  if (value == nullptr || value[0] == '\0') {
+    return false;
+  }
+  return !(value[0] == '0' && value[1] == '\0');
+}
+
+inline DWORD runtime_guard_wait_timeout_ms() {
+  const char* value = std::getenv("NGKS_RUNTIME_TRUST_GUARD_TIMEOUT_MS");
+  if (value == nullptr || value[0] == '\0') {
+    return 60000U;
+  }
+
+  char* end = nullptr;
+  const unsigned long parsed = std::strtoul(value, &end, 10);
+  if (end == value || (end && *end != '\0') || parsed == 0UL || parsed > 300000UL) {
+    return 60000U;
+  }
+
+  return static_cast<DWORD>(parsed);
+}
+
+inline bool runtime_guard_script_exists_windows() {
+  const DWORD attrs = GetFileAttributesW(L"tools\\TrustChainRuntime.ps1");
+  if (attrs == INVALID_FILE_ATTRIBUTES) {
+    return false;
+  }
+  return (attrs & FILE_ATTRIBUTE_DIRECTORY) == 0;
+}
+
 inline int execute_runtime_trust_command_windows(const std::wstring& command) {
+  if (!runtime_guard_script_exists_windows()) {
+    return -1;
+  }
+
   std::wstring command_line = command;
   command_line.push_back(L'\0');
 
@@ -122,8 +158,10 @@ inline int execute_runtime_trust_command_windows(const std::wstring& command) {
     return -1;
   }
 
-  const DWORD wait_rc = WaitForSingleObject(process_info.hProcess, INFINITE);
+  const DWORD wait_rc = WaitForSingleObject(process_info.hProcess, runtime_guard_wait_timeout_ms());
   if (wait_rc != WAIT_OBJECT_0) {
+    TerminateProcess(process_info.hProcess, 1);
+    WaitForSingleObject(process_info.hProcess, 2000U);
     CloseHandle(process_info.hThread);
     CloseHandle(process_info.hProcess);
     return -1;
@@ -148,6 +186,9 @@ inline int enforce_runtime_trust(const char* context) {
   runtime_emit_guard_boundary(context, "command_build_start");
   const auto highres_command_build_start = std::chrono::steady_clock::now();
 #ifdef _WIN32
+  const bool hardening_disabled = runtime_guard_hardening_disabled();
+  std::cout << "runtime_trust_guard_hardening_mode=" << (hardening_disabled ? "LEGACY_SYSTEM_ROLLBACK" : "DIRECT_PROCESS_HARDENED")
+            << " context=" << normalize_runtime_context(context) << "\n";
   std::wstring command = L"powershell -NoProfile -ExecutionPolicy Bypass -File \"tools\\TrustChainRuntime.ps1\" -Context \"";
   const char* resolved = normalize_runtime_context(context);
   for (const char* cursor = resolved; *cursor; ++cursor) {
@@ -165,7 +206,12 @@ inline int enforce_runtime_trust(const char* context) {
   const auto highres_execute_call_start = std::chrono::steady_clock::now();
   const auto _ngk_t0 = std::chrono::steady_clock::now();
 #ifdef _WIN32
-  const int rc = execute_runtime_trust_command_windows(command);
+  int rc = -1;
+  if (hardening_disabled) {
+    rc = _wsystem(command.c_str());
+  } else {
+    rc = execute_runtime_trust_command_windows(command);
+  }
 #else
   const int rc = std::system(command.c_str());
 #endif
