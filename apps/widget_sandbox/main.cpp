@@ -10,6 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -47,6 +48,20 @@ namespace native_window {
 
 // Native message pump skeleton - minimal Win32 window without Qt
 class NativeWindowPump {
+  struct UiBounds {
+    int x = 0;
+    int y = 0;
+    int width = 0;
+    int height = 0;
+  };
+
+  struct UiNode {
+    int id = -1;
+    int parent_id = -1;
+    UiBounds bounds{};
+    std::vector<int> children{};
+  };
+
   HWND hwnd_ = nullptr;
   MSG msg_ = {};
   bool initialization_complete_ = false;
@@ -54,6 +69,9 @@ class NativeWindowPump {
   int surface_width_ = 0;
   int surface_height_ = 0;
   std::uint64_t frame_counter_ = 0;
+  std::vector<UiNode> ui_nodes_{};
+  int ui_root_id_ = -1;
+  bool ui_tree_invalidated_ = false;
 
  public:
   static constexpr const char* WINDOW_CLASS_NAME = "NGKsUIRuntimeNativeWindow";
@@ -93,6 +111,11 @@ class NativeWindowPump {
 
     // PHASE80_2: Minimal render surface initialization on native path.
     if (!initialize_render_surface(width, height)) {
+      return false;
+    }
+
+    // PHASE80_3: Minimal UI tree seed initialization.
+    if (!initialize_ui_tree_seed(width, height)) {
       return false;
     }
 
@@ -152,6 +175,91 @@ class NativeWindowPump {
     surface_width_ = width;
     surface_height_ = height;
     render_surface_initialized_ = true;
+    invalidate_ui_tree();
+  }
+
+  bool initialize_ui_tree_seed(int width, int height) {
+    ui_nodes_.clear();
+    ui_root_id_ = -1;
+
+    UiNode root{};
+    root.id = 0;
+    root.parent_id = -1;
+    root.bounds = UiBounds{0, 0, width, height};
+    ui_nodes_.push_back(root);
+    ui_root_id_ = 0;
+
+    // Seed one child to prove minimal hierarchy support.
+    const UiBounds child_bounds{16, 16, 200, 48};
+    const int child_id = create_ui_node(ui_root_id_, child_bounds);
+    if (child_id < 0) {
+      return false;
+    }
+
+    ui_tree_invalidated_ = true;
+    return true;
+  }
+
+  int create_ui_node(int parent_id, const UiBounds& bounds) {
+    if (parent_id < 0 || parent_id >= static_cast<int>(ui_nodes_.size())) {
+      return -1;
+    }
+
+    UiNode node{};
+    node.id = static_cast<int>(ui_nodes_.size());
+    node.parent_id = parent_id;
+    node.bounds = bounds;
+    ui_nodes_.push_back(node);
+
+    if (!attach_child_node(parent_id, node.id)) {
+      return -1;
+    }
+    return node.id;
+  }
+
+  bool attach_child_node(int parent_id, int child_id) {
+    if (parent_id < 0 || child_id < 0) {
+      return false;
+    }
+    if (parent_id >= static_cast<int>(ui_nodes_.size()) || child_id >= static_cast<int>(ui_nodes_.size())) {
+      return false;
+    }
+    ui_nodes_[parent_id].children.push_back(child_id);
+    return true;
+  }
+
+  void run_layout_update_pass() {
+    if (ui_root_id_ < 0 || ui_root_id_ >= static_cast<int>(ui_nodes_.size())) {
+      return;
+    }
+
+    // Root follows current render surface size.
+    ui_nodes_[ui_root_id_].bounds.width = surface_width_;
+    ui_nodes_[ui_root_id_].bounds.height = surface_height_;
+
+    // Basic vertical stack update for direct children.
+    int next_y = 16;
+    for (const int child_id : ui_nodes_[ui_root_id_].children) {
+      if (child_id < 0 || child_id >= static_cast<int>(ui_nodes_.size())) {
+        continue;
+      }
+      ui_nodes_[child_id].bounds.x = 16;
+      ui_nodes_[child_id].bounds.y = next_y;
+      ui_nodes_[child_id].bounds.width = std::max(120, surface_width_ - 32);
+      ui_nodes_[child_id].bounds.height = 40;
+      next_y += 48;
+    }
+  }
+
+  void request_redraw() {
+    if (hwnd_) {
+      InvalidateRect(hwnd_, nullptr, FALSE);
+    }
+  }
+
+  void invalidate_ui_tree() {
+    ui_tree_invalidated_ = true;
+    request_redraw();
   }
 
   // Idle state: message pump maintains idle by waiting in GetMessage
@@ -166,6 +274,9 @@ class NativeWindowPump {
 
   void cleanup() {
     render_surface_initialized_ = false;
+    ui_nodes_.clear();
+    ui_root_id_ = -1;
+    ui_tree_invalidated_ = false;
     if (hwnd_) {
       DestroyWindow(hwnd_);
       hwnd_ = nullptr;
@@ -258,6 +369,10 @@ class NativeWindowPump {
       case WM_PAINT: {
         PAINTSTRUCT ps{};
         BeginPaint(hwnd_, &ps);
+        if (ui_tree_invalidated_) {
+          run_layout_update_pass();
+          ui_tree_invalidated_ = false;
+        }
         begin_frame();
         clear_surface();
         end_frame();
@@ -288,27 +403,36 @@ class NativeWindowPump {
   void handle_key_down(int vkey) {
     // Key down handler - available for input dispatch
     // vkey: virtual key code (VK_A, VK_ESCAPE, etc.)
+    (void)vkey;
+    invalidate_ui_tree();
   }
 
   void handle_key_up(int vkey) {
     // Key up handler - available for input dispatch
+    (void)vkey;
   }
 
   void handle_mouse_move(int x, int y) {
     // Mouse move handler - receives screen coordinates relative to window
+    (void)x;
+    (void)y;
   }
 
   void handle_mouse_button_down(int button) {
     // Mouse button down handler
     // button: 0=left, 1=right, 2=middle
+    (void)button;
+    invalidate_ui_tree();
   }
 
   void handle_mouse_button_up(int button) {
     // Mouse button up handler
+    (void)button;
   }
 
   void handle_focus_gain() {
     // Window gained focus
+    invalidate_ui_tree();
   }
 
   void handle_focus_loss() {
@@ -4468,6 +4592,10 @@ int main(int argc, char** argv) {
     // PHASE80_2: Minimal render surface path on native runtime.
     std::cout << "phase80_2_render_surface_available=1\n";
     std::cout << "phase80_2_render_surface_features=init_frame_clear_present_resize\n";
+
+    // PHASE80_3: Minimal UI tree/layout seed on native runtime.
+    std::cout << "phase80_3_ui_tree_seed_available=1\n";
+    std::cout << "phase80_3_ui_tree_features=root_child_bounds_layout_invalidation_redraw\n";
 
     const bool demo_mode = is_demo_mode_enabled(argc, argv);
     const bool visual_baseline_mode = is_visual_baseline_mode_enabled(argc, argv);
