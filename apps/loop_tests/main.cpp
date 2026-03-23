@@ -26,6 +26,8 @@ int main() {
   ngk::runtime_guard::runtime_observe_lifecycle("loop_tests", "guard_pass");
   ngk::runtime_guard::runtime_emit_startup_summary("loop_tests", "runtime_init", guard_rc);
 
+  ngk::runtime_guard::require_runtime_trust("execution_pipeline");
+
   using namespace std::chrono;
 
   bool ok = true;

@@ -18,6 +18,8 @@ int main() {
   ngk::runtime_guard::runtime_observe_lifecycle("sandbox_app", "guard_pass");
   ngk::runtime_guard::runtime_emit_startup_summary("sandbox_app", "runtime_init", guard_rc);
 
+  ngk::runtime_guard::require_runtime_trust("execution_pipeline");
+
   std::cout << "NGKsUI Runtime Sandbox\n";
   std::cout << "core version: " << ngk::version() << "\n";
 
