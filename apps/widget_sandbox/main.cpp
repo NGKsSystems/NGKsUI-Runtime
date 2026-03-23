@@ -90,6 +90,19 @@ class NativeWindowPump {
     bool connected = false;
   };
 
+  struct ObservableStateRecord {
+    int id = -1;
+    int value = 0;
+    std::uint64_t version = 0;
+  };
+
+  struct BindingRecord {
+    int id = -1;
+    int state_id = -1;
+    int component_id = -1;
+    bool connected = false;
+  };
+
   HWND hwnd_ = nullptr;
   MSG msg_ = {};
   bool initialization_complete_ = false;
@@ -105,6 +118,11 @@ class NativeWindowPump {
   std::vector<SignalSubscription> signal_subscriptions_{};
   std::uint64_t signal_sequence_counter_ = 0;
   int next_subscription_id_ = 1;
+  std::vector<ObservableStateRecord> states_{};
+  std::vector<BindingRecord> bindings_{};
+  int next_state_id_ = 1;
+  int next_binding_id_ = 1;
+  std::uint64_t state_update_sequence_ = 0;
 
   static constexpr UINT kLifecycleTickTimerId = 0x804u;
 
@@ -156,6 +174,11 @@ class NativeWindowPump {
 
     // PHASE80_4: Minimal component lifecycle seed.
     if (!initialize_component_lifecycle_seed()) {
+      return false;
+    }
+
+    // PHASE81_1: Minimal state and binding seed.
+    if (!initialize_state_binding_seed()) {
       return false;
     }
 
@@ -488,6 +511,115 @@ class NativeWindowPump {
         component.redraw_requested = true;
       }
     }
+
+    // Signal dispatch triggers state/binding propagation in a minimal model.
+    propagate_bindings();
+  }
+
+  int create_observable_state_record(int initial_value) {
+    ObservableStateRecord state{};
+    state.id = next_state_id_++;
+    state.value = initial_value;
+    state.version = 1;
+    states_.push_back(state);
+    return state.id;
+  }
+
+  bool update_state_value(int state_id, int next_value) {
+    for (ObservableStateRecord& state : states_) {
+      if (state.id == state_id) {
+        state.value = next_value;
+        state.version += 1;
+        state_update_sequence_ += 1;
+        trigger_binding_propagation();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  int register_binding(int state_id, int component_id) {
+    if (component_id < 0 || component_id >= static_cast<int>(components_.size())) {
+      return -1;
+    }
+    bool state_found = false;
+    for (const ObservableStateRecord& state : states_) {
+      if (state.id == state_id) {
+        state_found = true;
+        break;
+      }
+    }
+    if (!state_found) {
+      return -1;
+    }
+
+    BindingRecord binding{};
+    binding.id = next_binding_id_++;
+    binding.state_id = state_id;
+    binding.component_id = component_id;
+    binding.connected = true;
+    bindings_.push_back(binding);
+    return binding.id;
+  }
+
+  void trigger_binding_propagation() {
+    propagate_bindings();
+  }
+
+  void propagate_bindings() {
+    std::vector<int> ordered_binding_ids{};
+    ordered_binding_ids.reserve(bindings_.size());
+
+    for (const BindingRecord& binding : bindings_) {
+      if (binding.connected) {
+        ordered_binding_ids.push_back(binding.id);
+      }
+    }
+
+    // Deterministic ordering by binding id.
+    std::sort(ordered_binding_ids.begin(), ordered_binding_ids.end());
+
+    for (const int binding_id : ordered_binding_ids) {
+      for (BindingRecord& binding : bindings_) {
+        if (!binding.connected || binding.id != binding_id) {
+          continue;
+        }
+        if (binding.component_id < 0 || binding.component_id >= static_cast<int>(components_.size())) {
+          continue;
+        }
+        ComponentRecord& component = components_[binding.component_id];
+        if (!component.alive) {
+          continue;
+        }
+        component.redraw_requested = true;
+      }
+    }
+
+    enforce_redraw_discipline();
+  }
+
+  bool initialize_state_binding_seed() {
+    states_.clear();
+    bindings_.clear();
+    next_state_id_ = 1;
+    next_binding_id_ = 1;
+    state_update_sequence_ = 0;
+
+    if (components_.empty()) {
+      return false;
+    }
+
+    const int state_id = create_observable_state_record(0);
+    if (state_id < 0) {
+      return false;
+    }
+
+    const int binding_id = register_binding(state_id, 0);
+    if (binding_id < 0) {
+      return false;
+    }
+
+    return update_state_value(state_id, 1);
   }
 
   // Idle state: message pump maintains idle by waiting in GetMessage
@@ -515,6 +647,10 @@ class NativeWindowPump {
       }
     }
 
+    for (BindingRecord& binding : bindings_) {
+      binding.connected = false;
+    }
+
     render_surface_initialized_ = false;
     ui_nodes_.clear();
     ui_root_id_ = -1;
@@ -523,6 +659,11 @@ class NativeWindowPump {
     signal_subscriptions_.clear();
     signal_sequence_counter_ = 0;
     next_subscription_id_ = 1;
+    states_.clear();
+    bindings_.clear();
+    next_state_id_ = 1;
+    next_binding_id_ = 1;
+    state_update_sequence_ = 0;
     update_tick_counter_ = 0;
     if (hwnd_) {
       DestroyWindow(hwnd_);
@@ -4883,6 +5024,10 @@ int main(int argc, char** argv) {
     // PHASE81_0: Minimal signal/event model on native runtime.
     std::cout << "phase81_0_signal_event_model_available=1\n";
     std::cout << "phase81_0_signal_event_features=typed_record_subscribe_emit_dispatch_disconnect_deterministic_order\n";
+
+    // PHASE81_1: Minimal state and binding seed on native runtime.
+    std::cout << "phase81_1_state_binding_seed_available=1\n";
+    std::cout << "phase81_1_state_binding_features=observable_state_update_register_propagate_deterministic_order\n";
 
     const bool demo_mode = is_demo_mode_enabled(argc, argv);
     const bool visual_baseline_mode = is_visual_baseline_mode_enabled(argc, argv);
