@@ -2,7 +2,10 @@
 
 #include <cstdlib>
 #include <chrono>
+#include <ctime>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -68,29 +71,132 @@ inline void runtime_emit_final_status(const char* status) {
   std::cout << "runtime_final_status=" << ((status && *status) ? status : "unknown") << "\n";
 }
 
+inline std::string runtime_guard_current_utc_timestamp() {
+  const auto now = std::chrono::system_clock::now();
+  const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+      now.time_since_epoch()) % 1000;
+  const std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+  std::tm utc_tm{};
+#ifdef _WIN32
+  gmtime_s(&utc_tm, &now_time);
+#else
+  gmtime_r(&now_time, &utc_tm);
+#endif
+
+  std::ostringstream out;
+  out << std::put_time(&utc_tm, "%Y-%m-%dT%H:%M:%S")
+      << '.' << std::setw(3) << std::setfill('0') << ms.count() << 'Z';
+  return out.str();
+}
+
+inline void runtime_emit_guard_boundary(const char* context, const char* stage) {
+  std::cout << "TIMING_BOUNDARY name=runtime_guard_"
+            << normalize_runtime_context(context)
+            << "_" << ((stage && *stage) ? stage : "unknown")
+            << "_timestamp ts_utc=" << runtime_guard_current_utc_timestamp()
+            << " source=runtime_guard quality=exact\n";
+}
+
+#ifdef _WIN32
+inline int execute_runtime_trust_command_windows(const std::wstring& command) {
+  std::wstring command_line = command;
+  command_line.push_back(L'\0');
+
+  STARTUPINFOW startup_info{};
+  startup_info.cb = sizeof(startup_info);
+  PROCESS_INFORMATION process_info{};
+
+  const BOOL created = CreateProcessW(
+      nullptr,
+      command_line.data(),
+      nullptr,
+      nullptr,
+      FALSE,
+      0,
+      nullptr,
+      nullptr,
+      &startup_info,
+      &process_info);
+
+  if (!created) {
+    return -1;
+  }
+
+  const DWORD wait_rc = WaitForSingleObject(process_info.hProcess, INFINITE);
+  if (wait_rc != WAIT_OBJECT_0) {
+    CloseHandle(process_info.hThread);
+    CloseHandle(process_info.hProcess);
+    return -1;
+  }
+
+  DWORD child_exit_code = 0;
+  if (!GetExitCodeProcess(process_info.hProcess, &child_exit_code)) {
+    CloseHandle(process_info.hThread);
+    CloseHandle(process_info.hProcess);
+    return -1;
+  }
+
+  CloseHandle(process_info.hThread);
+  CloseHandle(process_info.hProcess);
+  return static_cast<int>(child_exit_code);
+}
+#endif
+
 inline int enforce_runtime_trust(const char* context) {
+  const auto highres_invoke_start = std::chrono::steady_clock::now();
   runtime_observe_event("enforce_begin", context, 0);
+  runtime_emit_guard_boundary(context, "command_build_start");
+  const auto highres_command_build_start = std::chrono::steady_clock::now();
 #ifdef _WIN32
   std::wstring command = L"powershell -NoProfile -ExecutionPolicy Bypass -File \"tools\\TrustChainRuntime.ps1\" -Context \"";
-  if (context && *context) {
-    for (const char* cursor = context; *cursor; ++cursor) {
-      command.push_back(static_cast<wchar_t>(*cursor));
-    }
-  } else {
-    command += L"runtime_init";
+  const char* resolved = normalize_runtime_context(context);
+  for (const char* cursor = resolved; *cursor; ++cursor) {
+    command.push_back(static_cast<wchar_t>(*cursor));
   }
   command += L"\"";
 #else
   std::string command = "pwsh -NoProfile -ExecutionPolicy Bypass -File \"tools/TrustChainRuntime.ps1\" -Context \"";
-  command += (context && *context) ? context : "runtime_init";
+  command += normalize_runtime_context(context);
   command += "\"";
 #endif
+  const auto highres_command_build_end = std::chrono::steady_clock::now();
+  runtime_emit_guard_boundary(context, "command_build_end");
+  runtime_emit_guard_boundary(context, "execute_call_start");
+  const auto highres_execute_call_start = std::chrono::steady_clock::now();
   const auto _ngk_t0 = std::chrono::steady_clock::now();
 #ifdef _WIN32
-  const int rc = _wsystem(command.c_str());
+  const int rc = execute_runtime_trust_command_windows(command);
 #else
   const int rc = std::system(command.c_str());
 #endif
+  const auto highres_execute_call_end = std::chrono::steady_clock::now();
+  runtime_emit_guard_boundary(context, "execute_call_end");
+  const auto highres_pre_command_overhead_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+      highres_command_build_start - highres_invoke_start).count();
+  const auto highres_command_construction_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+      highres_command_build_end - highres_command_build_start).count();
+  const auto highres_pre_execution_overhead_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+      highres_execute_call_start - highres_command_build_end).count();
+  const auto highres_process_spawn_execution_window_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+      highres_execute_call_end - highres_execute_call_start).count();
+  const auto highres_invoke_to_execute_start_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+      highres_execute_call_start - highres_invoke_start).count();
+  const long long highres_pre_execute_split_total_ns =
+      highres_pre_command_overhead_ns +
+      highres_command_construction_ns +
+      highres_pre_execution_overhead_ns;
+  std::cout << "runtime_guard_highres_pre_command_overhead_ns=" << highres_pre_command_overhead_ns
+            << " context=" << normalize_runtime_context(context) << "\n";
+  std::cout << "runtime_guard_highres_command_construction_ns=" << highres_command_construction_ns
+            << " context=" << normalize_runtime_context(context) << "\n";
+  std::cout << "runtime_guard_highres_pre_execution_overhead_ns=" << highres_pre_execution_overhead_ns
+            << " context=" << normalize_runtime_context(context) << "\n";
+  std::cout << "runtime_guard_highres_process_spawn_execution_window_ns=" << highres_process_spawn_execution_window_ns
+            << " context=" << normalize_runtime_context(context) << "\n";
+  std::cout << "runtime_guard_highres_invoke_to_execute_start_ns=" << highres_invoke_to_execute_start_ns
+            << " context=" << normalize_runtime_context(context) << "\n";
+  std::cout << "runtime_guard_highres_pre_execute_split_total_ns=" << highres_pre_execute_split_total_ns
+            << " context=" << normalize_runtime_context(context) << "\n";
   const long long elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
       std::chrono::steady_clock::now() - _ngk_t0).count();
   if (rc != 0) {

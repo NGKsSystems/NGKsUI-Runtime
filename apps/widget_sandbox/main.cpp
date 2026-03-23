@@ -3,8 +3,10 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstdint>
+#include <ctime>
 #include <exception>
 #include <functional>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -34,6 +36,26 @@
 #include <windows.h>
 
 namespace {
+
+std::string current_utc_boundary_timestamp() {
+  const auto now = std::chrono::system_clock::now();
+  const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+      now.time_since_epoch()) % 1000;
+  const std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+  std::tm utc_tm{};
+  gmtime_s(&utc_tm, &now_time);
+
+  std::ostringstream out;
+  out << std::put_time(&utc_tm, "%Y-%m-%dT%H:%M:%S")
+      << '.' << std::setw(3) << std::setfill('0') << ms.count() << 'Z';
+  return out.str();
+}
+
+void emit_runtime_startup_boundary(const char* name) {
+  std::cout << "TIMING_BOUNDARY name=" << ((name && *name) ? name : "unknown")
+            << " ts_utc=" << current_utc_boundary_timestamp()
+            << " source=runtime_startup quality=exact\n";
+}
 
 constexpr int kInitialWidth = 960;
 constexpr int kInitialHeight = 640;
@@ -4129,7 +4151,9 @@ int run_app(bool demo_mode, bool visual_baseline_mode, bool extension_visual_bas
 
 int main(int argc, char** argv) {
   ngk::runtime_guard::runtime_observe_lifecycle("widget_sandbox", "main_enter");
+  emit_runtime_startup_boundary("runtime_main_enter_timestamp");
   try {
+    emit_runtime_startup_boundary("runtime_phase53_guard_invoke_timestamp");
     const int guard_rc = ngk::runtime_guard::enforce_phase53_2();
     if (guard_rc != 0) {
       ngk::runtime_guard::runtime_observe_lifecycle("widget_sandbox", "guard_blocked");
