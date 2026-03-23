@@ -70,6 +70,26 @@ class NativeWindowPump {
     bool redraw_requested = false;
   };
 
+  enum class SignalEventType {
+    UpdateTick,
+    InputActivity,
+    FocusChange,
+    LifecycleChange
+  };
+
+  struct SignalEventRecord {
+    SignalEventType type = SignalEventType::UpdateTick;
+    int source_component_id = -1;
+    std::uint64_t sequence = 0;
+  };
+
+  struct SignalSubscription {
+    int id = -1;
+    int component_id = -1;
+    SignalEventType type = SignalEventType::UpdateTick;
+    bool connected = false;
+  };
+
   HWND hwnd_ = nullptr;
   MSG msg_ = {};
   bool initialization_complete_ = false;
@@ -82,6 +102,9 @@ class NativeWindowPump {
   bool ui_tree_invalidated_ = false;
   std::vector<ComponentRecord> components_{};
   std::uint64_t update_tick_counter_ = 0;
+  std::vector<SignalSubscription> signal_subscriptions_{};
+  std::uint64_t signal_sequence_counter_ = 0;
+  int next_subscription_id_ = 1;
 
   static constexpr UINT kLifecycleTickTimerId = 0x804u;
 
@@ -305,6 +328,7 @@ class NativeWindowPump {
     }
     component.attached = true;
     component.redraw_requested = true;
+    emit_signal_event(SignalEventType::LifecycleChange, component_id);
     invalidate_ui_tree();
     return true;
   }
@@ -318,6 +342,7 @@ class NativeWindowPump {
       return false;
     }
     component.attached = false;
+    emit_signal_event(SignalEventType::LifecycleChange, component_id);
     return true;
   }
 
@@ -332,11 +357,13 @@ class NativeWindowPump {
     component.attached = false;
     component.alive = false;
     component.redraw_requested = false;
+    disconnect_signals_for_component(component_id);
     return true;
   }
 
   void tick_component_updates() {
     ++update_tick_counter_;
+    emit_signal_event(SignalEventType::UpdateTick, -1);
     for (ComponentRecord& component : components_) {
       if (!component.alive || !component.attached) {
         continue;
@@ -376,7 +403,91 @@ class NativeWindowPump {
     if (!attach_component(component_id)) {
       return false;
     }
+
+    // PHASE81_0: minimal signal/event wiring for lifecycle seed component.
+    const int tick_sub = connect_signal(component_id, SignalEventType::UpdateTick);
+    const int input_sub = connect_signal(component_id, SignalEventType::InputActivity);
+    const int focus_sub = connect_signal(component_id, SignalEventType::FocusChange);
+    const int lifecycle_sub = connect_signal(component_id, SignalEventType::LifecycleChange);
+    if (tick_sub < 0 || input_sub < 0 || focus_sub < 0 || lifecycle_sub < 0) {
+      return false;
+    }
+
     return true;
+  }
+
+  int connect_signal(int component_id, SignalEventType type) {
+    if (component_id < 0 || component_id >= static_cast<int>(components_.size())) {
+      return -1;
+    }
+    if (!components_[component_id].alive) {
+      return -1;
+    }
+
+    SignalSubscription sub{};
+    sub.id = next_subscription_id_++;
+    sub.component_id = component_id;
+    sub.type = type;
+    sub.connected = true;
+    signal_subscriptions_.push_back(sub);
+    return sub.id;
+  }
+
+  bool disconnect_signal(int subscription_id) {
+    for (SignalSubscription& sub : signal_subscriptions_) {
+      if (sub.id == subscription_id && sub.connected) {
+        sub.connected = false;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void disconnect_signals_for_component(int component_id) {
+    for (SignalSubscription& sub : signal_subscriptions_) {
+      if (sub.component_id == component_id) {
+        sub.connected = false;
+      }
+    }
+  }
+
+  void emit_signal_event(SignalEventType type, int source_component_id) {
+    SignalEventRecord event{};
+    event.type = type;
+    event.source_component_id = source_component_id;
+    event.sequence = ++signal_sequence_counter_;
+    dispatch_signal_event(event);
+  }
+
+  void dispatch_signal_event(const SignalEventRecord& event) {
+    std::vector<int> ordered_subscription_ids{};
+    ordered_subscription_ids.reserve(signal_subscriptions_.size());
+
+    for (const SignalSubscription& sub : signal_subscriptions_) {
+      if (sub.connected && sub.type == event.type) {
+        ordered_subscription_ids.push_back(sub.id);
+      }
+    }
+
+    // Deterministic ordering by monotonically increasing subscription id.
+    std::sort(ordered_subscription_ids.begin(), ordered_subscription_ids.end());
+
+    for (const int sub_id : ordered_subscription_ids) {
+      for (SignalSubscription& sub : signal_subscriptions_) {
+        if (!sub.connected || sub.id != sub_id) {
+          continue;
+        }
+        if (sub.component_id < 0 || sub.component_id >= static_cast<int>(components_.size())) {
+          continue;
+        }
+        ComponentRecord& component = components_[sub.component_id];
+        if (!component.alive) {
+          continue;
+        }
+        // Minimal dispatch effect: mark component for redraw discipline.
+        component.redraw_requested = true;
+      }
+    }
   }
 
   // Idle state: message pump maintains idle by waiting in GetMessage
@@ -398,11 +509,20 @@ class NativeWindowPump {
       destroy_component(i);
     }
 
+    for (const SignalSubscription& sub : signal_subscriptions_) {
+      if (sub.connected) {
+        disconnect_signal(sub.id);
+      }
+    }
+
     render_surface_initialized_ = false;
     ui_nodes_.clear();
     ui_root_id_ = -1;
     ui_tree_invalidated_ = false;
     components_.clear();
+    signal_subscriptions_.clear();
+    signal_sequence_counter_ = 0;
+    next_subscription_id_ = 1;
     update_tick_counter_ = 0;
     if (hwnd_) {
       DestroyWindow(hwnd_);
@@ -546,6 +666,7 @@ class NativeWindowPump {
     // Key down handler - available for input dispatch
     // vkey: virtual key code (VK_A, VK_ESCAPE, etc.)
     (void)vkey;
+    emit_signal_event(SignalEventType::InputActivity, -1);
     invalidate_ui_tree();
   }
 
@@ -558,12 +679,14 @@ class NativeWindowPump {
     // Mouse move handler - receives screen coordinates relative to window
     (void)x;
     (void)y;
+    emit_signal_event(SignalEventType::InputActivity, -1);
   }
 
   void handle_mouse_button_down(int button) {
     // Mouse button down handler
     // button: 0=left, 1=right, 2=middle
     (void)button;
+    emit_signal_event(SignalEventType::InputActivity, -1);
     if (!components_.empty()) {
       attach_component(0);
     }
@@ -580,6 +703,7 @@ class NativeWindowPump {
 
   void handle_focus_gain() {
     // Window gained focus
+    emit_signal_event(SignalEventType::FocusChange, -1);
     if (!components_.empty()) {
       attach_component(0);
     }
@@ -588,6 +712,7 @@ class NativeWindowPump {
 
   void handle_focus_loss() {
     // Window lost focus
+    emit_signal_event(SignalEventType::FocusChange, -1);
     if (!components_.empty()) {
       detach_component(0);
     }
@@ -4754,6 +4879,10 @@ int main(int argc, char** argv) {
     // PHASE80_4: Minimal component lifecycle model on native runtime.
     std::cout << "phase80_4_component_lifecycle_available=1\n";
     std::cout << "phase80_4_component_lifecycle_features=create_attach_detach_destroy_update_tick_redraw\n";
+
+    // PHASE81_0: Minimal signal/event model on native runtime.
+    std::cout << "phase81_0_signal_event_model_available=1\n";
+    std::cout << "phase81_0_signal_event_features=typed_record_subscribe_emit_dispatch_disconnect_deterministic_order\n";
 
     const bool demo_mode = is_demo_mode_enabled(argc, argv);
     const bool visual_baseline_mode = is_visual_baseline_mode_enabled(argc, argv);
