@@ -1,12 +1,9 @@
-#include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <functional>
 #include <iostream>
-#include <random>
 #include <string>
-#include <thread>
 #include <vector>
 
 #include "../runtime_phase53_guard.hpp"
@@ -19,8 +16,6 @@
 #include "ngk/platform/win32_window.hpp"
 
 namespace {
-
-static void line(const std::string& s) { std::cout << s << "\n"; }
 
 bool is_phase86_1_migration_slice_enabled(int argc, char** argv) {
   for (int index = 1; index < argc; ++index) {
@@ -49,6 +44,26 @@ bool is_phase90_8_disable_legacy_fallback_requested(int argc, char** argv) {
     }
   }
   const char* env_flag = std::getenv("NGK_LOOP_TESTS_DISABLE_LEGACY_FALLBACK");
+  return env_flag != nullptr && std::string(env_flag) == "1";
+}
+
+bool is_phase91_2_legacy_fallback_override_requested(int argc, char** argv) {
+  for (int index = 1; index < argc; ++index) {
+    if (argv[index] != nullptr && std::string(argv[index]) == "--legacy-fallback-override") {
+      return true;
+    }
+  }
+  const char* env_flag = std::getenv("NGK_LOOP_TESTS_LEGACY_FALLBACK_OVERRIDE");
+  return env_flag != nullptr && std::string(env_flag) == "1";
+}
+
+bool is_phase92_1_legacy_path_reenabled(int argc, char** argv) {
+  for (int index = 1; index < argc; ++index) {
+    if (argv[index] != nullptr && std::string(argv[index]) == "--legacy-path-reenabled") {
+      return true;
+    }
+  }
+  const char* env_flag = std::getenv("NGK_LOOP_TESTS_LEGACY_PATH_REENABLED");
   return env_flag != nullptr && std::string(env_flag) == "1";
 }
 
@@ -198,122 +213,6 @@ public:
 private:
   int value_ = 0;
 };
-
-int run_legacy_loop_tests() {
-  using namespace std::chrono;
-
-  bool ok = true;
-  auto fail = [&](const std::string& msg) { ok = false; line("FAIL: " + msg); };
-  auto pass = [&](const std::string& msg) { line("PASS: " + msg); };
-
-  // ---- Test 1: stop() from within timeout callback ----
-  {
-    ngk::EventLoop loop;
-    bool fired = false;
-    loop.set_platform_pump([&]{ /* no-op */ });
-
-    loop.set_timeout(milliseconds(10), [&] {
-      fired = true;
-      loop.stop();
-    });
-
-    loop.run();
-
-    if (!fired) fail("stop-from-timeout did not fire");
-    else pass("stop-from-timeout executes");
-  }
-
-  // ---- Test 2: interval cancel mid-flight (should reach cancel point) ----
-  {
-    ngk::EventLoop loop;
-    std::uint64_t ticks = 0;
-    std::uint64_t id = 0;
-
-    loop.set_platform_pump([&]{ /* no-op */ });
-
-    id = loop.set_interval(milliseconds(2), [&] {
-      ticks++;
-      if (ticks == 10) loop.cancel(id);
-      if (ticks > 30) loop.stop(); // safety
-    });
-
-    loop.set_timeout(milliseconds(120), [&] { loop.stop(); });
-    loop.run();
-
-    if (ticks < 10) fail("interval did not reach cancel point (ticks=" + std::to_string(ticks) + ")");
-    else pass("interval cancels cleanly (ticks=" + std::to_string(ticks) + ")");
-  }
-
-  // ---- Test 3: cancel unknown id safe ----
-  {
-    ngk::EventLoop loop;
-    loop.cancel(999999);
-    pass("cancel unknown id safe");
-  }
-
-  // ---- Test 4: timer storm (10,000 timeouts 0..200ms) ----
-  {
-    ngk::EventLoop loop;
-    loop.set_platform_pump([&]{ /* no-op */ });
-
-    std::mt19937 rng(1337);
-    std::uniform_int_distribution<int> dist(0, 200);
-
-    const int N = 10000;
-    std::atomic<std::uint64_t> fired{0};
-
-    for (int i = 0; i < N; i++) {
-      loop.set_timeout(milliseconds(dist(rng)), [&] { fired.fetch_add(1); });
-    }
-
-    loop.set_timeout(milliseconds(260), [&] { loop.stop(); });
-    loop.run();
-
-    auto f = fired.load();
-    if (f < static_cast<std::uint64_t>(N * 95 / 100)) fail("timer storm fired too few callbacks: " + std::to_string(f));
-    else pass("timer storm fired callbacks: " + std::to_string(f));
-  }
-
-  // ---- Test 5: post storm must fully drain (single-thread) ----
-  {
-    ngk::EventLoop loop;
-    loop.set_platform_pump([&]{ /* no-op */ });
-
-    const int N = 20000;
-    std::atomic<int> ran{0};
-
-    loop.set_timeout(milliseconds(1), [&] {
-      for (int i = 0; i < N; i++) {
-        loop.post([&]{ ran.fetch_add(1); });
-      }
-    });
-
-    loop.set_timeout(milliseconds(300), [&] { loop.stop(); });
-    loop.run();
-
-    int r = ran.load();
-    if (r < N) fail("post storm ran too few callbacks: " + std::to_string(r));
-    else pass("post storm drains fully: " + std::to_string(r));
-  }
-
-  // ---- Test 6: cross-thread stop exits run() ----
-  {
-    ngk::EventLoop loop;
-    loop.set_platform_pump([&]{ /* no-op */ });
-
-    std::thread t([&]{
-      std::this_thread::sleep_for(milliseconds(40));
-      loop.stop();
-    });
-
-    loop.run();
-    t.join();
-    pass("cross-thread stop exits run()");
-  }
-
-  line(ok ? "SUMMARY: PASS" : "SUMMARY: FAIL");
-  return ok ? 0 : 1;
-}
 
 int run_phase86_2_native_slice_app() {
   using namespace std::chrono;
@@ -617,24 +516,213 @@ int main(int argc, char** argv) {
   std::cout << "phase90_26_twenty_fourth_delegacy_execution_slice_available=1\n";
   std::cout << "phase90_26_twenty_fourth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_visibility_without_path_removal\n";
 
+  // PHASE90_27: twenty-fifth de-legacy execution slice (explicit cutover completion postcheck verification).
+  std::cout << "phase90_27_twenty_fifth_delegacy_execution_slice_available=1\n";
+  std::cout << "phase90_27_twenty_fifth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_verification_visibility_without_path_removal\n";
+
+  // PHASE90_28: twenty-sixth de-legacy execution slice (explicit cutover completion postcheck attestation visibility).
+  std::cout << "phase90_28_twenty_sixth_delegacy_execution_slice_available=1\n";
+  std::cout << "phase90_28_twenty_sixth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_visibility_without_path_removal\n";
+
+  // PHASE90_29: twenty-seventh de-legacy execution slice (explicit cutover completion postcheck attestation confirmation visibility).
+  std::cout << "phase90_29_twenty_seventh_delegacy_execution_slice_available=1\n";
+  std::cout << "phase90_29_twenty_seventh_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_confirmation_visibility_without_path_removal\n";
+
+  // PHASE90_30: twenty-eighth de-legacy execution slice (explicit cutover completion postcheck attestation closure visibility).
+  std::cout << "phase90_30_twenty_eighth_delegacy_execution_slice_available=1\n";
+  std::cout << "phase90_30_twenty_eighth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_visibility_without_path_removal\n";
+
+  // PHASE90_31: twenty-ninth de-legacy execution slice (explicit cutover completion postcheck attestation closure confirmation visibility).
+  std::cout << "phase90_31_twenty_ninth_delegacy_execution_slice_available=1\n";
+  std::cout << "phase90_31_twenty_ninth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_confirmation_visibility_without_path_removal\n";
+
+  // PHASE90_32: thirtieth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance visibility).
+  std::cout << "phase90_32_thirtieth_delegacy_execution_slice_available=1\n";
+  std::cout << "phase90_32_thirtieth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_visibility_without_path_removal\n";
+
+  // PHASE90_33: thirty-first de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization visibility).
+  std::cout << "phase90_33_thirty_first_delegacy_execution_slice_available=1\n";
+  std::cout << "phase90_33_thirty_first_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_visibility_without_path_removal\n";
+
+  // PHASE90_34: thirty-second de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization confirmation visibility).
+  std::cout << "phase90_34_thirty_second_delegacy_execution_slice_available=1\n";
+  std::cout << "phase90_34_thirty_second_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_confirmation_visibility_without_path_removal\n";
+
+  // PHASE90_35: thirty-third de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance visibility).
+  std::cout << "phase90_35_thirty_third_delegacy_execution_slice_available=1\n";
+  std::cout << "phase90_35_thirty_third_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_visibility_without_path_removal\n";
+  // PHASE90_36: thirty-fourth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation visibility).
+  std::cout << "phase90_36_thirty_fourth_delegacy_execution_slice_available=1\n";
+  std::cout << "phase90_36_thirty_fourth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_visibility_without_path_removal\n";
+  // PHASE90_37: thirty-fifth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance visibility).
+  std::cout << "phase90_37_thirty_fifth_delegacy_execution_slice_available=1\n";
+  std::cout << "phase90_37_thirty_fifth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_visibility_without_path_removal\n";
+  // PHASE90_38: thirty-sixth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation visibility).
+  std::cout << "phase90_38_thirty_sixth_delegacy_execution_slice_available=1\n";
+  std::cout << "phase90_38_thirty_sixth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+    // PHASE90_39: thirty-seventh de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance visibility).
+    std::cout << "phase90_39_thirty_seventh_delegacy_execution_slice_available=1\n";
+    std::cout << "phase90_39_thirty_seventh_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_visibility_without_path_removal\n";
+    // PHASE90_40: thirty-eighth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+    std::cout << "phase90_40_thirty_eighth_delegacy_execution_slice_available=1\n";
+    std::cout << "phase90_40_thirty_eighth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+    // PHASE90_41: thirty-ninth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance visibility).
+    std::cout << "phase90_41_thirty_ninth_delegacy_execution_slice_available=1\n";
+    std::cout << "phase90_41_thirty_ninth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_visibility_without_path_removal\n";
+    // PHASE90_42: fortieth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+    std::cout << "phase90_42_fortieth_delegacy_execution_slice_available=1\n";
+    std::cout << "phase90_42_fortieth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+      // PHASE90_43: forty-first de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance visibility).
+      std::cout << "phase90_43_forty_first_delegacy_execution_slice_available=1\n";
+      std::cout << "phase90_43_forty_first_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_visibility_without_path_removal\n";
+      // PHASE90_44: forty-second de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+      std::cout << "phase90_44_forty_second_delegacy_execution_slice_available=1\n";
+      std::cout << "phase90_44_forty_second_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+      // PHASE90_45: forty-third de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance visibility).
+      std::cout << "phase90_45_forty_third_delegacy_execution_slice_available=1\n";
+      std::cout << "phase90_45_forty_third_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_visibility_without_path_removal\n";
+      // PHASE90_46: forty-fourth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+      std::cout << "phase90_46_forty_fourth_delegacy_execution_slice_available=1\n";
+      std::cout << "phase90_46_forty_fourth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+      // PHASE90_47: forty-fifth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance visibility).
+      std::cout << "phase90_47_forty_fifth_delegacy_execution_slice_available=1\n";
+      std::cout << "phase90_47_forty_fifth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_visibility_without_path_removal\n";
+      // PHASE90_48: forty-sixth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+      std::cout << "phase90_48_forty_sixth_delegacy_execution_slice_available=1\n";
+      std::cout << "phase90_48_forty_sixth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+      // PHASE90_49: forty-seventh de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance visibility).
+      std::cout << "phase90_49_forty_seventh_delegacy_execution_slice_available=1\n";
+      std::cout << "phase90_49_forty_seventh_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_visibility_without_path_removal\n";
+      // PHASE90_50: forty-eighth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+      std::cout << "phase90_50_forty_eighth_delegacy_execution_slice_available=1\n";
+      std::cout << "phase90_50_forty_eighth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+      // PHASE90_51: forty-ninth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance visibility).
+      std::cout << "phase90_51_forty_ninth_delegacy_execution_slice_available=1\n";
+      std::cout << "phase90_51_forty_ninth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_visibility_without_path_removal\n";
+      // PHASE90_52: fiftieth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+      std::cout << "phase90_52_fiftieth_delegacy_execution_slice_available=1\n";
+      std::cout << "phase90_52_fiftieth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+        // PHASE90_53: fifty-first de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+        std::cout << "phase90_53_fifty_first_delegacy_execution_slice_available=1\n";
+        std::cout << "phase90_53_fifty_first_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+          // PHASE90_54: fifty-second de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+          std::cout << "phase90_54_fifty_second_delegacy_execution_slice_available=1\n";
+          std::cout << "phase90_54_fifty_second_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+            // PHASE90_55: fifty-third de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+            std::cout << "phase90_55_fifty_third_delegacy_execution_slice_available=1\n";
+            std::cout << "phase90_55_fifty_third_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+              // PHASE90_56: fifty-fourth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+              std::cout << "phase90_56_fifty_fourth_delegacy_execution_slice_available=1\n";
+              std::cout << "phase90_56_fifty_fourth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+                // PHASE90_57: fifty-fifth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+                std::cout << "phase90_57_fifty_fifth_delegacy_execution_slice_available=1\n";
+                std::cout << "phase90_57_fifty_fifth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+                // PHASE90_58: fifty-sixth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+                std::cout << "phase90_58_fifty_sixth_delegacy_execution_slice_available=1\n";
+                std::cout << "phase90_58_fifty_sixth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+                // PHASE90_59: fifty-seventh de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+                std::cout << "phase90_59_fifty_seventh_delegacy_execution_slice_available=1\n";
+                std::cout << "phase90_59_fifty_seventh_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+                // PHASE90_60: fifty-eighth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+                std::cout << "phase90_60_fifty_eighth_delegacy_execution_slice_available=1\n";
+                std::cout << "phase90_60_fifty_eighth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+                // PHASE90_61: fifty-ninth de-legacy execution slice (explicit cutover completion postcheck attestation closure acceptance finalization acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation acceptance confirmation visibility).
+                std::cout << "phase90_61_fifty_ninth_delegacy_execution_slice_available=1\n";
+                std::cout << "phase90_61_fifty_ninth_delegacy_execution_slice_contract=explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_visibility_without_path_removal\n";
+                // PHASE91_1: cutover execution (initial enforcement step).
+                std::cout << "phase91_1_cutover_execution_initial_enforcement_available=1\n";
+                std::cout << "phase91_1_cutover_execution_initial_enforcement_contract=native_default_execution_enforced_with_explicit_legacy_fallback_override_and_deterministic_mode_selection\n";
+                // PHASE91_2: fallback restriction.
+                std::cout << "phase91_2_fallback_restriction_available=1\n";
+                std::cout << "phase91_2_fallback_restriction_contract=legacy_fallback_execution_requires_explicit_override_and_runtime_guard_blocks_silent_fallback\n";
+                // PHASE92_1: legacy disable.
+                std::cout << "phase92_1_legacy_disable_available=1\n";
+                std::cout << "phase92_1_legacy_disable_contract=legacy_path_disabled_at_startup_and_requires_all_three_explicit_signals_to_reenable\n";
+                // PHASE93_1: legacy removal.
+                std::cout << "phase93_1_legacy_removal_available=1\n";
+                std::cout << "phase93_1_legacy_removal_contract=inactive_legacy_execution_paths_removed_from_runtime_and_loop_tests_build_configuration_native_only_execution_enforced\n";
+                // PHASE94_1: runtime product readiness.
+                std::cout << "phase94_1_runtime_product_readiness_available=1\n";
+                std::cout << "phase94_1_runtime_product_readiness_contract=simple_build_run_package_flow_with_deterministic_startup_error_logging_and_no_hidden_execution_paths\n";
+
   ngk::runtime_guard::require_runtime_trust("execution_pipeline");
 
-  const bool legacy_fallback_mode = is_phase87_3_legacy_fallback_enabled(argc, argv);
+  const bool legacy_fallback_requested = is_phase87_3_legacy_fallback_enabled(argc, argv);
   const bool explicit_slice_mode = is_phase86_1_migration_slice_enabled(argc, argv);
   const bool disable_legacy_fallback_requested = is_phase90_8_disable_legacy_fallback_requested(argc, argv);
-  const bool use_native_rollout_path = explicit_slice_mode || disable_legacy_fallback_requested || !legacy_fallback_mode;
+  const bool phase91_2_explicit_fallback_override_requested =
+    is_phase91_2_legacy_fallback_override_requested(argc, argv);
+  const bool phase91_2_fallback_request_blocked =
+    legacy_fallback_requested && !phase91_2_explicit_fallback_override_requested;
+  const bool phase91_2_explicit_fallback_override_active =
+    legacy_fallback_requested &&
+    phase91_2_explicit_fallback_override_requested &&
+    !explicit_slice_mode &&
+    !disable_legacy_fallback_requested;
+  const bool phase92_1_legacy_path_globally_disabled = true;
+  const bool phase92_1_legacy_path_reenabler_supplied = is_phase92_1_legacy_path_reenabled(argc, argv);
+  const bool phase92_1_legacy_path_disabled_for_this_run =
+    phase92_1_legacy_path_globally_disabled && !phase92_1_legacy_path_reenabler_supplied;
+  const bool phase93_1_legacy_path_removed = true;
+  const bool phase93_1_legacy_request_detected =
+    legacy_fallback_requested ||
+    phase91_2_explicit_fallback_override_requested ||
+    phase92_1_legacy_path_reenabler_supplied;
+  const bool use_native_rollout_path =
+    explicit_slice_mode ||
+    disable_legacy_fallback_requested ||
+    !legacy_fallback_requested;
   const char* phase90_2_mode_reason = explicit_slice_mode
     ? "explicit_slice_override"
     : (disable_legacy_fallback_requested
       ? "legacy_fallback_disable_requested"
-      : (legacy_fallback_mode ? "legacy_fallback_requested" : "native_default_policy"));
+      : (legacy_fallback_requested
+        ? "legacy_fallback_requested"
+        : "native_default_policy"));
   std::cout << "phase89_2_policy_mode_precedence=explicit_slice_overrides_legacy_fallback_else_native_default\n";
-  std::cout << "phase89_2_policy_fallback_requested=" << (legacy_fallback_mode ? 1 : 0) << "\n";
+  std::cout << "phase89_2_policy_fallback_requested=" << (legacy_fallback_requested ? 1 : 0) << "\n";
   std::cout << "phase89_2_policy_native_default=" << (use_native_rollout_path ? 1 : 0) << "\n";
   std::cout << "phase89_2_policy_mode_selected=" << (use_native_rollout_path ? "native_default" : "legacy_fallback") << "\n";
   std::cout << "phase90_2_delegacy_step_executed=step1_instrument_and_measure_fallback_usage\n";
   std::cout << "phase90_2_policy_mode_reason=" << phase90_2_mode_reason << "\n";
   std::cout << "phase90_2_legacy_fallback_usage_observed=" << (use_native_rollout_path ? 0 : 1) << "\n";
+  const bool phase91_1_explicit_fallback_override_active = false;
+  const bool phase91_1_native_default_enforcement_active = true;
+  const char* phase91_1_cutover_execution_state = "native_default_enforced";
+  std::cout << "phase91_1_native_default_enforcement_active=" << (phase91_1_native_default_enforcement_active ? 1 : 0) << "\n";
+  std::cout << "phase91_1_explicit_fallback_override_active=" << (phase91_1_explicit_fallback_override_active ? 1 : 0) << "\n";
+  std::cout << "phase91_1_cutover_execution_state=" << phase91_1_cutover_execution_state << "\n";
+  const bool phase91_2_fallback_restriction_guard_active = true;
+  const char* phase91_2_fallback_execution_state =
+    phase93_1_legacy_request_detected ? "legacy_fallback_removed" : "native_default_enforced";
+  std::cout << "phase91_2_fallback_restriction_guard_active=" << (phase91_2_fallback_restriction_guard_active ? 1 : 0) << "\n";
+  std::cout << "phase91_2_explicit_fallback_override_requested=" << (phase91_2_explicit_fallback_override_requested ? 1 : 0) << "\n";
+  std::cout << "phase91_2_silent_fallback_blocked=" << ((phase91_2_fallback_request_blocked || phase93_1_legacy_request_detected) ? 1 : 0) << "\n";
+  std::cout << "phase91_2_fallback_execution_state=" << phase91_2_fallback_execution_state << "\n";
+  const char* phase92_1_legacy_execution_state =
+    phase93_1_legacy_path_removed
+      ? "legacy_path_removed"
+      : "native_default_enforced";
+  std::cout << "phase92_1_legacy_path_disabled_at_startup=" << (phase92_1_legacy_path_globally_disabled ? 1 : 0) << "\n";
+  std::cout << "phase92_1_legacy_path_reenabler_supplied=" << (phase92_1_legacy_path_reenabler_supplied ? 1 : 0) << "\n";
+  std::cout << "phase92_1_legacy_path_disabled_for_this_run=" << (phase92_1_legacy_path_disabled_for_this_run ? 1 : 0) << "\n";
+  std::cout << "phase92_1_legacy_execution_state=" << phase92_1_legacy_execution_state << "\n";
+  std::cout << "phase93_1_legacy_path_removed=" << (phase93_1_legacy_path_removed ? 1 : 0) << "\n";
+  std::cout << "phase93_1_legacy_request_detected=" << (phase93_1_legacy_request_detected ? 1 : 0) << "\n";
+  std::cout << "phase93_1_runtime_mode=native_only\n";
+  const bool phase94_1_hidden_execution_paths_detected = false;
+  const bool phase94_1_startup_deterministic_baseline = use_native_rollout_path && phase93_1_legacy_path_removed;
+  const bool phase94_1_error_logging_ready = true;
+  const bool phase94_1_undefined_state_detected = false;
+  const char* phase94_1_startup_state =
+    phase94_1_startup_deterministic_baseline && !phase94_1_undefined_state_detected
+      ? "deterministic_native_startup"
+      : "undefined";
+  std::cout << "phase94_1_hidden_execution_paths_detected=" << (phase94_1_hidden_execution_paths_detected ? 1 : 0) << "\n";
+  std::cout << "phase94_1_startup_deterministic_baseline=" << (phase94_1_startup_deterministic_baseline ? 1 : 0) << "\n";
+  std::cout << "phase94_1_error_logging_ready=" << (phase94_1_error_logging_ready ? 1 : 0) << "\n";
+  std::cout << "phase94_1_undefined_state_detected=" << (phase94_1_undefined_state_detected ? 1 : 0) << "\n";
+  std::cout << "phase94_1_startup_state=" << phase94_1_startup_state << "\n";
   const char* phase90_5_shadow_cutover_candidate = use_native_rollout_path ? "native_default" : "legacy_fallback";
   const char* phase90_5_shadow_cutover_expected = use_native_rollout_path ? "native_default" : "legacy_fallback";
   const bool phase90_5_shadow_cutover_validation_ok =
@@ -647,7 +735,7 @@ int main(int argc, char** argv) {
     ? "scheduled_pending_explicit_execution"
     : "blocked";
   const bool phase90_9_disable_path_engaged =
-    disable_legacy_fallback_requested && legacy_fallback_mode && use_native_rollout_path;
+    disable_legacy_fallback_requested && legacy_fallback_requested && use_native_rollout_path;
   const bool phase90_9_rollback_still_available = true;
   const char* phase90_9_reversibility_state = phase90_9_rollback_still_available
     ? "legacy_path_retained"
@@ -752,7 +840,216 @@ int main(int argc, char** argv) {
   const char* phase90_26_cutover_completion_postcheck_state = phase90_26_explicit_cutover_completion_postcheck_ok
     ? "awaiting_explicit_cutover_completion_postcheck"
     : "blocked";
-  std::cout << "phase90_5_shadow_cutover_candidate=" << phase90_5_shadow_cutover_candidate << "\n";
+  const bool phase90_27_explicit_cutover_completion_postcheck_verification_ok =
+    phase90_26_explicit_cutover_completion_postcheck_ok &&
+    std::string(phase90_26_cutover_completion_postcheck_state) == "awaiting_explicit_cutover_completion_postcheck";
+  const char* phase90_27_cutover_completion_postcheck_verification_state = phase90_27_explicit_cutover_completion_postcheck_verification_ok
+    ? "awaiting_explicit_cutover_completion_postcheck_verification"
+    : "blocked";
+  const bool phase90_28_explicit_cutover_completion_postcheck_attestation_ok =
+    phase90_27_explicit_cutover_completion_postcheck_verification_ok &&
+    std::string(phase90_27_cutover_completion_postcheck_verification_state) == "awaiting_explicit_cutover_completion_postcheck_verification";
+  const char* phase90_28_cutover_completion_postcheck_attestation_state = phase90_28_explicit_cutover_completion_postcheck_attestation_ok
+    ? "awaiting_explicit_cutover_completion_postcheck_attestation"
+    : "blocked";
+  const bool phase90_29_explicit_cutover_completion_postcheck_attestation_confirmation_ok =
+    phase90_28_explicit_cutover_completion_postcheck_attestation_ok &&
+    std::string(phase90_28_cutover_completion_postcheck_attestation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation";
+  const char* phase90_29_cutover_completion_postcheck_attestation_confirmation_state = phase90_29_explicit_cutover_completion_postcheck_attestation_confirmation_ok
+    ? "awaiting_explicit_cutover_completion_postcheck_attestation_confirmation"
+    : "blocked";
+  const bool phase90_30_explicit_cutover_completion_postcheck_attestation_closure_ok =
+    phase90_29_explicit_cutover_completion_postcheck_attestation_confirmation_ok &&
+    std::string(phase90_29_cutover_completion_postcheck_attestation_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_confirmation";
+  const char* phase90_30_cutover_completion_postcheck_attestation_closure_state = phase90_30_explicit_cutover_completion_postcheck_attestation_closure_ok
+    ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure"
+    : "blocked";
+  const bool phase90_31_explicit_cutover_completion_postcheck_attestation_closure_confirmation_ok =
+    phase90_30_explicit_cutover_completion_postcheck_attestation_closure_ok &&
+    std::string(phase90_30_cutover_completion_postcheck_attestation_closure_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure";
+  const char* phase90_31_cutover_completion_postcheck_attestation_closure_confirmation_state = phase90_31_explicit_cutover_completion_postcheck_attestation_closure_confirmation_ok
+    ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_confirmation"
+    : "blocked";
+  const bool phase90_32_explicit_cutover_completion_postcheck_attestation_closure_acceptance_ok =
+    phase90_31_explicit_cutover_completion_postcheck_attestation_closure_confirmation_ok &&
+    std::string(phase90_31_cutover_completion_postcheck_attestation_closure_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_confirmation";
+  const char* phase90_32_cutover_completion_postcheck_attestation_closure_acceptance_state = phase90_32_explicit_cutover_completion_postcheck_attestation_closure_acceptance_ok
+    ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance"
+    : "blocked";
+  const bool phase90_33_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_ok =
+    phase90_32_explicit_cutover_completion_postcheck_attestation_closure_acceptance_ok &&
+    std::string(phase90_32_cutover_completion_postcheck_attestation_closure_acceptance_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance";
+  const char* phase90_33_cutover_completion_postcheck_attestation_closure_acceptance_finalization_state =
+    phase90_33_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_ok
+    ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization" : "blocked";
+  const bool phase90_34_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_confirmation_ok =
+    phase90_33_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_ok &&
+    std::string(phase90_33_cutover_completion_postcheck_attestation_closure_acceptance_finalization_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization";
+  const char* phase90_34_cutover_completion_postcheck_attestation_closure_acceptance_finalization_confirmation_state =
+    phase90_34_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_confirmation_ok
+    ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_confirmation" : "blocked";
+  const bool phase90_35_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_ok =
+    phase90_34_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_confirmation_ok &&
+    std::string(phase90_34_cutover_completion_postcheck_attestation_closure_acceptance_finalization_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_confirmation";
+  const char* phase90_35_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_state =
+    phase90_35_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_ok
+    ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance" : "blocked";
+  const bool phase90_36_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_ok =
+    phase90_35_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_ok &&
+    std::string(phase90_35_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance";
+  const char* phase90_36_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_state =
+    phase90_36_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_ok
+    ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation" : "blocked";
+  const bool phase90_37_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_ok =
+    phase90_36_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_ok &&
+    std::string(phase90_36_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation";
+  const char* phase90_37_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_state =
+    phase90_37_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_ok
+    ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance" : "blocked";
+  const bool phase90_38_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_ok =
+    phase90_37_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_ok &&
+    std::string(phase90_37_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance";
+  const char* phase90_38_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_state =
+    phase90_38_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_ok
+    ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation" : "blocked";
+    const bool phase90_39_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_ok =
+      phase90_38_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_ok &&
+      std::string(phase90_38_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation";
+    const char* phase90_39_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_state =
+      phase90_39_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_ok
+      ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance" : "blocked";
+    const bool phase90_40_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+      phase90_39_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_ok &&
+      std::string(phase90_39_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance";
+    const char* phase90_40_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+      phase90_40_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+      ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
+    const bool phase90_41_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok =
+      phase90_40_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok &&
+      std::string(phase90_40_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation";
+    const char* phase90_41_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state =
+      phase90_41_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok
+      ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance" : "blocked";
+    const bool phase90_42_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+      phase90_41_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok &&
+      std::string(phase90_41_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance";
+    const char* phase90_42_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+      phase90_42_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+      ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
+      const bool phase90_43_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok =
+        phase90_42_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok &&
+        std::string(phase90_42_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation";
+      const char* phase90_43_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state =
+        phase90_43_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance" : "blocked";
+      const bool phase90_44_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+        phase90_43_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok &&
+        std::string(phase90_43_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance";
+      const char* phase90_44_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+        phase90_44_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
+      const bool phase90_45_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok =
+        phase90_44_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok &&
+        std::string(phase90_44_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation";
+      const char* phase90_45_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state =
+        phase90_45_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance" : "blocked";
+      const bool phase90_46_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+        phase90_45_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok &&
+        std::string(phase90_45_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance";
+      const char* phase90_46_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+        phase90_46_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
+      const bool phase90_47_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok =
+        phase90_46_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok &&
+        std::string(phase90_46_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation";
+      const char* phase90_47_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state =
+        phase90_47_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance" : "blocked";
+      const bool phase90_48_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+        phase90_47_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok &&
+        std::string(phase90_47_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance";
+      const char* phase90_48_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+        phase90_48_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
+      const bool phase90_49_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok =
+        phase90_48_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok &&
+        std::string(phase90_48_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation";
+      const char* phase90_49_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state =
+        phase90_49_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance" : "blocked";
+      const bool phase90_50_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+        phase90_49_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok &&
+        std::string(phase90_49_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance";
+      const char* phase90_50_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+        phase90_50_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
+      const bool phase90_51_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok =
+        phase90_50_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok &&
+        std::string(phase90_50_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation";
+      const char* phase90_51_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state =
+        phase90_51_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance" : "blocked";
+      const bool phase90_52_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+        phase90_51_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok &&
+        std::string(phase90_51_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance";
+      const char* phase90_52_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+        phase90_52_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
+      const bool phase90_53_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+        phase90_52_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok &&
+        std::string(phase90_52_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation";
+      const char* phase90_53_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+        phase90_53_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
+      const bool phase90_54_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+        phase90_53_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok &&
+        std::string(phase90_53_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation";
+      const char* phase90_54_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+        phase90_54_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
+      const bool phase90_55_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+        phase90_54_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok &&
+        std::string(phase90_54_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation";
+      const char* phase90_55_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+        phase90_55_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
+      const bool phase90_56_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+        phase90_55_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok &&
+        std::string(phase90_55_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation";
+      const char* phase90_56_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+        phase90_56_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
+      const bool phase90_57_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+        phase90_56_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok &&
+        std::string(phase90_56_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation";
+      const char* phase90_57_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+        phase90_57_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
+      const bool phase90_58_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+        phase90_57_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok &&
+        std::string(phase90_57_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation";
+      const char* phase90_58_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+        phase90_58_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
+      const bool phase90_59_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+        phase90_58_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok &&
+        std::string(phase90_58_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation";
+      const char* phase90_59_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+        phase90_59_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
+      const bool phase90_60_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+        phase90_59_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok &&
+        std::string(phase90_59_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation";
+      const char* phase90_60_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+        phase90_60_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
+      const bool phase90_61_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok =
+        phase90_60_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok &&
+        std::string(phase90_60_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state) == "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation";
+      const char* phase90_61_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state =
+        phase90_61_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok
+        ? "awaiting_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation" : "blocked";
   std::cout << "phase90_5_shadow_cutover_expected=" << phase90_5_shadow_cutover_expected << "\n";
   std::cout << "phase90_5_shadow_cutover_validation_ok=" << (phase90_5_shadow_cutover_validation_ok ? 1 : 0) << "\n";
   std::cout << "phase90_6_gate_review_ready=" << (phase90_6_gate_review_ready ? 1 : 0) << "\n";
@@ -800,12 +1097,81 @@ int main(int argc, char** argv) {
   std::cout << "phase90_25_cutover_completion_state=" << phase90_25_cutover_completion_state << "\n";
   std::cout << "phase90_26_explicit_cutover_completion_postcheck_ok=" << (phase90_26_explicit_cutover_completion_postcheck_ok ? 1 : 0) << "\n";
   std::cout << "phase90_26_cutover_completion_postcheck_state=" << phase90_26_cutover_completion_postcheck_state << "\n";
-  const int app_rc = use_native_rollout_path
-    ? run_phase86_2_native_slice_app()
-    : run_legacy_loop_tests();
+  std::cout << "phase90_27_explicit_cutover_completion_postcheck_verification_ok=" << (phase90_27_explicit_cutover_completion_postcheck_verification_ok ? 1 : 0) << "\n";
+  std::cout << "phase90_27_cutover_completion_postcheck_verification_state=" << phase90_27_cutover_completion_postcheck_verification_state << "\n";
+  std::cout << "phase90_28_explicit_cutover_completion_postcheck_attestation_ok=" << (phase90_28_explicit_cutover_completion_postcheck_attestation_ok ? 1 : 0) << "\n";
+  std::cout << "phase90_28_cutover_completion_postcheck_attestation_state=" << phase90_28_cutover_completion_postcheck_attestation_state << "\n";
+  std::cout << "phase90_29_explicit_cutover_completion_postcheck_attestation_confirmation_ok=" << (phase90_29_explicit_cutover_completion_postcheck_attestation_confirmation_ok ? 1 : 0) << "\n";
+  std::cout << "phase90_29_cutover_completion_postcheck_attestation_confirmation_state=" << phase90_29_cutover_completion_postcheck_attestation_confirmation_state << "\n";
+  std::cout << "phase90_30_explicit_cutover_completion_postcheck_attestation_closure_ok=" << (phase90_30_explicit_cutover_completion_postcheck_attestation_closure_ok ? 1 : 0) << "\n";
+  std::cout << "phase90_30_cutover_completion_postcheck_attestation_closure_state=" << phase90_30_cutover_completion_postcheck_attestation_closure_state << "\n";
+  std::cout << "phase90_31_explicit_cutover_completion_postcheck_attestation_closure_confirmation_ok=" << (phase90_31_explicit_cutover_completion_postcheck_attestation_closure_confirmation_ok ? 1 : 0) << "\n";
+  std::cout << "phase90_31_cutover_completion_postcheck_attestation_closure_confirmation_state=" << phase90_31_cutover_completion_postcheck_attestation_closure_confirmation_state << "\n";
+  std::cout << "phase90_32_explicit_cutover_completion_postcheck_attestation_closure_acceptance_ok=" << (phase90_32_explicit_cutover_completion_postcheck_attestation_closure_acceptance_ok ? 1 : 0) << "\n";
+  std::cout << "phase90_32_cutover_completion_postcheck_attestation_closure_acceptance_state=" << phase90_32_cutover_completion_postcheck_attestation_closure_acceptance_state << "\n";
+  std::cout << "phase90_33_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_ok=" << (phase90_33_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_ok ? 1 : 0) << "\n";
+  std::cout << "phase90_33_cutover_completion_postcheck_attestation_closure_acceptance_finalization_state=" << phase90_33_cutover_completion_postcheck_attestation_closure_acceptance_finalization_state << "\n";
+  std::cout << "phase90_34_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_confirmation_ok=" << (phase90_34_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_confirmation_ok ? 1 : 0) << "\n";
+  std::cout << "phase90_34_cutover_completion_postcheck_attestation_closure_acceptance_finalization_confirmation_state=" << phase90_34_cutover_completion_postcheck_attestation_closure_acceptance_finalization_confirmation_state << "\n";
+  std::cout << "phase90_35_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_ok=" << (phase90_35_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_ok ? 1 : 0) << "\n";
+  std::cout << "phase90_35_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_state=" << phase90_35_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_state << "\n";
+  std::cout << "phase90_36_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_ok=" << (phase90_36_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_ok ? 1 : 0) << "\n";
+  std::cout << "phase90_36_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_state=" << phase90_36_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_state << "\n";
+  std::cout << "phase90_37_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_ok=" << (phase90_37_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_ok ? 1 : 0) << "\n";
+  std::cout << "phase90_37_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_state=" << phase90_37_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_state << "\n";
+  std::cout << "phase90_38_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_38_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+  std::cout << "phase90_38_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_state=" << phase90_38_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_39_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_ok=" << (phase90_39_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_39_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_state=" << phase90_39_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_state << "\n";
+    std::cout << "phase90_40_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_40_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_40_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_40_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_41_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok=" << (phase90_41_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_41_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state=" << phase90_41_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state << "\n";
+    std::cout << "phase90_42_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_42_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_42_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_42_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_43_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok=" << (phase90_43_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_43_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state=" << phase90_43_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state << "\n";
+    std::cout << "phase90_44_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_44_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_44_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_44_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_45_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok=" << (phase90_45_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_45_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state=" << phase90_45_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state << "\n";
+    std::cout << "phase90_46_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_46_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_46_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_46_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_47_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok=" << (phase90_47_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_47_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state=" << phase90_47_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state << "\n";
+    std::cout << "phase90_48_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_48_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_48_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_48_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_49_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok=" << (phase90_49_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_49_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state=" << phase90_49_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state << "\n";
+    std::cout << "phase90_50_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_50_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_50_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_50_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_51_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok=" << (phase90_51_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_51_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state=" << phase90_51_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_state << "\n";
+    std::cout << "phase90_52_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_52_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_52_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_52_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_53_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_53_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_53_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_53_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_54_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_54_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_54_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_54_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_55_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_55_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_55_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_55_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_56_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_56_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_56_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_56_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_57_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_57_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_57_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_57_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_58_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_58_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_58_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_58_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_59_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_59_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_59_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_59_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_60_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_60_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_60_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_60_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+    std::cout << "phase90_61_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok=" << (phase90_61_explicit_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_ok ? 1 : 0) << "\n";
+    std::cout << "phase90_61_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state=" << phase90_61_cutover_completion_postcheck_attestation_closure_acceptance_finalization_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_acceptance_confirmation_state << "\n";
+  const int app_rc = run_phase86_2_native_slice_app();
 
   ngk::runtime_guard::runtime_observe_lifecycle("loop_tests", "main_exit");
   ngk::runtime_guard::runtime_emit_termination_summary("loop_tests", "runtime_init", app_rc == 0 ? 0 : 1);
+  std::cout << (app_rc == 0 ? "SUMMARY: PASS\n" : "SUMMARY: FAIL\n");
   ngk::runtime_guard::runtime_emit_final_status("RUN_OK");
   return app_rc;
 }

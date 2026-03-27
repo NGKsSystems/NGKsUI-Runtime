@@ -328,6 +328,9 @@ long long Win32Window::handle_message(unsigned int message, unsigned long long w
       EndPaint(hwnd_, &paint_struct);
       return 0;
     }
+    case WM_ERASEBKGND:
+      // D3D-driven apps clear/present their own backbuffer. Suppress default GDI erase.
+      return 1;
 
     case WM_DPICHANGED: {
       // wParam: LOWORD = x dpi, HIWORD = y dpi

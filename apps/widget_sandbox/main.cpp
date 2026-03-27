@@ -119,7 +119,8 @@ class NativeWindowPump {
   enum class PrimitiveKind {
     Label,
     Button,
-    Container
+    Container,
+    TextField
   };
 
   struct WidgetPrimitiveRecord {
@@ -130,6 +131,24 @@ class NativeWindowPump {
     int action_id = -1;
     std::string text{};
     bool pressed = false;
+    bool visible = true;
+    bool focused = false;
+  };
+
+  enum class ShellKind {
+    Toolbar,
+    Sidebar,
+    Dialog
+  };
+
+  struct ShellRecord {
+    int id = -1;
+    ShellKind kind = ShellKind::Toolbar;
+    int node_id = -1;
+    int component_id = -1;
+    std::vector<int> primitive_ids{};
+    std::vector<int> child_region_node_ids{};
+    bool open = true;
   };
 
   HWND hwnd_ = nullptr;
@@ -158,6 +177,39 @@ class NativeWindowPump {
   std::uint64_t action_invocation_sequence_ = 0;
   std::vector<WidgetPrimitiveRecord> primitives_{};
   int next_primitive_id_ = 1;
+  std::vector<ShellRecord> shells_{};
+  int next_shell_id_ = 1;
+  int toolbar_action_id_ = -1;
+  int dialog_open_action_id_ = -1;
+  int dialog_close_action_id_ = -1;
+  int dialog_open_state_id_ = -1;
+  bool dialog_open_ = false;
+  int toolbar_primary_button_primitive_id_ = -1;
+  int toolbar_secondary_button_primitive_id_ = -1;
+  int sidebar_primary_label_primitive_id_ = -1;
+  int sidebar_secondary_label_primitive_id_ = -1;
+  int sidebar_primary_label_component_id_ = -1;
+  int sidebar_secondary_label_component_id_ = -1;
+  int sidebar_input_region_node_id_ = -1;
+  int sidebar_input_label_primitive_id_ = -1;
+  int sidebar_input_field_primitive_id_ = -1;
+  int sidebar_input_field_component_id_ = -1;
+  bool migration_pilot_active_ = false;
+  int pilot_increment_action_id_ = -1;
+  int pilot_reset_action_id_ = -1;
+  int pilot_counter_state_id_ = -1;
+  int pilot_submit_text_action_id_ = -1;
+  int pilot_text_length_state_id_ = -1;
+  int pilot_submit_count_state_id_ = -1;
+  int pilot_focus_state_id_ = -1;
+  int pilot_route_state_id_ = -1;
+  int pilot_counter_value_ = 0;
+  int pilot_submit_count_ = 0;
+  int pilot_focus_order_ = 0;
+  int pilot_route_sequence_ = 0;
+  std::string pilot_text_value_{};
+  std::string pilot_last_action_{};
+  std::string pilot_committed_text_{};
   int last_mouse_x_ = 0;
   int last_mouse_y_ = 0;
 
@@ -229,6 +281,11 @@ class NativeWindowPump {
       return false;
     }
 
+    // PHASE82_1: Higher-level shells first slice built from primitives.
+    if (!initialize_higher_level_shells_seed()) {
+      return false;
+    }
+
     SetTimer(hwnd_, kLifecycleTickTimerId, 16u, nullptr);
 
     initialization_complete_ = true;
@@ -244,6 +301,73 @@ class NativeWindowPump {
       TranslateMessageW(&msg_);
       DispatchMessageW(&msg_);
     }
+  }
+
+  bool configure_widget_sandbox_migration_pilot() {
+    migration_pilot_active_ = true;
+    pilot_increment_action_id_ = register_action("pilot_increment_action", 0, true);
+    pilot_reset_action_id_ = register_action("pilot_reset_action", 0, true);
+    pilot_submit_text_action_id_ = register_action("pilot_submit_text_action", VK_RETURN, true);
+    if (pilot_increment_action_id_ < 0 || pilot_reset_action_id_ < 0 || pilot_submit_text_action_id_ < 0) {
+      return false;
+    }
+
+    pilot_counter_state_id_ = create_observable_state_record(0);
+    pilot_text_length_state_id_ = create_observable_state_record(0);
+    pilot_submit_count_state_id_ = create_observable_state_record(0);
+    pilot_focus_state_id_ = create_observable_state_record(0);
+    pilot_route_state_id_ = create_observable_state_record(0);
+    if (pilot_counter_state_id_ < 0 ||
+        pilot_text_length_state_id_ < 0 ||
+        pilot_submit_count_state_id_ < 0 ||
+        pilot_focus_state_id_ < 0 ||
+        pilot_route_state_id_ < 0) {
+      return false;
+    }
+    if (sidebar_primary_label_component_id_ >= 0 && register_binding(pilot_counter_state_id_, sidebar_primary_label_component_id_) < 0) {
+      return false;
+    }
+    if (sidebar_secondary_label_component_id_ >= 0 && register_binding(pilot_counter_state_id_, sidebar_secondary_label_component_id_) < 0) {
+      return false;
+    }
+    if (sidebar_input_field_component_id_ >= 0 && register_binding(pilot_text_length_state_id_, sidebar_input_field_component_id_) < 0) {
+      return false;
+    }
+    if (sidebar_secondary_label_component_id_ >= 0 && register_binding(pilot_submit_count_state_id_, sidebar_secondary_label_component_id_) < 0) {
+      return false;
+    }
+    if (sidebar_input_field_component_id_ >= 0 && register_binding(pilot_focus_state_id_, sidebar_input_field_component_id_) < 0) {
+      return false;
+    }
+    if (sidebar_primary_label_component_id_ >= 0 && register_binding(pilot_route_state_id_, sidebar_primary_label_component_id_) < 0) {
+      return false;
+    }
+
+    if (!set_primitive_text(toolbar_primary_button_primitive_id_, "Increment") ||
+        !set_primitive_action(toolbar_primary_button_primitive_id_, pilot_increment_action_id_) ||
+        !set_primitive_text(toolbar_secondary_button_primitive_id_, "Reset") ||
+        !set_primitive_action(toolbar_secondary_button_primitive_id_, pilot_reset_action_id_)) {
+      return false;
+    }
+
+    set_action_enabled(toolbar_action_id_, false);
+    set_action_enabled(dialog_open_action_id_, false);
+    set_action_enabled(dialog_close_action_id_, false);
+
+    if (!set_dialog_shell_open(false)) {
+      return false;
+    }
+
+    pilot_counter_value_ = 0;
+    pilot_submit_count_ = 0;
+    pilot_focus_order_ = 0;
+    pilot_route_sequence_ = 0;
+    pilot_text_value_.clear();
+    pilot_last_action_.clear();
+    pilot_committed_text_.clear();
+    update_widget_sandbox_migration_pilot_labels();
+    focus_migration_pilot_primitive(sidebar_input_field_primitive_id_);
+    return true;
   }
 
   bool initialize_render_surface(int width, int height) {
@@ -372,6 +496,63 @@ class NativeWindowPump {
         ui_nodes_[nested_id].bounds.width = std::max(100, ui_nodes_[child_id].bounds.width - 16);
         ui_nodes_[nested_id].bounds.height = 30;
         inner_y += 36;
+      }
+    }
+
+    layout_higher_level_shells();
+  }
+
+  void layout_higher_level_shells() {
+    for (const ShellRecord& shell : shells_) {
+      if (shell.node_id < 0 || shell.node_id >= static_cast<int>(ui_nodes_.size())) {
+        continue;
+      }
+
+      UiBounds shell_bounds = ui_nodes_[shell.node_id].bounds;
+      if (shell.kind == ShellKind::Toolbar) {
+        shell_bounds.x = 8;
+        shell_bounds.y = 8;
+        shell_bounds.width = std::max(180, surface_width_ - 16);
+        shell_bounds.height = 52;
+      } else if (shell.kind == ShellKind::Sidebar) {
+        shell_bounds.x = 8;
+        shell_bounds.y = 68;
+        shell_bounds.width = std::max(180, surface_width_ / 4);
+        shell_bounds.height = std::max(120, surface_height_ - 76);
+      } else if (shell.kind == ShellKind::Dialog) {
+        shell_bounds.width = 320;
+        shell_bounds.height = 160;
+        shell_bounds.x = std::max(12, (surface_width_ - shell_bounds.width) / 2);
+        shell_bounds.y = std::max(12, (surface_height_ - shell_bounds.height) / 2);
+      }
+      ui_nodes_[shell.node_id].bounds = shell_bounds;
+
+      if (shell.kind == ShellKind::Sidebar) {
+        int region_y = shell_bounds.y + 10;
+        for (int region_node_id : shell.child_region_node_ids) {
+          if (region_node_id < 0 || region_node_id >= static_cast<int>(ui_nodes_.size())) {
+            continue;
+          }
+          ui_nodes_[region_node_id].bounds.x = shell_bounds.x + 8;
+          ui_nodes_[region_node_id].bounds.y = region_y;
+          ui_nodes_[region_node_id].bounds.width = std::max(120, shell_bounds.width - 16);
+          ui_nodes_[region_node_id].bounds.height = 72;
+          region_y += 80;
+        }
+      }
+
+      if (shell.kind == ShellKind::Toolbar) {
+        int x_cursor = shell_bounds.x + 8;
+        for (int child_id : ui_nodes_[shell.node_id].children) {
+          if (child_id < 0 || child_id >= static_cast<int>(ui_nodes_.size())) {
+            continue;
+          }
+          ui_nodes_[child_id].bounds.x = x_cursor;
+          ui_nodes_[child_id].bounds.y = shell_bounds.y + 10;
+          ui_nodes_[child_id].bounds.width = 120;
+          ui_nodes_[child_id].bounds.height = 30;
+          x_cursor += 128;
+        }
       }
     }
   }
@@ -733,6 +914,30 @@ class NativeWindowPump {
       return;
     }
 
+    if (migration_pilot_active_ && action_id == pilot_increment_action_id_) {
+      pilot_counter_value_ += 1;
+      record_migration_pilot_action("increment");
+      update_widget_sandbox_migration_pilot_labels();
+    } else if (migration_pilot_active_ && action_id == pilot_reset_action_id_) {
+      pilot_counter_value_ = 0;
+      pilot_submit_count_ = 0;
+      pilot_text_value_.clear();
+      pilot_committed_text_.clear();
+      record_migration_pilot_action("reset");
+      update_widget_sandbox_migration_pilot_labels();
+    } else if (migration_pilot_active_ && action_id == pilot_submit_text_action_id_ && has_focused_text_field()) {
+      pilot_submit_count_ += 1;
+      pilot_committed_text_ = pilot_text_value_;
+      record_migration_pilot_action("submit_text");
+      update_widget_sandbox_migration_pilot_labels();
+    } else if (action_id == dialog_open_action_id_) {
+      set_dialog_shell_open(true);
+    } else if (action_id == dialog_close_action_id_) {
+      set_dialog_shell_open(false);
+    } else if (action_id == toolbar_action_id_) {
+      invalidate_ui_tree();
+    }
+
     emit_signal_event(SignalEventType::ActionInvoked, -1);
 
     if (!states_.empty()) {
@@ -809,8 +1014,277 @@ class NativeWindowPump {
     primitive.action_id = action_id;
     primitive.text = text;
     primitive.pressed = false;
+    primitive.visible = true;
+    primitive.focused = false;
     primitives_.push_back(primitive);
     return primitive.id;
+  }
+
+  int register_shell(
+      ShellKind kind,
+      int node_id,
+      int component_id,
+      const std::vector<int>& primitive_ids,
+      const std::vector<int>& child_region_node_ids,
+      bool open) {
+    if (node_id < 0 || node_id >= static_cast<int>(ui_nodes_.size())) {
+      return -1;
+    }
+    if (component_id < 0 || component_id >= static_cast<int>(components_.size())) {
+      return -1;
+    }
+
+    ShellRecord shell{};
+    shell.id = next_shell_id_++;
+    shell.kind = kind;
+    shell.node_id = node_id;
+    shell.component_id = component_id;
+    shell.primitive_ids = primitive_ids;
+    shell.child_region_node_ids = child_region_node_ids;
+    shell.open = open;
+    shells_.push_back(shell);
+    return shell.id;
+  }
+
+  bool set_primitive_text(int primitive_id, const std::string& text) {
+    for (WidgetPrimitiveRecord& primitive : primitives_) {
+      if (primitive.id == primitive_id) {
+        primitive.text = text;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool set_primitive_action(int primitive_id, int action_id) {
+    for (WidgetPrimitiveRecord& primitive : primitives_) {
+      if (primitive.id == primitive_id) {
+        primitive.action_id = action_id;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void clear_migration_pilot_focus() {
+    for (WidgetPrimitiveRecord& primitive : primitives_) {
+      if (primitive.kind == PrimitiveKind::Button || primitive.kind == PrimitiveKind::TextField) {
+        primitive.focused = false;
+      }
+    }
+  }
+
+  bool focus_migration_pilot_primitive(int primitive_id) {
+    bool found = false;
+    int focus_order = 0;
+    clear_migration_pilot_focus();
+    for (WidgetPrimitiveRecord& primitive : primitives_) {
+      if ((primitive.kind != PrimitiveKind::Button && primitive.kind != PrimitiveKind::TextField) || !primitive.visible) {
+        continue;
+      }
+      ++focus_order;
+      if (primitive.id == primitive_id) {
+        primitive.focused = true;
+        found = true;
+        pilot_focus_order_ = focus_order;
+      }
+    }
+    if (found) {
+      if (pilot_focus_state_id_ > 0) {
+        update_state_value(pilot_focus_state_id_, pilot_focus_order_);
+      }
+      invalidate_ui_tree();
+    }
+    return found;
+  }
+
+  bool focus_next_migration_pilot_primitive() {
+    std::vector<int> focusable_ids{};
+    for (const WidgetPrimitiveRecord& primitive : primitives_) {
+      if ((primitive.kind == PrimitiveKind::Button || primitive.kind == PrimitiveKind::TextField) && primitive.visible) {
+        focusable_ids.push_back(primitive.id);
+      }
+    }
+    if (focusable_ids.empty()) {
+      return false;
+    }
+
+    int current_index = -1;
+    for (std::size_t index = 0; index < focusable_ids.size(); ++index) {
+      for (const WidgetPrimitiveRecord& primitive : primitives_) {
+        if (primitive.id == focusable_ids[index] && primitive.focused) {
+          current_index = static_cast<int>(index);
+          break;
+        }
+      }
+      if (current_index >= 0) {
+        break;
+      }
+    }
+
+    const int next_index = (current_index + 1) % static_cast<int>(focusable_ids.size());
+    return focus_migration_pilot_primitive(focusable_ids[next_index]);
+  }
+
+  bool has_focused_text_field() const {
+    for (const WidgetPrimitiveRecord& primitive : primitives_) {
+      if (primitive.kind == PrimitiveKind::TextField && primitive.visible && primitive.focused) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  int focused_migration_pilot_action_id() const {
+    for (const WidgetPrimitiveRecord& primitive : primitives_) {
+      if ((primitive.kind == PrimitiveKind::Button || primitive.kind == PrimitiveKind::TextField) &&
+          primitive.visible &&
+          primitive.focused) {
+        return primitive.action_id;
+      }
+    }
+    return -1;
+  }
+
+  void record_migration_pilot_action(const std::string& action_name) {
+    pilot_last_action_ = action_name;
+    pilot_route_sequence_ += 1;
+    if (pilot_route_state_id_ > 0) {
+      update_state_value(pilot_route_state_id_, pilot_route_sequence_);
+    }
+  }
+
+  bool route_migration_pilot_key_action(int vkey) {
+    if (!migration_pilot_active_) {
+      return false;
+    }
+    if (vkey == VK_TAB) {
+      return focus_next_migration_pilot_primitive();
+    }
+    // PHASE83_3: Escape — clear textfield content if any, else clear focus; if button focused, restore textfield.
+    if (vkey == VK_ESCAPE) {
+      if (has_focused_text_field()) {
+        if (!pilot_text_value_.empty()) {
+          pilot_text_value_.clear();
+          record_migration_pilot_action("escape_clear");
+          update_widget_sandbox_migration_pilot_labels();
+        } else {
+          clear_migration_pilot_focus();
+          pilot_focus_order_ = 0;
+          if (pilot_focus_state_id_ > 0) {
+            update_state_value(pilot_focus_state_id_, 0);
+          }
+          record_migration_pilot_action("escape_unfocus");
+          invalidate_ui_tree();
+        }
+      } else {
+        focus_migration_pilot_primitive(sidebar_input_field_primitive_id_);
+        record_migration_pilot_action("escape_to_textbox");
+      }
+      return true;
+    }
+    if (vkey == VK_RETURN) {
+      const int focused_action_id = focused_migration_pilot_action_id();
+      if (focused_action_id > 0) {
+        queue_action_invocation(focused_action_id);
+        process_pending_actions_deterministic();
+        return true;
+      }
+    }
+    // PHASE83_3: Space activates buttons only; textfield uses Space for text input.
+    if (vkey == VK_SPACE && !has_focused_text_field()) {
+      const int focused_action_id = focused_migration_pilot_action_id();
+      if (focused_action_id > 0) {
+        queue_action_invocation(focused_action_id);
+        process_pending_actions_deterministic();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void update_widget_sandbox_migration_pilot_labels() {
+    // PHASE83_3: Compute focusable count for tab-order position display.
+    int focusable_count = 0;
+    for (const WidgetPrimitiveRecord& primitive : primitives_) {
+      if ((primitive.kind == PrimitiveKind::Button || primitive.kind == PrimitiveKind::TextField) && primitive.visible) {
+        ++focusable_count;
+      }
+    }
+    const char* focus_name = has_focused_text_field() ? "textbox"
+        : ((focused_migration_pilot_action_id() == pilot_increment_action_id_) ? "increment"
+        : ((focused_migration_pilot_action_id() == pilot_reset_action_id_) ? "reset" : "none"));
+    std::ostringstream status_text;
+    status_text << "count: " << pilot_counter_value_ << " | focus: " << focus_name;
+    if (pilot_focus_order_ > 0 && focusable_count > 0) {
+      status_text << " [" << pilot_focus_order_ << "/" << focusable_count << "]";
+    }
+    std::ostringstream footer_text;
+    footer_text << "last: " << (pilot_last_action_.empty() ? "ready" : pilot_last_action_)
+                << " | submit#: " << pilot_submit_count_;
+    std::ostringstream input_label_text;
+    input_label_text << "committed: " << (pilot_committed_text_.empty() ? "<empty>" : pilot_committed_text_);
+    const std::string field_display = pilot_text_value_.empty() ? "<type here>" : pilot_text_value_;
+
+    set_primitive_text(sidebar_primary_label_primitive_id_, status_text.str());
+    set_primitive_text(sidebar_secondary_label_primitive_id_, footer_text.str());
+    set_primitive_text(sidebar_input_label_primitive_id_, input_label_text.str());
+    set_primitive_text(sidebar_input_field_primitive_id_, field_display);
+
+    if (pilot_counter_state_id_ > 0) {
+      update_state_value(pilot_counter_state_id_, pilot_counter_value_);
+    }
+    if (pilot_text_length_state_id_ > 0) {
+      update_state_value(pilot_text_length_state_id_, static_cast<int>(pilot_text_value_.size()));
+    }
+    if (pilot_submit_count_state_id_ > 0) {
+      update_state_value(pilot_submit_count_state_id_, pilot_submit_count_);
+    }
+    if (pilot_focus_state_id_ > 0) {
+      update_state_value(pilot_focus_state_id_, pilot_focus_order_);
+    }
+    invalidate_ui_tree();
+  }
+
+  bool set_dialog_shell_open(bool open) {
+    dialog_open_ = open;
+    bool shell_found = false;
+
+    for (ShellRecord& shell : shells_) {
+      if (shell.kind != ShellKind::Dialog) {
+        continue;
+      }
+
+      shell_found = true;
+      shell.open = open;
+
+      for (int primitive_id : shell.primitive_ids) {
+        for (WidgetPrimitiveRecord& primitive : primitives_) {
+          if (primitive.id == primitive_id) {
+            primitive.visible = open;
+            primitive.pressed = false;
+          }
+        }
+      }
+
+      if (shell.component_id >= 0 && shell.component_id < static_cast<int>(components_.size())) {
+        if (open) {
+          attach_component(shell.component_id);
+        } else {
+          detach_component(shell.component_id);
+        }
+      }
+      break;
+    }
+
+    if (dialog_open_state_id_ > 0) {
+      update_state_value(dialog_open_state_id_, open ? 1 : 0);
+    }
+
+    if (shell_found) {
+      invalidate_ui_tree();
+    }
+    return shell_found;
   }
 
   bool point_in_node_bounds(int node_id, int x, int y) const {
@@ -826,6 +1300,9 @@ class NativeWindowPump {
       if (primitive.kind != PrimitiveKind::Label) {
         continue;
       }
+      if (!primitive.visible) {
+        continue;
+      }
       if (primitive.node_id < 0 || primitive.node_id >= static_cast<int>(ui_nodes_.size())) {
         continue;
       }
@@ -835,6 +1312,75 @@ class NativeWindowPump {
         text_w = L"label";
       }
       TextOutW(hdc, b.x + 4, b.y + 4, text_w.c_str(), static_cast<int>(text_w.size()));
+    }
+  }
+
+  void render_container_primitives(HDC hdc) {
+    for (const WidgetPrimitiveRecord& primitive : primitives_) {
+      if (primitive.kind != PrimitiveKind::Container || !primitive.visible) {
+        continue;
+      }
+      if (primitive.node_id < 0 || primitive.node_id >= static_cast<int>(ui_nodes_.size())) {
+        continue;
+      }
+      const UiBounds& b = ui_nodes_[primitive.node_id].bounds;
+      Rectangle(hdc, b.x, b.y, b.x + b.width, b.y + b.height);
+    }
+  }
+
+  void render_button_primitives(HDC hdc) {
+    for (const WidgetPrimitiveRecord& primitive : primitives_) {
+      if (primitive.kind != PrimitiveKind::Button || !primitive.visible) {
+        continue;
+      }
+      if (primitive.node_id < 0 || primitive.node_id >= static_cast<int>(ui_nodes_.size())) {
+        continue;
+      }
+
+      const UiBounds& b = ui_nodes_[primitive.node_id].bounds;
+      // PHASE83_3: Pressed state — fill background with light gray to convey depression.
+      if (primitive.pressed) {
+        HBRUSH pressed_brush = CreateSolidBrush(RGB(200, 200, 200));
+        if (pressed_brush) {
+          const RECT fill_r = {b.x + 1, b.y + 1, b.x + b.width - 1, b.y + b.height - 1};
+          FillRect(hdc, &fill_r, pressed_brush);
+          DeleteObject(pressed_brush);
+        }
+      }
+      Rectangle(hdc, b.x, b.y, b.x + b.width, b.y + b.height);
+      // PHASE83_3: Focus ring — inner border drawn when button holds keyboard focus.
+      if (primitive.focused) {
+        Rectangle(hdc, b.x + 2, b.y + 2, b.x + b.width - 2, b.y + b.height - 2);
+      }
+
+      std::wstring text_w(primitive.text.begin(), primitive.text.end());
+      if (text_w.empty()) {
+        text_w = L"Button";
+      }
+      TextOutW(hdc, b.x + 6, b.y + 8, text_w.c_str(), static_cast<int>(text_w.size()));
+    }
+  }
+
+  void render_text_field_primitives(HDC hdc) {
+    for (const WidgetPrimitiveRecord& primitive : primitives_) {
+      if (primitive.kind != PrimitiveKind::TextField || !primitive.visible) {
+        continue;
+      }
+      if (primitive.node_id < 0 || primitive.node_id >= static_cast<int>(ui_nodes_.size())) {
+        continue;
+      }
+
+      const UiBounds& b = ui_nodes_[primitive.node_id].bounds;
+      Rectangle(hdc, b.x, b.y, b.x + b.width, b.y + b.height);
+      if (primitive.focused) {
+        Rectangle(hdc, b.x + 1, b.y + 1, b.x + b.width - 1, b.y + b.height - 1);
+      }
+
+      std::wstring text_w(primitive.text.begin(), primitive.text.end());
+      if (text_w.empty()) {
+        text_w = L"input: <empty>";
+      }
+      TextOutW(hdc, b.x + 6, b.y + 8, text_w.c_str(), static_cast<int>(text_w.size()));
     }
   }
 
@@ -890,6 +1436,289 @@ class NativeWindowPump {
     return true;
   }
 
+  bool initialize_higher_level_shells_seed() {
+    shells_.clear();
+    next_shell_id_ = 1;
+    toolbar_action_id_ = -1;
+    dialog_open_action_id_ = -1;
+    dialog_close_action_id_ = -1;
+    dialog_open_state_id_ = -1;
+    dialog_open_ = false;
+    toolbar_primary_button_primitive_id_ = -1;
+    toolbar_secondary_button_primitive_id_ = -1;
+    sidebar_primary_label_primitive_id_ = -1;
+    sidebar_secondary_label_primitive_id_ = -1;
+    sidebar_primary_label_component_id_ = -1;
+    sidebar_secondary_label_component_id_ = -1;
+    sidebar_input_region_node_id_ = -1;
+    sidebar_input_label_primitive_id_ = -1;
+    sidebar_input_field_primitive_id_ = -1;
+    sidebar_input_field_component_id_ = -1;
+    migration_pilot_active_ = false;
+    pilot_increment_action_id_ = -1;
+    pilot_reset_action_id_ = -1;
+    pilot_counter_state_id_ = -1;
+    pilot_submit_text_action_id_ = -1;
+    pilot_text_length_state_id_ = -1;
+    pilot_submit_count_state_id_ = -1;
+    pilot_focus_state_id_ = -1;
+    pilot_route_state_id_ = -1;
+    pilot_counter_value_ = 0;
+    pilot_submit_count_ = 0;
+    pilot_focus_order_ = 0;
+    pilot_route_sequence_ = 0;
+    pilot_text_value_.clear();
+    pilot_last_action_.clear();
+    pilot_committed_text_.clear();
+
+    if (ui_root_id_ < 0 || ui_root_id_ >= static_cast<int>(ui_nodes_.size())) {
+      return false;
+    }
+
+    const int toolbar_node = create_ui_node(ui_root_id_, UiBounds{8, 8, std::max(180, surface_width_ - 16), 52});
+    if (toolbar_node < 0) {
+      return false;
+    }
+    const int toolbar_component = create_component(toolbar_node);
+    if (toolbar_component < 0 || !attach_component(toolbar_component)) {
+      return false;
+    }
+    const int toolbar_container_primitive = register_primitive(
+      PrimitiveKind::Container, toolbar_node, toolbar_component, "toolbar_shell", -1);
+    if (toolbar_container_primitive < 0) {
+      return false;
+    }
+
+    toolbar_action_id_ = register_action("toolbar_refresh_action", 0, true);
+    dialog_open_action_id_ = register_action("dialog_open_action", 0, true);
+    if (toolbar_action_id_ < 0 || dialog_open_action_id_ < 0) {
+      return false;
+    }
+
+    const int toolbar_button_node = create_ui_node(toolbar_node, UiBounds{16, 14, 120, 30});
+    if (toolbar_button_node < 0) {
+      return false;
+    }
+    const int toolbar_button_component = create_component(toolbar_button_node);
+    if (toolbar_button_component < 0 || !attach_component(toolbar_button_component)) {
+      return false;
+    }
+    const int toolbar_button_primitive = register_primitive(
+      PrimitiveKind::Button, toolbar_button_node, toolbar_button_component, "Refresh", toolbar_action_id_);
+    if (toolbar_button_primitive < 0) {
+      return false;
+    }
+    toolbar_primary_button_primitive_id_ = toolbar_button_primitive;
+
+    const int toolbar_dialog_button_node = create_ui_node(toolbar_node, UiBounds{144, 14, 120, 30});
+    if (toolbar_dialog_button_node < 0) {
+      return false;
+    }
+    const int toolbar_dialog_button_component = create_component(toolbar_dialog_button_node);
+    if (toolbar_dialog_button_component < 0 || !attach_component(toolbar_dialog_button_component)) {
+      return false;
+    }
+    const int toolbar_dialog_button_primitive = register_primitive(
+      PrimitiveKind::Button,
+      toolbar_dialog_button_node,
+      toolbar_dialog_button_component,
+      "Open Dialog",
+      dialog_open_action_id_);
+    if (toolbar_dialog_button_primitive < 0) {
+      return false;
+    }
+    toolbar_secondary_button_primitive_id_ = toolbar_dialog_button_primitive;
+
+    if (register_shell(
+          ShellKind::Toolbar,
+          toolbar_node,
+          toolbar_component,
+          std::vector<int>{toolbar_container_primitive, toolbar_button_primitive, toolbar_dialog_button_primitive},
+          std::vector<int>{},
+          true) < 0) {
+      return false;
+    }
+
+    const int sidebar_node = create_ui_node(ui_root_id_, UiBounds{8, 68, std::max(180, surface_width_ / 4), std::max(120, surface_height_ - 76)});
+    if (sidebar_node < 0) {
+      return false;
+    }
+    const int sidebar_component = create_component(sidebar_node);
+    if (sidebar_component < 0 || !attach_component(sidebar_component)) {
+      return false;
+    }
+    const int sidebar_container_primitive = register_primitive(
+      PrimitiveKind::Container, sidebar_node, sidebar_component, "sidebar_shell", -1);
+    if (sidebar_container_primitive < 0) {
+      return false;
+    }
+
+    const int sidebar_region_a_node = create_ui_node(sidebar_node, UiBounds{16, 80, 180, 72});
+    const int sidebar_region_b_node = create_ui_node(sidebar_node, UiBounds{16, 160, 180, 72});
+    const int sidebar_region_c_node = create_ui_node(sidebar_node, UiBounds{16, 240, 180, 72});
+    if (sidebar_region_a_node < 0 || sidebar_region_b_node < 0 || sidebar_region_c_node < 0) {
+      return false;
+    }
+    sidebar_input_region_node_id_ = sidebar_region_c_node;
+
+    const int sidebar_region_a_component = create_component(sidebar_region_a_node);
+    const int sidebar_region_b_component = create_component(sidebar_region_b_node);
+    const int sidebar_region_c_component = create_component(sidebar_region_c_node);
+    if (sidebar_region_a_component < 0 || sidebar_region_b_component < 0 || sidebar_region_c_component < 0) {
+      return false;
+    }
+    if (!attach_component(sidebar_region_a_component) || !attach_component(sidebar_region_b_component) || !attach_component(sidebar_region_c_component)) {
+      return false;
+    }
+
+    const int sidebar_region_a_primitive = register_primitive(
+      PrimitiveKind::Container, sidebar_region_a_node, sidebar_region_a_component, "region_a", -1);
+    const int sidebar_region_b_primitive = register_primitive(
+      PrimitiveKind::Container, sidebar_region_b_node, sidebar_region_b_component, "region_b", -1);
+    const int sidebar_region_c_primitive = register_primitive(
+      PrimitiveKind::Container, sidebar_region_c_node, sidebar_region_c_component, "region_c", -1);
+    if (sidebar_region_a_primitive < 0 || sidebar_region_b_primitive < 0 || sidebar_region_c_primitive < 0) {
+      return false;
+    }
+
+    const int sidebar_region_a_label_node = create_ui_node(sidebar_region_a_node, UiBounds{20, 88, 140, 24});
+    const int sidebar_region_b_label_node = create_ui_node(sidebar_region_b_node, UiBounds{20, 168, 140, 24});
+    const int sidebar_input_label_node = create_ui_node(sidebar_region_c_node, UiBounds{20, 248, 140, 20});
+    const int sidebar_input_field_node = create_ui_node(sidebar_region_c_node, UiBounds{20, 272, 160, 28});
+    if (sidebar_region_a_label_node < 0 || sidebar_region_b_label_node < 0 || sidebar_input_label_node < 0 || sidebar_input_field_node < 0) {
+      return false;
+    }
+
+    const int sidebar_region_a_label_component = create_component(sidebar_region_a_label_node);
+    const int sidebar_region_b_label_component = create_component(sidebar_region_b_label_node);
+    const int sidebar_input_label_component = create_component(sidebar_input_label_node);
+    const int sidebar_input_field_component = create_component(sidebar_input_field_node);
+    if (sidebar_region_a_label_component < 0 || sidebar_region_b_label_component < 0 || sidebar_input_label_component < 0 || sidebar_input_field_component < 0) {
+      return false;
+    }
+    if (!attach_component(sidebar_region_a_label_component) ||
+        !attach_component(sidebar_region_b_label_component) ||
+        !attach_component(sidebar_input_label_component) ||
+        !attach_component(sidebar_input_field_component)) {
+      return false;
+    }
+
+    const int sidebar_region_a_label_primitive = register_primitive(
+      PrimitiveKind::Label, sidebar_region_a_label_node, sidebar_region_a_label_component, "Sidebar Region A", -1);
+    const int sidebar_region_b_label_primitive = register_primitive(
+      PrimitiveKind::Label, sidebar_region_b_label_node, sidebar_region_b_label_component, "Sidebar Region B", -1);
+    const int sidebar_input_label_primitive = register_primitive(
+      PrimitiveKind::Label, sidebar_input_label_node, sidebar_input_label_component, "textbox:", -1);
+    const int sidebar_input_field_primitive = register_primitive(
+      PrimitiveKind::TextField, sidebar_input_field_node, sidebar_input_field_component, "input: <empty>", -1);
+    if (sidebar_region_a_label_primitive < 0 ||
+        sidebar_region_b_label_primitive < 0 ||
+        sidebar_input_label_primitive < 0 ||
+        sidebar_input_field_primitive < 0) {
+      return false;
+    }
+    sidebar_primary_label_primitive_id_ = sidebar_region_a_label_primitive;
+    sidebar_secondary_label_primitive_id_ = sidebar_region_b_label_primitive;
+    sidebar_primary_label_component_id_ = sidebar_region_a_label_component;
+    sidebar_secondary_label_component_id_ = sidebar_region_b_label_component;
+    sidebar_input_label_primitive_id_ = sidebar_input_label_primitive;
+    sidebar_input_field_primitive_id_ = sidebar_input_field_primitive;
+    sidebar_input_field_component_id_ = sidebar_input_field_component;
+
+    if (register_shell(
+          ShellKind::Sidebar,
+          sidebar_node,
+          sidebar_component,
+          std::vector<int>{
+            sidebar_container_primitive,
+            sidebar_region_a_primitive,
+            sidebar_region_b_primitive,
+            sidebar_region_c_primitive,
+            sidebar_region_a_label_primitive,
+            sidebar_region_b_label_primitive,
+            sidebar_input_label_primitive,
+            sidebar_input_field_primitive},
+          std::vector<int>{sidebar_region_a_node, sidebar_region_b_node, sidebar_region_c_node},
+          true) < 0) {
+      return false;
+    }
+
+    const int dialog_node = create_ui_node(ui_root_id_, UiBounds{220, 100, 320, 160});
+    if (dialog_node < 0) {
+      return false;
+    }
+    const int dialog_component = create_component(dialog_node);
+    if (dialog_component < 0 || !attach_component(dialog_component)) {
+      return false;
+    }
+    const int dialog_container_primitive = register_primitive(
+      PrimitiveKind::Container, dialog_node, dialog_component, "dialog_shell", -1);
+    if (dialog_container_primitive < 0) {
+      return false;
+    }
+
+    const int dialog_label_node = create_ui_node(dialog_node, UiBounds{232, 112, 240, 24});
+    if (dialog_label_node < 0) {
+      return false;
+    }
+    const int dialog_label_component = create_component(dialog_label_node);
+    if (dialog_label_component < 0 || !attach_component(dialog_label_component)) {
+      return false;
+    }
+    const int dialog_label_primitive = register_primitive(
+      PrimitiveKind::Label, dialog_label_node, dialog_label_component, "Dialog Shell", -1);
+    if (dialog_label_primitive < 0) {
+      return false;
+    }
+
+    dialog_close_action_id_ = register_action("dialog_close_action", 0, true);
+    if (dialog_close_action_id_ < 0) {
+      return false;
+    }
+
+    const int dialog_close_button_node = create_ui_node(dialog_node, UiBounds{232, 136, 120, 30});
+    if (dialog_close_button_node < 0) {
+      return false;
+    }
+    const int dialog_close_button_component = create_component(dialog_close_button_node);
+    if (dialog_close_button_component < 0 || !attach_component(dialog_close_button_component)) {
+      return false;
+    }
+    const int dialog_close_button_primitive = register_primitive(
+      PrimitiveKind::Button,
+      dialog_close_button_node,
+      dialog_close_button_component,
+      "Close Dialog",
+      dialog_close_action_id_);
+    if (dialog_close_button_primitive < 0) {
+      return false;
+    }
+
+    if (register_shell(
+          ShellKind::Dialog,
+          dialog_node,
+          dialog_component,
+          std::vector<int>{dialog_container_primitive, dialog_label_primitive, dialog_close_button_primitive},
+          std::vector<int>{},
+          false) < 0) {
+      return false;
+    }
+
+    dialog_open_state_id_ = create_observable_state_record(0);
+    if (dialog_open_state_id_ < 0) {
+      return false;
+    }
+    if (register_binding(dialog_open_state_id_, dialog_component) < 0) {
+      return false;
+    }
+
+    if (!set_dialog_shell_open(false)) {
+      return false;
+    }
+
+    return true;
+  }
+
   // Idle state: message pump maintains idle by waiting in GetMessage
   // GetMessage blocks when no messages available, allowing low CPU idle
 
@@ -938,6 +1767,39 @@ class NativeWindowPump {
     action_invocation_sequence_ = 0;
     primitives_.clear();
     next_primitive_id_ = 1;
+    shells_.clear();
+    next_shell_id_ = 1;
+    toolbar_action_id_ = -1;
+    dialog_open_action_id_ = -1;
+    dialog_close_action_id_ = -1;
+    dialog_open_state_id_ = -1;
+    dialog_open_ = false;
+    toolbar_primary_button_primitive_id_ = -1;
+    toolbar_secondary_button_primitive_id_ = -1;
+    sidebar_primary_label_primitive_id_ = -1;
+    sidebar_secondary_label_primitive_id_ = -1;
+    sidebar_primary_label_component_id_ = -1;
+    sidebar_secondary_label_component_id_ = -1;
+    sidebar_input_region_node_id_ = -1;
+    sidebar_input_label_primitive_id_ = -1;
+    sidebar_input_field_primitive_id_ = -1;
+    sidebar_input_field_component_id_ = -1;
+    migration_pilot_active_ = false;
+    pilot_increment_action_id_ = -1;
+    pilot_reset_action_id_ = -1;
+    pilot_counter_state_id_ = -1;
+    pilot_submit_text_action_id_ = -1;
+    pilot_text_length_state_id_ = -1;
+    pilot_submit_count_state_id_ = -1;
+    pilot_focus_state_id_ = -1;
+    pilot_route_state_id_ = -1;
+    pilot_counter_value_ = 0;
+    pilot_submit_count_ = 0;
+    pilot_focus_order_ = 0;
+    pilot_route_sequence_ = 0;
+    pilot_text_value_.clear();
+    pilot_last_action_.clear();
+    pilot_committed_text_.clear();
     last_mouse_x_ = 0;
     last_mouse_y_ = 0;
     update_tick_counter_ = 0;
@@ -978,6 +1840,10 @@ class NativeWindowPump {
       case WM_KEYUP: {
         // Key up event: wparam = virtual key code
         handle_key_up(static_cast<int>(wparam));
+        return 0;
+      }
+      case WM_CHAR: {
+        handle_char_input(static_cast<wchar_t>(wparam));
         return 0;
       }
 
@@ -1062,6 +1928,9 @@ class NativeWindowPump {
           }
         }
 
+        render_container_primitives(ps.hdc);
+        render_button_primitives(ps.hdc);
+        render_text_field_primitives(ps.hdc);
         render_label_primitives(ps.hdc);
 
         EndPaint(hwnd_, &ps);
@@ -1089,9 +1958,11 @@ class NativeWindowPump {
   // Input dispatch handlers - PHASE80_1 input layer
   void handle_key_down(int vkey) {
     // Key down handler - available for input dispatch
-    // vkey: virtual key code (VK_A, VK_ESCAPE, etc.)
-    (void)vkey;
     emit_signal_event(SignalEventType::InputActivity, -1);
+    if (route_migration_pilot_key_action(vkey)) {
+      invalidate_ui_tree();
+      return;
+    }
     trigger_actions_from_key(vkey);
     invalidate_ui_tree();
   }
@@ -1099,6 +1970,30 @@ class NativeWindowPump {
   void handle_key_up(int vkey) {
     // Key up handler - available for input dispatch
     (void)vkey;
+  }
+
+  void handle_char_input(wchar_t codepoint) {
+    if (!migration_pilot_active_ || !has_focused_text_field()) {
+      return;
+    }
+
+    if (codepoint == 8) {
+      if (!pilot_text_value_.empty()) {
+        pilot_text_value_.pop_back();
+      }
+      record_migration_pilot_action("backspace");
+    } else if (codepoint >= 32 && codepoint < 127) {
+      // PHASE83_3: Cap input at 64 characters.
+      if (pilot_text_value_.size() < 64) {
+        pilot_text_value_.push_back(static_cast<char>(codepoint));
+        record_migration_pilot_action("text_input");
+      }
+    } else {
+      return;
+    }
+
+    emit_signal_event(SignalEventType::InputActivity, -1);
+    update_widget_sandbox_migration_pilot_labels();
   }
 
   void handle_mouse_move(int x, int y) {
@@ -1114,9 +2009,26 @@ class NativeWindowPump {
     (void)button;
     emit_signal_event(SignalEventType::InputActivity, -1);
 
+    bool focus_target_found = false;
     for (WidgetPrimitiveRecord& primitive : primitives_) {
+      if (!primitive.visible) {
+        continue;
+      }
       if (primitive.kind == PrimitiveKind::Button && point_in_node_bounds(primitive.node_id, last_mouse_x_, last_mouse_y_)) {
         primitive.pressed = true;
+        focus_migration_pilot_primitive(primitive.id);
+        focus_target_found = true;
+      }
+      if (primitive.kind == PrimitiveKind::TextField && point_in_node_bounds(primitive.node_id, last_mouse_x_, last_mouse_y_)) {
+        focus_migration_pilot_primitive(primitive.id);
+        focus_target_found = true;
+      }
+    }
+    if (migration_pilot_active_ && !focus_target_found) {
+      clear_migration_pilot_focus();
+      pilot_focus_order_ = 0;
+      if (pilot_focus_state_id_ > 0) {
+        update_state_value(pilot_focus_state_id_, pilot_focus_order_);
       }
     }
 
@@ -1132,6 +2044,10 @@ class NativeWindowPump {
 
     for (WidgetPrimitiveRecord& primitive : primitives_) {
       if (primitive.kind != PrimitiveKind::Button) {
+        continue;
+      }
+      if (!primitive.visible) {
+        primitive.pressed = false;
         continue;
       }
       const bool was_pressed = primitive.pressed;
@@ -1150,6 +2066,9 @@ class NativeWindowPump {
   void handle_focus_gain() {
     // Window gained focus
     emit_signal_event(SignalEventType::FocusChange, -1);
+    if (migration_pilot_active_ && focused_migration_pilot_action_id() <= 0 && !has_focused_text_field()) {
+      focus_migration_pilot_primitive(sidebar_input_field_primitive_id_);
+    }
     if (!components_.empty()) {
       attach_component(0);
     }
@@ -1159,6 +2078,11 @@ class NativeWindowPump {
   void handle_focus_loss() {
     // Window lost focus
     emit_signal_event(SignalEventType::FocusChange, -1);
+    clear_migration_pilot_focus();
+    pilot_focus_order_ = 0;
+    if (pilot_focus_state_id_ > 0) {
+      update_state_value(pilot_focus_state_id_, pilot_focus_order_);
+    }
     if (!components_.empty()) {
       detach_component(0);
     }
@@ -1202,6 +2126,20 @@ constexpr int CONTROL_SPACING = 12;
 enum class SandboxLane {
   Baseline,
   ExtensionSlot
+};
+
+enum class MigrationPilotTarget {
+  WidgetSandboxControlSurface,
+  Win32SandboxDiagnosticsSurface,
+  SandboxAppEventLoopSurface
+};
+
+struct MigrationPilotCandidate {
+  MigrationPilotTarget target = MigrationPilotTarget::WidgetSandboxControlSurface;
+  const char* id = "widget_sandbox_control_surface";
+  int rank = 1;
+  bool real_surface = true;
+  const char* reason = "smallest_real_surface_on_current_native_runtime_migration_path";
 };
 
 enum class ExtensionCompositionSlot {
@@ -2848,6 +3786,68 @@ SandboxLane read_sandbox_lane(int argc, char** argv) {
   }
 
   return SandboxLane::Baseline;
+}
+
+bool is_migration_pilot_mode_enabled(int argc, char** argv) {
+  if (argv) {
+    for (int index = 1; index < argc; ++index) {
+      if (!argv[index]) {
+        continue;
+      }
+
+      const std::string argument = argv[index];
+      if (argument == "--migration-pilot") {
+        return true;
+      }
+    }
+  }
+
+  const char* env_value = std::getenv("NGK_WIDGET_MIGRATION_PILOT");
+  if (!env_value) {
+    return false;
+  }
+
+  const std::string env_text = env_value;
+  return env_text == "1" || equals_ignore_case(env_text, "true") || equals_ignore_case(env_text, "on");
+}
+
+MigrationPilotCandidate select_phase83_0_migration_pilot_target() {
+  return MigrationPilotCandidate{};
+}
+
+void emit_phase83_0_migration_target_ranking() {
+  const MigrationPilotCandidate selected = select_phase83_0_migration_pilot_target();
+  std::cout << "phase83_0_migration_candidate_rank_1=widget_sandbox_control_surface\n";
+  std::cout << "phase83_0_migration_candidate_rank_1_real_surface=1\n";
+  std::cout << "phase83_0_migration_candidate_rank_2=win32_sandbox_diagnostics_surface\n";
+  std::cout << "phase83_0_migration_candidate_rank_2_real_surface=1\n";
+  std::cout << "phase83_0_migration_candidate_rank_3=sandbox_app_event_loop_surface\n";
+  std::cout << "phase83_0_migration_candidate_rank_3_real_surface=0\n";
+  std::cout << "phase83_0_migration_target_selected=" << selected.id << "\n";
+  std::cout << "phase83_0_migration_target_selection_reason=" << selected.reason << "\n";
+}
+
+int run_phase83_0_migration_pilot_app() {
+  const MigrationPilotCandidate selected = select_phase83_0_migration_pilot_target();
+  std::cout << "phase83_0_migration_pilot_active=1\n";
+  std::cout << "phase83_0_migration_pilot_target=" << selected.id << "\n";
+  std::cout << "phase83_0_migration_pilot_slice=widget_sandbox_controls_status_surface\n";
+  std::cout << "phase83_0_migration_pilot_native_stack=runtime_framework_widgets_shells\n";
+
+  ngk::native_window::NativeWindowPump native_pump;
+  if (!native_pump.startup(L"NGKsUI Runtime - Widget Sandbox Migration Pilot", kInitialWidth, kInitialHeight)) {
+    std::cout << "phase83_0_migration_pilot_startup_failed=1\n";
+    return 20;
+  }
+  if (!native_pump.configure_widget_sandbox_migration_pilot()) {
+    native_pump.cleanup();
+    std::cout << "phase83_0_migration_pilot_configuration_failed=1\n";
+    return 21;
+  }
+
+  native_pump.run_event_loop();
+  native_pump.cleanup();
+  return 0;
 }
 
 std::wstring to_wide(const std::string& text) {
@@ -5342,12 +6342,37 @@ int main(int argc, char** argv) {
     std::cout << "phase82_0_widget_primitives_available=1\n";
     std::cout << "phase82_0_widget_primitives_features=label_button_container_node_lifecycle_layout_invalidation\n";
 
+    // PHASE82_1: Higher-level shells first slice.
+    std::cout << "phase82_1_higher_level_shells_available=1\n";
+    std::cout << "phase82_1_higher_level_shells_features=toolbar_sidebar_dialog_primitive_composition_layout_state_actions_invalidation\n";
+
+    // PHASE83_0: Migration pilot target selection and first pilot slice.
+    std::cout << "phase83_0_migration_pilot_available=1\n";
+    std::cout << "phase83_0_migration_pilot_features=target_ranking_widget_sandbox_selection_native_controls_status_slice\n";
+    emit_phase83_0_migration_target_ranking();
+
+    // PHASE83_1: Migration pilot expansion inside widget_sandbox.
+    std::cout << "phase83_1_migration_pilot_expansion_available=1\n";
+    std::cout << "phase83_1_migration_pilot_expansion_surface=widget_sandbox_text_input_surface\n";
+    std::cout << "phase83_1_migration_pilot_expansion_features=text_field_primitive_sidebar_region_state_binding_submit_action_redraw\n";
+
+    // PHASE83_2: Migration pilot interaction consolidation.
+    std::cout << "phase83_2_migration_pilot_consolidation_available=1\n";
+    std::cout << "phase83_2_migration_pilot_consolidation_features=shared_focus_cycle_action_routing_state_consistency_redraw_coherence\n";
+
+    // PHASE83_3: Migration pilot usability completion.
+    std::cout << "phase83_3_migration_pilot_usability_available=1\n";
+    std::cout << "phase83_3_migration_pilot_usability_features=button_focus_ring_pressed_fill_escape_key_space_textfield_fix_input_length_cap_clean_labels_tab_order_display\n";
+
     const bool demo_mode = is_demo_mode_enabled(argc, argv);
     const bool visual_baseline_mode = is_visual_baseline_mode_enabled(argc, argv);
     const bool extension_visual_baseline_mode = is_extension_visual_baseline_mode_enabled(argc, argv);
     const bool extension_stress_demo_mode = is_extension_stress_demo_mode_enabled(argc, argv);
+    const bool migration_pilot_mode = is_migration_pilot_mode_enabled(argc, argv);
     const SandboxLane lane = read_sandbox_lane(argc, argv);
-    const int app_rc = run_app(demo_mode, visual_baseline_mode, extension_visual_baseline_mode, extension_stress_demo_mode, lane);
+    const int app_rc = migration_pilot_mode
+      ? run_phase83_0_migration_pilot_app()
+      : run_app(demo_mode, visual_baseline_mode, extension_visual_baseline_mode, extension_stress_demo_mode, lane);
     ngk::runtime_guard::runtime_observe_lifecycle("widget_sandbox", "main_exit");
     ngk::runtime_guard::runtime_emit_termination_summary("widget_sandbox", "runtime_init", app_rc == 0 ? 0 : 1);
     ngk::runtime_guard::runtime_emit_final_status("RUN_OK");

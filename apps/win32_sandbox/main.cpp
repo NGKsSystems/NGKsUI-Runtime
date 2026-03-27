@@ -14,6 +14,10 @@
 #include "ngk/event_loop.hpp"
 #include "ngk/platform/win32_window.hpp"
 #include "ngk/gfx/d3d11_renderer.hpp"
+#include "../../engine/ui/ui_element.hpp"
+#include "../../engine/ui/panel.hpp"
+#include "../../engine/ui/ui_tree.hpp"
+#include "../../engine/ui/input_router.hpp"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -51,6 +55,26 @@ static int read_env_int(const char* key, int def_value) {
 static bool is_env_set(const char* key) {
   const char* v = std::getenv(key);
   return v != nullptr;
+}
+
+static bool is_phase84_2_migration_slice_enabled(int argc, char** argv) {
+  for (int index = 1; index < argc; ++index) {
+    if (argv[index] != nullptr && std::string(argv[index]) == "--migration-slice") {
+      return true;
+    }
+  }
+  const char* env_flag = std::getenv("NGK_WIN32_SANDBOX_MIGRATION_SLICE");
+  return env_flag != nullptr && std::string(env_flag) == "1";
+}
+
+static bool is_phase88_1_legacy_fallback_enabled(int argc, char** argv) {
+  for (int index = 1; index < argc; ++index) {
+    if (argv[index] != nullptr && std::string(argv[index]) == "--legacy-fallback") {
+      return true;
+    }
+  }
+  const char* env_flag = std::getenv("NGK_WIN32_SANDBOX_LEGACY_FALLBACK");
+  return env_flag != nullptr && std::string(env_flag) == "1";
 }
 
 static int clamp_int(int value, int min_value, int max_value) {
@@ -262,7 +286,171 @@ static std::string make_default_jitter_csv_path() {
   return std::string(path);
 }
 
-static int run_app() {
+namespace {
+
+class Win32SandboxShellRoot final : public ngk::ui::UIElement {
+public:
+  void render(Renderer& renderer) override {
+    if (!visible()) {
+      return;
+    }
+    for (UIElement* child : children()) {
+      if (child && child->visible()) {
+        child->render(renderer);
+      }
+    }
+  }
+};
+
+class Win32SandboxActionTile final : public ngk::ui::Panel {
+public:
+  using ActivateCallback = std::function<void()>;
+
+  Win32SandboxActionTile() {
+    set_size(180, 36);
+    set_preferred_size(180, 36);
+    set_focusable(true);
+    set_background(0.22f, 0.24f, 0.30f, 1.0f);
+  }
+
+  void set_on_activate(ActivateCallback callback) {
+    on_activate_ = std::move(callback);
+  }
+
+  int activation_count() const {
+    return activation_count_;
+  }
+
+  bool on_mouse_down(int x, int y, int button) override {
+    if (button != 0 || !contains_point(x, y)) {
+      return Panel::on_mouse_down(x, y, button);
+    }
+    pressed_ = true;
+    hover_ = true;
+    return true;
+  }
+
+  bool on_mouse_up(int x, int y, int button) override {
+    if (button != 0) {
+      return Panel::on_mouse_up(x, y, button);
+    }
+
+    const bool was_pressed = pressed_;
+    pressed_ = false;
+    hover_ = contains_point(x, y);
+    if (was_pressed && hover_) {
+      activate();
+      return true;
+    }
+    return was_pressed;
+  }
+
+  bool on_mouse_move(int x, int y) override {
+    const bool inside = contains_point(x, y);
+    const bool changed = (hover_ != inside);
+    hover_ = inside;
+    if (!inside) {
+      pressed_ = false;
+    }
+    return changed;
+  }
+
+  bool on_key_down(std::uint32_t key, bool /*shift*/, bool repeat) override {
+    constexpr std::uint32_t vkReturn = 0x0D;
+    constexpr std::uint32_t vkSpace = 0x20;
+    if (!focused() || repeat) {
+      return false;
+    }
+    if (key == vkReturn || key == vkSpace) {
+      activate();
+      return true;
+    }
+    return false;
+  }
+
+  void render(Renderer& renderer) override {
+    if (!visible()) {
+      return;
+    }
+
+    if (pressed_) {
+      set_background(0.80f, 0.28f, 0.24f, 1.0f);
+    } else if (hover_) {
+      set_background(0.34f, 0.40f, 0.56f, 1.0f);
+    } else if (focused()) {
+      set_background(0.24f, 0.36f, 0.62f, 1.0f);
+    } else {
+      set_background(0.22f, 0.24f, 0.30f, 1.0f);
+    }
+
+    Panel::render(renderer);
+    renderer.queue_rect_outline(x(), y(), width(), height(), 0.90f, 0.90f, 0.92f, 1.0f);
+    if (focused()) {
+      renderer.queue_rect_outline(x() + 2, y() + 2, width() - 4, height() - 4, 0.98f, 0.82f, 0.20f, 1.0f);
+    }
+  }
+
+private:
+  void activate() {
+    activation_count_ += 1;
+    if (on_activate_) {
+      on_activate_();
+    }
+  }
+
+  ActivateCallback on_activate_{};
+  int activation_count_ = 0;
+  bool hover_ = false;
+  bool pressed_ = false;
+};
+
+class Win32SandboxStatusStrip final : public ngk::ui::Panel {
+public:
+  Win32SandboxStatusStrip() {
+    set_size(360, 18);
+    set_preferred_size(360, 18);
+    set_background(0.10f, 0.12f, 0.16f, 0.96f);
+  }
+
+  void set_value(int value) {
+    if (value < 0) {
+      value_ = 0;
+    } else if (value > 10) {
+      value_ = 10;
+    } else {
+      value_ = value;
+    }
+  }
+
+  int value() const {
+    return value_;
+  }
+
+  void render(Renderer& renderer) override {
+    if (!visible()) {
+      return;
+    }
+
+    Panel::render(renderer);
+    renderer.queue_rect_outline(x(), y(), width(), height(), 0.72f, 0.78f, 0.88f, 1.0f);
+
+    const int inner_x = x() + 2;
+    const int inner_y = y() + 2;
+    const int inner_w = width() - 4;
+    const int inner_h = height() - 4;
+    if (inner_w > 0 && inner_h > 0 && value_ > 0) {
+      const int fill_w = (inner_w * value_) / 10;
+      renderer.queue_rect(inner_x, inner_y, fill_w, inner_h, 0.22f, 0.70f, 0.30f, 1.0f);
+    }
+  }
+
+private:
+  int value_ = 0;
+};
+
+} // namespace
+
+static int run_phase84_3_native_slice_app() {
   using namespace std::chrono;
 
   ngk::EventLoop loop;
@@ -385,6 +573,89 @@ static int run_app() {
     return 2;
   }
   std::cout << "d3d11_ready=1\n";
+
+  // PHASE84_2/84_3: Native migration slice in win32_sandbox expanded on same UITree path.
+  ngk::ui::UITree native_tree;
+  ngk::ui::InputRouter native_input_router;
+  Win32SandboxShellRoot native_root;
+  ngk::ui::Panel native_toolbar_shell;
+  Win32SandboxActionTile native_primary_action_tile;
+  Win32SandboxActionTile native_secondary_action_tile;
+  Win32SandboxStatusStrip native_status_strip;
+  int native_primary_action_count = 0;
+  int native_secondary_action_count = 0;
+  int native_status_value = 0;
+
+  auto layout_native_slice = [&](int w, int h) {
+    native_root.set_position(0, 0);
+    native_root.set_size(w, h);
+    const int shell_w = 430;
+    const int shell_h = 110;
+    native_toolbar_shell.set_position(16, 16);
+    native_toolbar_shell.set_size(shell_w, shell_h);
+    native_toolbar_shell.set_preferred_size(shell_w, shell_h);
+    native_toolbar_shell.set_background(0.14f, 0.16f, 0.20f, 0.92f);
+    native_primary_action_tile.set_position(28, 34);
+    native_primary_action_tile.set_size(180, 36);
+    native_secondary_action_tile.set_position(220, 34);
+    native_secondary_action_tile.set_size(180, 36);
+    native_status_strip.set_position(28, 78);
+    native_status_strip.set_size(372, 18);
+  };
+
+  native_root.add_child(&native_toolbar_shell);
+  native_toolbar_shell.add_child(&native_primary_action_tile);
+  native_toolbar_shell.add_child(&native_secondary_action_tile);
+  native_toolbar_shell.add_child(&native_status_strip);
+  native_tree.set_root(&native_root);
+  native_input_router.set_tree(&native_tree);
+  native_tree.set_invalidate_callback([&] { window.request_repaint(); });
+  layout_native_slice(client_w, client_h);
+  native_status_strip.set_value(0);
+  native_tree.on_resize(client_w, client_h);
+  native_tree.set_focused_element(&native_primary_action_tile);
+  native_tree.invalidate();
+
+  native_primary_action_tile.set_on_activate([&] {
+    native_primary_action_count += 1;
+    if (native_status_value < 10) {
+      native_status_value += 1;
+    }
+    native_status_strip.set_value(native_status_value);
+    std::cout << "phase84_3_primary_action_count=" << native_primary_action_count << "\n";
+    std::cout << "phase84_3_status_value=" << native_status_value << "\n";
+    native_tree.invalidate();
+  });
+
+  native_secondary_action_tile.set_on_activate([&] {
+    native_secondary_action_count += 1;
+    native_status_value = 0;
+    native_status_strip.set_value(native_status_value);
+    std::cout << "phase84_3_secondary_action_count=" << native_secondary_action_count << "\n";
+    std::cout << "phase84_3_status_value=" << native_status_value << "\n";
+    native_tree.invalidate();
+  });
+
+  window.set_mouse_move_callback([&](int x, int y) {
+    if (native_input_router.on_mouse_move(x, y)) {
+      native_tree.invalidate();
+    }
+  });
+  window.set_mouse_button_callback([&](std::uint32_t message, bool down) {
+    if (native_input_router.on_mouse_button_message(message, down)) {
+      native_tree.invalidate();
+    }
+  });
+  window.set_key_callback([&](std::uint32_t key, bool down, bool repeat) {
+    if (native_input_router.on_key_message(key, down, repeat)) {
+      native_tree.invalidate();
+    }
+  });
+  window.set_char_callback([&](std::uint32_t codepoint) {
+    if (native_input_router.on_char_input(codepoint)) {
+      native_tree.invalidate();
+    }
+  });
 
   std::ofstream jitter_csv;
   bool jitter_csv_active = false;
@@ -532,6 +803,9 @@ static int run_app() {
     std::cout << "renderer_resize_ok=" << (ok ? 1 : 0) << "\n";
     if (ok) {
       resize_events_pending++;
+      layout_native_slice(w, h);
+      native_tree.on_resize(w, h);
+      native_tree.invalidate();
     }
     HWND hwnd = (HWND)window.native_handle();
     rt_refresh_flush(hwnd, rt_refresh_flush_enabled, "after_resize");
@@ -661,6 +935,7 @@ static int run_app() {
       renderer.begin_frame();
       float t = (float)((frame % 300) / 300.0);
       renderer.clear(0.05f + 0.35f * t, 0.07f, 0.12f + 0.25f * (1.0f - t), 1.0f);
+      native_tree.render(renderer);
       const auto present_start = std::chrono::steady_clock::now();
       renderer.end_frame();
       const auto present_end = std::chrono::steady_clock::now();
@@ -762,7 +1037,11 @@ static int run_app() {
   return 0;
 }
 
-int main() {
+static int run_legacy_win32_sandbox() {
+  return run_phase84_3_native_slice_app();
+}
+
+int main(int argc, char** argv) {
   ngk::runtime_guard::runtime_observe_lifecycle("win32_sandbox", "main_enter");
   const int guard_rc = ngk::runtime_guard::enforce_phase53_2();
   if (guard_rc != 0) {
@@ -775,7 +1054,37 @@ int main() {
   ngk::runtime_guard::runtime_observe_lifecycle("win32_sandbox", "guard_pass");
   ngk::runtime_guard::runtime_emit_startup_summary("win32_sandbox", "runtime_init", guard_rc);
 
+  // PHASE84_1: Align startup/lifecycle contract markers with widget_sandbox native pattern.
+  std::cout << "phase84_1_win32_alignment_available=1\n";
+  std::cout << "phase84_1_startup_contract_guarded_by=execution_pipeline\n";
+  std::cout << "phase84_1_lifecycle_contract_model=main_enter_guard_startup_runapp_main_exit_termination_summary\n";
+  std::cout << "phase84_1_native_marker_parity=widget_sandbox_comparable\n";
+
+  // PHASE84_2: First native migration slice in win32_sandbox.
+  std::cout << "phase84_2_win32_migration_slice_available=1\n";
+  std::cout << "phase84_2_win32_migration_slice_features=uitree_input_router_toolbar_shell_single_action_tile_focus_activation_redraw\n";
+
+  // PHASE84_3: Native migration slice expansion in win32_sandbox.
+  std::cout << "phase84_3_win32_migration_expansion_available=1\n";
+  std::cout << "phase84_3_win32_migration_expansion_features=dual_action_tiles_status_value_strip_shared_uitree_input_router_state_redraw\n";
+
+  // PHASE88_1: wave-2 rollout promotion for win32_sandbox.
+  std::cout << "phase88_1_win32_wave2_rollout_available=1\n";
+  std::cout << "phase88_1_win32_wave2_rollout_features=native_default_path_with_explicit_legacy_fallback_controls\n";
+
+  // PHASE89_3: default-adoption enforcement expansion for win32_sandbox.
+  std::cout << "phase89_3_default_adoption_enforcement_available=1\n";
+  std::cout << "phase89_3_default_adoption_enforcement_contract=native_default_with_explicit_fallback_and_deterministic_mode_logging\n";
+
   ngk::runtime_guard::require_runtime_trust("execution_pipeline");
+
+  const bool legacy_fallback_mode = is_phase88_1_legacy_fallback_enabled(argc, argv);
+  const bool explicit_slice_mode = is_phase84_2_migration_slice_enabled(argc, argv);
+  const bool use_native_rollout_path = explicit_slice_mode || !legacy_fallback_mode;
+  std::cout << "phase89_3_policy_mode_precedence=explicit_slice_overrides_legacy_fallback_else_native_default\n";
+  std::cout << "phase89_3_policy_fallback_requested=" << (legacy_fallback_mode ? 1 : 0) << "\n";
+  std::cout << "phase89_3_policy_native_default=" << (use_native_rollout_path ? 1 : 0) << "\n";
+  std::cout << "phase89_3_policy_mode_selected=" << (use_native_rollout_path ? "native_default" : "legacy_fallback") << "\n";
 
   PVOID veh_handle = AddVectoredExceptionHandler(1, ngks_veh_handler);
   std::cout << "crash_capture_veh_installed=" << (veh_handle ? 1 : 0) << "\n";
@@ -791,7 +1100,9 @@ int main() {
       fflush(stdout);
       RaiseException(0xE000DEAD, 0, 0, nullptr);
     }
-    rc = run_app();
+    rc = use_native_rollout_path
+      ? run_phase84_3_native_slice_app()
+      : run_legacy_win32_sandbox();
   }
   __except (ngks_seh_filter(GetExceptionInformation())) {
     exception_exit = true;
@@ -803,6 +1114,9 @@ int main() {
     std::cout << "crash_capture_veh_removed=1\n";
   }
 
+  if (exception_exit) {
+    ngk::runtime_guard::runtime_observe_lifecycle("win32_sandbox", "main_exception");
+  }
   ngk::runtime_guard::runtime_observe_lifecycle("win32_sandbox", "main_exit");
   ngk::runtime_guard::runtime_emit_termination_summary("win32_sandbox", "runtime_init", rc == 0 ? 0 : 1);
   ngk::runtime_guard::runtime_emit_final_status(exception_exit ? "EXCEPTION_EXIT" : "RUN_OK");

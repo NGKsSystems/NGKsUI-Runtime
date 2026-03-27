@@ -41,6 +41,19 @@ name = "loop_tests"
 type = "exe"
 src_glob = ["apps/loop_tests/**/*.cpp", "apps/loop_tests/**/*.c"]
 include_dirs = ["engine/core/include", "engine/gfx/include", "engine/gfx/win32/include", "engine/platform/win32/include", "engine/ui", "engine/ui/include"]
+defines = ["UNICODE", "_UNICODE", "NGK_LOOP_TESTS_LEGACY_REMOVED"]
+cflags = []
+libs = ["d3d11", "dxgi", "gdi32", "user32"]
+lib_dirs = []
+ldflags = []
+cxx_std = 20
+links = ["engine"]
+
+[[targets]]
+name = "desktop_file_tool"
+type = "exe"
+src_glob = ["apps/desktop_file_tool/**/*.cpp", "apps/desktop_file_tool/**/*.c"]
+include_dirs = ["engine/core/include", "engine/gfx/include", "engine/gfx/win32/include", "engine/platform/win32/include", "engine/ui", "engine/ui/include"]
 defines = ["UNICODE", "_UNICODE"]
 cflags = []
 libs = ["d3d11", "dxgi", "gdi32", "user32"]

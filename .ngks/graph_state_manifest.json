@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-03-19T12:52:06.554151+00:00",
+  "generated_at": "2026-03-23T06:59:21.465371+00:00",
   "project_root": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime",
-  "manifest_hash": "9aa16f42a9300143cc64ff1386295f497b4263957ccf4a225d0613e73c81b63b",
-  "tracked_file_count": 344,
+  "manifest_hash": "0fa48dc99061609e7afe3a2e0880732545b9c58bb8ea4d446bd9d432c145ffb3",
+  "tracked_file_count": 425,
   "changed_since_last": true,
   "rows": [
     {
       "path": ".graph_state/graph_state.json",
-      "size": 658,
-      "mtime_ns": 1773924719717495900,
-      "sha256": "da2aa545c67f133d49ac2c795a45d3090ee1ff12afd83f7a0f7de3ba9297a771"
+      "size": 664,
+      "mtime_ns": 1774249149485879700,
+      "sha256": "96461c7da07b8c6a2b36455cb7ccd841a0e2ae3d4f3a84df311e331b2c1bd4db"
     },
     {
       "path": ".ngk/profile.json",
@@ -20,19 +20,19 @@
     {
       "path": ".ngks/profile.default.json",
       "size": 95,
-      "mtime_ns": 1773924335560200400,
+      "mtime_ns": 1773924727750678200,
       "sha256": "d919fa9a1c7bdb98862aab9ca8aac0b660e43ecfbe9064e9829e05a194f1ff4a"
     },
     {
       "path": ".ngks/project.json",
       "size": 201,
-      "mtime_ns": 1773924335559205400,
+      "mtime_ns": 1773924727750678200,
       "sha256": "d76ff085347bb11793d4b2c6fc0cf8d2f66dc2792c86b6a5d78d634264404bb1"
     },
     {
       "path": ".ngks/README.txt",
       "size": 85,
-      "mtime_ns": 1773924335560200400,
+      "mtime_ns": 1773924727751679800,
       "sha256": "993264544d753c457ac57226c45467cedf018188703a2d764eba035eb51525fd"
     },
     {
@@ -66,16 +66,34 @@
       "sha256": "bc04e4197991c26bdfe6798041469e8db2869865fc23b00c0abd838a67305c9d"
     },
     {
-      "path": ".vscode/settings.json",
+      "path": ".vscode/settings.20260322_195721.bak.json",
       "size": 444,
       "mtime_ns": 1772819524618662600,
       "sha256": "dcd52ec1170775e78fa258ccc46c472c1d4eecf4f7c21d5e16e117d7ba9c59f5"
+    },
+    {
+      "path": ".vscode/settings.json",
+      "size": 570,
+      "mtime_ns": 1774198641830200100,
+      "sha256": "f064c46e0dd081f1dde43a955a3271d591f308c4c49aae164e0cc5f9b130a11a"
     },
     {
       "path": ".vscode/tasks.json",
       "size": 14584,
       "mtime_ns": 1773717719357238200,
       "sha256": "a0fed757a8943b76abe26be065d73af082de7405ed7526276b518607c71aface"
+    },
+    {
+      "path": "_artifacts/runtime/phase68_0_trust_guard_integration_map_and_first_slice_20260323_095234/00_sandbox_plan_stdout.txt",
+      "size": 203,
+      "mtime_ns": 1774248756693390600,
+      "sha256": "009a3dc56f6b681be7ef8341b42a414e62e95c29bcece5b83507838ca3dd1a3c"
+    },
+    {
+      "path": "_artifacts/runtime/phase68_0_trust_guard_integration_map_and_first_slice_20260323_095234/01_rebuild_stdout.txt",
+      "size": 270,
+      "mtime_ns": 1774248757781818500,
+      "sha256": "ca2180b7ea60c7a3d9cbbf54ea195d9f6604d9c75ef3e4e4a55097ca4953fe7f"
     },
     {
       "path": "_artifacts/runtime/phase_runner_inventory.txt",
@@ -140,31 +158,31 @@
     {
       "path": "build_graph/debug/.graph_state/graph_state.json",
       "size": 698,
-      "mtime_ns": 1773755276115320100,
-      "sha256": "f2dd01f18582e9abfc47ff70e538d91fa43e73938e7d36e74f4a51dda484022c"
+      "mtime_ns": 1774249014884663400,
+      "sha256": "31843358f6bd86a5e71c2fc5376f7fd5b14e7fe3a5eeaa4c4151ad45040dff42"
     },
     {
       "path": "build_graph/debug/.ngks/graph_state_manifest.json",
-      "size": 2615,
-      "mtime_ns": 1773755276397087800,
-      "sha256": "01d9384b974721614a280e58932aebacfb8a35b500528e1799843f7ac1b37222"
+      "size": 4345,
+      "mtime_ns": 1774249016003430100,
+      "sha256": "49f59a5053f3b4787639beec7259bc320ffc5b3acdf7109bfee53695d40f5514"
     },
     {
       "path": "build_graph/debug/.ngks/profile.default.json",
       "size": 95,
-      "mtime_ns": 1773755276763277900,
+      "mtime_ns": 1774249017354855500,
       "sha256": "d919fa9a1c7bdb98862aab9ca8aac0b660e43ecfbe9064e9829e05a194f1ff4a"
     },
     {
       "path": "build_graph/debug/.ngks/project.json",
       "size": 221,
-      "mtime_ns": 1773755276763277900,
+      "mtime_ns": 1774249017354855500,
       "sha256": "e0f8b536c224241a00c7d371c71047a1af2a5c43926b2419e92f2823ab33e8e1"
     },
     {
       "path": "build_graph/debug/.ngks/README.txt",
       "size": 85,
-      "mtime_ns": 1773755276763277900,
+      "mtime_ns": 1774249017355853700,
       "sha256": "993264544d753c457ac57226c45467cedf018188703a2d764eba035eb51525fd"
     },
     {
@@ -199,63 +217,63 @@
     },
     {
       "path": "build_graph/debug/ngksbuildcore_plan.json",
-      "size": 15205,
-      "mtime_ns": 1773851772347312900,
-      "sha256": "fdc1b4d8a9b67abd36a2e15979b83c9719e4031316da3065a4fd57e0b210ba39"
+      "size": 15151,
+      "mtime_ns": 1774249087556504500,
+      "sha256": "eeb661b59f9e4d9e1ef004170c60a8fdeadb26c403ad2be8bd66b69e0ff7eb8f"
     },
     {
       "path": "build_graph/debug/ngksgraph_plan.json",
       "size": 16834,
-      "mtime_ns": 1773851771330696200,
-      "sha256": "bf3b8361e810b24255d1e3aef3a5e8343136ea41ef003a5058f2ee1d5406fd17"
+      "mtime_ns": 1774017110811588600,
+      "sha256": "a36dcb8ccbfb82a0bc70630de6ddc292932503723f243d469868ac56e353f037"
     },
     {
       "path": "build_graph/debug/resolution/10_target_spec.json",
-      "size": 669,
-      "mtime_ns": 1773851772331248300,
-      "sha256": "d0aaf59b453b85405e3a56521a7e73b13430fbaf8c6076494e8497d5aae3912b"
+      "size": 663,
+      "mtime_ns": 1774249087531509100,
+      "sha256": "0d132baf9df46e08b6cc8a6bb8137bcfd2d0f5c07db32c307126fb7991d24557"
     },
     {
       "path": "build_graph/debug/resolution/11_capability_inventory.json",
       "size": 1799,
-      "mtime_ns": 1773851772333262200,
+      "mtime_ns": 1774249087533508000,
       "sha256": "35fd1c3a8881602a1c8d6c8c6dab680fb086ccfc809c229e1f9db4527892912f"
     },
     {
       "path": "build_graph/debug/resolution/12_required_vs_available.json",
       "size": 2443,
-      "mtime_ns": 1773851772333262200,
+      "mtime_ns": 1774249087533508000,
       "sha256": "c7defc6c03cf1c8aa28f4bc22a91c9c9d482f570bf0030f1219bf645c97cd5fe"
     },
     {
       "path": "build_graph/debug/resolution/13_capability_conflicts.json",
       "size": 33,
-      "mtime_ns": 1773851772333262200,
+      "mtime_ns": 1774249087534508700,
       "sha256": "67e8b6dac74e960fcd75db28d1469adfc6904d371f07efe7d680c9366d435f53"
     },
     {
       "path": "build_graph/debug/resolution/14_resolution_report.json",
-      "size": 2609,
-      "mtime_ns": 1773851772335278100,
-      "sha256": "ed678bb7bf41ecacc18968b52a9c3d07a704525cff9948597342a7ef3c70bba2"
+      "size": 2606,
+      "mtime_ns": 1774249087535509000,
+      "sha256": "e9fc1972d9afea859c2c5c40238b7d84f0c3793cb6bb117e106a2751348a6f32"
     },
     {
       "path": "build_graph/debug/resolution/15_build_plan_resolution_context.json",
-      "size": 340,
-      "mtime_ns": 1773851772335278100,
-      "sha256": "d6735a1572c2b25e29d3e582c609067dc5434bbff5fa0a044782e12fba88d5c7"
+      "size": 337,
+      "mtime_ns": 1774249087536508900,
+      "sha256": "2793ed92b468170b328c835b6883d59cb61ba681f7550799bd15ebfdfc7d3fe0"
     },
     {
       "path": "build_graph/debug/resolution/16_fix_recommendations.json",
       "size": 33,
-      "mtime_ns": 1773851772335278100,
+      "mtime_ns": 1774249087537511200,
       "sha256": "67e8b6dac74e960fcd75db28d1469adfc6904d371f07efe7d680c9366d435f53"
     },
     {
       "path": "build_graph/debug/resolution/17_resolution_summary.md",
-      "size": 277,
-      "mtime_ns": 1773851772337291600,
-      "sha256": "f5391edaaffb6738ab1d902076c8b774c2763473550437c81c01aed4ba7085bd"
+      "size": 274,
+      "mtime_ns": 1774249087538510300,
+      "sha256": "236f2965dea14d51358f66689432c6886fddaff07ea4c624a6112445734a5b25"
     },
     {
       "path": "certification/baseline_v1/baseline_manifest.json",
@@ -348,10 +366,28 @@
       "sha256": "58e70fab00b12f2f4da4656adf66e440e99187e3a34cb24cb7b5a9d2eb12dbf2"
     },
     {
+      "path": "control_plane/110_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint_regression_anchor.json",
+      "size": 701,
+      "mtime_ns": 1773925277331945700,
+      "sha256": "5437f117b676bad6cd5ca0d38983369cd8b224c44934149d9034ebb3c6fa16da"
+    },
+    {
+      "path": "control_plane/111_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline.json",
+      "size": 454,
+      "mtime_ns": 1773929683749142700,
+      "sha256": "8ee2a7e9ecff6553e8fa6ee2f31a2d495b4e080196dba222ad6ad0ffcb42ff43"
+    },
+    {
+      "path": "control_plane/112_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_integrity.json",
+      "size": 520,
+      "mtime_ns": 1773929683818570000,
+      "sha256": "483c176fdc61d4268eb4c48307e195347f5e41f08171156d77fece93ec4d58b3"
+    },
+    {
       "path": "control_plane/70_guard_fingerprint_trust_chain.json",
-      "size": 7838,
-      "mtime_ns": 1773909302326837600,
-      "sha256": "35aa86ae3d566e7b3c8a688f15ffc011fd81121f64f9302ad40bc657605edaec"
+      "size": 8537,
+      "mtime_ns": 1773927058899188900,
+      "sha256": "bc65b500a3ef4a15da6b9807289058eaec6afa642b6a353e54ff1940836c4b77"
     },
     {
       "path": "control_plane/71_guard_fingerprint_trust_chain_baseline.json",
@@ -590,62 +626,308 @@
     {
       "path": "proofs/LATEST_NGKSBUILDCORE_PROOF_DIR.txt",
       "size": 101,
-      "mtime_ns": 1773758145719676900,
-      "sha256": "a3052789615ca1cf194495a97058118f973e5f6f89aad49a8f5ff64ba0f64555"
-    },
-    {
-      "path": "proofs/latest_ngksbuildcore_run/environment.txt",
-      "size": 15928,
-      "mtime_ns": 1773758145519941500,
-      "sha256": "81430c2aa5e33ce97da1ae1c0c1e2bc0c96719a652c5a7151952319467ab93a0"
-    },
-    {
-      "path": "proofs/latest_ngksbuildcore_run/git_head.txt",
-      "size": 42,
-      "mtime_ns": 1773758145662156600,
-      "sha256": "30fca2785f785ee0c10f7285d16c9a4b829ac00633d83989cb5b66c6374a55e0"
-    },
-    {
-      "path": "proofs/latest_ngksbuildcore_run/git_status.txt",
-      "size": 3344,
-      "mtime_ns": 1773758145626070600,
-      "sha256": "af8d1081d70d6daebccb017de8614a9e3e74bde4e9f9486f5870e98043f3031a"
-    },
-    {
-      "path": "proofs/latest_ngksbuildcore_run/inputs_env_capsule.txt",
-      "size": 43,
-      "mtime_ns": 1773758145662156600,
-      "sha256": "162ff63101514e5d558b018ebdfc98d557f9b6ccb6d382f38375ec7d4c051153"
-    },
-    {
-      "path": "proofs/latest_ngksbuildcore_run/inputs_plan_hash.txt",
-      "size": 181,
-      "mtime_ns": 1773758145663157700,
-      "sha256": "ff750378c1b6bec91f192e21da6606b7c175ecb81616c143c49f521036492d5b"
-    },
-    {
-      "path": "proofs/latest_ngksbuildcore_run/summary.json",
-      "size": 5304,
-      "mtime_ns": 1773758145702679000,
-      "sha256": "975138d2cc45aebb5a14e718bc970fddfdb8b0777c1ecb97ebc5f916fc486258"
-    },
-    {
-      "path": "proofs/latest_ngksbuildcore_run/summary.txt",
-      "size": 196,
-      "mtime_ns": 1773758145703678900,
-      "sha256": "c3eee7337b7c3ba02de77c0b3b69e5c7b8e7d08f72670b232c5b31f08cfb3b76"
-    },
-    {
-      "path": "proofs/latest_ngksbuildcore_run/tool_versions.txt",
-      "size": 82,
-      "mtime_ns": 1773758145570740700,
-      "sha256": "0e2666587836586ac864bf7cb2aadeae8401dd59c7f970f41127c8f9f43356ad"
+      "mtime_ns": 1774018309194379300,
+      "sha256": "6efe48de199b918ccce4eb132685ecb5da2f0d73c8b2c53bdf8aa23ace1a90ce"
     },
     {
       "path": "README.md",
       "size": 544,
       "mtime_ns": 1773770170039796700,
       "sha256": "97c0ec7454791f4d9f9bae3dfdfe1fe37b5045496b2f17a91d45bd4519814255"
+    },
+    {
+      "path": "tools/_phase54b_coverage_closure.ps1",
+      "size": 6776,
+      "mtime_ns": 1774079048473892200,
+      "sha256": "45fe841205df85eeede2fc1686b0fe7ad6cd536512b52e2145e7dcbfb0254ae6"
+    },
+    {
+      "path": "tools/_tmp_phase53_matrix.ps1",
+      "size": 2390,
+      "mtime_ns": 1773990799619768200,
+      "sha256": "fd600bc880c53acb72fdcaeefefd69269a1dab3224fd6b43e72223f13be79645"
+    },
+    {
+      "path": "tools/_tmp_phase54a_validate.ps1",
+      "size": 2925,
+      "mtime_ns": 1774019429997627400,
+      "sha256": "9cb49ba2f3c0eb45f1d42fb2ba695eacd19ebf17e7f14853d83c29130336cd3f"
+    },
+    {
+      "path": "tools/_tmp_phase54a_validate2.ps1",
+      "size": 3917,
+      "mtime_ns": 1774019429999627200,
+      "sha256": "26a75754d000ff24bf33f984dac68076870c434c220507d384f733e3ca055f8a"
+    },
+    {
+      "path": "tools/_tmp_phase54b_emission_audit.ps1",
+      "size": 10555,
+      "mtime_ns": 1774101186422744600,
+      "sha256": "175197009a9d3f3ed8067f8c57352a86c594bc278c083221f932e65bb1ec9874"
+    },
+    {
+      "path": "tools/_tmp_phase54b_integrity_run.ps1",
+      "size": 11519,
+      "mtime_ns": 1774081273640178900,
+      "sha256": "1e5319f91fb60684bd74ab0bb9df8e8459bfb12cb17215075d12830540d62eaf"
+    },
+    {
+      "path": "tools/_tmp_phase54b_output_preservation_trace.ps1",
+      "size": 11578,
+      "mtime_ns": 1774101186386140300,
+      "sha256": "f3bc2ecec47c5bcd2bf1cec9a350f427d5108e3b21b0fcd9b834fcef4c81b7c5"
+    },
+    {
+      "path": "tools/_tmp_phase54b_runtime_validation.ps1",
+      "size": 8598,
+      "mtime_ns": 1774101186386768600,
+      "sha256": "0106727d25623fd5a234ab43b5404bc8ca38d6ddf7b905f4bf8fa612d8879665"
+    },
+    {
+      "path": "tools/_tmp_phase54b_zip_extract.ps1",
+      "size": 1700,
+      "mtime_ns": 1774081273640178900,
+      "sha256": "fc3f4ef7518f4701808a80e453ab42e6d2b6114e05fcbad80bfedacfad8bbdaf"
+    },
+    {
+      "path": "tools/_tmp_phase54c_runtime_stability.ps1",
+      "size": 8592,
+      "mtime_ns": 1774101186386768600,
+      "sha256": "72847d54afc7a987d45971e3a335470a4b88e77e9322bce8c8e5345c133005c6"
+    },
+    {
+      "path": "tools/_tmp_phase55_finalize.ps1",
+      "size": 8548,
+      "mtime_ns": 1774107419551269600,
+      "sha256": "6bb7f8ca47b5fe00f3d8f335373bd08d806f52661e26a63534ab8c440cad194e"
+    },
+    {
+      "path": "tools/_tmp_phase55_validation.ps1",
+      "size": 8708,
+      "mtime_ns": 1774107419615144100,
+      "sha256": "df8cf1cde9bddb19cadd4f7016ea5dc1b4460358ad53524af94ce89fc86cfd1b"
+    },
+    {
+      "path": "tools/_tmp_phase63_1_isolated_runner.ps1",
+      "size": 8823,
+      "mtime_ns": 1774161042697047600,
+      "sha256": "5ad9c55d7efb886965f767962d0e6d6d18e905e18ca4f3b4a5be817ced0e927c"
+    },
+    {
+      "path": "tools/_tmp_phase63_2_prepostflight_audit_runner.ps1",
+      "size": 9547,
+      "mtime_ns": 1774161042697047600,
+      "sha256": "12d9274917cfa71401cbcec9ea6c1a6a974f6c043d969249eed82993d485d777"
+    },
+    {
+      "path": "tools/_tmp_phase63_3_proof_consistency_runner.ps1",
+      "size": 7760,
+      "mtime_ns": 1774173265449615800,
+      "sha256": "0e2c243de5e47caac8e098bcb82f12b1772b5d230414a518943539b1fb3de83d"
+    },
+    {
+      "path": "tools/_tmp_phase63_4_operator_cert_pack_consistency_runner.ps1",
+      "size": 5552,
+      "mtime_ns": 1774173265423069700,
+      "sha256": "37da5fd798a71168b59172ae0ac0a6ab950e90debf435a1e65f5065dbe5c942e"
+    },
+    {
+      "path": "tools/_tmp_phase63_5_operator_closure_chain_audit_runner.ps1",
+      "size": 5859,
+      "mtime_ns": 1774173265423069700,
+      "sha256": "8b4d3f3f8a383c4a1963802401bdd56dac9f72214d0084c03eff5e632d2e4034"
+    },
+    {
+      "path": "tools/_tmp_phase63_6_operator_final_completeness_audit_runner.ps1",
+      "size": 6940,
+      "mtime_ns": 1774174649789993300,
+      "sha256": "1a073a7a8d1e44a0e55ca4af10a8824048b4d26ff17fa9d38ddc8e4c8ac0831e"
+    },
+    {
+      "path": "tools/_tmp_phase63_7_operator_final_signoff_audit_runner.ps1",
+      "size": 5352,
+      "mtime_ns": 1774174649789993300,
+      "sha256": "b1f7ccaa89b0a50d4119b8e62e9c0719d0e25351b2996d65f6f1686d246ae01a"
+    },
+    {
+      "path": "tools/_tmp_phase64_0_certification_surface_coherence_runner.ps1",
+      "size": 6063,
+      "mtime_ns": 1774174649789993300,
+      "sha256": "3b9508bf282dc41270c585319b7a08b0d53555d2e2f3f03a2af4552b27bb5585"
+    },
+    {
+      "path": "tools/_tmp_phase65_0_widget_operator_execution_validation_runner.ps1",
+      "size": 8257,
+      "mtime_ns": 1774175572925501400,
+      "sha256": "56ed689176c42b185d2017e97e66aec6f418d0fe2a54129e5dfb2c443d1343c2"
+    },
+    {
+      "path": "tools/_tmp_phase65_10_widget_operator_env_perturbation_validation_runner.ps1",
+      "size": 16421,
+      "mtime_ns": 1774190796170067100,
+      "sha256": "8429c87d09f367d3788900bfed17810b93e578dc974bc970e23a0d13b789c091"
+    },
+    {
+      "path": "tools/_tmp_phase65_11_widget_operator_failure_observability_validation_runner.ps1",
+      "size": 16097,
+      "mtime_ns": 1774190796174210500,
+      "sha256": "1544b8706394fc5b8f8bc74c2127120fc8e421a098bd89217952d9aac9e97814"
+    },
+    {
+      "path": "tools/_tmp_phase65_1_widget_operator_stability_validation_runner.ps1",
+      "size": 11459,
+      "mtime_ns": 1774175572926503300,
+      "sha256": "2f94607c1c72b1a36f03da7b28f7ed99c67b22a0ad7d7b16aea4131bca5e0700"
+    },
+    {
+      "path": "tools/_tmp_phase65_2_widget_operator_resilience_validation_runner.ps1",
+      "size": 10591,
+      "mtime_ns": 1774178292425586700,
+      "sha256": "c09ebb28d79074ac57cc1451c1383449e47b36fbd3f1de77483a9a9f81a64f5d"
+    },
+    {
+      "path": "tools/_tmp_phase65_3_widget_operator_recovery_after_failure_runner.ps1",
+      "size": 10090,
+      "mtime_ns": 1774178292425586700,
+      "sha256": "dec5f3e422e6e3e816edab6367931cc599052bddb52b6d18272669b54e5f0081"
+    },
+    {
+      "path": "tools/_tmp_phase65_4_widget_operator_repeated_recovery_cycle_runner.ps1",
+      "size": 12836,
+      "mtime_ns": 1774178292426586800,
+      "sha256": "456e0d6936fa4f49c4c974c7d7ed30b7438503d0cf536f8198bc0c08bad3438c"
+    },
+    {
+      "path": "tools/_tmp_phase65_5_widget_operator_overlap_safety_validation_runner.ps1",
+      "size": 14925,
+      "mtime_ns": 1774178292426586800,
+      "sha256": "370ed45035ac4f96c5ce6f2b649d681017c1d170e3f87f2420c1e5c4a43870ec"
+    },
+    {
+      "path": "tools/_tmp_phase65_6_widget_operator_soak_validation_runner.ps1",
+      "size": 15064,
+      "mtime_ns": 1774181884485418600,
+      "sha256": "65f23583218cd5bfe0ecd4540f739c41ccc9dec6e63968ded8f248e34fc64156"
+    },
+    {
+      "path": "tools/_tmp_phase65_7_widget_operator_cold_warm_consistency_runner.ps1",
+      "size": 17669,
+      "mtime_ns": 1774183451022857600,
+      "sha256": "edc2ce762c9da495a06458a1f3ebc460ee668adcc044db6c872159ab00828598"
+    },
+    {
+      "path": "tools/_tmp_phase65_8_widget_operator_identity_consistency_runner.ps1",
+      "size": 28019,
+      "mtime_ns": 1774185306568254100,
+      "sha256": "d4c121490037e51ce8d0f463e548386a47f000f7831984dc2c76531251a93478"
+    },
+    {
+      "path": "tools/_tmp_phase65_9_widget_operator_proof_runtime_correlation_runner.ps1",
+      "size": 21294,
+      "mtime_ns": 1774187099247716100,
+      "sha256": "10c81e44af941c153258d158b61a56059da9040c5e00814b6f52da9fc5d6448f"
+    },
+    {
+      "path": "tools/_tmp_phase66_0_widget_operator_performance_baseline_measurement_runner.ps1",
+      "size": 14879,
+      "mtime_ns": 1774197117651475700,
+      "sha256": "5abab5085e83927b4347325a59a80af9a033a626b44f206417ec973da2e4d0ac"
+    },
+    {
+      "path": "tools/_tmp_phase66_10_widget_operator_spawn_window_optimization_runner.ps1",
+      "size": 16507,
+      "mtime_ns": 1774243182045236400,
+      "sha256": "81afc539510fabd5b5dcaddbff7c40a221b27c795f3065aacaee751a4a6cde31"
+    },
+    {
+      "path": "tools/_tmp_phase66_12_widget_operator_direct_process_experiment_runner.ps1",
+      "size": 16564,
+      "mtime_ns": 1774243182045236400,
+      "sha256": "aecbb447d1ac4826a2d5484d452af2ce636c0f9c997df9ae456273fa55372acb"
+    },
+    {
+      "path": "tools/_tmp_phase66_13_widget_operator_direct_process_confirmation_variance_runner.ps1",
+      "size": 18611,
+      "mtime_ns": 1774243182094738700,
+      "sha256": "85341fb62625cc68ecf8c85f8e95d2d6c6b24f7cd7adadfc808cc463c6129810"
+    },
+    {
+      "path": "tools/_tmp_phase66_1_widget_operator_performance_variance_bottleneck_runner.ps1",
+      "size": 17548,
+      "mtime_ns": 1774199963631456300,
+      "sha256": "2ee45ee40af0a68f1fa1e499a6d12a415bd83eb3c7395d820c96ae405e907867"
+    },
+    {
+      "path": "tools/_tmp_phase66_2_widget_operator_launch_overhead_attribution_runner.ps1",
+      "size": 16726,
+      "mtime_ns": 1774202960611186300,
+      "sha256": "aa450f6f362fca58c9827469ad985fd7cac4af8fc132c592ee2a4ed6075e14a0"
+    },
+    {
+      "path": "tools/_tmp_phase66_3_widget_operator_timing_boundary_instrumentation_validation_runner.ps1",
+      "size": 10059,
+      "mtime_ns": 1774202960611186300,
+      "sha256": "558d2422e9a84f31cde18c3fc3d154df351ab1aef8dfab4a87b4fa0046c256db"
+    },
+    {
+      "path": "tools/_tmp_phase66_4_widget_operator_attributed_timing_breakdown_runner.ps1",
+      "size": 23718,
+      "mtime_ns": 1774206442178268200,
+      "sha256": "04b7c59326bfa4b8f6f3c18df7870d04544bb0408bcb2e6ba08fed369c548bbe"
+    },
+    {
+      "path": "tools/_tmp_phase66_5_widget_operator_spawn_segment_plan_experiment_runner.ps1",
+      "size": 16623,
+      "mtime_ns": 1774206442178268200,
+      "sha256": "77282fc0b6b0e5e3fa6170abfa84910c1e142b2caec7d50826f9f0d425dd7e06"
+    },
+    {
+      "path": "tools/_tmp_phase66_6_widget_operator_smallest_reversible_spawn_optimization_runner.ps1",
+      "size": 17346,
+      "mtime_ns": 1774206858813420400,
+      "sha256": "c6aecc5fe75ee6589eb828ea0daa5c10c94a9fdcf44c49740f1d8847a8a4abc4"
+    },
+    {
+      "path": "tools/_tmp_phase66_7_widget_operator_startup_boundary_attribution_runner.ps1",
+      "size": 19531,
+      "mtime_ns": 1774235979603196200,
+      "sha256": "08fef61d8f1658940df6a64df4a5bd06718ab5db8ebeb0e35b55b45fce0895a0"
+    },
+    {
+      "path": "tools/_tmp_phase66_8_widget_operator_guard_internal_timing_split_runner.ps1",
+      "size": 19233,
+      "mtime_ns": 1774235979607199100,
+      "sha256": "6994403e2f37970abf80f61babe8332dbbfc18d15320a219692b60188e3718b5"
+    },
+    {
+      "path": "tools/_tmp_phase66_9_widget_operator_guard_highres_attribution_runner.ps1",
+      "size": 17604,
+      "mtime_ns": 1774236381551202500,
+      "sha256": "fe34c1f38d202d90e9d88c63292b0771e3dd9d801abb73292c4908f481ca428d"
+    },
+    {
+      "path": "tools/_tmp_phase67_0_runtime_trust_guard_production_hardening_runner.ps1",
+      "size": 13753,
+      "mtime_ns": 1774248514555972500,
+      "sha256": "188a46c1c03c14324bee55f1fb6ed0c912e5df1a282c8142e63fa27dbd2f2df3"
+    },
+    {
+      "path": "tools/_tmp_phase67_1_runtime_trust_guard_hardening_adverse_runner.ps1",
+      "size": 17855,
+      "mtime_ns": 1774248514558975200,
+      "sha256": "3d42899d51f0e70ea4b061623174e9b760134b169bd6870ace3564bd859fa8b4"
+    },
+    {
+      "path": "tools/_tmp_phase67_2_runtime_trust_guard_production_readiness_snapshot_runner.ps1",
+      "size": 18128,
+      "mtime_ns": 1774248514559973400,
+      "sha256": "c6a843506418497be12ef014396ce30150d13c7dc3b579c3df148b194cc44617"
+    },
+    {
+      "path": "tools/_tmp_phase68_0_trust_guard_integration_map_runner.ps1",
+      "size": 19436,
+      "mtime_ns": 1774249001355431000,
+      "sha256": "9d7e6c2db500acbeceaa9fc6da9bb8f53c620de6e97ef8ad8118c3d337768e62"
     },
     {
       "path": "tools/enter_msvc_env.ps1",
@@ -1976,26 +2258,224 @@
     {
       "path": "tools/phase52_6/phase52_6_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_runner.ps1",
       "size": 38206,
-      "mtime_ns": 1773923326132001200,
+      "mtime_ns": 1773925100195833500,
       "sha256": "4a75c002be1a726f17323abec3724f11370f83c6e1ca190908fc73eec4888f73"
     },
     {
       "path": "tools/phase52_7/phase52_7_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_bypass_resistance_runner.ps1",
       "size": 42404,
-      "mtime_ns": 1773923326128317600,
+      "mtime_ns": 1773925100195833500,
       "sha256": "4d6bdfb032ca30fd57b02d580aea38d5702c18217bae09ac6e03f5e923083264"
     },
     {
       "path": "tools/phase52_8/phase52_8_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_audit_runner.ps1",
       "size": 29850,
-      "mtime_ns": 1773924401804597900,
+      "mtime_ns": 1773925100197832300,
       "sha256": "9e0ede5d84be918623723dad189720d04ad2c70e97c4b37f2b385252e6fc5250"
     },
     {
+      "path": "tools/phase52_9/phase52_9_trust_chain_ledger_baseline_enforcement_surface_fingerprint_trust_chain_baseline_enforcement_coverage_fingerprint_regression_anchor_runner.ps1",
+      "size": 18794,
+      "mtime_ns": 1773925308788337500,
+      "sha256": "b64d772c78a661dc51cdde6d6f21ed9d940e705f44c80534a00bd2d1cc78d497"
+    },
+    {
+      "path": "tools/phase53_0/phase53_0_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_runner.ps1",
+      "size": 23927,
+      "mtime_ns": 1773928895918435900,
+      "sha256": "751343763299a6434106308a6a3551988660b5b26ce4a94f604e89b0633b8dfa"
+    },
+    {
+      "path": "tools/phase53_1/phase53_1_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_lock_runner.ps1",
+      "size": 29285,
+      "mtime_ns": 1773930004419746400,
+      "sha256": "a09ddbe8163a7a92bb8d0fb93dfed8d5a58f4a0b8d5023bdbc3e5b20a47bc30f"
+    },
+    {
+      "path": "tools/phase53_10/phase53_10_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_enforcement_tamper_detection_external_mutation_resistance_runner.ps1",
+      "size": 18270,
+      "mtime_ns": 1773984123037901800,
+      "sha256": "83e154117366ea3f7245cc74b8be238a3dc976de6a969f8e66346f430d7ab476"
+    },
+    {
+      "path": "tools/phase53_11/phase53_11_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_enforcement_rollback_attack_resistance_stale_snapshot_rejection_runner.ps1",
+      "size": 19249,
+      "mtime_ns": 1773984342745477500,
+      "sha256": "be6b308d0c744ab96ee75605a6ec4f76f6fe2a81697161e83e9823b2b4ada0b0"
+    },
+    {
+      "path": "tools/phase53_12/phase53_12_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_enforcement_fork_detection_multi_history_divergence_resistance_runner.ps1",
+      "size": 23135,
+      "mtime_ns": 1773986560462901800,
+      "sha256": "9212baf5f4eca39fc013e2dfbec5e87dcb96971d6d91f89befa1b837ebed26af"
+    },
+    {
+      "path": "tools/phase53_13/phase53_13_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_enforcement_snapshot_injection_resistance_unauthorized_baseline_substitution_runner.ps1",
+      "size": 20214,
+      "mtime_ns": 1773986560462901800,
+      "sha256": "5e0ca521e63a5884ca99a24185ac099b5368b2087feea480f3cb596b23061b63"
+    },
+    {
+      "path": "tools/phase53_14/phase53_14_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_enforcement_trust_anchor_compromise_resistance_unauthorized_anchor_rotation_rejection_runner.ps1",
+      "size": 18063,
+      "mtime_ns": 1773986560462901800,
+      "sha256": "ae17104994c10c2d6a579affe660915c9607a0c8bccb97a7fba33613bae9711f"
+    },
+    {
+      "path": "tools/phase53_15/phase53_15_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_truncation_trust_chain_baseline_enforcement_truncation_resistance_head_pruning_attack_rejection_runner.ps1",
+      "size": 18853,
+      "mtime_ns": 1773991894473378100,
+      "sha256": "f12b50daa1f16dc8584e8be16520ab234b8ab93970005070d9d45f4f54d8c99a"
+    },
+    {
+      "path": "tools/phase53_16/phase53_16_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_append_trust_chain_baseline_enforcement_out_of_order_append_resistance_unauthorized_future_entry_injection_rejection_runner.ps1",
+      "size": 21112,
+      "mtime_ns": 1773991894475321400,
+      "sha256": "e947632f07f01f75db9d09204bf827002eb04b350bb7cf733310abba97834873"
+    },
+    {
+      "path": "tools/phase53_17/phase53_17_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_substitution_trust_chain_baseline_enforcement_entry_substitution_resistance_in_place_record_replacement_rejection_runner.ps1",
+      "size": 20636,
+      "mtime_ns": 1773996347689008900,
+      "sha256": "d9872f6d849189e432b381d1de96401b4a8f1d196ff780f8f829ef9d734d99b8"
+    },
+    {
+      "path": "tools/phase53_18/phase53_18_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_duplicate_replay_trust_chain_baseline_enforcement_canonical_record_reinsertion_rejection_runner.ps1",
+      "size": 22662,
+      "mtime_ns": 1773996975927448400,
+      "sha256": "752f70487b509babfd14c4d4acff0224dadf1dae25e68f1cbe58eae4b7941088"
+    },
+    {
+      "path": "tools/phase53_19/phase53_19_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_baseline_gap_replay_removed_record_resurrection_rejection_runner.ps1",
+      "size": 23358,
+      "mtime_ns": 1774000641187171400,
+      "sha256": "83377d0e227dfcf06b751353df8067a3ecfa091f1f54798693e32e24058f37ff"
+    },
+    {
+      "path": "tools/phase53_2/phase53_2_runtime_gate_enforce.ps1",
+      "size": 4100,
+      "mtime_ns": 1773996970967772400,
+      "sha256": "fa0c66684704dd53a8a70329fcffbc2728aa075f43a9edd7acb1f2abcc53344e"
+    },
+    {
+      "path": "tools/phase53_2/phase53_2_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_enforcement_runner.ps1",
+      "size": 27939,
+      "mtime_ns": 1773934836989885200,
+      "sha256": "3216478456fb785500e03748686af46ffdd4ef3e1f58528f0742d71d5bc40e7a"
+    },
+    {
+      "path": "tools/phase53_2/phase53_2_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_gate_runner.ps1",
+      "size": 38401,
+      "mtime_ns": 1773984566196914000,
+      "sha256": "cfa712b46afa85fdc49c7866c46335bb091fe76bc9533fbe7c19eede9ad974a5"
+    },
+    {
+      "path": "tools/phase53_20/phase53_20_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_canonical_order_permutation_record_shuffling_rejection_runner.ps1",
+      "size": 21814,
+      "mtime_ns": 1774003653726842000,
+      "sha256": "fd95590f7de36b6709aa0258eb0e1541d4080d2a2991420b3b13e2302f2bd655"
+    },
+    {
+      "path": "tools/phase53_21/phase53_21_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_metadata_tamper_semantic_invariant_forgery_rejection_runner.ps1",
+      "size": 22100,
+      "mtime_ns": 1774003653726842000,
+      "sha256": "bc054f1c271f0f670111c68e31e2e97191406d3e6f5ffd0ab18c74ef61a8ea48"
+    },
+    {
+      "path": "tools/phase53_22/phase53_22_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_schema_shape_drift_structural_compatibility_forgery_rejection_runner.ps1",
+      "size": 28527,
+      "mtime_ns": 1774009502450484600,
+      "sha256": "35c477163e6180eebfb81d1d01653d7716dac1696b6b3215099eabe5847bfbc5"
+    },
+    {
+      "path": "tools/phase53_23/phase53_23_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_canonical_serialization_drift_hash_normalization_forgery_rejection_runner.ps1",
+      "size": 25644,
+      "mtime_ns": 1774009502444485700,
+      "sha256": "0cbd9455ebeabea45e640b0ad7ae860314a62307f8cd679f98d4196dbb2656c8"
+    },
+    {
+      "path": "tools/phase53_24/phase53_24_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_path_source_alias_artifact_origin_confusion_rejection_runner.ps1",
+      "size": 22421,
+      "mtime_ns": 1774009502444485700,
+      "sha256": "06f8bbdde8f1d28ec646afeb0049619eddbed1b485ccb60d7bebace0e61b4d1d"
+    },
+    {
+      "path": "tools/phase53_25/phase53_25_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_temporal_freshness_resistance_stale_current_ambiguity_rejection_runner.ps1",
+      "size": 29405,
+      "mtime_ns": 1774011366179815700,
+      "sha256": "2853f3de45d73ef0a83a278c19a9e9047bab8335b7de1634d57ec61c7988f44a"
+    },
+    {
+      "path": "tools/phase53_26/phase53_26_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_concurrent_stale_fork_mix_cross_timeline_convergence_rejection_runner.ps1",
+      "size": 35016,
+      "mtime_ns": 1774016773271309800,
+      "sha256": "695032840f8383c5f2a4febb90b2320825196fb91bf1bd5c2df998940e84667b"
+    },
+    {
+      "path": "tools/phase53_3/phase53_3_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_enforcement_bypass_resistance_runner.ps1",
+      "size": 29638,
+      "mtime_ns": 1773935355670600100,
+      "sha256": "294a85bf062f77a4e09c24fe237f7e92f8e2a717fc665ea2534c211a0639694b"
+    },
+    {
+      "path": "tools/phase53_4/phase53_4_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_enforcement_order_lock_single_entry_runner.ps1",
+      "size": 29508,
+      "mtime_ns": 1773935886932403000,
+      "sha256": "6ca6f1726951593fae62c09476ecb73da9f5200c7890c90b0d3b8145ea190fa8"
+    },
+    {
+      "path": "tools/phase53_5/phase53_5_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_enforcement_immutability_toctou_runner.ps1",
+      "size": 30034,
+      "mtime_ns": 1773941388315918100,
+      "sha256": "b66d76a0d2a580795df49dd7e33f6d942cfe94f4a97a98ccb89991332566eade"
+    },
+    {
+      "path": "tools/phase53_6/phase53_6_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_enforcement_replay_resistance_session_uniqueness_runner.ps1",
+      "size": 38227,
+      "mtime_ns": 1773977901159569700,
+      "sha256": "85e145e0ea164142fb36202b47f98fbfa3a17522e76419a53a86e6b65e3ebc3c"
+    },
+    {
+      "path": "tools/phase53_7/phase53_7_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_enforcement_concurrency_race_condition_runner.ps1",
+      "size": 29734,
+      "mtime_ns": 1774076140037896300,
+      "sha256": "774696a53156b059f7cc0f34d31d5d876a7ce147099bfbd38dfce2c3cfc6d4ab"
+    },
+    {
+      "path": "tools/phase53_8/phase53_8_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_enforcement_write_atomicity_runner.ps1",
+      "size": 24265,
+      "mtime_ns": 1774076140037896300,
+      "sha256": "e4308424012e45e5c05a3cce6a5d7aa06c27f1896a72494d3d39ee15a6d51de0"
+    },
+    {
+      "path": "tools/phase53_9/phase53_9_trust_chain_ledger_baseline_enforcement_surface_fingerprint_regression_anchor_trust_chain_baseline_enforcement_write_ordering_runner.ps1",
+      "size": 20865,
+      "mtime_ns": 1773983680817782600,
+      "sha256": "4281bcefcc665eb4c2df2aae75afc64df51e76bf2d7694f298dde4f4b61e361a"
+    },
+    {
+      "path": "tools/phase56_0_runtime_signal_contract_runner.ps1",
+      "size": 8957,
+      "mtime_ns": 1774153899885819000,
+      "sha256": "f1aae753d3f5a0cd7e713ed86d95fc25a4859d681129a15bea0a499b66580744"
+    },
+    {
+      "path": "tools/proof_bundle_common.ps1",
+      "size": 1771,
+      "mtime_ns": 1774243182048236900,
+      "sha256": "8f3d6c43a8b714ba09a6e335d3451424ea5a834890d647ced103e4d6d1ab644d"
+    },
+    {
+      "path": "tools/run_sandbox_app.ps1",
+      "size": 5770,
+      "mtime_ns": 1774119163328219100,
+      "sha256": "b6831fe113d7d7bd0efe2b4292118f9c59c64cfe7c570235c445eb11af68d9fb"
+    },
+    {
       "path": "tools/run_widget_sandbox.ps1",
-      "size": 2903,
-      "mtime_ns": 1773552557469261600,
-      "sha256": "fcf9b33a6fdc5b5ebf56f9c22b487a02987231f363c393fe639b58f8a31dc729"
+      "size": 13306,
+      "mtime_ns": 1774202960611186300,
+      "sha256": "f43ca959fbc3a21d97ada2bfecd94ffd023e70e42cca1a717c74307e08396b6b"
     },
     {
       "path": "tools/runtime_contract_guard.ps1",
@@ -2008,6 +2488,12 @@
       "size": 756,
       "mtime_ns": 1773230978696604000,
       "sha256": "1484ecb3c82e3145290481a3056132566b56f3732f2109f74d258ea9efcf6fcc"
+    },
+    {
+      "path": "tools/TrustChainRuntime.ps1",
+      "size": 14213,
+      "mtime_ns": 1774016773271309800,
+      "sha256": "88b415853af7d8a381ce5593079ff930b6dadc81d08d50db242429dee71d5aa6"
     },
     {
       "path": "tools/validation/build_graph_integrity.txt",
@@ -2065,9 +2551,9 @@
     },
     {
       "path": "tools/widget_sandbox_launch_common.ps1",
-      "size": 4791,
-      "mtime_ns": 1773552557469261600,
-      "sha256": "9cf74ba0991f66d967de30c6119b37c09c98d3924c9a10d124d03e0f9222404e"
+      "size": 5421,
+      "mtime_ns": 1774016773271309800,
+      "sha256": "cb12db56e1c9907262b5d87bdbb8dd87f7b82fcd04d95a29e017f9cebd2dc752"
     }
   ]
 }
