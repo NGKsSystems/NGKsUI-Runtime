@@ -24,6 +24,8 @@ public:
   void clear(float r, float g, float b, float a);
   void queue_rect(int x, int y, int w, int h, float r, float g, float b, float a);
   void queue_rect_outline(int x, int y, int w, int h, float r, float g, float b, float a);
+  void set_clip_rect(int x, int y, int w, int h);
+  void reset_clip_rect();
   void debug_set_stage(const char* stage);
   void debug_set_forensic_log_path(const char* path);
   void end_frame();

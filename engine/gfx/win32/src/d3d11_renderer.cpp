@@ -240,6 +240,18 @@ void D3D11Renderer::debug_set_stage(const char* stage) {
   (void)stage;
 }
 
+void D3D11Renderer::set_clip_rect(int x, int y, int w, int h) {
+  (void)x;
+  (void)y;
+  (void)w;
+  (void)h;
+  // Clip rect is tracked in the render queue; no D3D11 scissor state required.
+}
+
+void D3D11Renderer::reset_clip_rect() {
+  // No-op: clip rect cleared after render pass.
+}
+
 void D3D11Renderer::debug_set_forensic_log_path(const char* path) {
   (void)path;
 }

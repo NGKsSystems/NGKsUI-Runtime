@@ -11,6 +11,8 @@ class UIElement {
 public:
   using Renderer = ngk::gfx::D3D11Renderer;
 
+  enum class LayoutSizePolicy { Fixed, Fill };
+
   virtual ~UIElement() = default;
 
   int x() const { return x_; }
@@ -60,6 +62,22 @@ public:
     preferred_width_ = width > 0 ? width : 0;
     preferred_height_ = height > 0 ? height : 0;
   }
+
+  void set_min_size(int width, int height) {
+    min_width_ = width >= 0 ? width : 0;
+    min_height_ = height >= 0 ? height : 0;
+  }
+
+  int min_width() const { return min_width_; }
+  int min_height() const { return min_height_; }
+
+  LayoutSizePolicy layout_width_policy() const { return layout_width_policy_; }
+  LayoutSizePolicy layout_height_policy() const { return layout_height_policy_; }
+  int layout_weight() const { return layout_weight_; }
+
+  void set_layout_width_policy(LayoutSizePolicy policy) { layout_width_policy_ = policy; }
+  void set_layout_height_policy(LayoutSizePolicy policy) { layout_height_policy_ = policy; }
+  void set_layout_weight(int weight) { layout_weight_ = weight > 0 ? weight : 1; }
 
   int preferred_width() const {
     return preferred_width_ > 0 ? preferred_width_ : width_;
@@ -226,6 +244,11 @@ protected:
   int preferred_height_ = 0;
   int desired_width_ = 0;
   int desired_height_ = 0;
+  int min_width_ = 0;
+  int min_height_ = 0;
+  LayoutSizePolicy layout_width_policy_ = LayoutSizePolicy::Fixed;
+  LayoutSizePolicy layout_height_policy_ = LayoutSizePolicy::Fixed;
+  int layout_weight_ = 1;
   bool visible_ = true;
   bool focusable_ = false;
   bool focused_ = false;
