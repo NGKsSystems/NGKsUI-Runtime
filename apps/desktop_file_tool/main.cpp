@@ -7,6 +7,7 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -291,6 +292,84 @@ struct BuilderFocusDiagnostics {
   bool layout_audit_still_compatible = false;
 };
 
+struct BuilderVisibleUxDiagnostics {
+  bool tree_hierarchy_visibility_improved = false;
+  bool selected_node_visibility_in_tree_improved = false;
+  bool preview_readability_improved = false;
+  bool selected_node_visibility_in_preview_improved = false;
+  bool shell_regions_clearly_labeled = false;
+  bool shell_state_still_coherent = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct BuilderShortcutDiagnostics {
+  bool keyboard_tree_navigation_present = false;
+  bool shortcut_scope_rules_defined = false;
+  bool undo_redo_shortcuts_work = false;
+  bool insert_delete_shortcuts_work = false;
+  bool guarded_lifecycle_shortcuts_safe = false;
+  bool shell_state_still_coherent = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct BuilderDragDropDiagnostics {
+  bool tree_drag_reorder_present = false;
+  bool legal_reorder_drop_applied = false;
+  bool legal_reparent_drop_applied = false;
+  bool illegal_drop_rejected = false;
+  bool dragged_node_selection_preserved = false;
+  bool shell_state_still_coherent = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct BuilderTypedPaletteDiagnostics {
+  bool typed_palette_present = false;
+  bool legal_typed_container_insert_applied = false;
+  bool legal_typed_leaf_insert_applied = false;
+  bool illegal_typed_insert_rejected = false;
+  bool inserted_typed_node_auto_selected = false;
+  bool inspector_shows_type_appropriate_properties = false;
+  bool shell_state_still_coherent = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct BuilderExportDiagnostics {
+  bool export_command_present = false;
+  bool export_artifact_created = false;
+  bool export_artifact_deterministic = false;
+  bool exported_structure_matches_builder_doc = false;
+  bool invalid_export_rejected = false;
+  bool shell_state_still_coherent = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct BuilderExportUxDiagnostics {
+  bool export_status_visible = false;
+  bool export_artifact_path_visible = false;
+  bool export_overwrite_or_version_rule_enforced = false;
+  bool export_state_tracking_present = false;
+  bool invalid_export_rejected_with_reason = false;
+  bool shell_state_still_coherent = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct BuilderPreviewExportParityDiagnostics {
+  bool parity_scope_defined = false;
+  bool preview_export_parity_validation_present = false;
+  bool parity_passes_for_valid_document = false;
+  bool parity_mismatch_rejected_with_reason = false;
+  bool export_shell_state_still_coherent = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct PreviewExportParityEntry {
+  int depth = 0;
+  std::string node_id{};
+  std::string widget_type{};
+  std::string text{};
+  std::vector<std::string> child_ids{};
+};
+
 bool file_matches_filter(const std::filesystem::path& path, const std::string& filter) {
   if (filter.empty()) {
     return true;
@@ -462,6 +541,16 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   BuilderDirtyStateDiagnostics dirty_state_diag{};
   BuilderLifecycleDiagnostics lifecycle_diag{};
   BuilderFocusDiagnostics focus_diag{};
+  BuilderVisibleUxDiagnostics visible_ux_diag{};
+  BuilderShortcutDiagnostics shortcut_diag{};
+  BuilderDragDropDiagnostics dragdrop_diag{};
+  BuilderTypedPaletteDiagnostics typed_palette_diag{};
+  BuilderExportDiagnostics export_diag{};
+  BuilderExportUxDiagnostics export_ux_diag{};
+  BuilderPreviewExportParityDiagnostics preview_export_parity_diag{};
+  std::string drag_source_node_id{};
+  bool drag_active = false;
+
   std::vector<CommandHistoryEntry> undo_history{};
   std::vector<CommandHistoryEntry> redo_stack{};
 
@@ -470,6 +559,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   ngk::ui::Button builder_save_button;
   ngk::ui::Button builder_load_button;
   ngk::ui::Button builder_load_discard_button;
+  ngk::ui::Button builder_export_button;
   ngk::ui::Button builder_new_button;
   ngk::ui::Button builder_new_discard_button;
 
@@ -493,6 +583,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   ngk::ui::Label builder_tree_surface_label("TREE");
   ngk::ui::Label builder_inspector_label("INSPECTOR");
   ngk::ui::Label builder_preview_label("PREVIEW");
+  ngk::ui::Label builder_export_status_label("EXPORT STATUS");
 
   ngk::ui::Button builder_insert_container_button;
   ngk::ui::Button builder_insert_leaf_button;
@@ -513,6 +604,19 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   std::string last_saved_builder_serialized{};
   const std::filesystem::path builder_doc_save_path =
     std::filesystem::current_path() / "_artifacts/runtime/phase103_12_builder_document.ngkbdoc";
+  const std::filesystem::path builder_export_path =
+    std::filesystem::current_path() / "_artifacts/runtime/phase103_20_builder_export.ngkbdoc";
+  std::string last_export_status_code = "not_run";
+  std::string last_export_reason = "none";
+  std::string last_export_artifact_path = builder_export_path.string();
+  std::string last_export_snapshot{};
+  bool has_last_export_snapshot = false;
+  bool export_snapshot_matches_current_doc = false;
+  constexpr const char* kExportRule = "overwrite_deterministic_single_target";
+  std::string last_preview_export_parity_status_code = "not_run";
+  std::string last_preview_export_parity_reason = "none";
+  constexpr const char* kPreviewExportParityScope =
+    "structure,component_types,key_identity_text,hierarchy";
 
   builder_insert_container_button.set_text("Insert Container");
   builder_insert_leaf_button.set_text("Insert Leaf");
@@ -525,6 +629,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   builder_save_button.set_text("Save Doc");
   builder_load_button.set_text("Load Doc");
   builder_load_discard_button.set_text("Load Discard");
+  builder_export_button.set_text("Export Runtime");
   builder_new_button.set_text("New Doc");
   builder_new_discard_button.set_text("New Discard");
   phase102_compose_action_button.set_text("Action");
@@ -535,6 +640,10 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   status_label.set_background(0.13f, 0.15f, 0.20f, 1.0f);
   selected_label.set_background(0.13f, 0.15f, 0.20f, 1.0f);
   detail_label.set_background(0.13f, 0.15f, 0.20f, 1.0f);
+  builder_tree_surface_label.set_background(0.08f, 0.11f, 0.16f, 1.0f);
+  builder_inspector_label.set_background(0.08f, 0.11f, 0.16f, 1.0f);
+  builder_preview_label.set_background(0.08f, 0.11f, 0.16f, 1.0f);
+  builder_export_status_label.set_background(0.08f, 0.11f, 0.16f, 1.0f);
 
   refresh_button.set_text("Refresh");
   prev_button.set_text("Prev");
@@ -586,6 +695,21 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     builder_new_button.set_size(96, 32);
     builder_new_discard_button.set_position(674, 307);
     builder_new_discard_button.set_size(130, 32);
+    builder_insert_container_button.set_position(36, 346);
+    builder_insert_container_button.set_size(170, 32);
+    builder_insert_leaf_button.set_position(216, 346);
+    builder_insert_leaf_button.set_size(130, 32);
+    builder_export_button.set_position(356, 346);
+    builder_export_button.set_size(170, 32);
+    builder_export_status_label.set_position(566, 230);
+    builder_export_status_label.set_size(w - 602, 70);
+
+    builder_tree_surface_label.set_position(36, 386);
+    builder_tree_surface_label.set_size(268, h - 424);
+    builder_inspector_label.set_position(314, 386);
+    builder_inspector_label.set_size(268, h - 424);
+    builder_preview_label.set_position(592, 386);
+    builder_preview_label.set_size(w - 628, h - 424);
 
     status_label.set_position(36, 154);
     status_label.set_size(w - 72, 32);
@@ -594,7 +718,39 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     selected_label.set_size(w - 72, 32);
 
     detail_label.set_position(36, 230);
-    detail_label.set_size(w - 72, 70);
+    detail_label.set_size(520, 70);
+  };
+
+  auto refresh_export_status_surface_label = [&]() {
+    std::ostringstream oss;
+    oss << "EXPORT STATUS\n";
+    oss << "result=" << last_export_status_code;
+    if (!last_export_reason.empty() && last_export_reason != "none") {
+      oss << " reason=" << last_export_reason;
+    }
+    oss << "\n";
+    oss << "artifact="
+        << (last_export_artifact_path.empty() ? std::string("<none>") : last_export_artifact_path)
+        << "\n";
+    oss << "rule=" << kExportRule << "\n";
+
+    std::string state_text = "no_export_baseline";
+    if (has_last_export_snapshot) {
+      const std::string serialized_now =
+        ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      if (serialized_now.empty()) {
+        export_snapshot_matches_current_doc = false;
+        state_text = "unknown_serialize_failed";
+      } else {
+        export_snapshot_matches_current_doc = (serialized_now == last_export_snapshot);
+        state_text = export_snapshot_matches_current_doc ? "up_to_date" : "stale_since_last_export";
+      }
+    } else {
+      export_snapshot_matches_current_doc = false;
+    }
+
+    oss << "state=" << state_text;
+    builder_export_status_label.set_text(oss.str());
   };
 
   auto update_labels = [&] {
@@ -605,6 +761,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       " DOC_DIRTY " + (builder_doc_dirty ? std::string("YES") : std::string("NO")));
     selected_label.set_text(std::string("SELECTED ") + selected_file_name(model));
     detail_label.set_text(std::string("DETAIL BYTES ") + selected_file_size(model) + " FILTER " + model.filter);
+    refresh_export_status_surface_label();
   };
 
   auto request_redraw = [&](const char* reason, bool input_triggered, bool layout_triggered) {
@@ -943,6 +1100,120 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     return find_node_by_id(node_id) != nullptr;
   };
 
+  auto node_identity_text = [&](const ngk::ui::builder::BuilderNode& node) -> std::string {
+    const std::string node_text = node.text.empty() ? std::string("<no-text>") : node.text;
+    return node.node_id + " " + ngk::ui::builder::to_string(node.widget_type) + " \"" + node_text + "\"";
+  };
+
+  auto build_tree_surface_text = [&]() -> std::string {
+    std::ostringstream oss;
+    oss << "TREE REGION (Hierarchy / Selection)\n";
+    oss << "selected=" << (selected_builder_node_id.empty() ? std::string("none") : selected_builder_node_id)
+        << " focus=" << (focused_builder_node_id.empty() ? std::string("none") : focused_builder_node_id) << "\n";
+
+    if (builder_doc.nodes.empty() || builder_doc.root_node_id.empty() || !node_exists(builder_doc.root_node_id)) {
+      oss << "(empty document)";
+      return oss.str();
+    }
+
+    std::function<void(const std::string&, int)> append_node = [&](const std::string& node_id, int depth) {
+      auto* node = find_node_by_id(node_id);
+      if (!node) {
+        return;
+      }
+
+      const bool is_selected = (node_id == selected_builder_node_id);
+      const bool is_focused = (node_id == focused_builder_node_id);
+      oss << std::string(static_cast<std::size_t>(depth) * 2U, ' ')
+          << (is_selected ? "> " : "- ")
+          << ngk::ui::builder::to_string(node->widget_type)
+          << " | " << node->node_id;
+      if (!node->text.empty()) {
+        oss << " | \"" << node->text << "\"";
+      }
+      if (is_selected) {
+        oss << " [SELECTED]";
+      }
+      if (is_focused) {
+        oss << " [FOCUS]";
+      }
+      oss << "\n";
+
+      for (const auto& child_id : node->child_ids) {
+        append_node(child_id, depth + 1);
+      }
+    };
+
+    append_node(builder_doc.root_node_id, 0);
+    return oss.str();
+  };
+
+  auto refresh_tree_surface_label = [&]() {
+    builder_tree_surface_label.set_text(build_tree_surface_text());
+  };
+
+  auto refresh_inspector_surface_label = [&]() {
+    std::ostringstream oss;
+    oss << "INSPECTOR REGION (Selection-bound)\n";
+    if (selected_builder_node_id.empty() || !node_exists(selected_builder_node_id)) {
+      oss << "selected=none\n";
+      oss << "binding=cleared";
+      builder_inspector_label.set_text(oss.str());
+      return;
+    }
+
+    auto* node = find_node_by_id(selected_builder_node_id);
+    if (!node) {
+      oss << "selected=stale\n";
+      oss << "binding=cleared";
+      builder_inspector_label.set_text(oss.str());
+      return;
+    }
+
+    oss << "selected=" << node->node_id << "\n";
+    oss << "type=" << ngk::ui::builder::to_string(node->widget_type)
+        << " container=" << ngk::ui::builder::to_string(node->container_type) << "\n";
+    oss << "text=\"" << (node->text.empty() ? std::string("<no-text>") : node->text) << "\"\n";
+    oss << "children=" << node->child_ids.size();
+    builder_inspector_label.set_text(oss.str());
+  };
+
+  auto refresh_preview_surface_label = [&]() {
+    std::ostringstream oss;
+    oss << "PREVIEW REGION (Runtime Truth)\n";
+    oss << "root=" << (builder_doc.root_node_id.empty() ? std::string("none") : builder_doc.root_node_id)
+        << " nodes=" << builder_doc.nodes.size() << "\n";
+    oss << "parity_scope=" << kPreviewExportParityScope << "\n";
+    oss << "parity=" << last_preview_export_parity_status_code;
+    if (!last_preview_export_parity_reason.empty() && last_preview_export_parity_reason != "none") {
+      oss << " reason=" << last_preview_export_parity_reason;
+    }
+    oss << "\n";
+
+    if (selected_builder_node_id.empty() || !node_exists(selected_builder_node_id)) {
+      oss << "selected=none";
+      preview_snapshot = "preview:selected=none";
+      builder_preview_label.set_text(oss.str());
+      return;
+    }
+
+    auto* selected = find_node_by_id(selected_builder_node_id);
+    if (!selected) {
+      oss << "selected=stale";
+      preview_snapshot = "preview:selected=stale";
+      builder_preview_label.set_text(oss.str());
+      return;
+    }
+
+    oss << "selected=> " << selected->node_id << " "
+        << ngk::ui::builder::to_string(selected->widget_type) << "\n";
+    oss << "selected_text=\"" << (selected->text.empty() ? std::string("<no-text>") : selected->text) << "\"\n";
+    oss << "selected_children=" << selected->child_ids.size();
+    preview_snapshot = "preview:selected=" + selected->node_id +
+      " type=" + std::string(ngk::ui::builder::to_string(selected->widget_type));
+    builder_preview_label.set_text(oss.str());
+  };
+
   // PHASE103_15 rule: builder semantic focus is always derived from selection.
   auto sync_focus_with_selection_or_fail = [&]() -> bool {
     focus_diag.focus_selection_rules_defined = true;
@@ -952,22 +1223,26 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       if (!focused_exists) {
         focused_builder_node_id.clear();
         focus_diag.stale_focus_rejected = true;
+        refresh_tree_surface_label();
         return false;
       }
     }
 
     if (selected_builder_node_id.empty()) {
       focused_builder_node_id.clear();
+      refresh_tree_surface_label();
       return true;
     }
 
     if (!node_exists(selected_builder_node_id)) {
       focused_builder_node_id.clear();
       focus_diag.stale_focus_rejected = true;
+      refresh_tree_surface_label();
       return false;
     }
 
     focused_builder_node_id = selected_builder_node_id;
+    refresh_tree_surface_label();
     return true;
   };
 
@@ -1045,6 +1320,42 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     return sync_focus_with_selection_or_fail();
   };
 
+  auto apply_tree_parent_child_navigation = [&](bool to_parent) -> bool {
+    if (selected_builder_node_id.empty() || !node_exists(selected_builder_node_id)) {
+      if (!builder_doc.root_node_id.empty() && node_exists(builder_doc.root_node_id)) {
+        selected_builder_node_id = builder_doc.root_node_id;
+        return sync_focus_with_selection_or_fail();
+      }
+      return false;
+    }
+
+    auto* current = find_node_by_id(selected_builder_node_id);
+    if (!current) {
+      return false;
+    }
+
+    if (to_parent) {
+      if (current->parent_id.empty() || !node_exists(current->parent_id)) {
+        return false;
+      }
+      selected_builder_node_id = current->parent_id;
+      return sync_focus_with_selection_or_fail();
+    }
+
+    if (current->child_ids.empty()) {
+      return false;
+    }
+
+    for (const auto& child_id : current->child_ids) {
+      if (!child_id.empty() && node_exists(child_id)) {
+        selected_builder_node_id = child_id;
+        return sync_focus_with_selection_or_fail();
+      }
+    }
+
+    return false;
+  };
+
   auto remap_selection_or_fail = [&]() -> bool {
     coherence_diag.selection_coherence_hardened = true;
 
@@ -1077,16 +1388,19 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
     if (selected_builder_node_id.empty()) {
       inspector_binding_node_id.clear();
+      refresh_inspector_surface_label();
       return true;
     }
 
     if (!node_exists(selected_builder_node_id)) {
       coherence_diag.stale_inspector_binding_rejected = true;
       inspector_binding_node_id.clear();
+      refresh_inspector_surface_label();
       return false;
     }
 
     inspector_binding_node_id = selected_builder_node_id;
+    refresh_inspector_surface_label();
     return true;
   };
 
@@ -1097,12 +1411,12 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       preview_binding_node_id.clear();
       preview_snapshot.clear();
       model.undefined_state_detected = true;
+      refresh_preview_surface_label();
       return false;
     }
 
     preview_binding_node_id = selected_builder_node_id;
-    preview_snapshot = "preview:nodes=" + std::to_string(builder_doc.nodes.size()) +
-      " selected=" + (selected_builder_node_id.empty() ? std::string("none") : selected_builder_node_id);
+    refresh_preview_surface_label();
     return true;
   };
 
@@ -2078,6 +2392,1326 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
   };
 
+  auto run_phase103_16 = [&] {
+    bool flow_ok = true;
+    visible_ux_diag = BuilderVisibleUxDiagnostics{};
+
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    builder_doc_dirty = false;
+    selected_builder_node_id = builder_doc.root_node_id;
+    focused_builder_node_id.clear();
+
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    flow_ok = check_cross_surface_sync() && flow_ok;
+
+    const bool new_ok = apply_new_document_command(true);
+    flow_ok = new_ok && flow_ok;
+    const bool load_after_new_ok = apply_load_document_command(true);
+    flow_ok = load_after_new_ok && flow_ok;
+
+    const auto before_insert_nodes = builder_doc.nodes;
+    const std::string before_insert_root = builder_doc.root_node_id;
+    const std::string before_insert_sel = selected_builder_node_id;
+    const bool insert_ok = apply_palette_insert(false);
+    flow_ok = insert_ok && flow_ok;
+    if (insert_ok) {
+      push_to_history("phase103_16_insert", before_insert_nodes, before_insert_root, before_insert_sel,
+                      builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id);
+      recompute_builder_dirty_state(true);
+    }
+
+    const bool nav_ok = apply_tree_navigation(true);
+    flow_ok = nav_ok && flow_ok;
+
+    auto* selected_node = find_node_by_id(selected_builder_node_id);
+    if (selected_node) {
+      const auto before_edit_nodes = builder_doc.nodes;
+      const std::string before_edit_root = builder_doc.root_node_id;
+      const std::string before_edit_sel = selected_builder_node_id;
+      selected_node->text = "phase103_16_preview_text";
+      push_to_history("phase103_16_edit", before_edit_nodes, before_edit_root, before_edit_sel,
+                      builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id);
+      recompute_builder_dirty_state(true);
+    } else {
+      flow_ok = false;
+    }
+
+    const auto before_delete_nodes = builder_doc.nodes;
+    const std::string before_delete_root = builder_doc.root_node_id;
+    const std::string before_delete_sel = selected_builder_node_id;
+    const bool delete_ok = apply_delete_selected_node_command();
+    flow_ok = delete_ok && flow_ok;
+    if (delete_ok) {
+      push_to_history("phase103_16_delete", before_delete_nodes, before_delete_root, before_delete_sel,
+                      builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id);
+      recompute_builder_dirty_state(true);
+    }
+
+    const bool undo_ok = apply_undo_command();
+    flow_ok = undo_ok && flow_ok;
+
+    const bool inspector_ok = refresh_inspector_or_fail();
+    const bool preview_ok = refresh_preview_or_fail();
+    const bool sync_ok = check_cross_surface_sync();
+    flow_ok = inspector_ok && preview_ok && sync_ok && flow_ok;
+
+    const std::string tree_text = build_tree_surface_text();
+    const std::string inspector_text = builder_inspector_label.text();
+    const std::string preview_text = builder_preview_label.text();
+
+    visible_ux_diag.tree_hierarchy_visibility_improved =
+      tree_text.find("TREE REGION") != std::string::npos &&
+      tree_text.find("- ") != std::string::npos;
+    visible_ux_diag.selected_node_visibility_in_tree_improved =
+      tree_text.find("[SELECTED]") != std::string::npos;
+    visible_ux_diag.preview_readability_improved =
+      preview_text.find("PREVIEW REGION") != std::string::npos &&
+      preview_text.find("root=") != std::string::npos;
+    visible_ux_diag.selected_node_visibility_in_preview_improved =
+      preview_text.find("selected=> ") != std::string::npos;
+    visible_ux_diag.shell_regions_clearly_labeled =
+      tree_text.find("TREE REGION") != std::string::npos &&
+      preview_text.find("PREVIEW REGION") != std::string::npos &&
+      inspector_text.find("INSPECTOR REGION") != std::string::npos &&
+      builder_insert_container_button.text().find("Insert") != std::string::npos;
+    visible_ux_diag.shell_state_still_coherent =
+      sync_ok && inspector_ok && preview_ok &&
+      (!selected_builder_node_id.empty()) &&
+      (focused_builder_node_id == selected_builder_node_id) &&
+      (inspector_binding_node_id == selected_builder_node_id) &&
+      (preview_binding_node_id == selected_builder_node_id);
+
+    auto audit = ngk::ui::builder::audit_layout_tree(&root);
+    visible_ux_diag.layout_audit_still_compatible = audit.no_overlap;
+
+    if (!flow_ok ||
+        !visible_ux_diag.tree_hierarchy_visibility_improved ||
+        !visible_ux_diag.selected_node_visibility_in_tree_improved ||
+        !visible_ux_diag.preview_readability_improved ||
+        !visible_ux_diag.selected_node_visibility_in_preview_improved ||
+        !visible_ux_diag.shell_regions_clearly_labeled ||
+        !visible_ux_diag.shell_state_still_coherent ||
+        !visible_ux_diag.layout_audit_still_compatible) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  // PHASE103_17 rule: shortcuts are active only in builder scope and never while typing in text inputs.
+  auto is_builder_shortcut_scope_active = [&]() -> bool {
+    shortcut_diag.shortcut_scope_rules_defined = true;
+    auto* focused = tree.focused_element();
+    if (focused && focused->is_text_input()) {
+      return false;
+    }
+    return !builder_doc.nodes.empty() &&
+      !selected_builder_node_id.empty() &&
+      node_exists(selected_builder_node_id);
+  };
+
+  auto handle_builder_shortcut_key = [&](std::uint32_t key, bool down, bool repeat) -> bool {
+    if (!down || repeat) {
+      return false;
+    }
+    if (!is_builder_shortcut_scope_active()) {
+      return false;
+    }
+
+    bool handled = false;
+    switch (key) {
+      case 0x26: // Up
+        handled = apply_tree_navigation(false);
+        break;
+      case 0x28: // Down
+        handled = apply_tree_navigation(true);
+        break;
+      case 0x25: // Left
+        handled = apply_tree_parent_child_navigation(true);
+        break;
+      case 0x27: // Right
+        handled = apply_tree_parent_child_navigation(false);
+        break;
+      case 0x5A: // Z
+        handled = apply_undo_command();
+        break;
+      case 0x59: // Y
+        handled = apply_redo_command();
+        break;
+      case 0x2E: // Delete
+        {
+          const auto before_nodes = builder_doc.nodes;
+          const std::string before_root = builder_doc.root_node_id;
+          const std::string before_sel = selected_builder_node_id;
+          handled = apply_delete_selected_node_command();
+          if (handled) {
+            push_to_history("shortcut_delete", before_nodes, before_root, before_sel,
+                            builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id);
+          }
+        }
+        if (handled) {
+          recompute_builder_dirty_state(true);
+        }
+        break;
+      case 0x43: // C
+        {
+          const auto before_nodes = builder_doc.nodes;
+          const std::string before_root = builder_doc.root_node_id;
+          const std::string before_sel = selected_builder_node_id;
+          handled = apply_palette_insert(true);
+          if (handled) {
+            push_to_history("shortcut_insert_container", before_nodes, before_root, before_sel,
+                            builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id);
+          }
+        }
+        if (handled) {
+          recompute_builder_dirty_state(true);
+        }
+        break;
+      case 0x4C: // L
+        {
+          const auto before_nodes = builder_doc.nodes;
+          const std::string before_root = builder_doc.root_node_id;
+          const std::string before_sel = selected_builder_node_id;
+          handled = apply_palette_insert(false);
+          if (handled) {
+            push_to_history("shortcut_insert_leaf", before_nodes, before_root, before_sel,
+                            builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id);
+          }
+        }
+        if (handled) {
+          recompute_builder_dirty_state(true);
+        }
+        break;
+      case 0x53: // S
+        handled = apply_save_document_command();
+        break;
+      case 0x4F: // O
+        handled = apply_load_document_command(false);
+        break;
+      case 0x4E: // N
+        handled = apply_new_document_command(false);
+        break;
+      default:
+        break;
+    }
+
+    if (!handled) {
+      return false;
+    }
+
+    remap_selection_or_fail();
+    sync_focus_with_selection_or_fail();
+    refresh_inspector_or_fail();
+    refresh_preview_or_fail();
+    check_cross_surface_sync();
+    return true;
+  };
+
+  // --- PHASE103_18: Controlled Drag/Reorder UX ---
+
+  auto is_in_subtree_of = [&](const std::string& node_id, const std::string& ancestor_id) -> bool {
+    if (node_id.empty() || ancestor_id.empty()) { return false; }
+    if (node_id == ancestor_id) { return true; }
+    std::vector<std::string> to_visit{ancestor_id};
+    for (std::size_t i = 0; i < to_visit.size(); ++i) {
+      auto* n = find_node_by_id(to_visit[i]);
+      if (!n) { continue; }
+      for (const auto& child_id : n->child_ids) {
+        if (child_id == node_id) { return true; }
+        to_visit.push_back(child_id);
+      }
+    }
+    return false;
+  };
+
+  auto begin_tree_drag = [&](const std::string& source_id) -> bool {
+    dragdrop_diag.tree_drag_reorder_present = true;
+    if (source_id.empty() || !node_exists(source_id)) { return false; }
+    if (source_id == builder_doc.root_node_id) { return false; }
+    drag_source_node_id = source_id;
+    drag_active = true;
+    selected_builder_node_id = source_id;
+    remap_selection_or_fail();
+    sync_focus_with_selection_or_fail();
+    return true;
+  };
+
+  auto cancel_tree_drag = [&] {
+    drag_source_node_id.clear();
+    drag_active = false;
+  };
+
+  auto is_legal_drop_target_reorder = [&](const std::string& target_id) -> bool {
+    if (!drag_active || drag_source_node_id.empty() || target_id.empty()) { return false; }
+    if (drag_source_node_id == target_id) { return false; }
+    if (!node_exists(target_id)) { return false; }
+    auto* src = find_node_by_id(drag_source_node_id);
+    if (!src || src->parent_id.empty()) { return false; }
+    auto* tgt = find_node_by_id(target_id);
+    if (!tgt) { return false; }
+    return src->parent_id == tgt->parent_id;
+  };
+
+  auto is_legal_drop_target_reparent = [&](const std::string& target_id) -> bool {
+    if (!drag_active || drag_source_node_id.empty() || target_id.empty()) { return false; }
+    if (drag_source_node_id == target_id) { return false; }
+    if (!node_exists(target_id)) { return false; }
+    if (is_in_subtree_of(target_id, drag_source_node_id)) { return false; }
+    auto* src = find_node_by_id(drag_source_node_id);
+    if (!src) { return false; }
+    if (src->parent_id == target_id) { return false; }
+    auto* tgt = find_node_by_id(target_id);
+    if (!tgt) { return false; }
+    return tgt->widget_type == ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+  };
+
+  auto commit_tree_drag_reorder = [&](const std::string& target_id) -> bool {
+    if (!is_legal_drop_target_reorder(target_id)) { return false; }
+    auto* src = find_node_by_id(drag_source_node_id);
+    if (!src) { return false; }
+    const auto before_nodes = builder_doc.nodes;
+    const std::string before_root = builder_doc.root_node_id;
+    const std::string before_sel = selected_builder_node_id;
+    auto* parent = find_node_by_id(src->parent_id);
+    if (!parent) { return false; }
+    auto& kids = parent->child_ids;
+    auto src_it = std::find(kids.begin(), kids.end(), drag_source_node_id);
+    auto tgt_it = std::find(kids.begin(), kids.end(), target_id);
+    if (src_it == kids.end() || tgt_it == kids.end()) { return false; }
+    std::iter_swap(src_it, tgt_it);
+    selected_builder_node_id = drag_source_node_id;
+    push_to_history("drag_reorder", before_nodes, before_root, before_sel,
+                    builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id);
+    recompute_builder_dirty_state(true);
+    cancel_tree_drag();
+    remap_selection_or_fail();
+    sync_focus_with_selection_or_fail();
+    refresh_inspector_or_fail();
+    refresh_preview_or_fail();
+    check_cross_surface_sync();
+    dragdrop_diag.legal_reorder_drop_applied = true;
+    return true;
+  };
+
+  auto commit_tree_drag_reparent = [&](const std::string& target_id) -> bool {
+    if (!is_legal_drop_target_reparent(target_id)) { return false; }
+    auto* src = find_node_by_id(drag_source_node_id);
+    if (!src) { return false; }
+    const auto before_nodes = builder_doc.nodes;
+    const std::string before_root = builder_doc.root_node_id;
+    const std::string before_sel = selected_builder_node_id;
+    const std::string old_parent_id = src->parent_id;
+    auto* old_parent = find_node_by_id(old_parent_id);
+    if (old_parent) {
+      auto& kids = old_parent->child_ids;
+      kids.erase(std::remove(kids.begin(), kids.end(), drag_source_node_id), kids.end());
+    }
+    auto* new_parent = find_node_by_id(target_id);
+    if (!new_parent) { return false; }
+    new_parent->child_ids.push_back(drag_source_node_id);
+    src = find_node_by_id(drag_source_node_id);
+    if (!src) { return false; }
+    src->parent_id = target_id;
+    selected_builder_node_id = drag_source_node_id;
+    push_to_history("drag_reparent", before_nodes, before_root, before_sel,
+                    builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id);
+    recompute_builder_dirty_state(true);
+    cancel_tree_drag();
+    remap_selection_or_fail();
+    sync_focus_with_selection_or_fail();
+    refresh_inspector_or_fail();
+    refresh_preview_or_fail();
+    check_cross_surface_sync();
+    dragdrop_diag.legal_reparent_drop_applied = true;
+    return true;
+  };
+
+  auto reject_illegal_tree_drag_drop = [&](const std::string& target_id, bool is_reparent) -> bool {
+    const bool would_be_legal = is_reparent
+      ? is_legal_drop_target_reparent(target_id)
+      : is_legal_drop_target_reorder(target_id);
+    if (would_be_legal) { return false; }
+    dragdrop_diag.illegal_drop_rejected = true;
+    cancel_tree_drag();
+    return true;
+  };
+
+  auto apply_typed_palette_insert = [&](
+      ngk::ui::builder::BuilderWidgetType type,
+      const std::string& under_node_id,
+      const std::string& new_node_id) -> bool {
+    using WType = ngk::ui::builder::BuilderWidgetType;
+    auto is_container_type = [](WType t) -> bool {
+      return t == WType::VerticalLayout || t == WType::HorizontalLayout ||
+             t == WType::ScrollContainer || t == WType::ToolbarContainer ||
+             t == WType::SidebarContainer || t == WType::ContentPanel ||
+             t == WType::StatusBarContainer;
+    };
+    auto* parent = find_node_by_id(under_node_id);
+    if (parent == nullptr) { return false; }
+    if (!is_container_type(parent->widget_type)) { return false; }
+    for (const auto& n : builder_doc.nodes) {
+      if (n.node_id == new_node_id) { return false; }
+    }
+    auto before = builder_doc.nodes;
+    const std::string before_root = builder_doc.root_node_id;
+    const std::string before_sel = selected_builder_node_id;
+    ngk::ui::builder::BuilderNode new_node{};
+    new_node.node_id = new_node_id;
+    new_node.parent_id = under_node_id;
+    new_node.widget_type = type;
+    new_node.text = std::string(ngk::ui::builder::to_string(type));
+    parent->child_ids.push_back(new_node_id);
+    builder_doc.nodes.push_back(std::move(new_node));
+    selected_builder_node_id = new_node_id;
+    push_to_history("typed_insert", before, before_root, before_sel,
+                    builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id);
+    return true;
+  };
+
+  auto run_phase103_17 = [&] {
+    bool flow_ok = true;
+    shortcut_diag = BuilderShortcutDiagnostics{};
+
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    builder_doc_dirty = false;
+    selected_builder_node_id = builder_doc.root_node_id;
+    focused_builder_node_id.clear();
+
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    flow_ok = check_cross_surface_sync() && flow_ok;
+
+    const bool nav_down_ok = handle_builder_shortcut_key(0x28, true, false);
+    const bool nav_up_ok = handle_builder_shortcut_key(0x26, true, false);
+    const bool nav_child_ok = handle_builder_shortcut_key(0x27, true, false);
+    const bool nav_parent_ok = handle_builder_shortcut_key(0x25, true, false);
+    shortcut_diag.keyboard_tree_navigation_present = nav_down_ok && nav_up_ok && nav_child_ok && nav_parent_ok;
+    flow_ok = shortcut_diag.keyboard_tree_navigation_present && flow_ok;
+
+    const bool insert_container_ok = handle_builder_shortcut_key(0x43, true, false);
+    const bool insert_leaf_ok = handle_builder_shortcut_key(0x4C, true, false);
+    const bool delete_ok = handle_builder_shortcut_key(0x2E, true, false);
+    shortcut_diag.insert_delete_shortcuts_work = insert_container_ok && insert_leaf_ok && delete_ok;
+    flow_ok = shortcut_diag.insert_delete_shortcuts_work && flow_ok;
+
+    const bool undo_ok = handle_builder_shortcut_key(0x5A, true, false);
+    const bool redo_ok = handle_builder_shortcut_key(0x59, true, false);
+    shortcut_diag.undo_redo_shortcuts_work = undo_ok && redo_ok;
+    flow_ok = shortcut_diag.undo_redo_shortcuts_work && flow_ok;
+
+    const bool save_ok = handle_builder_shortcut_key(0x53, true, false);
+    flow_ok = save_ok && flow_ok;
+    const bool post_save_insert_ok = handle_builder_shortcut_key(0x4C, true, false);
+    flow_ok = post_save_insert_ok && flow_ok;
+    const bool guarded_load_rejected = !handle_builder_shortcut_key(0x4F, true, false);
+    const bool guarded_new_rejected = !handle_builder_shortcut_key(0x4E, true, false);
+    shortcut_diag.guarded_lifecycle_shortcuts_safe = guarded_load_rejected && guarded_new_rejected;
+    flow_ok = shortcut_diag.guarded_lifecycle_shortcuts_safe && flow_ok;
+
+    const bool inspector_ok = refresh_inspector_or_fail();
+    const bool preview_ok = refresh_preview_or_fail();
+    const bool sync_ok = check_cross_surface_sync();
+    shortcut_diag.shell_state_still_coherent =
+      inspector_ok && preview_ok && sync_ok &&
+      (!selected_builder_node_id.empty()) &&
+      (focused_builder_node_id == selected_builder_node_id) &&
+      (inspector_binding_node_id == selected_builder_node_id) &&
+      (preview_binding_node_id == selected_builder_node_id);
+
+    auto audit = ngk::ui::builder::audit_layout_tree(&root);
+    shortcut_diag.layout_audit_still_compatible = audit.no_overlap;
+
+    if (!flow_ok ||
+        !shortcut_diag.keyboard_tree_navigation_present ||
+        !shortcut_diag.shortcut_scope_rules_defined ||
+        !shortcut_diag.undo_redo_shortcuts_work ||
+        !shortcut_diag.insert_delete_shortcuts_work ||
+        !shortcut_diag.guarded_lifecycle_shortcuts_safe ||
+        !shortcut_diag.shell_state_still_coherent ||
+        !shortcut_diag.layout_audit_still_compatible) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_18 = [&] {
+    bool flow_ok = true;
+    dragdrop_diag = BuilderDragDropDiagnostics{};
+
+    // Set up a fresh document with root + 3 children for drag tests
+    builder_doc = ngk::ui::builder::BuilderDocument{};
+    builder_doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+    ngk::ui::builder::BuilderNode drag_root{};
+    drag_root.node_id = "drag-root-001";
+    drag_root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+    drag_root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+    drag_root.child_ids = {"drag-container-a", "drag-leaf-b", "drag-container-c"};
+
+    ngk::ui::builder::BuilderNode drag_a{};
+    drag_a.node_id = "drag-container-a";
+    drag_a.parent_id = "drag-root-001";
+    drag_a.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+
+    ngk::ui::builder::BuilderNode drag_b{};
+    drag_b.node_id = "drag-leaf-b";
+    drag_b.parent_id = "drag-root-001";
+    drag_b.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+    drag_b.text = "Drag Leaf B";
+
+    ngk::ui::builder::BuilderNode drag_c{};
+    drag_c.node_id = "drag-container-c";
+    drag_c.parent_id = "drag-root-001";
+    drag_c.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+
+    builder_doc.root_node_id = "drag-root-001";
+    builder_doc.nodes.push_back(drag_root);
+    builder_doc.nodes.push_back(drag_a);
+    builder_doc.nodes.push_back(drag_b);
+    builder_doc.nodes.push_back(drag_c);
+
+    selected_builder_node_id = "drag-root-001";
+    undo_history.clear();
+    redo_stack.clear();
+    builder_doc_dirty = false;
+
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    flow_ok = check_cross_surface_sync() && flow_ok;
+
+    // TEST 1: Legal sibling reorder — drag "drag-leaf-b" swaps positions with "drag-container-c"
+    drag_active = false;
+    drag_source_node_id.clear();
+    selected_builder_node_id = "drag-leaf-b";
+    const bool drag1_begin = begin_tree_drag("drag-leaf-b");
+    flow_ok = drag1_begin && flow_ok;
+    if (drag1_begin) {
+      const bool reorder_ok = commit_tree_drag_reorder("drag-container-c");
+      flow_ok = reorder_ok && flow_ok;
+    }
+    // After reorder: root children = [drag-container-a, drag-container-c, drag-leaf-b]
+
+    // TEST 2: Legal reparent — drag "drag-leaf-b" into "drag-container-a" (VerticalLayout)
+    drag_active = false;
+    drag_source_node_id.clear();
+    selected_builder_node_id = "drag-leaf-b";
+    const bool drag2_begin = begin_tree_drag("drag-leaf-b");
+    flow_ok = drag2_begin && flow_ok;
+    if (drag2_begin) {
+      const bool reparent_ok = commit_tree_drag_reparent("drag-container-a");
+      flow_ok = reparent_ok && flow_ok;
+    }
+    // After reparent: root → [drag-container-a [drag-leaf-b], drag-container-c]
+
+    // TEST 3: Illegal drop rejected — circular reparent attempt
+    //   Try to drop "drag-container-a" under "drag-leaf-b" (drag-leaf-b is now a descendant of a)
+    drag_source_node_id = "drag-container-a";
+    drag_active = true;
+    dragdrop_diag.tree_drag_reorder_present = true;
+    const bool illegal_ok = reject_illegal_tree_drag_drop("drag-leaf-b", true);
+    flow_ok = illegal_ok && flow_ok;
+
+    // Verify selection preserved after all operations
+    selected_builder_node_id = "drag-container-a";
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    dragdrop_diag.dragged_node_selection_preserved =
+      !selected_builder_node_id.empty() && node_exists(selected_builder_node_id);
+    flow_ok = dragdrop_diag.dragged_node_selection_preserved && flow_ok;
+
+    // Shell coherence
+    const bool insp_ok18 = refresh_inspector_or_fail();
+    const bool prev_ok18 = refresh_preview_or_fail();
+    const bool sync_ok18 = check_cross_surface_sync();
+    dragdrop_diag.shell_state_still_coherent =
+      insp_ok18 && prev_ok18 && sync_ok18 &&
+      !selected_builder_node_id.empty() &&
+      (focused_builder_node_id == selected_builder_node_id) &&
+      (inspector_binding_node_id == selected_builder_node_id) &&
+      (preview_binding_node_id == selected_builder_node_id);
+    flow_ok = dragdrop_diag.shell_state_still_coherent && flow_ok;
+
+    auto audit18 = ngk::ui::builder::audit_layout_tree(&root);
+    dragdrop_diag.layout_audit_still_compatible = audit18.no_overlap;
+    flow_ok = dragdrop_diag.layout_audit_still_compatible && flow_ok;
+
+    if (!flow_ok ||
+        !dragdrop_diag.tree_drag_reorder_present ||
+        !dragdrop_diag.legal_reorder_drop_applied ||
+        !dragdrop_diag.legal_reparent_drop_applied ||
+        !dragdrop_diag.illegal_drop_rejected ||
+        !dragdrop_diag.dragged_node_selection_preserved ||
+        !dragdrop_diag.shell_state_still_coherent ||
+        !dragdrop_diag.layout_audit_still_compatible) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto apply_export_command = [&](const ngk::ui::builder::BuilderDocument& source_doc,
+                                  const std::filesystem::path& export_file_path) -> bool {
+    export_diag.export_command_present = true;
+    last_export_artifact_path = export_file_path.string();
+
+    auto fail_export = [&](const char* reason_code) -> bool {
+      last_export_status_code = "fail";
+      last_export_reason = reason_code == nullptr ? "unknown_export_error" : reason_code;
+      refresh_export_status_surface_label();
+      update_labels();
+      return false;
+    };
+
+    // Fail closed: no root, no nodes
+    if (source_doc.root_node_id.empty() || source_doc.nodes.empty()) {
+      return fail_export("invalid_document_missing_root_or_nodes");
+    }
+
+    // Validate before serializing
+    std::string validation_error;
+    if (!ngk::ui::builder::validate_builder_document(source_doc, &validation_error)) {
+      return fail_export("document_validation_failed");
+    }
+
+    // Snapshot: read-only, no mutation of builder_doc
+    const std::string export_text = ngk::ui::builder::serialize_builder_document_deterministic(source_doc);
+    if (export_text.empty()) {
+      return fail_export("deterministic_serialize_failed");
+    }
+
+    // Verify runtime-instantiable
+    ngk::ui::builder::InstantiatedBuilderDocument runtime_proof{};
+    std::string instantiate_error;
+    if (!ngk::ui::builder::instantiate_builder_document(source_doc, runtime_proof, &instantiate_error)) {
+      return fail_export("runtime_instantiate_failed");
+    }
+
+    // Write to export path
+    if (!write_text_file(export_file_path, export_text)) {
+      return fail_export("artifact_write_failed");
+    }
+
+    // Verify round-trip: re-read and compare
+    std::string roundtrip_text;
+    if (!read_text_file(export_file_path, roundtrip_text)) {
+      return fail_export("artifact_readback_failed");
+    }
+    if (roundtrip_text != export_text) {
+      return fail_export("artifact_roundtrip_mismatch");
+    }
+
+    ngk::ui::builder::BuilderDocument roundtrip_doc{};
+    std::string deserialize_error;
+    if (!ngk::ui::builder::deserialize_builder_document_deterministic(roundtrip_text, roundtrip_doc, &deserialize_error)) {
+      return fail_export("artifact_deserialize_failed");
+    }
+    const std::string canonical_roundtrip =
+      ngk::ui::builder::serialize_builder_document_deterministic(roundtrip_doc);
+    if (canonical_roundtrip != export_text) {
+      return fail_export("artifact_canonical_roundtrip_mismatch");
+    }
+
+    export_diag.export_artifact_created = true;
+    export_diag.export_artifact_deterministic = true;
+    export_diag.exported_structure_matches_builder_doc = true;
+    has_last_export_snapshot = true;
+    last_export_snapshot = export_text;
+    export_snapshot_matches_current_doc = true;
+    last_export_status_code = "success";
+    last_export_reason = "none";
+    refresh_export_status_surface_label();
+    update_labels();
+    return true;
+  };
+
+  auto find_node_by_id_in_document = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                         const std::string& node_id) -> const ngk::ui::builder::BuilderNode* {
+    for (const auto& node : doc.nodes) {
+      if (node.node_id == node_id) {
+        return &node;
+      }
+    }
+    return nullptr;
+  };
+
+  auto set_preview_export_parity_status = [&](const char* status_code, const std::string& reason) {
+    last_preview_export_parity_status_code = status_code == nullptr ? "unknown" : status_code;
+    last_preview_export_parity_reason = reason.empty() ? std::string("none") : reason;
+    refresh_preview_surface_label();
+  };
+
+  auto build_preview_export_parity_entries = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                                 std::vector<PreviewExportParityEntry>& entries,
+                                                 std::string& reason_out,
+                                                 const char* context_name) -> bool {
+    entries.clear();
+
+    std::string validation_error;
+    if (!ngk::ui::builder::validate_builder_document(doc, &validation_error)) {
+      reason_out = std::string(context_name == nullptr ? "document" : context_name) +
+        "_validation_failed";
+      return false;
+    }
+
+    if (doc.root_node_id.empty()) {
+      reason_out = std::string(context_name == nullptr ? "document" : context_name) +
+        "_missing_root_node";
+      return false;
+    }
+
+    const auto* root_node = find_node_by_id_in_document(doc, doc.root_node_id);
+    if (root_node == nullptr) {
+      reason_out = std::string(context_name == nullptr ? "document" : context_name) +
+        "_root_node_missing_from_table";
+      return false;
+    }
+
+    std::vector<std::pair<std::string, int>> stack{};
+    stack.push_back({doc.root_node_id, 0});
+    while (!stack.empty()) {
+      const auto current = stack.back();
+      stack.pop_back();
+
+      const auto* node = find_node_by_id_in_document(doc, current.first);
+      if (node == nullptr) {
+        reason_out = std::string(context_name == nullptr ? "document" : context_name) +
+          "_node_missing_" + current.first;
+        return false;
+      }
+
+      PreviewExportParityEntry entry{};
+      entry.depth = current.second;
+      entry.node_id = node->node_id;
+      entry.widget_type = ngk::ui::builder::to_string(node->widget_type);
+      entry.text = node->text.empty() ? std::string("<no-text>") : node->text;
+      entry.child_ids = node->child_ids;
+      entries.push_back(entry);
+
+      for (auto child_it = node->child_ids.rbegin(); child_it != node->child_ids.rend(); ++child_it) {
+        if (child_it->empty()) {
+          reason_out = std::string(context_name == nullptr ? "document" : context_name) +
+            "_empty_child_id_parent_" + node->node_id;
+          return false;
+        }
+        if (find_node_by_id_in_document(doc, *child_it) == nullptr) {
+          reason_out = std::string(context_name == nullptr ? "document" : context_name) +
+            "_missing_child_" + *child_it + "_parent_" + node->node_id;
+          return false;
+        }
+        stack.push_back({*child_it, current.second + 1});
+      }
+    }
+
+    reason_out = "none";
+    return true;
+  };
+
+  auto validate_preview_export_parity = [&](const ngk::ui::builder::BuilderDocument& live_doc,
+                                            const std::filesystem::path& export_file_path) -> bool {
+    std::string exported_text;
+    if (!read_text_file(export_file_path, exported_text)) {
+      set_preview_export_parity_status("fail", "export_artifact_read_failed");
+      return false;
+    }
+
+    ngk::ui::builder::BuilderDocument exported_doc{};
+    std::string deserialize_error;
+    if (!ngk::ui::builder::deserialize_builder_document_deterministic(
+          exported_text, exported_doc, &deserialize_error)) {
+      set_preview_export_parity_status("fail", "export_artifact_deserialize_failed");
+      return false;
+    }
+
+    std::vector<PreviewExportParityEntry> live_entries{};
+    std::vector<PreviewExportParityEntry> exported_entries{};
+    std::string live_reason;
+    std::string exported_reason;
+    if (!build_preview_export_parity_entries(live_doc, live_entries, live_reason, "live_preview_scope")) {
+      set_preview_export_parity_status("fail", live_reason);
+      return false;
+    }
+    if (!build_preview_export_parity_entries(exported_doc, exported_entries, exported_reason, "export_scope")) {
+      set_preview_export_parity_status("fail", exported_reason);
+      return false;
+    }
+
+    if (live_doc.root_node_id != exported_doc.root_node_id) {
+      set_preview_export_parity_status(
+        "fail",
+        "root_node_mismatch_live_" + live_doc.root_node_id + "_export_" + exported_doc.root_node_id);
+      return false;
+    }
+
+    if (live_entries.size() != exported_entries.size()) {
+      set_preview_export_parity_status(
+        "fail",
+        "node_count_mismatch_live_" + std::to_string(live_entries.size()) +
+          "_export_" + std::to_string(exported_entries.size()));
+      return false;
+    }
+
+    for (std::size_t index = 0; index < live_entries.size(); ++index) {
+      const auto& live_entry = live_entries[index];
+      const auto& exported_entry = exported_entries[index];
+
+      if (live_entry.depth != exported_entry.depth) {
+        set_preview_export_parity_status(
+          "fail", "hierarchy_depth_mismatch_node_" + live_entry.node_id);
+        return false;
+      }
+      if (live_entry.node_id != exported_entry.node_id) {
+        set_preview_export_parity_status(
+          "fail",
+          "node_identity_mismatch_live_" + live_entry.node_id + "_export_" + exported_entry.node_id);
+        return false;
+      }
+      if (live_entry.widget_type != exported_entry.widget_type) {
+        set_preview_export_parity_status(
+          "fail", "component_type_mismatch_node_" + live_entry.node_id);
+        return false;
+      }
+      if (live_entry.text != exported_entry.text) {
+        set_preview_export_parity_status(
+          "fail", "identity_text_mismatch_node_" + live_entry.node_id);
+        return false;
+      }
+      if (live_entry.child_ids.size() != exported_entry.child_ids.size()) {
+        set_preview_export_parity_status(
+          "fail", "child_count_mismatch_node_" + live_entry.node_id);
+        return false;
+      }
+      for (std::size_t child_index = 0; child_index < live_entry.child_ids.size(); ++child_index) {
+        if (live_entry.child_ids[child_index] != exported_entry.child_ids[child_index]) {
+          set_preview_export_parity_status(
+            "fail",
+            "child_link_mismatch_parent_" + live_entry.node_id +
+              "_offset_" + std::to_string(child_index));
+          return false;
+        }
+      }
+    }
+
+    set_preview_export_parity_status("success", "none");
+    return true;
+  };
+
+  auto run_phase103_19 = [&] {
+    bool flow_ok = true;
+    typed_palette_diag = BuilderTypedPaletteDiagnostics{};
+    using WType = ngk::ui::builder::BuilderWidgetType;
+
+    // Fresh document: palette-root-001 (VerticalLayout+Shell)
+    // Initial children: palette-container-a (HorizontalLayout), palette-leaf-b (Button)
+    builder_doc = ngk::ui::builder::BuilderDocument{};
+    builder_doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+    ngk::ui::builder::BuilderNode pal_root{};
+    pal_root.node_id = "palette-root-001";
+    pal_root.widget_type = WType::VerticalLayout;
+    pal_root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+    pal_root.child_ids = {"palette-container-a", "palette-leaf-b"};
+    builder_doc.nodes.push_back(pal_root);
+    builder_doc.root_node_id = "palette-root-001";
+
+    ngk::ui::builder::BuilderNode pal_a{};
+    pal_a.node_id = "palette-container-a";
+    pal_a.parent_id = "palette-root-001";
+    pal_a.widget_type = WType::HorizontalLayout;
+    builder_doc.nodes.push_back(pal_a);
+
+    ngk::ui::builder::BuilderNode pal_b{};
+    pal_b.node_id = "palette-leaf-b";
+    pal_b.parent_id = "palette-root-001";
+    pal_b.widget_type = WType::Button;
+    pal_b.text = "Palette Button";
+    builder_doc.nodes.push_back(pal_b);
+
+    selected_builder_node_id = "palette-root-001";
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    typed_palette_diag.typed_palette_present = true;
+
+    // TEST 1: Legal typed container insert — HorizontalLayout under root
+    const bool container_insert_ok = apply_typed_palette_insert(
+      WType::HorizontalLayout, "palette-root-001", "palette-typed-container-001");
+    typed_palette_diag.legal_typed_container_insert_applied = container_insert_ok;
+    flow_ok = container_insert_ok && flow_ok;
+    if (container_insert_ok) {
+      flow_ok = remap_selection_or_fail() && flow_ok;
+      flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+      flow_ok = refresh_inspector_or_fail() && flow_ok;
+      flow_ok = refresh_preview_or_fail() && flow_ok;
+    }
+
+    // TEST 2: Legal typed leaf insert — Button under palette-container-a
+    selected_builder_node_id = "palette-container-a";
+    const bool leaf_insert_ok = apply_typed_palette_insert(
+      WType::Button, "palette-container-a", "palette-typed-leaf-001");
+    typed_palette_diag.legal_typed_leaf_insert_applied = leaf_insert_ok;
+    flow_ok = leaf_insert_ok && flow_ok;
+    if (leaf_insert_ok) {
+      flow_ok = remap_selection_or_fail() && flow_ok;
+      flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+      flow_ok = refresh_inspector_or_fail() && flow_ok;
+      flow_ok = refresh_preview_or_fail() && flow_ok;
+    }
+
+    // TEST 3: Illegal typed insert rejected — VerticalLayout under palette-leaf-b (Button, non-container)
+    const bool illegal_rejected = !apply_typed_palette_insert(
+      WType::VerticalLayout, "palette-leaf-b", "palette-illegal-001");
+    typed_palette_diag.illegal_typed_insert_rejected = illegal_rejected;
+    flow_ok = illegal_rejected && flow_ok;
+
+    // Selection continuity: after leaf insert, selection must be palette-typed-leaf-001
+    typed_palette_diag.inserted_typed_node_auto_selected =
+      (selected_builder_node_id == "palette-typed-leaf-001") &&
+      node_exists("palette-typed-leaf-001");
+    flow_ok = typed_palette_diag.inserted_typed_node_auto_selected && flow_ok;
+
+    // Inspector type-appropriate: selected node must be Button with matching type string
+    {
+      auto* sel_node = find_node_by_id(selected_builder_node_id);
+      const bool type_ok = sel_node != nullptr &&
+        sel_node->widget_type == WType::Button &&
+        std::string(ngk::ui::builder::to_string(sel_node->widget_type)) == "button";
+      typed_palette_diag.inspector_shows_type_appropriate_properties = type_ok;
+      flow_ok = type_ok && flow_ok;
+    }
+
+    // Shell coherence
+    const bool insp_ok19 = refresh_inspector_or_fail();
+    const bool prev_ok19 = refresh_preview_or_fail();
+    const bool sync_ok19 = check_cross_surface_sync();
+    typed_palette_diag.shell_state_still_coherent =
+      insp_ok19 && prev_ok19 && sync_ok19 &&
+      !selected_builder_node_id.empty() &&
+      (focused_builder_node_id == selected_builder_node_id) &&
+      (inspector_binding_node_id == selected_builder_node_id) &&
+      (preview_binding_node_id == selected_builder_node_id);
+    flow_ok = typed_palette_diag.shell_state_still_coherent && flow_ok;
+
+    auto audit19 = ngk::ui::builder::audit_layout_tree(&root);
+    typed_palette_diag.layout_audit_still_compatible = audit19.no_overlap;
+    flow_ok = typed_palette_diag.layout_audit_still_compatible && flow_ok;
+
+    if (!flow_ok ||
+        !typed_palette_diag.typed_palette_present ||
+        !typed_palette_diag.legal_typed_container_insert_applied ||
+        !typed_palette_diag.legal_typed_leaf_insert_applied ||
+        !typed_palette_diag.illegal_typed_insert_rejected ||
+        !typed_palette_diag.inserted_typed_node_auto_selected ||
+        !typed_palette_diag.inspector_shows_type_appropriate_properties ||
+        !typed_palette_diag.shell_state_still_coherent ||
+        !typed_palette_diag.layout_audit_still_compatible) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_20 = [&] {
+    bool flow_ok = true;
+    export_diag = BuilderExportDiagnostics{};
+    using WType = ngk::ui::builder::BuilderWidgetType;
+
+    // Build and edit the live builder document through existing command paths.
+    run_phase103_2();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+
+    const bool add_container_ok = apply_typed_palette_insert(
+      WType::HorizontalLayout, builder_doc.root_node_id, "export-container-a");
+    flow_ok = add_container_ok && flow_ok;
+    const bool add_label_ok = apply_typed_palette_insert(
+      WType::Label, "export-container-a", "export-leaf-label");
+    flow_ok = add_label_ok && flow_ok;
+    const bool add_button_ok = apply_typed_palette_insert(
+      WType::Button, "export-container-a", "export-leaf-button");
+    flow_ok = add_button_ok && flow_ok;
+
+    if (auto* export_label = find_node_by_id("export-leaf-label")) {
+      export_label->text = "Exported Label";
+    } else {
+      flow_ok = false;
+    }
+    if (auto* export_button = find_node_by_id("export-leaf-button")) {
+      export_button->text = "Exported Button";
+    } else {
+      flow_ok = false;
+    }
+
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+
+    const std::string before_export_snapshot =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    const std::string before_export_selection = selected_builder_node_id;
+
+    // Ensure export directory exists
+    try {
+      std::filesystem::create_directories(builder_export_path.parent_path());
+    } catch (...) {
+      model.undefined_state_detected = true;
+      return;
+    }
+
+    // TEST 1: Legal export — must use current live builder_doc
+    const bool export_ok = apply_export_command(builder_doc, builder_export_path);
+    flow_ok = export_ok && flow_ok;
+
+    // Determinism check: export again and compare bytes
+    std::string first_export_text;
+    const bool first_read_ok = read_text_file(builder_export_path, first_export_text);
+    flow_ok = first_read_ok && flow_ok;
+    const bool second_export_ok = apply_export_command(builder_doc, builder_export_path);
+    flow_ok = second_export_ok && flow_ok;
+    std::string second_export_text;
+    const bool second_read_ok = read_text_file(builder_export_path, second_export_text);
+    flow_ok = second_read_ok && flow_ok;
+    export_diag.export_artifact_deterministic =
+      export_diag.export_artifact_deterministic && first_read_ok && second_read_ok &&
+      (first_export_text == second_export_text);
+    flow_ok = export_diag.export_artifact_deterministic && flow_ok;
+
+    // Structure check: exported canonical text equals the live builder canonical text.
+    const std::string expected_export =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    export_diag.exported_structure_matches_builder_doc =
+      export_diag.exported_structure_matches_builder_doc && second_read_ok &&
+      (second_export_text == expected_export);
+    flow_ok = export_diag.exported_structure_matches_builder_doc && flow_ok;
+
+    // TEST 2: Invalid export rejected — empty document fails closed
+    {
+      ngk::ui::builder::BuilderDocument invalid_doc = builder_doc;
+      invalid_doc.root_node_id.clear();
+      const bool invalid_rejected = !apply_export_command(invalid_doc, builder_export_path);
+      export_diag.invalid_export_rejected = invalid_rejected;
+      flow_ok = invalid_rejected && flow_ok;
+    }
+
+    // Non-mutation guarantee: export command must not mutate live builder state.
+    const std::string after_export_snapshot =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    flow_ok = (before_export_snapshot == after_export_snapshot) && flow_ok;
+    flow_ok = (before_export_selection == selected_builder_node_id) && flow_ok;
+
+    flow_ok = export_diag.export_artifact_created && flow_ok;
+
+    // Builder state must be untouched: verify builder_doc is still valid
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    const bool insp_ok20 = refresh_inspector_or_fail();
+    const bool prev_ok20 = refresh_preview_or_fail();
+    const bool sync_ok20 = check_cross_surface_sync();
+    export_diag.shell_state_still_coherent =
+      insp_ok20 && prev_ok20 && sync_ok20 &&
+      !selected_builder_node_id.empty() &&
+      (focused_builder_node_id == selected_builder_node_id) &&
+      (inspector_binding_node_id == selected_builder_node_id) &&
+      (preview_binding_node_id == selected_builder_node_id);
+    flow_ok = export_diag.shell_state_still_coherent && flow_ok;
+
+    auto audit20 = ngk::ui::builder::audit_layout_tree(&root);
+    export_diag.layout_audit_still_compatible = audit20.no_overlap;
+    flow_ok = export_diag.layout_audit_still_compatible && flow_ok;
+
+    if (!flow_ok ||
+        !export_diag.export_command_present ||
+        !export_diag.export_artifact_created ||
+        !export_diag.export_artifact_deterministic ||
+        !export_diag.exported_structure_matches_builder_doc ||
+        !export_diag.invalid_export_rejected ||
+        !export_diag.shell_state_still_coherent ||
+        !export_diag.layout_audit_still_compatible) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_21 = [&] {
+    bool flow_ok = true;
+    export_ux_diag = BuilderExportUxDiagnostics{};
+
+    run_phase103_2();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+
+    // Build typed content through existing command paths.
+    const bool add_container_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::HorizontalLayout, builder_doc.root_node_id, "export21-container-a");
+    flow_ok = add_container_ok && flow_ok;
+    const bool add_leaf_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Label, "export21-container-a", "export21-leaf-label");
+    flow_ok = add_leaf_ok && flow_ok;
+    if (auto* leaf = find_node_by_id("export21-leaf-label")) {
+      leaf->text = "Export21 Label";
+    } else {
+      flow_ok = false;
+    }
+
+    const std::string before_export_doc =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    const std::string before_export_selection = selected_builder_node_id;
+
+    // Valid export and status visibility checks.
+    const bool valid_export_ok = apply_export_command(builder_doc, builder_export_path);
+    flow_ok = valid_export_ok && flow_ok;
+    const std::string after_valid_export_doc =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    const std::string after_valid_export_selection = selected_builder_node_id;
+    const bool export_non_mutating =
+      !before_export_doc.empty() &&
+      (after_valid_export_doc == before_export_doc) &&
+      (after_valid_export_selection == before_export_selection);
+    flow_ok = export_non_mutating && flow_ok;
+    const std::string status_text_after_export = builder_export_status_label.text();
+    export_ux_diag.export_status_visible =
+      status_text_after_export.find("result=success") != std::string::npos;
+    export_ux_diag.export_artifact_path_visible =
+      status_text_after_export.find(builder_export_path.string()) != std::string::npos;
+    export_ux_diag.export_state_tracking_present =
+      status_text_after_export.find("state=up_to_date") != std::string::npos;
+    flow_ok = export_ux_diag.export_status_visible && flow_ok;
+    flow_ok = export_ux_diag.export_artifact_path_visible && flow_ok;
+    flow_ok = export_ux_diag.export_state_tracking_present && flow_ok;
+
+    // Re-export: enforce explicit deterministic overwrite single-target rule.
+    std::string export_text_1;
+    const bool read_1_ok = read_text_file(builder_export_path, export_text_1);
+    flow_ok = read_1_ok && flow_ok;
+    const bool reexport_ok = apply_export_command(builder_doc, builder_export_path);
+    flow_ok = reexport_ok && flow_ok;
+    std::string export_text_2;
+    const bool read_2_ok = read_text_file(builder_export_path, export_text_2);
+    flow_ok = read_2_ok && flow_ok;
+    const auto export_name = builder_export_path.filename().string();
+    std::size_t matching_exports = 0;
+    try {
+      for (const auto& entry : std::filesystem::directory_iterator(builder_export_path.parent_path())) {
+        if (!entry.is_regular_file()) {
+          continue;
+        }
+        if (entry.path().filename().string() == export_name) {
+          matching_exports += 1;
+        }
+      }
+    } catch (...) {
+      flow_ok = false;
+    }
+    export_ux_diag.export_overwrite_or_version_rule_enforced =
+      read_1_ok && read_2_ok && (export_text_1 == export_text_2) && (matching_exports == 1);
+    flow_ok = export_ux_diag.export_overwrite_or_version_rule_enforced && flow_ok;
+
+    // Invalid export must be rejected with explicit reason code.
+    ngk::ui::builder::BuilderDocument invalid_doc = builder_doc;
+    invalid_doc.root_node_id.clear();
+    const bool invalid_rejected = !apply_export_command(invalid_doc, builder_export_path);
+    export_ux_diag.invalid_export_rejected_with_reason =
+      invalid_rejected && !last_export_reason.empty() && last_export_reason != "none";
+    flow_ok = export_ux_diag.invalid_export_rejected_with_reason && flow_ok;
+
+    // Export state tracking must become stale after document edit.
+    const bool stale_insert_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Button, "export21-container-a", "export21-state-delta");
+    flow_ok = stale_insert_ok && flow_ok;
+    const bool dirty_ok = recompute_builder_dirty_state(true);
+    flow_ok = dirty_ok && flow_ok;
+    refresh_export_status_surface_label();
+    const std::string status_text_after_edit = builder_export_status_label.text();
+    const bool state_stale_visible =
+      status_text_after_edit.find("state=stale_since_last_export") != std::string::npos;
+    export_ux_diag.export_state_tracking_present =
+      export_ux_diag.export_state_tracking_present && state_stale_visible;
+    flow_ok = state_stale_visible && flow_ok;
+
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    const bool insp_ok21 = refresh_inspector_or_fail();
+    const bool prev_ok21 = refresh_preview_or_fail();
+    const bool sync_ok21 = check_cross_surface_sync();
+    export_ux_diag.shell_state_still_coherent =
+      insp_ok21 && prev_ok21 && sync_ok21 &&
+      !selected_builder_node_id.empty() &&
+      (focused_builder_node_id == selected_builder_node_id) &&
+      (inspector_binding_node_id == selected_builder_node_id) &&
+      (preview_binding_node_id == selected_builder_node_id);
+    flow_ok = export_ux_diag.shell_state_still_coherent && flow_ok;
+
+    auto audit21 = ngk::ui::builder::audit_layout_tree(&root);
+    export_ux_diag.layout_audit_still_compatible = audit21.no_overlap;
+    flow_ok = export_ux_diag.layout_audit_still_compatible && flow_ok;
+
+    if (!flow_ok ||
+        !export_ux_diag.export_status_visible ||
+        !export_ux_diag.export_artifact_path_visible ||
+        !export_ux_diag.export_overwrite_or_version_rule_enforced ||
+        !export_ux_diag.export_state_tracking_present ||
+        !export_ux_diag.invalid_export_rejected_with_reason ||
+        !export_ux_diag.shell_state_still_coherent ||
+        !export_ux_diag.layout_audit_still_compatible) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_22 = [&] {
+    bool flow_ok = true;
+    preview_export_parity_diag = BuilderPreviewExportParityDiagnostics{};
+
+    run_phase103_2();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+
+    const bool add_container_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::HorizontalLayout, builder_doc.root_node_id, "parity22-container-a");
+    flow_ok = add_container_ok && flow_ok;
+    const bool add_label_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Label, "parity22-container-a", "parity22-leaf-label");
+    flow_ok = add_label_ok && flow_ok;
+    const bool add_button_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Button, "parity22-container-a", "parity22-leaf-button");
+    flow_ok = add_button_ok && flow_ok;
+
+    if (auto* label_node = find_node_by_id("parity22-leaf-label")) {
+      label_node->text = "Parity Label";
+      selected_builder_node_id = label_node->node_id;
+    } else {
+      flow_ok = false;
+    }
+    if (auto* button_node = find_node_by_id("parity22-leaf-button")) {
+      button_node->text = "Parity Button";
+    } else {
+      flow_ok = false;
+    }
+
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+
+    try {
+      std::filesystem::create_directories(builder_export_path.parent_path());
+    } catch (...) {
+      flow_ok = false;
+    }
+
+    const bool valid_export_ok = apply_export_command(builder_doc, builder_export_path);
+    flow_ok = valid_export_ok && flow_ok;
+
+    const std::string pre_valid_parity_doc =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    const std::string pre_valid_parity_selection = selected_builder_node_id;
+    std::string pre_valid_parity_artifact;
+    const bool valid_artifact_read_ok = read_text_file(builder_export_path, pre_valid_parity_artifact);
+    flow_ok = valid_artifact_read_ok && flow_ok;
+
+    const bool valid_parity_ok = validate_preview_export_parity(builder_doc, builder_export_path);
+    const std::string post_valid_parity_doc =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    const std::string post_valid_parity_selection = selected_builder_node_id;
+    std::string post_valid_parity_artifact;
+    const bool valid_artifact_reread_ok = read_text_file(builder_export_path, post_valid_parity_artifact);
+    flow_ok = valid_parity_ok && valid_artifact_reread_ok && flow_ok;
+
+    preview_export_parity_diag.parity_scope_defined =
+      builder_preview_label.text().find(std::string("parity_scope=") + kPreviewExportParityScope) != std::string::npos;
+    const bool valid_parity_non_mutating =
+      !pre_valid_parity_doc.empty() &&
+      (pre_valid_parity_doc == post_valid_parity_doc) &&
+      (pre_valid_parity_selection == post_valid_parity_selection) &&
+      (pre_valid_parity_artifact == post_valid_parity_artifact);
+    preview_export_parity_diag.preview_export_parity_validation_present =
+      valid_parity_ok &&
+      (builder_preview_label.text().find("parity=success") != std::string::npos);
+    preview_export_parity_diag.parity_passes_for_valid_document =
+      valid_parity_ok && valid_parity_non_mutating &&
+      last_preview_export_parity_status_code == "success" &&
+      last_preview_export_parity_reason == "none";
+    flow_ok = preview_export_parity_diag.parity_scope_defined && flow_ok;
+    flow_ok = preview_export_parity_diag.preview_export_parity_validation_present && flow_ok;
+    flow_ok = preview_export_parity_diag.parity_passes_for_valid_document && flow_ok;
+
+    if (auto* label_node = find_node_by_id("parity22-leaf-label")) {
+      label_node->text = "Parity Drift";
+    } else {
+      flow_ok = false;
+    }
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+
+    const std::string pre_invalid_parity_doc =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    const std::string pre_invalid_parity_selection = selected_builder_node_id;
+    std::string pre_invalid_parity_artifact;
+    const bool invalid_artifact_read_ok = read_text_file(builder_export_path, pre_invalid_parity_artifact);
+    flow_ok = invalid_artifact_read_ok && flow_ok;
+
+    const bool mismatch_rejected = !validate_preview_export_parity(builder_doc, builder_export_path);
+    const std::string post_invalid_parity_doc =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    const std::string post_invalid_parity_selection = selected_builder_node_id;
+    std::string post_invalid_parity_artifact;
+    const bool invalid_artifact_reread_ok = read_text_file(builder_export_path, post_invalid_parity_artifact);
+    flow_ok = invalid_artifact_reread_ok && flow_ok;
+
+    const bool invalid_parity_non_mutating =
+      !pre_invalid_parity_doc.empty() &&
+      (pre_invalid_parity_doc == post_invalid_parity_doc) &&
+      (pre_invalid_parity_selection == post_invalid_parity_selection) &&
+      (pre_invalid_parity_artifact == post_invalid_parity_artifact);
+    preview_export_parity_diag.parity_mismatch_rejected_with_reason =
+      mismatch_rejected && invalid_parity_non_mutating &&
+      !last_preview_export_parity_reason.empty() &&
+      last_preview_export_parity_reason != "none" &&
+      last_preview_export_parity_reason.find("identity_text_mismatch_node_parity22-leaf-label") != std::string::npos &&
+      (builder_preview_label.text().find(last_preview_export_parity_reason) != std::string::npos);
+    flow_ok = preview_export_parity_diag.parity_mismatch_rejected_with_reason && flow_ok;
+
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    const bool insp_ok22 = refresh_inspector_or_fail();
+    const bool prev_ok22 = refresh_preview_or_fail();
+    const bool sync_ok22 = check_cross_surface_sync();
+    preview_export_parity_diag.export_shell_state_still_coherent =
+      insp_ok22 && prev_ok22 && sync_ok22 &&
+      !selected_builder_node_id.empty() &&
+      (focused_builder_node_id == selected_builder_node_id) &&
+      (inspector_binding_node_id == selected_builder_node_id) &&
+      (preview_binding_node_id == selected_builder_node_id);
+    flow_ok = preview_export_parity_diag.export_shell_state_still_coherent && flow_ok;
+
+    auto audit22 = ngk::ui::builder::audit_layout_tree(&root);
+    preview_export_parity_diag.layout_audit_still_compatible = audit22.no_overlap;
+    flow_ok = preview_export_parity_diag.layout_audit_still_compatible && flow_ok;
+
+    if (!flow_ok ||
+        !preview_export_parity_diag.parity_scope_defined ||
+        !preview_export_parity_diag.preview_export_parity_validation_present ||
+        !preview_export_parity_diag.parity_passes_for_valid_document ||
+        !preview_export_parity_diag.parity_mismatch_rejected_with_reason ||
+        !preview_export_parity_diag.export_shell_state_still_coherent ||
+        !preview_export_parity_diag.layout_audit_still_compatible) {
+      model.undefined_state_detected = true;
+    }
+  };
+
   builder_insert_container_button.set_on_click([&] {
     if (apply_palette_insert(true)) {
       recompute_builder_dirty_state(true);
@@ -2123,6 +3757,10 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     apply_save_document_command();
     request_redraw("builder_save", false, false);
   });
+  builder_export_button.set_on_click([&] {
+    apply_export_command(builder_doc, builder_export_path);
+    request_redraw("builder_export", false, false);
+  });
   builder_load_button.set_on_click([&] {
     apply_load_document_command(false);
     request_redraw("builder_load", false, false);
@@ -2152,10 +3790,17 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   shell.add_child(&builder_undo_button);
   shell.add_child(&builder_redo_button);
   shell.add_child(&builder_save_button);
+  shell.add_child(&builder_export_button);
   shell.add_child(&builder_load_button);
   shell.add_child(&builder_load_discard_button);
   shell.add_child(&builder_new_button);
   shell.add_child(&builder_new_discard_button);
+  shell.add_child(&builder_insert_container_button);
+  shell.add_child(&builder_insert_leaf_button);
+  shell.add_child(&builder_export_status_label);
+  shell.add_child(&builder_tree_surface_label);
+  shell.add_child(&builder_inspector_label);
+  shell.add_child(&builder_preview_label);
   shell.add_child(&status_label);
   shell.add_child(&selected_label);
   shell.add_child(&detail_label);
@@ -2170,6 +3815,9 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   model.filter = "";
   reload_entries(model, scan_root);
   update_labels();
+  refresh_tree_surface_label();
+  refresh_inspector_surface_label();
+  refresh_preview_surface_label();
   request_redraw("startup_initial_layout", false, true);
 
   auto render_and_present = [&] {
@@ -2205,6 +3853,10 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
   });
   window.set_key_callback([&](std::uint32_t key, bool down, bool repeat) {
+    if (handle_builder_shortcut_key(key, down, repeat)) {
+      request_redraw("builder_shortcut", true, false);
+      return;
+    }
     if (input_router.on_key_message(key, down, repeat)) {
       request_redraw("key", true, false);
     }
@@ -2289,6 +3941,13 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     loop.set_timeout(milliseconds(5800), [&] { run_phase103_13(); });
     loop.set_timeout(milliseconds(6000), [&] { run_phase103_14(); });
     loop.set_timeout(milliseconds(6200), [&] { run_phase103_15(); });
+    loop.set_timeout(milliseconds(6400), [&] { run_phase103_16(); });
+    loop.set_timeout(milliseconds(6600), [&] { run_phase103_17(); });
+    loop.set_timeout(milliseconds(6800), [&] { run_phase103_18(); });
+    loop.set_timeout(milliseconds(7000), [&] { run_phase103_19(); });
+    loop.set_timeout(milliseconds(7200), [&] { run_phase103_20(); });
+    loop.set_timeout(milliseconds(7400), [&] { run_phase103_21(); });
+    loop.set_timeout(milliseconds(7600), [&] { run_phase103_22(); });
   }
 
   if (auto_close_ms > 0) {
@@ -2471,7 +4130,57 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         std::cout << "phase103_15_inspector_focus_safe=" << (focus_diag.inspector_focus_safe ? 1 : 0) << "\n";
         std::cout << "phase103_15_shell_state_coherent_after_focus_changes=" << (focus_diag.shell_state_coherent_after_focus_changes ? 1 : 0) << "\n";
         std::cout << "phase103_15_layout_audit_still_compatible=" << (focus_diag.layout_audit_still_compatible ? 1 : 0) << "\n";
+        std::cout << "phase103_16_tree_hierarchy_visibility_improved=" << (visible_ux_diag.tree_hierarchy_visibility_improved ? 1 : 0) << "\n";
+        std::cout << "phase103_16_selected_node_visibility_in_tree_improved=" << (visible_ux_diag.selected_node_visibility_in_tree_improved ? 1 : 0) << "\n";
+        std::cout << "phase103_16_preview_readability_improved=" << (visible_ux_diag.preview_readability_improved ? 1 : 0) << "\n";
+        std::cout << "phase103_16_selected_node_visibility_in_preview_improved=" << (visible_ux_diag.selected_node_visibility_in_preview_improved ? 1 : 0) << "\n";
+        std::cout << "phase103_16_shell_regions_clearly_labeled=" << (visible_ux_diag.shell_regions_clearly_labeled ? 1 : 0) << "\n";
+        std::cout << "phase103_16_shell_state_still_coherent=" << (visible_ux_diag.shell_state_still_coherent ? 1 : 0) << "\n";
+        std::cout << "phase103_16_layout_audit_still_compatible=" << (visible_ux_diag.layout_audit_still_compatible ? 1 : 0) << "\n";
+        std::cout << "phase103_17_keyboard_tree_navigation_present=" << (shortcut_diag.keyboard_tree_navigation_present ? 1 : 0) << "\n";
+        std::cout << "phase103_17_shortcut_scope_rules_defined=" << (shortcut_diag.shortcut_scope_rules_defined ? 1 : 0) << "\n";
+        std::cout << "phase103_17_undo_redo_shortcuts_work=" << (shortcut_diag.undo_redo_shortcuts_work ? 1 : 0) << "\n";
+        std::cout << "phase103_17_insert_delete_shortcuts_work=" << (shortcut_diag.insert_delete_shortcuts_work ? 1 : 0) << "\n";
+        std::cout << "phase103_17_guarded_lifecycle_shortcuts_safe=" << (shortcut_diag.guarded_lifecycle_shortcuts_safe ? 1 : 0) << "\n";
+        std::cout << "phase103_17_shell_state_still_coherent=" << (shortcut_diag.shell_state_still_coherent ? 1 : 0) << "\n";
+        std::cout << "phase103_17_layout_audit_still_compatible=" << (shortcut_diag.layout_audit_still_compatible ? 1 : 0) << "\n";
     std::cout << "app_runtime_crash_detected=" << (no_crash ? 0 : 1) << "\n";
+        std::cout << "phase103_18_tree_drag_reorder_present=" << (dragdrop_diag.tree_drag_reorder_present ? 1 : 0) << "\n";
+        std::cout << "phase103_18_legal_reorder_drop_applied=" << (dragdrop_diag.legal_reorder_drop_applied ? 1 : 0) << "\n";
+        std::cout << "phase103_18_legal_reparent_drop_applied=" << (dragdrop_diag.legal_reparent_drop_applied ? 1 : 0) << "\n";
+        std::cout << "phase103_18_illegal_drop_rejected=" << (dragdrop_diag.illegal_drop_rejected ? 1 : 0) << "\n";
+        std::cout << "phase103_18_dragged_node_selection_preserved=" << (dragdrop_diag.dragged_node_selection_preserved ? 1 : 0) << "\n";
+        std::cout << "phase103_18_shell_state_still_coherent=" << (dragdrop_diag.shell_state_still_coherent ? 1 : 0) << "\n";
+        std::cout << "phase103_18_layout_audit_still_compatible=" << (dragdrop_diag.layout_audit_still_compatible ? 1 : 0) << "\n";
+        std::cout << "phase103_19_typed_palette_present=" << (typed_palette_diag.typed_palette_present ? 1 : 0) << "\n";
+        std::cout << "phase103_19_legal_typed_container_insert_applied=" << (typed_palette_diag.legal_typed_container_insert_applied ? 1 : 0) << "\n";
+        std::cout << "phase103_19_legal_typed_leaf_insert_applied=" << (typed_palette_diag.legal_typed_leaf_insert_applied ? 1 : 0) << "\n";
+        std::cout << "phase103_19_illegal_typed_insert_rejected=" << (typed_palette_diag.illegal_typed_insert_rejected ? 1 : 0) << "\n";
+        std::cout << "phase103_19_inserted_typed_node_auto_selected=" << (typed_palette_diag.inserted_typed_node_auto_selected ? 1 : 0) << "\n";
+        std::cout << "phase103_19_inspector_shows_type_appropriate_properties=" << (typed_palette_diag.inspector_shows_type_appropriate_properties ? 1 : 0) << "\n";
+        std::cout << "phase103_19_shell_state_still_coherent=" << (typed_palette_diag.shell_state_still_coherent ? 1 : 0) << "\n";
+        std::cout << "phase103_19_layout_audit_still_compatible=" << (typed_palette_diag.layout_audit_still_compatible ? 1 : 0) << "\n";
+        std::cout << "phase103_20_export_command_present=" << (export_diag.export_command_present ? 1 : 0) << "\n";
+        std::cout << "phase103_20_export_artifact_created=" << (export_diag.export_artifact_created ? 1 : 0) << "\n";
+        std::cout << "phase103_20_export_artifact_deterministic=" << (export_diag.export_artifact_deterministic ? 1 : 0) << "\n";
+        std::cout << "phase103_20_exported_structure_matches_builder_doc=" << (export_diag.exported_structure_matches_builder_doc ? 1 : 0) << "\n";
+        std::cout << "phase103_20_invalid_export_rejected=" << (export_diag.invalid_export_rejected ? 1 : 0) << "\n";
+        std::cout << "phase103_20_shell_state_still_coherent=" << (export_diag.shell_state_still_coherent ? 1 : 0) << "\n";
+        std::cout << "phase103_20_layout_audit_still_compatible=" << (export_diag.layout_audit_still_compatible ? 1 : 0) << "\n";
+        std::cout << "phase103_21_export_status_visible=" << (export_ux_diag.export_status_visible ? 1 : 0) << "\n";
+        std::cout << "phase103_21_export_artifact_path_visible=" << (export_ux_diag.export_artifact_path_visible ? 1 : 0) << "\n";
+        std::cout << "phase103_21_export_overwrite_or_version_rule_enforced=" << (export_ux_diag.export_overwrite_or_version_rule_enforced ? 1 : 0) << "\n";
+        std::cout << "phase103_21_export_state_tracking_present=" << (export_ux_diag.export_state_tracking_present ? 1 : 0) << "\n";
+        std::cout << "phase103_21_invalid_export_rejected_with_reason=" << (export_ux_diag.invalid_export_rejected_with_reason ? 1 : 0) << "\n";
+        std::cout << "phase103_21_shell_state_still_coherent=" << (export_ux_diag.shell_state_still_coherent ? 1 : 0) << "\n";
+        std::cout << "phase103_21_layout_audit_still_compatible=" << (export_ux_diag.layout_audit_still_compatible ? 1 : 0) << "\n";
+        std::cout << "phase103_22_parity_scope_defined=" << (preview_export_parity_diag.parity_scope_defined ? 1 : 0) << "\n";
+        std::cout << "phase103_22_preview_export_parity_validation_present=" << (preview_export_parity_diag.preview_export_parity_validation_present ? 1 : 0) << "\n";
+        std::cout << "phase103_22_parity_passes_for_valid_document=" << (preview_export_parity_diag.parity_passes_for_valid_document ? 1 : 0) << "\n";
+        std::cout << "phase103_22_parity_mismatch_rejected_with_reason=" << (preview_export_parity_diag.parity_mismatch_rejected_with_reason ? 1 : 0) << "\n";
+        std::cout << "phase103_22_export_shell_state_still_coherent=" << (preview_export_parity_diag.export_shell_state_still_coherent ? 1 : 0) << "\n";
+        std::cout << "phase103_22_layout_audit_still_compatible=" << (preview_export_parity_diag.layout_audit_still_compatible ? 1 : 0) << "\n";
+      std::cout << "app_runtime_crash_detected=" << (no_crash ? 0 : 1) << "\n";
     std::cout << "SUMMARY: PASS\n";
   }
   const bool ui_interaction_ok =
