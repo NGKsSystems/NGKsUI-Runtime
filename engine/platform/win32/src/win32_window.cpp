@@ -132,6 +132,8 @@ Win32Window::Win32Window()
       hwnd_(nullptr),
       class_registered_(false),
       close_requested_(false),
+  min_client_width_(0),
+  min_client_height_(0),
       dpi_awareness_(DpiAwareness::Unknown) {}
 
 Win32Window::~Win32Window() {
@@ -185,8 +187,34 @@ bool Win32Window::create(const wchar_t* title, int width, int height) {
     return false;
   }
 
+  // Force a non-client recalculation before first show so caption/borders are realized
+  // consistently on initial launch.
+  SetWindowPos(
+    hwnd_,
+    nullptr,
+    0,
+    0,
+    0,
+    0,
+    SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+
   ShowWindow(hwnd_, SW_SHOW);
   UpdateWindow(hwnd_);
+
+  // Request an explicit non-client redraw after the first show.
+  SetWindowPos(
+    hwnd_,
+    nullptr,
+    0,
+    0,
+    0,
+    0,
+    SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+  RedrawWindow(
+    hwnd_,
+    nullptr,
+    nullptr,
+    RDW_INVALIDATE | RDW_ERASE | RDW_FRAME | RDW_ALLCHILDREN | RDW_UPDATENOW);
   return true;
 }
 
@@ -231,6 +259,11 @@ void Win32Window::request_close() {
 
 bool Win32Window::close_requested() const {
   return close_requested_;
+}
+
+void Win32Window::set_min_client_size(int width, int height) {
+  min_client_width_ = width > 0 ? width : 0;
+  min_client_height_ = height > 0 ? height : 0;
 }
 
 void* Win32Window::native_handle() const {
@@ -319,6 +352,53 @@ long long Win32Window::handle_message(unsigned int message, unsigned long long w
         resize_callback_(w, h);
       }
       return 0;
+    case WM_GETMINMAXINFO:
+      if (min_client_width_ > 0 || min_client_height_ > 0) {
+        MINMAXINFO* info = reinterpret_cast<MINMAXINFO*>(lparam);
+        const DWORD style = static_cast<DWORD>(GetWindowLongPtrW(hwnd_, GWL_STYLE));
+        const DWORD ex_style = static_cast<DWORD>(GetWindowLongPtrW(hwnd_, GWL_EXSTYLE));
+        const UINT dpi = current_window_dpi(hwnd_);
+        const RECT wr = compute_window_rect_for_client(min_client_width_, min_client_height_, style, ex_style, dpi);
+        info->ptMinTrackSize.x = wr.right - wr.left;
+        info->ptMinTrackSize.y = wr.bottom - wr.top;
+        return 0;
+      }
+      break;
+    case WM_NCHITTEST: {
+      // Preserve default non-client behavior first (caption buttons, menu, etc.).
+      const LRESULT base_hit =
+        DefWindowProcW(hwnd_, message, static_cast<WPARAM>(wparam), static_cast<LPARAM>(lparam));
+      if (base_hit != HTCLIENT) {
+        return base_hit;
+      }
+
+      RECT rect{};
+      if (!GetClientRect(hwnd_, &rect)) {
+        return base_hit;
+      }
+
+      POINT p{signed_low_word_i32(lparam), signed_high_word_i32(lparam)};
+      if (!ScreenToClient(hwnd_, &p)) {
+        return base_hit;
+      }
+
+      const UINT dpi = current_window_dpi(hwnd_);
+      const int border = (8 * static_cast<int>(dpi) + 48) / 96;
+      const bool on_left = p.x >= 0 && p.x < border;
+      const bool on_right = p.x < rect.right && p.x >= (rect.right - border);
+      const bool on_top = p.y >= 0 && p.y < border;
+      const bool on_bottom = p.y < rect.bottom && p.y >= (rect.bottom - border);
+
+      if (on_top && on_left) return HTTOPLEFT;
+      if (on_top && on_right) return HTTOPRIGHT;
+      if (on_bottom && on_left) return HTBOTTOMLEFT;
+      if (on_bottom && on_right) return HTBOTTOMRIGHT;
+      if (on_left) return HTLEFT;
+      if (on_right) return HTRIGHT;
+      if (on_top) return HTTOP;
+      if (on_bottom) return HTBOTTOM;
+      return HTCLIENT;
+    }
     case WM_PAINT: {
       PAINTSTRUCT paint_struct{};
       BeginPaint(hwnd_, &paint_struct);

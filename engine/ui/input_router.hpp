@@ -93,6 +93,14 @@ public:
     return tree_->on_char(codepoint);
   }
 
+  bool on_mouse_wheel(int delta) {
+    if (!tree_) {
+      return false;
+    }
+
+    return tree_->on_mouse_wheel(mouse_x_, mouse_y_, delta);
+  }
+
 private:
   static int to_button_code(std::uint32_t message) {
     constexpr std::uint32_t wmLButtonDown = 0x0201;

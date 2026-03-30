@@ -41,6 +41,7 @@ public:
   void request_repaint();
   void request_close();
   bool close_requested() const;
+  void set_min_client_size(int width, int height);
 
   // Native HWND for renderer backends (D3D11 swapchain).
   void* native_handle() const;
@@ -69,6 +70,8 @@ private:
   Hwnd hwnd_;
   bool class_registered_;
   bool close_requested_;
+  int min_client_width_;
+  int min_client_height_;
 
   DpiAwareness dpi_awareness_;
 
