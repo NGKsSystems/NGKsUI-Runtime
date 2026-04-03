@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <array>
 #include <vector>
 
 #ifndef NOMINMAX
@@ -321,6 +322,217 @@ struct BuilderSelectionAwareTopActionSurfaceDiagnostics {
   bool shell_state_still_coherent = false;
   bool preview_remains_parity_safe = false;
   bool layout_audit_still_compatible = false;
+};
+
+struct BuilderButtonStateReadabilityDiagnostics {
+  bool button_state_readability_improved = false;
+  bool available_vs_blocked_actions_visually_clear = false;
+  bool current_relevant_actions_emphasized = false;
+  bool button_state_matches_surface_truth = false;
+  bool shell_state_still_coherent = false;
+  bool preview_remains_parity_safe = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct BuilderUsabilityBaselineDiagnostics {
+  bool startup_guidance_visible = false;
+  bool button_labels_humanized = false;
+  bool selection_visual_marker_present = false;
+  bool action_feedback_visible = false;
+  bool preview_readability_improved = false;
+  bool debug_information_toggleable = false;
+  bool existing_system_behavior_unchanged = false;
+  bool shell_state_still_coherent = false;
+  bool preview_remains_parity_safe = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct BuilderExplicitEditableFieldDiagnostics {
+  bool selected_node_edit_target_clear = false;
+  bool editable_field_visible_for_text_nodes = false;
+  bool non_text_nodes_show_non_editable_state = false;
+  bool apply_behavior_unambiguous = false;
+  bool shell_state_still_coherent = false;
+  bool preview_remains_parity_safe = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct BuilderIntegratedUsabilityMilestoneDiagnostics {
+  bool clickable_tree = false;
+  bool inspector_multi_property_editing = false;
+  bool simple_structure_controls = false;
+  bool visual_preview = false;
+  bool reduced_debug_noise_normal_mode = false;
+  bool shell_state_still_coherent = false;
+  bool preview_remains_parity_safe = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct BuilderRealInteractionDiagnostics {
+  bool visual_selection_clear = false;
+  bool preview_click_selection = false;
+  bool inline_text_edit_preview = false;
+  bool structure_controls_visible = false;
+  bool empty_state_guidance_present = false;
+  bool confusion_reduced = false;
+  bool shell_state_still_coherent = false;
+  bool preview_remains_parity_safe = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct BuilderHumanReadableUiDiagnostics {
+  bool human_readable_ui = false;
+  bool preview_visualized = false;
+  bool selection_clear = false;
+  bool inspector_simplified = false;
+  bool structure_feedback_visible = false;
+  bool confusion_removed = false;
+  bool shell_state_still_coherent = false;
+  bool preview_remains_parity_safe = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct BuilderPreviewRealUiDiagnostics {
+  bool preview_real_ui = false;
+  bool no_debug_labels = false;
+  bool containers_visual = false;
+  bool text_clean = false;
+  bool selection_visual = false;
+  bool hierarchy_visible = false;
+  bool shell_state_still_coherent = false;
+  bool preview_remains_parity_safe = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct BuilderActionVisibilityDiagnostics {
+  bool add_child_validated = false;
+  bool size_affects_preview = false;
+  bool structure_feedback_visible = false;
+  bool actions_not_silent = false;
+  bool confusion_removed = false;
+  bool shell_state_still_coherent = false;
+  bool preview_remains_parity_safe = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct BuilderClarityEnforcementDiagnostics {
+  bool container_visual_clear = false;
+  bool label_visual_clear = false;
+  bool add_child_disabled_for_label = false;
+  bool auto_parent_correction = false;
+  bool insertion_slot_visible = false;
+  bool hierarchy_visually_clear = false;
+  bool selection_unmistakable = false;
+  bool no_debug_text_remaining = false;
+  bool actions_not_silent = false;
+  bool confusion_removed = false;
+  bool shell_state_still_coherent = false;
+  bool preview_remains_parity_safe = false;
+  bool layout_audit_still_compatible = false;
+};
+
+struct BuilderInsertTargetClarityDiagnostics {
+  bool target_display_visible = false;
+  bool target_matches_structure_selection = false;
+  bool preview_click_updates_structure_selection = false;
+  bool add_child_uses_correct_target = false;
+  bool insert_visible_in_structure = false;
+  bool insert_visible_in_preview = false;
+  bool post_insert_selection_deterministic = false;
+  bool invalid_insert_blocked = false;
+  bool no_command_pipeline_regression = false;
+  bool ui_state_coherent = false;
+};
+
+struct BuilderPreviewStructureParityDiagnostics {
+  bool preview_nodes_match_structure = false;
+  bool no_orphan_preview_nodes = false;
+  bool hit_test_returns_exact_node = false;
+  bool render_order_matches_structure = false;
+  bool selection_stable_after_insert = false;
+  bool selection_stable_after_delete = false;
+  bool selection_stable_after_move = false;
+  bool no_stale_nodes_after_mutation = false;
+  bool parent_child_relationships_match = false;
+  bool no_selection_desync_detected = false;
+};
+
+struct BuilderCommandIntegrityDiagnostics {
+  bool undo_restores_exact_structure = false;
+  bool undo_restores_selection = false;
+  bool redo_reapplies_exact_state = false;
+  bool no_duplicate_nodes_on_redo = false;
+  bool no_missing_nodes_after_undo = false;
+  bool command_stack_no_invalid_references = false;
+  bool selection_fallback_deterministic = false;
+  bool multi_step_sequence_stable = false;
+  bool no_side_effect_mutations = false;
+  bool preview_matches_structure_after_undo_redo = false;
+};
+
+struct BuilderSaveLoadStateIntegrityDiagnostics {
+  bool serialized_roundtrip_exact = false;
+  bool save_load_repeatability_stable = false;
+  bool load_rejects_corrupt_payload = false;
+  bool load_rejects_schema_violation_payload = false;
+  bool failed_load_preserves_previous_state = false;
+  bool selection_rebound_to_valid_node_on_load = false;
+  bool history_reset_deterministic_on_load = false;
+  bool no_implicit_state_mutation_after_roundtrip = false;
+  bool cross_surface_sync_preserved_after_load = false;
+  bool preview_structure_parity_preserved_after_load = false;
+};
+
+struct BuilderPropertyEditIntegrityDiagnostics {
+  bool property_edit_uses_command_system = false;
+  bool property_edit_atomic_update = false;
+  bool invalid_property_rejected = false;
+  bool undo_restores_property_exact = false;
+  bool redo_reapplies_property_exact = false;
+  bool no_partial_state_detected = false;
+  bool selection_stable_during_edit = false;
+  bool property_persists_through_save_load = false;
+  bool rapid_edit_sequence_stable = false;
+  bool preview_matches_structure_after_edit = false;
+};
+
+struct BuilderNodeLifecycleIntegrityDiagnostics {
+  bool created_node_has_valid_identity = false;
+  bool deleted_node_fully_removed = false;
+  bool no_stale_references_after_delete = false;
+  bool move_reparent_updates_relations_exact = false;
+  bool preview_mapping_updates_after_lifecycle_change = false;
+  bool recreated_node_does_not_collide_or_inherit_stale_state = false;
+  bool subtree_delete_and_restore_exact = false;
+  bool selection_focus_drag_states_clean_after_lifecycle_change = false;
+  bool rapid_lifecycle_sequence_stable = false;
+  bool preview_matches_structure_after_all_lifecycle_ops = false;
+};
+
+struct BuilderBoundsLayoutConstraintIntegrityDiagnostics {
+  bool negative_dimensions_rejected = false;
+  bool invalid_child_parent_geometry_rejected = false;
+  bool move_reparent_respects_layout_constraints = false;
+  bool invalid_layout_not_committed_to_history = false;
+  bool preview_never_reflects_invalid_document_state = false;
+  bool undo_redo_restore_valid_layout_exact = false;
+  bool save_load_rejects_constraint_violating_payload = false;
+  bool valid_layout_roundtrip_preserved = false;
+  bool no_silent_geometry_autocorrection = false;
+  bool preview_matches_structure_after_layout_mutations = false;
+};
+
+struct BuilderEventInputRoutingIntegrityDiagnostics {
+  bool hit_test_returns_single_correct_node = false;
+  bool preview_click_matches_structure_selection = false;
+  bool no_input_routed_to_stale_nodes = false;
+  bool event_order_deterministic = false;
+  bool focus_hover_drag_states_valid = false;
+  bool keyboard_targets_current_selection_only = false;
+  bool rapid_interaction_sequence_stable = false;
+  bool no_ghost_or_duplicate_event_targets = false;
+  bool event_routing_respects_render_hierarchy = false;
+  bool preview_matches_structure_after_input_sequences = false;
 };
 
 struct CommandHistoryEntry {
@@ -799,6 +1011,23 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   BuilderActionSurfaceReadabilityDiagnostics action_surface_readability_diag{};
   BuilderInformationHierarchyPolishDiagnostics info_hierarchy_diag{};
   BuilderSelectionAwareTopActionSurfaceDiagnostics top_action_surface_diag{};
+  BuilderButtonStateReadabilityDiagnostics button_state_readability_diag{};
+  BuilderUsabilityBaselineDiagnostics usability_baseline_diag{};
+  BuilderExplicitEditableFieldDiagnostics explicit_edit_field_diag{};
+  BuilderIntegratedUsabilityMilestoneDiagnostics integrated_usability_diag{};
+  BuilderRealInteractionDiagnostics real_interaction_diag{};
+  BuilderHumanReadableUiDiagnostics human_readable_ui_diag{};
+  BuilderPreviewRealUiDiagnostics preview_real_ui_diag{};
+  BuilderActionVisibilityDiagnostics action_visibility_diag{};
+  BuilderClarityEnforcementDiagnostics clarity_enforcement_diag{};
+  BuilderInsertTargetClarityDiagnostics insert_target_clarity_diag{};
+  BuilderPreviewStructureParityDiagnostics preview_structure_parity_diag{};
+  BuilderCommandIntegrityDiagnostics command_integrity_diag{};
+  BuilderSaveLoadStateIntegrityDiagnostics save_load_integrity_diag{};
+  BuilderPropertyEditIntegrityDiagnostics property_edit_integrity_diag{};
+  BuilderNodeLifecycleIntegrityDiagnostics node_lifecycle_integrity_diag{};
+  BuilderBoundsLayoutConstraintIntegrityDiagnostics bounds_layout_constraint_diag{};
+  BuilderEventInputRoutingIntegrityDiagnostics event_input_routing_diag{};
   std::string drag_source_node_id{};
   bool drag_active = false;
   std::string hover_node_id{};
@@ -834,6 +1063,10 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   ngk::ui::Label phase102_compose_child_label("CHILD NODE");
 
   ngk::ui::VerticalLayout builder_shell_panel(6);
+  ngk::ui::VerticalLayout builder_header_block(0);
+  ngk::ui::VerticalLayout builder_input_toolbar_block(6);
+  ngk::ui::VerticalLayout builder_status_info_block(0);
+  ngk::ui::VerticalLayout builder_footer_block(0);
   ngk::ui::ToolbarContainer builder_header_bar(8);
   ngk::ui::HorizontalLayout builder_filter_bar(8);
   ngk::ui::HorizontalLayout builder_primary_actions_bar(8);
@@ -845,17 +1078,55 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   ngk::ui::ContentPanel builder_tree_panel(6);
   ngk::ui::ContentPanel builder_inspector_panel(6);
   ngk::ui::ContentPanel builder_preview_panel(6);
-  ngk::ui::SectionHeader builder_tree_header("TREE REGION");
-  ngk::ui::SectionHeader builder_inspector_header("INSPECTOR REGION");
-  ngk::ui::SectionHeader builder_preview_header("PREVIEW REGION");
+  ngk::ui::SectionHeader builder_tree_header("Structure");
+  ngk::ui::SectionHeader builder_inspector_header("Editor");
+  ngk::ui::SectionHeader builder_preview_header("Live Preview");
   ngk::ui::ScrollContainer builder_tree_scroll;
   ngk::ui::ScrollContainer builder_inspector_scroll;
   ngk::ui::ScrollContainer builder_preview_scroll;
+  ngk::ui::VerticalLayout builder_tree_scroll_content(4);
+  ngk::ui::VerticalLayout builder_inspector_scroll_content(6);
+  ngk::ui::VerticalLayout builder_tree_visual_rows(2);
+  ngk::ui::VerticalLayout builder_preview_scroll_content(4);
+  ngk::ui::VerticalLayout builder_preview_visual_rows(4);
+  ngk::ui::Label builder_preview_interaction_hint_label("Click any preview item to select it.");
+  ngk::ui::InputBox builder_preview_inline_text_input;
+  ngk::ui::HorizontalLayout builder_preview_inline_actions_row(6);
+  ngk::ui::Button builder_preview_inline_apply_button;
+  ngk::ui::Button builder_preview_inline_cancel_button;
   ngk::ui::StatusBarContainer builder_footer_bar(8);
-  ngk::ui::Label builder_tree_surface_label("TREE");
+  ngk::ui::Label builder_tree_surface_label("Structure");
+  ngk::ui::Label builder_inspector_selection_label("Editing: Nothing selected");
+  ngk::ui::Label builder_add_child_target_label("Add Child Target: None");
+  ngk::ui::Label builder_inspector_edit_hint_label("Select an item from Structure or Live Preview to edit.");
+  ngk::ui::InputBox builder_inspector_text_input;
+  ngk::ui::Label builder_inspector_layout_min_width_label("Width");
+  ngk::ui::InputBox builder_inspector_layout_min_width_input;
+  ngk::ui::Label builder_inspector_layout_min_height_label("Height");
+  ngk::ui::InputBox builder_inspector_layout_min_height_input;
+  ngk::ui::Label builder_inspector_structure_controls_label("Structure Controls");
+  ngk::ui::HorizontalLayout builder_inspector_structure_controls_row(6);
+  ngk::ui::Button builder_inspector_add_child_button;
+  ngk::ui::Button builder_inspector_delete_button;
+  ngk::ui::Button builder_inspector_move_up_button;
+  ngk::ui::Button builder_inspector_move_down_button;
+  ngk::ui::Button builder_inspector_apply_button;
+  ngk::ui::Label builder_inspector_non_editable_label("This item has no text.");
   ngk::ui::Label builder_inspector_label("INSPECTOR");
   ngk::ui::Label builder_preview_label("PREVIEW");
   ngk::ui::Label builder_export_status_label("EXPORT STATUS");
+  ngk::ui::Label builder_action_feedback_label("Action: Ready");
+  static constexpr std::size_t kMaxVisualTreeRows = 128;
+  static constexpr std::size_t kMaxVisualPreviewRows = 128;
+  std::array<ngk::ui::Button, kMaxVisualTreeRows> builder_tree_row_buttons{};
+  std::array<ngk::ui::Button, kMaxVisualPreviewRows> builder_preview_row_buttons{};
+  std::array<std::string, kMaxVisualTreeRows> tree_visual_row_node_ids{};
+  std::array<std::string, kMaxVisualPreviewRows> preview_visual_row_node_ids{};
+  std::array<int, kMaxVisualPreviewRows> preview_visual_row_depths{};
+  std::array<bool, kMaxVisualPreviewRows> preview_visual_row_is_container{};
+  std::string preview_visual_feedback_message{};
+  std::string preview_visual_feedback_node_id{};
+  std::string tree_visual_feedback_node_id{};
 
   ngk::ui::Button builder_insert_container_button;
   ngk::ui::Button builder_insert_leaf_button;
@@ -864,6 +1135,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   ngk::ui::Button builder_move_down_button;
   ngk::ui::Button builder_reparent_button;
   ngk::ui::Button builder_delete_button;
+  ngk::ui::Button builder_debug_mode_toggle_button;
 
   ngk::ui::builder::BuilderDocument builder_doc{};
   std::string selected_builder_node_id{};
@@ -872,6 +1144,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   std::string inspector_binding_node_id{};
   std::string preview_binding_node_id{};
   std::string preview_snapshot{};
+  bool builder_debug_mode = false;
+  std::string last_action_feedback = "Action: Ready";
   bool builder_doc_dirty = false;
   bool has_saved_builder_snapshot = false;
   std::string last_saved_builder_serialized{};
@@ -905,25 +1179,38 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   std::string inline_edit_node_id{};
   std::string inline_edit_buffer{};
   std::string inline_edit_original_text{};
+  std::string inspector_edit_binding_node_id{};
+  std::string inspector_edit_loaded_text{};
+  std::string inspector_edit_loaded_min_width{};
+  std::string inspector_edit_loaded_min_height{};
+  std::string preview_inline_loaded_text{};
   constexpr const char* kPreviewExportParityScope =
     "structure,component_types,key_identity_text,hierarchy";
   constexpr int kBuilderMinClientWidth = 720;
   constexpr int kBuilderMinClientHeight = 520;
 
-  builder_insert_container_button.set_text("Insert Container");
-  builder_insert_leaf_button.set_text("Insert Leaf");
+  builder_insert_container_button.set_text("Add Container");
+  builder_insert_leaf_button.set_text("Add Item");
   builder_move_up_button.set_text("Move Up");
   builder_move_down_button.set_text("Move Down");
   builder_reparent_button.set_text("Reparent");
-  builder_delete_button.set_text("Delete Node");
+  builder_delete_button.set_text("Delete");
   builder_undo_button.set_text("Undo");
   builder_redo_button.set_text("Redo");
   builder_save_button.set_text("Save Doc");
   builder_load_button.set_text("Load Doc");
   builder_load_discard_button.set_text("Load Discard");
-  builder_export_button.set_text("Export Runtime");
+  builder_export_button.set_text("Export");
   builder_new_button.set_text("New Doc");
   builder_new_discard_button.set_text("New Discard");
+  builder_debug_mode_toggle_button.set_text("[DEBUG MODE: OFF]");
+  builder_inspector_add_child_button.set_text("Add Child");
+  builder_inspector_delete_button.set_text("Delete Node");
+  builder_inspector_move_up_button.set_text("Move Up");
+  builder_inspector_move_down_button.set_text("Move Down");
+  builder_inspector_apply_button.set_text("Apply Text to Selected Node");
+  builder_preview_inline_apply_button.set_text("Apply Text");
+  builder_preview_inline_cancel_button.set_text("Cancel");
   phase102_compose_action_button.set_text("Action");
 
   shell.set_background(0.10f, 0.12f, 0.16f, 0.96f);
@@ -933,61 +1220,94 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   selected_label.set_background(0.13f, 0.15f, 0.20f, 1.0f);
   detail_label.set_background(0.13f, 0.15f, 0.20f, 1.0f);
   builder_tree_surface_label.set_background(0.08f, 0.11f, 0.16f, 1.0f);
+  builder_inspector_selection_label.set_background(0.08f, 0.11f, 0.16f, 1.0f);
+  builder_inspector_edit_hint_label.set_background(0.08f, 0.11f, 0.16f, 1.0f);
+  builder_inspector_layout_min_width_label.set_background(0.08f, 0.11f, 0.16f, 1.0f);
+  builder_inspector_layout_min_height_label.set_background(0.08f, 0.11f, 0.16f, 1.0f);
+  builder_inspector_structure_controls_label.set_background(0.08f, 0.11f, 0.16f, 1.0f);
+  builder_inspector_non_editable_label.set_background(0.08f, 0.11f, 0.16f, 1.0f);
+  builder_preview_interaction_hint_label.set_background(0.08f, 0.11f, 0.16f, 1.0f);
   builder_inspector_label.set_background(0.08f, 0.11f, 0.16f, 1.0f);
   builder_preview_label.set_background(0.08f, 0.11f, 0.16f, 1.0f);
   builder_export_status_label.set_background(0.08f, 0.11f, 0.16f, 1.0f);
+  builder_action_feedback_label.set_background(0.13f, 0.15f, 0.20f, 1.0f);
 
   refresh_button.set_text("Refresh");
   prev_button.set_text("Prev");
   next_button.set_text("Next");
-  apply_button.set_text("Apply");
-  apply_button.set_preferred_size(96, 32);
-  refresh_button.set_preferred_size(110, 32);
-  prev_button.set_preferred_size(96, 32);
-  next_button.set_preferred_size(96, 32);
-  builder_delete_button.set_preferred_size(128, 32);
-  builder_undo_button.set_preferred_size(80, 32);
-  builder_redo_button.set_preferred_size(80, 32);
-  builder_save_button.set_preferred_size(96, 32);
-  builder_load_button.set_preferred_size(96, 32);
-  builder_load_discard_button.set_preferred_size(130, 32);
-  builder_export_button.set_preferred_size(170, 32);
-  builder_new_button.set_preferred_size(96, 32);
-  builder_new_discard_button.set_preferred_size(130, 32);
-  builder_insert_container_button.set_preferred_size(170, 32);
-  builder_insert_leaf_button.set_preferred_size(130, 32);
+  apply_button.set_text("Apply Filter");
+  apply_button.set_preferred_size(132, 28);
+  refresh_button.set_preferred_size(110, 28);
+  prev_button.set_preferred_size(96, 28);
+  next_button.set_preferred_size(96, 28);
+  builder_delete_button.set_preferred_size(128, 28);
+  builder_undo_button.set_preferred_size(80, 28);
+  builder_redo_button.set_preferred_size(80, 28);
+  builder_save_button.set_preferred_size(96, 28);
+  builder_load_button.set_preferred_size(96, 28);
+  builder_load_discard_button.set_preferred_size(130, 28);
+  builder_export_button.set_preferred_size(170, 28);
+  builder_new_button.set_preferred_size(96, 28);
+  builder_new_discard_button.set_preferred_size(130, 28);
+  builder_insert_container_button.set_preferred_size(170, 28);
+  builder_insert_leaf_button.set_preferred_size(130, 28);
+  builder_debug_mode_toggle_button.set_preferred_size(170, 28);
 
-  builder_shell_panel.set_padding(18);
-  builder_shell_panel.set_spacing(10);
+  builder_shell_panel.set_padding(10);
+  builder_shell_panel.set_spacing(8);
   builder_shell_panel.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   builder_shell_panel.set_layout_height_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
 
+  builder_header_block.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_header_block.set_layout_height_policy(ngk::ui::UIElement::LayoutSizePolicy::Fixed);
+  builder_header_block.set_preferred_size(0, 40);
+  builder_header_block.set_min_size(0, 36);
+  builder_header_block.set_padding(0);
+
+  builder_input_toolbar_block.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_input_toolbar_block.set_layout_height_policy(ngk::ui::UIElement::LayoutSizePolicy::Fixed);
+  builder_input_toolbar_block.set_preferred_size(0, 104);
+  builder_input_toolbar_block.set_min_size(0, 96);
+  builder_input_toolbar_block.set_padding(0);
+
+  builder_status_info_block.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_status_info_block.set_layout_height_policy(ngk::ui::UIElement::LayoutSizePolicy::Fixed);
+  builder_status_info_block.set_preferred_size(0, 72);
+  builder_status_info_block.set_min_size(0, 64);
+  builder_status_info_block.set_padding(0);
+
+  builder_footer_block.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_footer_block.set_layout_height_policy(ngk::ui::UIElement::LayoutSizePolicy::Fixed);
+  builder_footer_block.set_preferred_size(0, 28);
+  builder_footer_block.set_min_size(0, 24);
+  builder_footer_block.set_padding(0);
+
   builder_header_bar.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
-  builder_header_bar.set_preferred_size(0, 42);
-  title_label.set_text("NGKsUI Runtime Desktop File Tool");
+  builder_header_bar.set_preferred_size(0, 36);
+  title_label.set_text("NGKsUI Runtime Builder | START: Click NEW DOC -> then INSERT CONTAINER -> then INSERT LEAF");
   title_label.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
-  title_label.set_preferred_size(0, 28);
+  title_label.set_preferred_size(0, 30);
   title_label.set_min_size(240, 28);
 
   path_label.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   path_label.set_preferred_size(0, 28);
   path_label.set_min_size(240, 28);
 
-  filter_box.set_preferred_size(0, 32);
-  filter_box.set_min_size(220, 32);
+  filter_box.set_preferred_size(0, 28);
+  filter_box.set_min_size(220, 28);
   filter_box.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   filter_box.set_layout_weight(3);
   builder_filter_bar.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
-  builder_filter_bar.set_preferred_size(0, 32);
+  builder_filter_bar.set_preferred_size(0, 28);
 
   builder_primary_actions_bar.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
-  builder_primary_actions_bar.set_preferred_size(0, 32);
+  builder_primary_actions_bar.set_preferred_size(0, 28);
   builder_secondary_actions_bar.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
-  builder_secondary_actions_bar.set_preferred_size(0, 32);
+  builder_secondary_actions_bar.set_preferred_size(0, 28);
 
   builder_info_row.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
-  builder_info_row.set_preferred_size(0, 110);
-  builder_info_row.set_min_size(0, 88);
+  builder_info_row.set_preferred_size(0, 52);
+  builder_info_row.set_min_size(0, 44);
   builder_detail_panel.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   builder_detail_panel.set_layout_weight(3);
   builder_detail_panel.set_min_size(220, 0);
@@ -1000,20 +1320,20 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   builder_surface_row.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   builder_surface_row.set_layout_height_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   builder_surface_row.set_layout_weight(1);
-  builder_surface_row.set_min_size(0, 180);
+  builder_surface_row.set_min_size(0, 0);
 
   builder_tree_panel.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   builder_tree_panel.set_layout_height_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   builder_tree_panel.set_layout_weight(2);
-  builder_tree_panel.set_min_size(180, 180);
+  builder_tree_panel.set_min_size(180, 120);
   builder_inspector_panel.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   builder_inspector_panel.set_layout_height_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   builder_inspector_panel.set_layout_weight(2);
-  builder_inspector_panel.set_min_size(180, 180);
+  builder_inspector_panel.set_min_size(180, 120);
   builder_preview_panel.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   builder_preview_panel.set_layout_height_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   builder_preview_panel.set_layout_weight(3);
-  builder_preview_panel.set_min_size(220, 180);
+  builder_preview_panel.set_min_size(220, 120);
 
   builder_tree_scroll.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   builder_tree_scroll.set_layout_height_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
@@ -1026,16 +1346,101 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   builder_preview_scroll.set_layout_weight(1);
 
   builder_tree_surface_label.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_inspector_selection_label.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_inspector_edit_hint_label.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_inspector_layout_min_width_label.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_inspector_layout_min_height_label.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_inspector_structure_controls_label.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_inspector_non_editable_label.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_preview_interaction_hint_label.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   builder_inspector_label.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   builder_preview_label.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   builder_tree_header.set_preferred_size(0, 26);
   builder_inspector_header.set_preferred_size(0, 26);
   builder_preview_header.set_preferred_size(0, 26);
 
+  builder_tree_scroll_content.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_tree_scroll_content.set_layout_height_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_tree_scroll_content.set_layout_weight(1);
+  builder_tree_scroll_content.set_padding(2);
+  builder_inspector_scroll_content.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_inspector_scroll_content.set_layout_height_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_inspector_scroll_content.set_layout_weight(1);
+  builder_inspector_scroll_content.set_padding(2);
+  builder_inspector_text_input.set_preferred_size(0, 28);
+  builder_inspector_text_input.set_min_size(180, 28);
+  builder_inspector_text_input.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_inspector_layout_min_width_input.set_preferred_size(0, 28);
+  builder_inspector_layout_min_width_input.set_min_size(120, 28);
+  builder_inspector_layout_min_width_input.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_inspector_layout_min_height_input.set_preferred_size(0, 28);
+  builder_inspector_layout_min_height_input.set_min_size(120, 28);
+  builder_inspector_layout_min_height_input.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_inspector_structure_controls_row.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_inspector_structure_controls_row.set_preferred_size(0, 28);
+  builder_inspector_add_child_button.set_preferred_size(120, 28);
+  builder_inspector_delete_button.set_preferred_size(120, 28);
+  builder_inspector_move_up_button.set_preferred_size(96, 28);
+  builder_inspector_move_down_button.set_preferred_size(96, 28);
+  builder_inspector_text_input.set_visible(false);
+  builder_inspector_text_input.set_focusable(false);
+  builder_inspector_layout_min_width_label.set_visible(false);
+  builder_inspector_layout_min_width_input.set_visible(false);
+  builder_inspector_layout_min_width_input.set_focusable(false);
+  builder_inspector_layout_min_height_label.set_visible(false);
+  builder_inspector_layout_min_height_input.set_visible(false);
+  builder_inspector_layout_min_height_input.set_focusable(false);
+  builder_inspector_structure_controls_label.set_visible(false);
+  builder_inspector_structure_controls_row.set_visible(false);
+  builder_inspector_apply_button.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_inspector_apply_button.set_preferred_size(0, 28);
+  builder_inspector_apply_button.set_enabled(false);
+  builder_inspector_apply_button.set_visible(false);
+  builder_inspector_non_editable_label.set_visible(false);
+  builder_tree_visual_rows.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_tree_visual_rows.set_layout_height_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_tree_visual_rows.set_layout_weight(1);
+
+  builder_preview_scroll_content.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_preview_scroll_content.set_layout_height_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_preview_scroll_content.set_layout_weight(1);
+  builder_preview_scroll_content.set_padding(2);
+  builder_preview_inline_text_input.set_preferred_size(0, 28);
+  builder_preview_inline_text_input.set_min_size(180, 28);
+  builder_preview_inline_text_input.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_preview_inline_text_input.set_visible(false);
+  builder_preview_inline_text_input.set_focusable(false);
+  builder_preview_inline_actions_row.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_preview_inline_actions_row.set_preferred_size(0, 28);
+  builder_preview_inline_actions_row.set_visible(false);
+  builder_preview_inline_apply_button.set_preferred_size(120, 28);
+  builder_preview_inline_cancel_button.set_preferred_size(96, 28);
+  builder_preview_visual_rows.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_preview_visual_rows.set_layout_height_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_preview_visual_rows.set_layout_weight(1);
+
+  for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+    auto& row = builder_tree_row_buttons[idx];
+    row.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+    row.set_preferred_size(0, 28);
+    row.set_text(" ");
+    row.set_visible(false);
+  }
+
+  for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+    auto& row = builder_preview_row_buttons[idx];
+    row.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+    row.set_preferred_size(0, 38);
+    row.set_text(" ");
+    row.set_visible(false);
+  }
+
   builder_footer_bar.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
-  builder_footer_bar.set_preferred_size(0, 28);
+  builder_footer_bar.set_preferred_size(0, 22);
   status_label.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
-  status_label.set_layout_weight(2);
+  status_label.set_layout_weight(1);
+  builder_action_feedback_label.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
+  builder_action_feedback_label.set_layout_weight(2);
   selected_label.set_layout_width_policy(ngk::ui::UIElement::LayoutSizePolicy::Fill);
   selected_label.set_layout_weight(1);
 
@@ -1047,6 +1452,23 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       }
     }
     label.set_preferred_size(0, std::max(label.min_height(), (line_count * 16) + extra_padding));
+  };
+
+  auto set_last_action_feedback = [&](const std::string& message) {
+    last_action_feedback = std::string("Action: ") + message;
+    builder_action_feedback_label.set_text(last_action_feedback);
+    sync_label_preferred_height(builder_action_feedback_label, 18);
+  };
+
+  auto set_preview_visual_feedback = [&](const std::string& message, const std::string& node_id = std::string{}) {
+    preview_visual_feedback_message = message;
+    preview_visual_feedback_node_id = node_id;
+    builder_preview_interaction_hint_label.set_text(message);
+    sync_label_preferred_height(builder_preview_interaction_hint_label, 18);
+  };
+
+  auto set_tree_visual_feedback = [&](const std::string& node_id = std::string{}) {
+    tree_visual_feedback_node_id = node_id;
   };
 
   auto layout = [&](int w, int h) {
@@ -1361,6 +1783,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     builder_doc.nodes[0].child_ids.push_back(new_node.node_id);
     builder_doc.nodes.push_back(new_node);
     selected_builder_node_id = new_node.node_id;
+    multi_selected_node_ids = {new_node.node_id};
     return true;
   };
 
@@ -1459,6 +1882,11 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       }
     }
     return nullptr;
+  };
+
+  auto node_exists_in_document = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                     const std::string& node_id) -> bool {
+    return find_node_by_id_in_document(doc, node_id) != nullptr;
   };
 
   auto build_preview_export_parity_entries = [&](const ngk::ui::builder::BuilderDocument& doc,
@@ -2193,28 +2621,163 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       }
     }
 
-    status_label.set_text(
-      std::string("STATUS ") + model.status +
-      " FILES " + std::to_string(model.entries.size()) +
-      " DOC_DIRTY " + (builder_doc_dirty ? std::string("YES") : std::string("NO")) +
-      "\nTOP_ACTION_SURFACE mode=" + (multi_selected_node_ids.size() > 1 ? std::string("multi") : std::string("single")) +
-      " selected_count=" + std::to_string(multi_selected_node_ids.size()) +
-      " available=" + std::to_string(available_actions.size()) +
-      " blocked=" + std::to_string(blocked_actions.size()));
+    if (validation_mode || builder_debug_mode) {
+      status_label.set_text(
+        std::string("STATUS ") + model.status +
+        " FILES " + std::to_string(model.entries.size()) +
+        " DOC_DIRTY " + (builder_doc_dirty ? std::string("YES") : std::string("NO")) +
+        "\nTOP_ACTION_SURFACE mode=" + (multi_selected_node_ids.size() > 1 ? std::string("multi") : std::string("single")) +
+        " selected_count=" + std::to_string(multi_selected_node_ids.size()) +
+        " available=" + std::to_string(available_actions.size()) +
+        " blocked=" + std::to_string(blocked_actions.size()));
+    } else {
+      status_label.set_text(
+        std::string("Status: ") + model.status +
+        " | Document: " + (builder_doc_dirty ? std::string("Modified") : std::string("Saved")) +
+        " | Nodes: " + std::to_string(builder_doc.nodes.size()));
+    }
     sync_label_preferred_height(status_label, 18);
 
-    selected_label.set_text(
-      std::string("SELECTED ") + selected_file_name(model) +
-      "\nNODE " + (selected_builder_node_id.empty() ? std::string("none") : selected_builder_node_id) +
-      " type=" + selected_type_name);
+    if (validation_mode || builder_debug_mode) {
+      selected_label.set_text(
+        std::string("SELECTED ") + selected_file_name(model) +
+        "\nNODE " + (selected_builder_node_id.empty() ? std::string("none") : selected_builder_node_id) +
+        " type=" + selected_type_name);
+    } else {
+      selected_label.set_text(
+        std::string("Node: ") + (selected_builder_node_id.empty() ? std::string("none") : selected_builder_node_id) +
+        " (" + selected_type_name + ")");
+    }
     sync_label_preferred_height(selected_label, 18);
 
-    detail_label.set_text(
-      std::string("DETAIL BYTES ") + selected_file_size(model) +
-      " FILTER " + model.filter +
-      "\nTOP_AVAILABLE " + join_csv(available_actions) +
-      "\nTOP_BLOCKED " + join_csv(blocked_actions));
+    if (validation_mode || builder_debug_mode) {
+      detail_label.set_text(
+        std::string("DETAIL BYTES ") + selected_file_size(model) +
+        " FILTER " + model.filter +
+        "\nTOP_AVAILABLE " + join_csv(available_actions) +
+        "\nTOP_BLOCKED " + join_csv(blocked_actions));
+    } else {
+      detail_label.set_text(
+        std::string("Hint: Click a tree row, then use Add Container or Add Item."));
+    }
     sync_label_preferred_height(detail_label, 18);
+  };
+
+  auto refresh_action_button_visual_state_from_builder_truth = [&]() {
+    sync_multi_selection_with_primary();
+    const auto report = compute_bulk_action_eligibility_report();
+
+    auto find_entry = [&](const std::string& action_id) -> const BulkActionEligibilityEntry* {
+      for (const auto& entry : report.entries) {
+        if (entry.action_id == action_id) {
+          return &entry;
+        }
+      }
+      return nullptr;
+    };
+
+    const bool multi_mode = multi_selected_node_ids.size() > 1;
+    const auto* bulk_delete = find_entry("BULK_DELETE");
+    const auto* bulk_move = find_entry("BULK_MOVE_REPARENT");
+
+    bool single_delete_available = false;
+    if (!selected_builder_node_id.empty()) {
+      if (auto* selected = find_node_by_id(selected_builder_node_id)) {
+        const bool is_root = selected_builder_node_id == builder_doc.root_node_id || selected->parent_id.empty();
+        const bool is_shell = selected->container_type == ngk::ui::builder::BuilderContainerType::Shell;
+        single_delete_available = !is_root && !is_shell && !selected->parent_id.empty() && node_exists(selected->parent_id);
+      }
+    }
+
+    bool insert_available = false;
+    if (!selected_builder_node_id.empty()) {
+      if (auto* selected = find_node_by_id(selected_builder_node_id)) {
+        insert_available = is_container_widget_type(selected->widget_type);
+      }
+    }
+
+    const bool delete_available = multi_mode
+      ? (bulk_delete != nullptr && bulk_delete->available)
+      : single_delete_available;
+    const bool move_available = multi_mode
+      ? (bulk_move != nullptr && bulk_move->available)
+      : false;
+
+    const bool delete_relevant = !selected_builder_node_id.empty();
+    const bool insert_relevant = !multi_mode && insert_available;
+    const bool export_relevant = builder_doc_dirty;
+
+    const bool delete_primary = delete_available && delete_relevant;
+    const bool insert_primary = !delete_primary && insert_available && insert_relevant;
+    const bool export_primary = !delete_primary && !insert_primary && export_relevant;
+
+    builder_delete_button.set_default_action(delete_primary);
+    builder_insert_container_button.set_default_action(insert_primary);
+    builder_insert_leaf_button.set_default_action(insert_primary);
+    builder_export_button.set_default_action(export_primary);
+    builder_delete_button.set_enabled(delete_available);
+    builder_insert_container_button.set_enabled(insert_available);
+    builder_insert_leaf_button.set_enabled(insert_available);
+    builder_export_button.set_enabled(true);
+
+    const std::string delete_mode = multi_mode ? "BULK" : "SINGLE";
+    (void)delete_mode;
+    builder_delete_button.set_text("Delete");
+
+    builder_insert_container_button.set_text("Add Container");
+    builder_insert_leaf_button.set_text("Add Item");
+
+    builder_reparent_button.set_default_action(move_available && multi_mode && !delete_primary);
+    builder_reparent_button.set_enabled(move_available && multi_mode);
+    builder_reparent_button.set_text("Reparent");
+
+    const bool undo_ready = !undo_history.empty();
+    const bool redo_ready = !redo_stack.empty();
+    (void)undo_ready;
+    (void)redo_ready;
+    builder_undo_button.set_enabled(undo_ready);
+    builder_redo_button.set_enabled(redo_ready);
+    builder_undo_button.set_text("Undo");
+    builder_redo_button.set_text("Redo");
+    builder_export_button.set_text("Export");
+  };
+
+  auto humanize_widget_type = [&](ngk::ui::builder::BuilderWidgetType widget_type) -> std::string {
+    const std::string raw = std::string(ngk::ui::builder::to_string(widget_type));
+    if (raw == "vertical_layout") {
+      return "Vertical layout";
+    }
+    if (raw == "horizontal_layout") {
+      return "Horizontal row";
+    }
+    if (raw == "content_panel") {
+      return "Panel";
+    }
+    if (raw == "scroll_container") {
+      return "Scrollable area";
+    }
+    if (raw == "toolbar_container") {
+      return "Toolbar";
+    }
+    if (raw == "sidebar_container") {
+      return "Sidebar";
+    }
+    if (raw == "status_bar_container") {
+      return "Status bar";
+    }
+    if (raw == "section_header") {
+      return "Section title";
+    }
+    if (raw == "input_box") {
+      return "Input field";
+    }
+    if (raw == "button") {
+      return "Button";
+    }
+    if (raw == "label") {
+      return "Label";
+    }
+    return raw;
   };
 
   auto build_tree_surface_text = [&]() -> std::string {
@@ -2259,15 +2822,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       const bool is_selected = (node_id == selected_builder_node_id);
       const bool is_focused = (node_id == focused_builder_node_id);
         const bool is_secondary = is_node_in_multi_selection(node_id) && !is_selected;
-      oss << std::string(static_cast<std::size_t>(depth) * 2U, ' ')
-          << (is_selected ? "> " : "- ")
+        oss << std::string(static_cast<std::size_t>(depth) * 2U, ' ')
+          << (is_selected ? "[SELECTED] " : "- ")
           << ngk::ui::builder::to_string(node->widget_type)
           << " | " << node->node_id;
       if (!node->text.empty()) {
         oss << " | \"" << node->text << "\"";
       }
       if (is_selected) {
-        oss << " [SELECTED][PRIMARY]";
+        oss << " [PRIMARY]";
       }
       if (is_secondary) {
         oss << " [MULTI_SECONDARY]";
@@ -2287,89 +2850,148 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   };
 
   auto refresh_tree_surface_label = [&]() {
+    builder_tree_surface_label.set_visible(builder_debug_mode);
+    builder_tree_visual_rows.set_visible(!builder_debug_mode);
     builder_tree_surface_label.set_text(build_tree_surface_text());
     sync_label_preferred_height(builder_tree_surface_label, 20);
+
+    for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+      tree_visual_row_node_ids[idx].clear();
+      builder_tree_row_buttons[idx].set_visible(false);
+      builder_tree_row_buttons[idx].set_default_action(false);
+      builder_tree_row_buttons[idx].set_enabled(false);
+    }
+
+    std::size_t row_count = 0;
+    std::function<void(const std::string&, int)> append_visual_tree = [&](const std::string& node_id, int depth) {
+      if (row_count >= kMaxVisualTreeRows) {
+        return;
+      }
+
+      auto* node = find_node_by_id(node_id);
+      if (!node) {
+        return;
+      }
+
+      auto& row = builder_tree_row_buttons[row_count];
+      tree_visual_row_node_ids[row_count] = node_id;
+
+      std::string indent(static_cast<std::size_t>(std::max(0, depth)) * 4U, ' ');
+      const bool is_container = is_container_widget_type(node->widget_type);
+      const bool is_selected = (node_id == selected_builder_node_id);
+      const bool is_hovered = row.visual_state() == ngk::ui::ButtonVisualState::Hover;
+      const bool is_feedback_target = !tree_visual_feedback_node_id.empty() && tree_visual_feedback_node_id == node_id;
+      std::string row_text;
+      if (is_container) {
+        row_text = indent + "CONTAINER (" + std::to_string(node->child_ids.size()) +
+          (node->child_ids.size() == 1 ? std::string(" item)") : std::string(" items)"));
+      } else if (node->widget_type == ngk::ui::builder::BuilderWidgetType::Label) {
+        row_text = indent + (node->text.empty() ? std::string("Text") : node->text);
+      } else if (!node->text.empty()) {
+        row_text = indent + node->text;
+      } else {
+        row_text = indent + humanize_widget_type(node->widget_type);
+      }
+      if (is_selected) {
+        row_text += "  Selected";
+      }
+
+      row.set_text(row_text);
+      row.set_enabled(true);
+      row.set_visible(true);
+      row.set_focused(is_selected);
+      row.set_default_action(node_id == selected_builder_node_id);
+      row.set_preferred_size(0, is_container ? 34 : 28);
+
+      const float depth_tint = std::min(0.05f * static_cast<float>(std::max(0, depth)), 0.16f);
+      if (is_selected) {
+        row.set_background(0.18f + depth_tint, 0.37f + depth_tint, 0.62f + depth_tint, 1.0f);
+      } else if (is_feedback_target) {
+        row.set_background(0.36f + depth_tint, 0.31f + depth_tint, 0.18f + depth_tint, 1.0f);
+      } else if (is_container) {
+        row.set_background(0.13f + depth_tint, 0.18f + depth_tint, 0.24f + depth_tint, 1.0f);
+      } else if (is_hovered) {
+        row.set_background(0.22f + depth_tint, 0.25f + depth_tint, 0.31f + depth_tint, 1.0f);
+      } else {
+        row.set_background(0.16f + depth_tint, 0.19f + depth_tint, 0.23f + depth_tint, 1.0f);
+      }
+      row_count += 1;
+
+      for (const auto& child_id : node->child_ids) {
+        append_visual_tree(child_id, depth + 1);
+      }
+    };
+
+    if (!builder_doc.root_node_id.empty() && node_exists(builder_doc.root_node_id)) {
+      append_visual_tree(builder_doc.root_node_id, 0);
+    }
   };
 
   auto refresh_inspector_surface_label = [&]() {
     sync_multi_selection_with_primary();
+    builder_inspector_label.set_visible(builder_debug_mode);
 
     std::ostringstream oss;
-    oss << "INSPECTOR REGION (Typed Editing Surface)\n";
+    oss << "INSPECTOR REGION (Guided Editing Surface)\n";
+    oss << "[DEBUG MODE: " << (builder_debug_mode ? "ON" : "OFF") << "]\n";
+    oss << last_action_feedback << "\n";
     std::string selected_type_name = "none";
     if (!selected_builder_node_id.empty()) {
       if (auto* selected_node = find_node_by_id(selected_builder_node_id)) {
-        selected_type_name = ngk::ui::builder::to_string(selected_node->widget_type);
+        selected_type_name = humanize_widget_type(selected_node->widget_type);
       }
     }
-
-    oss << "[SELECTION_SUMMARY]\n";
-    oss << "SELECTED_ID: " << (selected_builder_node_id.empty() ? std::string("none") : selected_builder_node_id) << "\n";
-    oss << "SELECTED_TYPE: " << selected_type_name << "\n";
-    oss << "EDIT_TARGET_ID: " << (selected_builder_node_id.empty() ? std::string("none") : selected_builder_node_id) << "\n";
-    oss << "MULTI_SELECTION_MODE: " << (multi_selected_node_ids.size() > 1 ? "active" : "inactive") << "\n";
-    oss << "MULTI_SELECTION_COUNT: " << multi_selected_node_ids.size() << "\n";
-    oss << "PRIMARY_SELECTION_ID: "
-        << (selected_builder_node_id.empty() ? std::string("none") : selected_builder_node_id) << "\n";
-    if (multi_selected_node_ids.size() > 1) {
-      oss << "SECONDARY_SELECTION_ORDER: ";
-      for (std::size_t idx = 1; idx < multi_selected_node_ids.size(); ++idx) {
-        if (idx > 1) {
-          oss << ",";
-        }
-        oss << multi_selected_node_ids[idx];
-      }
-      oss << "\n";
-    }
-
-    const auto bulk_text_state = compute_bulk_text_suffix_selection_compatibility();
-    oss << "\n";
-    oss << "[ACTION_SURFACE]\n";
-    oss << "BULK_TEXT_SUFFIX_COMPATIBILITY: " << bulk_text_state.mode;
-    if (!bulk_text_state.widget_type.empty()) {
-      oss << " widget_type=" << bulk_text_state.widget_type;
-    }
-    if (!bulk_text_state.reason.empty() && bulk_text_state.reason != "none") {
-      oss << " reason=" << bulk_text_state.reason;
-    }
-    oss << "\n";
-    oss << "BULK_TEXT_SUFFIX_ELIGIBLE: " << (bulk_text_state.eligible ? "YES" : "NO") << "\n";
-    append_compact_bulk_action_surface(oss);
-
-    oss << "\n";
-    oss << "[PARITY]\n";
-    oss << "PREVIEW_EXPORT_PARITY: " << last_preview_export_parity_status_code;
-    if (!last_preview_export_parity_reason.empty() && last_preview_export_parity_reason != "none") {
-      oss << " reason=" << last_preview_export_parity_reason;
-    }
-    oss << "\n";
-
-    oss << "\n";
-    oss << "[RECENT_RESULTS]\n";
-    oss << "EDIT_RESULT: " << last_inspector_edit_status_code;
-    if (!last_inspector_edit_reason.empty() && last_inspector_edit_reason != "none") {
-      oss << ": " << last_inspector_edit_reason;
-    }
-    oss << "\n";
-    oss << "BULK_DELETE_RESULT: " << last_bulk_delete_status_code;
-    if (!last_bulk_delete_reason.empty() && last_bulk_delete_reason != "none") {
-      oss << ": " << last_bulk_delete_reason;
-    }
-    oss << "\n";
-    oss << "BULK_MOVE_REPARENT_RESULT: " << last_bulk_move_reparent_status_code;
-    if (!last_bulk_move_reparent_reason.empty() && last_bulk_move_reparent_reason != "none") {
-      oss << ": " << last_bulk_move_reparent_reason;
-    }
-    oss << "\n";
-    oss << "BULK_PROPERTY_EDIT_RESULT: " << last_bulk_property_edit_status_code;
-    if (!last_bulk_property_edit_reason.empty() && last_bulk_property_edit_reason != "none") {
-      oss << ": " << last_bulk_property_edit_reason;
-    }
-    oss << "\n";
+    builder_inspector_selection_label.set_text(
+      selected_builder_node_id.empty()
+        ? std::string("Editing: Nothing selected")
+        : (std::string("Editing: ") + selected_type_name));
+    sync_label_preferred_height(builder_inspector_selection_label, 20);
+    oss << "Selected Node: "
+        << (selected_builder_node_id.empty() ? std::string("none") : selected_builder_node_id)
+        << " (" << selected_type_name << ")\n";
 
     if (selected_builder_node_id.empty() || !node_exists(selected_builder_node_id)) {
-      oss << "selected=none\n";
-      oss << "binding=cleared";
+      inspector_edit_binding_node_id.clear();
+      inspector_edit_loaded_text.clear();
+      inspector_edit_loaded_min_width.clear();
+      inspector_edit_loaded_min_height.clear();
+      builder_inspector_edit_hint_label.set_text(
+        "Click NEW DOC to start, then select an item from Structure or Live Preview.");
+      sync_label_preferred_height(builder_inspector_edit_hint_label, 20);
+      builder_inspector_text_input.set_visible(false);
+      builder_inspector_text_input.set_focusable(false);
+      builder_inspector_layout_min_width_label.set_visible(false);
+      builder_inspector_layout_min_width_input.set_visible(false);
+      builder_inspector_layout_min_width_input.set_focusable(false);
+      builder_inspector_layout_min_height_label.set_visible(false);
+      builder_inspector_layout_min_height_input.set_visible(false);
+      builder_inspector_layout_min_height_input.set_focusable(false);
+      builder_inspector_structure_controls_label.set_visible(false);
+      builder_inspector_structure_controls_row.set_visible(false);
+      builder_inspector_apply_button.set_visible(false);
+      builder_inspector_apply_button.set_enabled(false);
+      builder_inspector_apply_button.set_default_action(false);
+      builder_inspector_apply_button.set_text("Apply Changes");
+      builder_inspector_non_editable_label.set_visible(false);
+      oss << "Edit Target: none\n";
+      oss << "Click NEW DOC to start.\n";
+      oss << "Then add a container, then add items inside it.\n";
+      oss << "Select a node in Tree or Preview to edit.";
+
+      if (builder_debug_mode) {
+        oss << "\n\n[SELECTION_SUMMARY]\n";
+        oss << "SELECTED_ID: none\n";
+        oss << "SELECTED_TYPE: none EDIT_TARGET_ID: none MULTI_SELECTION_MODE: "
+            << (multi_selected_node_ids.size() > 1 ? "active" : "inactive")
+            << " MULTI_SELECTION_COUNT: " << multi_selected_node_ids.size() << "\n";
+        oss << "\n[ACTION_SURFACE]\n";
+        append_compact_bulk_action_surface(oss);
+        oss << "\n[PARITY]\n";
+        oss << "PREVIEW_EXPORT_PARITY: " << last_preview_export_parity_status_code << "\n";
+        oss << "\n[INTERNAL_FLAGS]\n";
+        oss << "selected=none focused=" << (focused_builder_node_id.empty() ? std::string("none") : focused_builder_node_id) << "\n";
+        oss << "binding=cleared\n";
+      }
       builder_inspector_label.set_text(oss.str());
       sync_label_preferred_height(builder_inspector_label, 20);
       return;
@@ -2377,14 +2999,35 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
     auto* node = find_node_by_id(selected_builder_node_id);
     if (!node) {
-      oss << "selected=stale\n";
-      oss << "binding=cleared";
+      inspector_edit_binding_node_id.clear();
+      inspector_edit_loaded_text.clear();
+      inspector_edit_loaded_min_width.clear();
+      inspector_edit_loaded_min_height.clear();
+      builder_inspector_edit_hint_label.set_text(
+        "Selection changed before the editor loaded. Select an item again.");
+      sync_label_preferred_height(builder_inspector_edit_hint_label, 20);
+      builder_inspector_text_input.set_visible(false);
+      builder_inspector_text_input.set_focusable(false);
+      builder_inspector_layout_min_width_label.set_visible(false);
+      builder_inspector_layout_min_width_input.set_visible(false);
+      builder_inspector_layout_min_width_input.set_focusable(false);
+      builder_inspector_layout_min_height_label.set_visible(false);
+      builder_inspector_layout_min_height_input.set_visible(false);
+      builder_inspector_layout_min_height_input.set_focusable(false);
+      builder_inspector_structure_controls_label.set_visible(false);
+      builder_inspector_structure_controls_row.set_visible(false);
+      builder_inspector_apply_button.set_visible(false);
+      builder_inspector_apply_button.set_enabled(false);
+      builder_inspector_apply_button.set_default_action(false);
+      builder_inspector_non_editable_label.set_visible(false);
+      oss << "Edit Target: stale\n";
+      oss << "Hint: Selection was remapped.";
       builder_inspector_label.set_text(oss.str());
       sync_label_preferred_height(builder_inspector_label, 20);
       return;
     }
 
-    const auto widget_type_name = std::string(ngk::ui::builder::to_string(node->widget_type));
+    const auto widget_type_name = humanize_widget_type(node->widget_type);
     const auto container_type_name = std::string(ngk::ui::builder::to_string(node->container_type));
     const bool text_editable =
       node->widget_type == ngk::ui::builder::BuilderWidgetType::Label ||
@@ -2399,138 +3042,225 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       node->widget_type == ngk::ui::builder::BuilderWidgetType::SidebarContainer ||
       node->widget_type == ngk::ui::builder::BuilderWidgetType::ContentPanel ||
       node->widget_type == ngk::ui::builder::BuilderWidgetType::StatusBarContainer;
+    const bool container_selected = ngk::ui::builder::widget_allows_children(node->widget_type);
 
-    oss << "SELECTED_TYPE: " << widget_type_name << "\n";
-    oss << "TYPE: " << widget_type_name << "\n";
-    oss << "ID: " << node->node_id << "\n";
-    oss << "\n";
-    oss << "[IDENTITY]\n";
-    oss << "  node_id (readonly): " << node->node_id << "\n";
-    oss << "  parent_id (readonly): " << (node->parent_id.empty() ? std::string("<root>") : node->parent_id) << "\n";
-    oss << "  widget_type (readonly): " << widget_type_name << "\n";
+    builder_inspector_structure_controls_label.set_visible(true);
+    builder_inspector_structure_controls_row.set_visible(true);
+    builder_inspector_add_child_button.set_enabled(container_selected);
+    builder_inspector_add_child_button.set_background(
+      container_selected ? 0.16f : 0.11f,
+      container_selected ? 0.20f : 0.12f,
+      container_selected ? 0.28f : 0.13f,
+      1.0f);
+    builder_inspector_structure_controls_label.set_text(
+      container_selected
+        ? "Structure Controls"
+        : "Structure Controls - Only containers can have children");
+    builder_inspector_delete_button.set_enabled(selected_builder_node_id != builder_doc.root_node_id);
+    builder_inspector_move_up_button.set_enabled(selected_builder_node_id != builder_doc.root_node_id);
+    builder_inspector_move_down_button.set_enabled(selected_builder_node_id != builder_doc.root_node_id);
+
+    oss << "Edit Target: " << node->node_id << "\n";
+    oss << "Item: " << widget_type_name << "\n";
+    oss << "Structure Controls: "
+        << (container_selected ? "Add Child" : "Add Child disabled")
+        << ", Delete, Move Up, Move Down\n";
+
+    const std::string current_min_width = std::to_string(node->layout.min_width);
+    const std::string current_min_height = std::to_string(node->layout.min_height);
+    if (inspector_edit_binding_node_id != node->node_id ||
+        builder_inspector_layout_min_width_input.value() == inspector_edit_loaded_min_width ||
+        !builder_inspector_layout_min_width_input.focused()) {
+      builder_inspector_layout_min_width_input.set_value(current_min_width);
+      inspector_edit_loaded_min_width = current_min_width;
+    }
+    if (inspector_edit_binding_node_id != node->node_id ||
+        builder_inspector_layout_min_height_input.value() == inspector_edit_loaded_min_height ||
+        !builder_inspector_layout_min_height_input.focused()) {
+      builder_inspector_layout_min_height_input.set_value(current_min_height);
+      inspector_edit_loaded_min_height = current_min_height;
+    }
+    builder_inspector_layout_min_width_label.set_visible(true);
+    builder_inspector_layout_min_width_input.set_visible(true);
+    builder_inspector_layout_min_width_input.set_focusable(true);
+    builder_inspector_layout_min_height_label.set_visible(true);
+    builder_inspector_layout_min_height_input.set_visible(true);
+    builder_inspector_layout_min_height_input.set_focusable(true);
+    sync_label_preferred_height(builder_inspector_layout_min_width_label, 18);
+    sync_label_preferred_height(builder_inspector_layout_min_height_label, 18);
 
     if (text_editable) {
-      oss << "\n";
-      oss << "[CONTENT]\n";
-      oss << "  text (editable): \"" << (node->text.empty() ? std::string("<no-text>") : node->text) << "\"\n";
+      if (inspector_edit_binding_node_id != node->node_id ||
+          builder_inspector_text_input.value() == inspector_edit_loaded_text ||
+          !builder_inspector_text_input.focused()) {
+        builder_inspector_text_input.set_value(node->text);
+        inspector_edit_loaded_text = node->text;
+      }
+      builder_inspector_edit_hint_label.set_text(
+        "You can edit Text, Width, and Height here. Apply Filter at the top only filters files.");
+      sync_label_preferred_height(builder_inspector_edit_hint_label, 20);
+      builder_inspector_text_input.set_visible(true);
+      builder_inspector_text_input.set_focusable(true);
+      builder_inspector_apply_button.set_visible(true);
+      builder_inspector_apply_button.set_enabled(true);
+      builder_inspector_apply_button.set_default_action(true);
+      builder_inspector_apply_button.set_text("Apply Changes");
+      builder_inspector_non_editable_label.set_visible(false);
+      oss << "Label: \"" << (node->text.empty() ? std::string("<no-text>") : node->text) << "\"\n";
+      oss << "Text Property: editable\n";
+    } else {
+      inspector_edit_loaded_text.clear();
+      builder_inspector_edit_hint_label.set_text(
+        "You can edit Width and Height for this item. This item has no text.");
+      sync_label_preferred_height(builder_inspector_edit_hint_label, 20);
+      builder_inspector_text_input.set_visible(false);
+      builder_inspector_text_input.set_focusable(false);
+      builder_inspector_apply_button.set_visible(true);
+      builder_inspector_apply_button.set_enabled(true);
+      builder_inspector_apply_button.set_default_action(true);
+      builder_inspector_apply_button.set_text("Apply Changes");
+      builder_inspector_non_editable_label.set_text(
+        "This item has no text.");
+      builder_inspector_non_editable_label.set_visible(true);
+      sync_label_preferred_height(builder_inspector_non_editable_label, 20);
+      oss << "Text Property: not editable for this node type\n";
     }
 
-    oss << "\n";
-    oss << "[LAYOUT]\n";
-    oss << "  container_type (readonly): " << container_type_name << "\n";
+    inspector_edit_binding_node_id = node->node_id;
+    oss << "Width: " << node->layout.min_width << "\n";
+    oss << "Height: " << node->layout.min_height << "\n";
+
     if (shows_layout_group) {
-      oss << "  child_count (readonly): " << node->child_ids.size() << "\n";
-      oss << "  child_ids (readonly): ";
-      if (node->child_ids.empty()) {
-        oss << "<none>\n";
-      } else {
-        for (std::size_t idx = 0; idx < node->child_ids.size(); ++idx) {
-          if (idx > 0) {
-            oss << ",";
-          }
-          oss << node->child_ids[idx];
-        }
-        oss << "\n";
-      }
-    } else {
-      oss << "  child_count (readonly): <n/a for leaf type>\n";
+      oss << "Layout Children: " << node->child_ids.size() << "\n";
     }
-    oss << "\n";
-    oss << "[STATE]\n";
-    oss << "  selected (readonly): " << ((selected_builder_node_id == node->node_id) ? "true" : "false") << "\n";
-    oss << "  focused (readonly): " << ((focused_builder_node_id == node->node_id) ? "true" : "false") << "\n";
-    oss << "  multi_selection_count (readonly): " << multi_selected_node_ids.size() << "\n";
-    oss << "  primary_selection (readonly): "
-      << (selected_builder_node_id.empty() ? std::string("none") : selected_builder_node_id) << "\n";
-    oss << "  binding (readonly): selection_bound";
+
+    if (builder_debug_mode) {
+      const auto bulk_text_state = compute_bulk_text_suffix_selection_compatibility();
+      oss << "\n[SELECTION_SUMMARY]\n";
+      oss << "SELECTED_ID: " << (selected_builder_node_id.empty() ? std::string("none") : selected_builder_node_id) << "\n";
+      oss << "SELECTED_TYPE: " << selected_type_name
+          << " EDIT_TARGET_ID: " << (selected_builder_node_id.empty() ? std::string("none") : selected_builder_node_id)
+          << " MULTI_SELECTION_MODE: " << (multi_selected_node_ids.size() > 1 ? "active" : "inactive")
+          << " MULTI_SELECTION_COUNT: " << multi_selected_node_ids.size() << "\n";
+
+      oss << "\n[ACTION_SURFACE]\n";
+      oss << "BULK_TEXT_SUFFIX_COMPATIBILITY: " << bulk_text_state.mode;
+      if (!bulk_text_state.widget_type.empty()) {
+        oss << " widget_type=" << bulk_text_state.widget_type;
+      }
+      if (!bulk_text_state.reason.empty() && bulk_text_state.reason != "none") {
+        oss << " reason=" << bulk_text_state.reason;
+      }
+      oss << "\n";
+      oss << "BULK_TEXT_SUFFIX_ELIGIBLE: " << (bulk_text_state.eligible ? "YES" : "NO") << "\n";
+      append_compact_bulk_action_surface(oss);
+
+      oss << "\n[PARITY]\n";
+      oss << "PREVIEW_EXPORT_PARITY: " << last_preview_export_parity_status_code;
+      if (!last_preview_export_parity_reason.empty() && last_preview_export_parity_reason != "none") {
+        oss << " reason=" << last_preview_export_parity_reason;
+      }
+      oss << "\n";
+
+      oss << "\n[RECENT_RESULTS]\n";
+      oss << "EDIT_RESULT: " << last_inspector_edit_status_code;
+      if (!last_inspector_edit_reason.empty() && last_inspector_edit_reason != "none") {
+        oss << " [" << last_inspector_edit_reason << "]";
+      }
+      oss << " | BULK_DELETE_RESULT: " << last_bulk_delete_status_code;
+      if (!last_bulk_delete_reason.empty() && last_bulk_delete_reason != "none") {
+        oss << " [" << last_bulk_delete_reason << "]";
+      }
+      oss << "\n";
+      oss << "BULK_MOVE_REPARENT_RESULT: " << last_bulk_move_reparent_status_code;
+      if (!last_bulk_move_reparent_reason.empty() && last_bulk_move_reparent_reason != "none") {
+        oss << " [" << last_bulk_move_reparent_reason << "]";
+      }
+      oss << " | BULK_PROPERTY_EDIT_RESULT: " << last_bulk_property_edit_status_code;
+      if (!last_bulk_property_edit_reason.empty() && last_bulk_property_edit_reason != "none") {
+        oss << " [" << last_bulk_property_edit_reason << "]";
+      }
+      oss << "\n";
+      oss << "\n[INTERNAL_FLAGS]\n";
+      oss << "  selected=" << ((selected_builder_node_id == node->node_id) ? "true" : "false")
+          << " focused=" << ((focused_builder_node_id == node->node_id) ? "true" : "false")
+          << " multi_selection_count=" << multi_selected_node_ids.size() << "\n";
+      oss << "  binding=selection_bound\n";
+      oss << "  container_type=" << container_type_name;
+      if (shows_layout_group) {
+        oss << " child_ids=";
+        if (node->child_ids.empty()) {
+          oss << "<none>";
+        } else {
+          for (std::size_t idx = 0; idx < node->child_ids.size(); ++idx) {
+            if (idx > 0) {
+              oss << ",";
+            }
+            oss << node->child_ids[idx];
+          }
+        }
+      }
+      oss << "\n";
+    }
+
     builder_inspector_label.set_text(oss.str());
     sync_label_preferred_height(builder_inspector_label, 20);
     refresh_top_action_surface_from_builder_state();
+    refresh_action_button_visual_state_from_builder_truth();
+  };
+
+  auto update_add_child_target_display = [&]() {
+    if (selected_builder_node_id.empty()) {
+      builder_add_child_target_label.set_text("Add Child Target: None");
+      return;
+    }
+
+    auto* selected_node = find_node_by_id(selected_builder_node_id);
+    if (!selected_node) {
+      builder_add_child_target_label.set_text("Add Child Target: Stale");
+      return;
+    }
+
+    const bool is_container = ngk::ui::builder::widget_allows_children(selected_node->widget_type);
+    const std::string type_name = humanize_widget_type(selected_node->widget_type);
+    const std::string label_text = selected_node->text.empty() ? "(no label)" : selected_node->text;
+
+    std::string target_text = is_container
+      ? ("Add Child Target: CONTAINER " + type_name + " \"" + label_text + "\"")
+      : ("Add Child Target: LABEL " + type_name + " (cannot add children to this)");
+
+    builder_add_child_target_label.set_text(target_text);
+    sync_label_preferred_height(builder_add_child_target_label, 18);
   };
 
   auto refresh_preview_surface_label = [&]() {
     sync_multi_selection_with_primary();
 
+    builder_preview_label.set_visible(builder_debug_mode);
+    builder_preview_visual_rows.set_visible(!builder_debug_mode);
+
     std::ostringstream oss;
-    oss << "PREVIEW REGION (Runtime Truth)\n";
-    oss << "[SELECTION_SUMMARY]\n";
-    oss << "SELECTED_ID: " << (selected_builder_node_id.empty() ? std::string("none") : selected_builder_node_id) << "\n";
+    oss << "PREVIEW REGION (Readable Runtime)\n";
+    oss << "[DEBUG MODE: " << (builder_debug_mode ? "ON" : "OFF") << "]\n";
+    oss << last_action_feedback << "\n";
     std::string selected_type_name = "none";
     if (!selected_builder_node_id.empty()) {
       if (auto* selected_node = find_node_by_id(selected_builder_node_id)) {
         selected_type_name = ngk::ui::builder::to_string(selected_node->widget_type);
       }
     }
-    oss << "SELECTED_TYPE: " << selected_type_name << "\n";
-    oss << "SELECTED_TARGET=ACTIVE_EDIT_NODE\n";
-    oss << "selection_mode=" << (multi_selected_node_ids.size() > 1 ? "multi" : "single") << "\n";
-    oss << "multi_selection_count=" << multi_selected_node_ids.size() << "\n";
-    if (multi_selected_node_ids.size() > 1) {
-      oss << "multi_secondary_ids=";
-      for (std::size_t idx = 1; idx < multi_selected_node_ids.size(); ++idx) {
-        if (idx > 1) {
-          oss << ",";
-        }
-        oss << multi_selected_node_ids[idx];
-      }
-      oss << "\n";
-    }
-
-    oss << "\n";
-    oss << "[PARITY]\n";
-    oss << "parity_scope=" << kPreviewExportParityScope << "\n";
-    oss << "parity=" << last_preview_export_parity_status_code;
-    if (!last_preview_export_parity_reason.empty() && last_preview_export_parity_reason != "none") {
-      oss << " reason=" << last_preview_export_parity_reason;
-    }
-    oss << "\n";
-
-    const auto bulk_text_state = compute_bulk_text_suffix_selection_compatibility();
-    oss << "\n";
-    oss << "[ACTION_SURFACE]\n";
-    oss << "multi_selection_compatibility=" << bulk_text_state.mode;
-    if (!bulk_text_state.widget_type.empty()) {
-      oss << " widget_type=" << bulk_text_state.widget_type;
-    }
-    if (!bulk_text_state.reason.empty() && bulk_text_state.reason != "none") {
-      oss << " reason=" << bulk_text_state.reason;
-    }
-    oss << "\n";
-    oss << "bulk_text_suffix_eligible=" << (bulk_text_state.eligible ? "YES" : "NO") << "\n";
-    append_compact_bulk_action_surface(oss);
-
-    oss << "\n";
-    oss << "[RECENT_RESULTS]\n";
-    oss << "click_select=" << last_preview_click_select_status_code;
-    if (!last_preview_click_select_reason.empty() && last_preview_click_select_reason != "none") {
-      oss << " reason=" << last_preview_click_select_reason;
-    }
-    oss << "\n";
-    oss << "inline_action_commit=" << last_preview_inline_action_commit_status_code;
-    if (!last_preview_inline_action_commit_reason.empty() && last_preview_inline_action_commit_reason != "none") {
-      oss << " reason=" << last_preview_inline_action_commit_reason;
-    }
-    oss << "\n";
-    oss << "bulk_delete=" << last_bulk_delete_status_code;
-    if (!last_bulk_delete_reason.empty() && last_bulk_delete_reason != "none") {
-      oss << " reason=" << last_bulk_delete_reason;
-    }
-    oss << "\n";
-    oss << "bulk_move_reparent=" << last_bulk_move_reparent_status_code;
-    if (!last_bulk_move_reparent_reason.empty() && last_bulk_move_reparent_reason != "none") {
-      oss << " reason=" << last_bulk_move_reparent_reason;
-    }
-    oss << "\n";
-    oss << "bulk_property_edit=" << last_bulk_property_edit_status_code;
-    if (!last_bulk_property_edit_reason.empty() && last_bulk_property_edit_reason != "none") {
-      oss << " reason=" << last_bulk_property_edit_reason;
-    }
-    oss << "\n";
-    oss << "root=" << (builder_doc.root_node_id.empty() ? std::string("none") : builder_doc.root_node_id)
-        << " nodes=" << builder_doc.nodes.size() << "\n";
+    oss << "Selection: " << (selected_builder_node_id.empty() ? std::string("none") : selected_builder_node_id)
+        << " (" << selected_type_name << ")\n";
+    oss << "Layout\n";
 
     if (selected_builder_node_id.empty() || !node_exists(selected_builder_node_id)) {
-      oss << "selected=none";
+      builder_preview_interaction_hint_label.set_text(
+        "Click NEW DOC to start. Select an item in Tree or Preview to edit.");
+      builder_preview_inline_text_input.set_visible(false);
+      builder_preview_inline_text_input.set_focusable(false);
+      builder_preview_inline_actions_row.set_visible(false);
+      oss << "No active node selected.\n";
+      oss << "Hint: Click a TREE row or PREVIEW runtime entry.";
       preview_snapshot = "preview:selected=none";
       builder_preview_label.set_text(oss.str());
       sync_label_preferred_height(builder_preview_label, 20);
@@ -2539,17 +3269,126 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
     auto* selected = find_node_by_id(selected_builder_node_id);
     if (!selected) {
-      oss << "selected=stale";
+      builder_preview_interaction_hint_label.set_text("Selection became stale. Select another item.");
+      builder_preview_inline_text_input.set_visible(false);
+      builder_preview_inline_text_input.set_focusable(false);
+      builder_preview_inline_actions_row.set_visible(false);
+      oss << "Selected node became stale.";
       preview_snapshot = "preview:selected=stale";
       builder_preview_label.set_text(oss.str());
       sync_label_preferred_height(builder_preview_label, 20);
       return;
     }
 
-    oss << "selected=> " << selected->node_id << " "
-        << ngk::ui::builder::to_string(selected->widget_type) << "\n";
-    oss << "selected_text=\"" << (selected->text.empty() ? std::string("<no-text>") : selected->text) << "\"\n";
-    oss << "selected_children=" << selected->child_ids.size() << "\n";
+    oss << "Active item: " << selected->node_id << "\n";
+    oss << "Item: " << humanize_widget_type(selected->widget_type) << "\n";
+    if (selected->text.empty()) {
+      oss << "Label: \"<no-text>\"\n";
+    } else {
+      oss << "Label: \"" << selected->text << "\"\n";
+    }
+    oss << "Children: " << selected->child_ids.size() << "\n";
+
+    std::string preview_hint_message;
+    const bool preview_text_editable =
+      selected->widget_type == ngk::ui::builder::BuilderWidgetType::Label;
+    if (preview_text_editable) {
+      preview_hint_message = "Click to select, then edit label text below and press Enter or Apply.";
+      if (inline_edit_active && inline_edit_node_id == selected->node_id) {
+        if (builder_preview_inline_text_input.value() == preview_inline_loaded_text ||
+            !builder_preview_inline_text_input.focused()) {
+          builder_preview_inline_text_input.set_value(inline_edit_buffer);
+          preview_inline_loaded_text = inline_edit_buffer;
+        }
+        builder_preview_inline_text_input.set_visible(true);
+        builder_preview_inline_text_input.set_focusable(true);
+        builder_preview_inline_actions_row.set_visible(true);
+      } else {
+        builder_preview_inline_text_input.set_visible(false);
+        builder_preview_inline_text_input.set_focusable(false);
+        builder_preview_inline_actions_row.set_visible(false);
+      }
+    } else {
+      preview_hint_message = "Click to select. Inline text editing is available for labels.";
+      builder_preview_inline_text_input.set_visible(false);
+      builder_preview_inline_text_input.set_focusable(false);
+      builder_preview_inline_actions_row.set_visible(false);
+    }
+
+    if (ngk::ui::builder::widget_allows_children(selected->widget_type)) {
+      preview_hint_message = "Container selected: child will appear in the highlighted insertion area.";
+    }
+    if (!preview_visual_feedback_message.empty()) {
+      preview_hint_message = preview_visual_feedback_message;
+    }
+    builder_preview_interaction_hint_label.set_text(preview_hint_message);
+    sync_label_preferred_height(builder_preview_interaction_hint_label, 18);
+
+    if (builder_debug_mode) {
+      const auto bulk_text_state = compute_bulk_text_suffix_selection_compatibility();
+      oss << "\n[SELECTION_SUMMARY]\n";
+      oss << "SELECTED_ID: " << (selected_builder_node_id.empty() ? std::string("none") : selected_builder_node_id) << "\n";
+      oss << "SELECTED_TYPE: " << selected_type_name
+          << " SELECTED_TARGET=ACTIVE_EDIT_NODE"
+          << " selection_mode=" << (multi_selected_node_ids.size() > 1 ? "multi" : "single")
+          << " multi_selection_count=" << multi_selected_node_ids.size();
+      if (multi_selected_node_ids.size() > 1) {
+        oss << " multi_secondary_ids=";
+        for (std::size_t idx = 1; idx < multi_selected_node_ids.size(); ++idx) {
+          if (idx > 1) {
+            oss << ",";
+          }
+          oss << multi_selected_node_ids[idx];
+        }
+      }
+      oss << "\n";
+
+      oss << "\n[PARITY]\n";
+      oss << "parity_scope=" << kPreviewExportParityScope << " parity=" << last_preview_export_parity_status_code;
+      if (!last_preview_export_parity_reason.empty() && last_preview_export_parity_reason != "none") {
+        oss << " reason=" << last_preview_export_parity_reason;
+      }
+      oss << "\n";
+
+      oss << "\n[ACTION_SURFACE]\n";
+      oss << "multi_selection_compatibility=" << bulk_text_state.mode;
+      if (!bulk_text_state.widget_type.empty()) {
+        oss << " widget_type=" << bulk_text_state.widget_type;
+      }
+      if (!bulk_text_state.reason.empty() && bulk_text_state.reason != "none") {
+        oss << " reason=" << bulk_text_state.reason;
+      }
+      oss << "\n";
+      oss << "bulk_text_suffix_eligible=" << (bulk_text_state.eligible ? "YES" : "NO") << "\n";
+      append_compact_bulk_action_surface(oss);
+
+      oss << "\n[RECENT_RESULTS]\n";
+      oss << "click_select=" << last_preview_click_select_status_code;
+      if (!last_preview_click_select_reason.empty() && last_preview_click_select_reason != "none") {
+        oss << " reason=" << last_preview_click_select_reason;
+      }
+      oss << " | inline_action_commit=" << last_preview_inline_action_commit_status_code;
+      if (!last_preview_inline_action_commit_reason.empty() && last_preview_inline_action_commit_reason != "none") {
+        oss << " reason=" << last_preview_inline_action_commit_reason;
+      }
+      oss << "\n";
+      oss << "bulk_delete=" << last_bulk_delete_status_code;
+      if (!last_bulk_delete_reason.empty() && last_bulk_delete_reason != "none") {
+        oss << " reason=" << last_bulk_delete_reason;
+      }
+      oss << " | bulk_move_reparent=" << last_bulk_move_reparent_status_code;
+      if (!last_bulk_move_reparent_reason.empty() && last_bulk_move_reparent_reason != "none") {
+        oss << " reason=" << last_bulk_move_reparent_reason;
+      }
+      oss << " | bulk_property_edit=" << last_bulk_property_edit_status_code;
+      if (!last_bulk_property_edit_reason.empty() && last_bulk_property_edit_reason != "none") {
+        oss << " reason=" << last_bulk_property_edit_reason;
+      }
+      oss << "\n";
+      oss << "root=" << (builder_doc.root_node_id.empty() ? std::string("none") : builder_doc.root_node_id)
+          << " nodes=" << builder_doc.nodes.size() << "\n";
+    }
+
     oss << build_preview_inline_action_affordance_text(*selected);
     oss << "runtime_outline:\n" << build_preview_runtime_outline();
     preview_snapshot = "preview:selected=" + selected->node_id +
@@ -2557,7 +3396,109 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       " parity=" + last_preview_export_parity_status_code;
     builder_preview_label.set_text(oss.str());
     sync_label_preferred_height(builder_preview_label, 20);
+
+    for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+      preview_visual_row_node_ids[idx].clear();
+      preview_visual_row_depths[idx] = 0;
+      preview_visual_row_is_container[idx] = false;
+      builder_preview_row_buttons[idx].set_visible(false);
+      builder_preview_row_buttons[idx].set_default_action(false);
+      builder_preview_row_buttons[idx].set_enabled(false);
+      builder_preview_row_buttons[idx].set_focused(false);
+      builder_preview_row_buttons[idx].set_background(0.16f, 0.18f, 0.22f, 1.0f);
+    }
+
+    std::size_t row_count = 0;
+    std::function<void(const std::string&, int)> append_preview_visual = [&](const std::string& node_id, int depth) {
+      if (row_count >= kMaxVisualPreviewRows) {
+        return;
+      }
+
+      auto* node = find_node_by_id(node_id);
+      if (!node) {
+        return;
+      }
+
+      auto& row = builder_preview_row_buttons[row_count];
+      preview_visual_row_node_ids[row_count] = node_id;
+      preview_visual_row_depths[row_count] = depth;
+      preview_visual_row_is_container[row_count] = is_container_widget_type(node->widget_type);
+
+      const int layout_height = std::max(0, node->layout.min_height);
+      const int layout_width = std::max(0, node->layout.min_width);
+      const int width_units = std::clamp(layout_width / 80, 0, 8);
+      const std::string width_pad(static_cast<std::size_t>(width_units), ' ');
+      const std::string depth_indent(static_cast<std::size_t>(std::max(0, depth)) * 4U, ' ');
+
+      std::string row_text;
+      if (is_container_widget_type(node->widget_type)) {
+        row_text = depth_indent + "CONTAINER (" + std::to_string(node->child_ids.size()) +
+          (node->child_ids.size() == 1 ? std::string(" item)") : std::string(" items)"));
+      } else if (node->widget_type == ngk::ui::builder::BuilderWidgetType::Label) {
+        row_text = depth_indent + width_pad + (node->text.empty() ? std::string("Text") : node->text) + width_pad;
+      } else if (!node->text.empty()) {
+        row_text = depth_indent + width_pad + node->text + width_pad;
+      } else {
+        row_text = depth_indent + width_pad + humanize_widget_type(node->widget_type) + width_pad;
+      }
+
+      const bool is_selected = (node_id == selected_builder_node_id);
+      const bool is_hovered = row.visual_state() == ngk::ui::ButtonVisualState::Hover;
+      const bool is_feedback_target = !preview_visual_feedback_node_id.empty() && node_id == preview_visual_feedback_node_id;
+      row.set_text(row_text);
+      row.set_focused(is_selected);
+      row.set_default_action(is_selected);
+      if (preview_visual_row_is_container[row_count]) {
+        row.set_preferred_size(0, std::clamp(std::max(50 + (depth > 0 ? 4 : 0), layout_height + 12), 42, 108));
+      } else if (node->widget_type == ngk::ui::builder::BuilderWidgetType::Label) {
+        row.set_preferred_size(0, std::clamp(std::max(28, layout_height), 24, 96));
+      } else {
+        row.set_preferred_size(0, std::clamp(std::max(34, layout_height), 24, 96));
+      }
+
+      const float depth_tint = std::min(0.06f * static_cast<float>(std::max(0, depth)), 0.18f);
+      if (is_selected) {
+        row.set_background(0.18f + depth_tint, 0.40f + depth_tint, 0.68f + depth_tint, 1.0f);
+      } else if (is_feedback_target) {
+        row.set_background(0.34f + depth_tint, 0.30f + depth_tint, 0.18f + depth_tint, 1.0f);
+      } else if (preview_visual_row_is_container[row_count]) {
+        row.set_background(0.13f + depth_tint, 0.18f + depth_tint, 0.24f + depth_tint, 1.0f);
+      } else if (is_hovered) {
+        row.set_background(0.24f + depth_tint, 0.27f + depth_tint, 0.33f + depth_tint, 1.0f);
+      } else {
+        row.set_background(0.18f + depth_tint, 0.20f + depth_tint, 0.24f + depth_tint, 1.0f);
+      }
+
+      row.set_enabled(true);
+      row.set_visible(true);
+      row_count += 1;
+
+      if (is_selected && preview_visual_row_is_container[row_count - 1] && row_count < kMaxVisualPreviewRows) {
+        auto& hint_row = builder_preview_row_buttons[row_count];
+        preview_visual_row_node_ids[row_count].clear();
+        preview_visual_row_depths[row_count] = depth + 1;
+        preview_visual_row_is_container[row_count] = false;
+        hint_row.set_text(std::string(depth_indent) + "---- New item will appear here ----");
+        hint_row.set_focused(false);
+        hint_row.set_default_action(false);
+        hint_row.set_enabled(false);
+        hint_row.set_preferred_size(0, 24);
+        hint_row.set_background(0.18f + depth_tint, 0.23f + depth_tint, 0.28f + depth_tint, 1.0f);
+        hint_row.set_visible(true);
+        row_count += 1;
+      }
+
+      for (const auto& child_id : node->child_ids) {
+        append_preview_visual(child_id, depth + 1);
+      }
+    };
+
+    if (!builder_doc.root_node_id.empty() && node_exists(builder_doc.root_node_id)) {
+      append_preview_visual(builder_doc.root_node_id, 0);
+    }
+
     refresh_top_action_surface_from_builder_state();
+    refresh_action_button_visual_state_from_builder_truth();
   };
 
   // PHASE103_15 rule: builder semantic focus is always derived from selection.
@@ -2960,9 +3901,46 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       }), builder_doc.nodes.end());
   };
 
+  auto scrub_stale_lifecycle_references = [&]() {
+    if (!inline_edit_node_id.empty() && !node_exists(inline_edit_node_id)) {
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+    }
+    if (!hover_node_id.empty() && !node_exists(hover_node_id)) {
+      hover_node_id.clear();
+    }
+    if (!drag_source_node_id.empty() && !node_exists(drag_source_node_id)) {
+      drag_source_node_id.clear();
+      drag_active = false;
+    }
+    if (!drag_target_preview_node_id.empty() && !node_exists(drag_target_preview_node_id)) {
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+    }
+    if (!preview_visual_feedback_node_id.empty() && !node_exists(preview_visual_feedback_node_id)) {
+      preview_visual_feedback_node_id.clear();
+    }
+    if (!tree_visual_feedback_node_id.empty() && !node_exists(tree_visual_feedback_node_id)) {
+      tree_visual_feedback_node_id.clear();
+    }
+    if (!focused_builder_node_id.empty() && !node_exists(focused_builder_node_id)) {
+      focused_builder_node_id.clear();
+    }
+    if (!inspector_binding_node_id.empty() && !node_exists(inspector_binding_node_id)) {
+      inspector_binding_node_id.clear();
+    }
+    if (!preview_binding_node_id.empty() && !node_exists(preview_binding_node_id)) {
+      preview_binding_node_id.clear();
+    }
+  };
+
   auto check_cross_surface_sync = [&]() -> bool {
     coherence_diag.cross_surface_sync_checks_present = true;
 
+    scrub_stale_lifecycle_references();
     sync_multi_selection_with_primary();
 
     const bool selected_valid = selected_builder_node_id.empty() || node_exists(selected_builder_node_id);
@@ -2989,11 +3967,24 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       ? multi_selected_node_ids.empty()
       : (!multi_selected_node_ids.empty() && multi_selected_node_ids.front() == selected_builder_node_id);
 
+    const bool hover_valid = hover_node_id.empty() || node_exists(hover_node_id);
+    const bool drag_source_valid = drag_source_node_id.empty() || node_exists(drag_source_node_id);
+    const bool drag_target_valid = drag_target_preview_node_id.empty() || node_exists(drag_target_preview_node_id);
+    const bool preview_feedback_valid = preview_visual_feedback_node_id.empty() || node_exists(preview_visual_feedback_node_id);
+    const bool tree_feedback_valid = tree_visual_feedback_node_id.empty() || node_exists(tree_visual_feedback_node_id);
+    const bool inline_ref_valid = inline_edit_node_id.empty() || node_exists(inline_edit_node_id);
+
     return !coherence_diag.desync_tree_selection_detected &&
       !coherence_diag.desync_inspector_binding_detected &&
       !coherence_diag.desync_preview_binding_detected &&
       multi_selection_valid &&
-      primary_consistent;
+      primary_consistent &&
+      hover_valid &&
+      drag_source_valid &&
+      drag_target_valid &&
+      preview_feedback_valid &&
+      tree_feedback_valid &&
+      inline_ref_valid;
   };
 
   apply_preview_click_select_at_point = [&](int x, int y) -> bool {
@@ -3062,6 +4053,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         }
         last_preview_click_select_status_code = "action_commit";
         last_preview_click_select_reason = action_id;
+        set_last_action_feedback(std::string("Committed ") + action_id);
         refresh_preview_surface_label();
         return true;
       }
@@ -3089,6 +4081,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
     last_preview_click_select_status_code = "success";
     last_preview_click_select_reason = "none";
+    set_last_action_feedback(std::string("Selected ") + selected_builder_node_id);
     refresh_preview_surface_label();
     return true;
   };
@@ -3168,39 +4161,37 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       return selected_builder_node_id;
     }
 
-    const auto ordered = collect_preorder_node_ids();
-    if (ordered.empty()) {
-      return std::string{};
-    }
-
     auto is_deleted = [&](const std::string& node_id) {
       return std::find(deleted_ids.begin(), deleted_ids.end(), node_id) != deleted_ids.end();
     };
 
-    std::size_t first_deleted_index = ordered.size();
-    for (const auto& deleted_id : deleted_ids) {
-      auto it = std::find(ordered.begin(), ordered.end(), deleted_id);
-      if (it != ordered.end()) {
-        const std::size_t idx = static_cast<std::size_t>(std::distance(ordered.begin(), it));
-        if (idx < first_deleted_index) {
-          first_deleted_index = idx;
+    std::string anchor_deleted_id{};
+    if (!selected_builder_node_id.empty() && is_deleted(selected_builder_node_id)) {
+      anchor_deleted_id = selected_builder_node_id;
+    } else {
+      for (const auto& deleted_id : deleted_ids) {
+        if (!deleted_id.empty()) {
+          anchor_deleted_id = deleted_id;
+          break;
         }
       }
     }
 
-    if (first_deleted_index == ordered.size()) {
-      return builder_doc.root_node_id;
+    const auto* anchor_node = anchor_deleted_id.empty() ? nullptr : find_node_by_id(anchor_deleted_id);
+    std::string fallback_parent_id = anchor_node ? anchor_node->parent_id : std::string{};
+    while (!fallback_parent_id.empty()) {
+      if (!is_deleted(fallback_parent_id) && node_exists(fallback_parent_id)) {
+        return fallback_parent_id;
+      }
+      const auto* fallback_parent = find_node_by_id(fallback_parent_id);
+      if (fallback_parent == nullptr) {
+        break;
+      }
+      fallback_parent_id = fallback_parent->parent_id;
     }
 
-    for (std::size_t idx = first_deleted_index + 1; idx < ordered.size(); ++idx) {
-      if (!is_deleted(ordered[idx])) {
-        return ordered[idx];
-      }
-    }
-    for (std::size_t idx = first_deleted_index; idx > 0; --idx) {
-      if (!is_deleted(ordered[idx - 1])) {
-        return ordered[idx - 1];
-      }
+    if (!builder_doc.root_node_id.empty() && !is_deleted(builder_doc.root_node_id) && node_exists(builder_doc.root_node_id)) {
+      return builder_doc.root_node_id;
     }
     return std::string{};
   };
@@ -3225,6 +4216,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     for (const auto& deleting_id : delete_targets) {
       remove_node_and_descendants(deleting_id);
     }
+
+    scrub_stale_lifecycle_references();
 
     if (!fallback_selection.empty() && node_exists(fallback_selection)) {
       selected_builder_node_id = fallback_selection;
@@ -3486,6 +4479,102 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       const std::string& after_root,
       const std::string& after_sel,
       const std::vector<std::string>* after_multi) {
+    auto normalize_selected_id_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
+                                                  const std::string& preferred_selected_id,
+                                                  const std::vector<std::string>& preferred_multi_selected_ids,
+                                                  const ngk::ui::builder::BuilderDocument* counterpart_doc,
+                                                  const std::string& counterpart_selected_id) -> std::string {
+      if (!preferred_selected_id.empty() && node_exists_in_document(target_doc, preferred_selected_id)) {
+        return preferred_selected_id;
+      }
+      for (const auto& node_id : preferred_multi_selected_ids) {
+        if (!node_id.empty() && node_exists_in_document(target_doc, node_id)) {
+          return node_id;
+        }
+      }
+      if (counterpart_doc != nullptr && !counterpart_selected_id.empty()) {
+        const auto* counterpart_selected = find_node_by_id_in_document(*counterpart_doc, counterpart_selected_id);
+        if (counterpart_selected != nullptr) {
+          std::string fallback_parent_id = counterpart_selected->parent_id;
+          while (!fallback_parent_id.empty()) {
+            if (node_exists_in_document(target_doc, fallback_parent_id)) {
+              return fallback_parent_id;
+            }
+            const auto* fallback_parent = find_node_by_id_in_document(*counterpart_doc, fallback_parent_id);
+            if (fallback_parent == nullptr) {
+              break;
+            }
+            fallback_parent_id = fallback_parent->parent_id;
+          }
+        }
+      }
+      if (!target_doc.root_node_id.empty() && node_exists_in_document(target_doc, target_doc.root_node_id)) {
+        return target_doc.root_node_id;
+      }
+      return std::string{};
+    };
+
+    auto normalize_multi_selection_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
+                                                      const std::string& selected_id,
+                                                      const std::vector<std::string>& preferred_multi_selected_ids) {
+      std::vector<std::string> stable{};
+      stable.reserve(preferred_multi_selected_ids.size() + 1);
+      auto append_unique_valid = [&](const std::string& node_id) {
+        if (node_id.empty() || !node_exists_in_document(target_doc, node_id)) {
+          return;
+        }
+        if (std::find(stable.begin(), stable.end(), node_id) == stable.end()) {
+          stable.push_back(node_id);
+        }
+      };
+      append_unique_valid(selected_id);
+      for (const auto& node_id : preferred_multi_selected_ids) {
+        append_unique_valid(node_id);
+      }
+      return stable;
+    };
+
+    auto normalize_history_entry = [&](CommandHistoryEntry& entry) -> bool {
+      ngk::ui::builder::BuilderDocument before_doc{};
+      before_doc.root_node_id = entry.before_root_node_id;
+      before_doc.nodes = entry.before_nodes;
+
+      ngk::ui::builder::BuilderDocument after_doc{};
+      after_doc.root_node_id = entry.after_root_node_id;
+      after_doc.nodes = entry.after_nodes;
+
+      std::string before_error;
+      std::string after_error;
+      if (!ngk::ui::builder::validate_builder_document(before_doc, &before_error) ||
+          !ngk::ui::builder::validate_builder_document(after_doc, &after_error)) {
+        return false;
+      }
+
+      entry.before_selected_id = normalize_selected_id_for_snapshot(
+        before_doc,
+        entry.before_selected_id,
+        entry.before_multi_selected_ids,
+        &after_doc,
+        entry.after_selected_id);
+      entry.before_multi_selected_ids = normalize_multi_selection_for_snapshot(
+        before_doc,
+        entry.before_selected_id,
+        entry.before_multi_selected_ids);
+
+      entry.after_selected_id = normalize_selected_id_for_snapshot(
+        after_doc,
+        entry.after_selected_id,
+        entry.after_multi_selected_ids,
+        &before_doc,
+        entry.before_selected_id);
+      entry.after_multi_selected_ids = normalize_multi_selection_for_snapshot(
+        after_doc,
+        entry.after_selected_id,
+        entry.after_multi_selected_ids);
+
+      return !entry.before_selected_id.empty() && !entry.after_selected_id.empty();
+    };
+
     CommandHistoryEntry entry{};
     entry.command_type = command_type;
     entry.before_nodes = before_nodes;
@@ -3503,6 +4592,10 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       entry.after_multi_selected_ids = *after_multi;
     } else if (!after_sel.empty()) {
       entry.after_multi_selected_ids = {after_sel};
+    }
+    if (!normalize_history_entry(entry)) {
+      model.undefined_state_detected = true;
+      return;
     }
     undo_history.push_back(std::move(entry));
     redo_stack.clear();
@@ -3587,42 +4680,392 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     return true;
   };
 
+  auto apply_inspector_property_edits_command =
+    [&](const std::vector<std::pair<std::string, std::string>>& updates,
+        const std::string& history_tag) -> bool {
+      auto fail_invalid = [&](const std::string& reason_code) -> bool {
+        last_inspector_edit_status_code = "INVALID";
+        last_inspector_edit_reason = reason_code.empty() ? std::string("unknown_invalid_edit") : reason_code;
+        refresh_inspector_surface_label();
+        return false;
+      };
+      auto fail_rejected = [&](const std::string& reason_code) -> bool {
+        last_inspector_edit_status_code = "REJECTED";
+        last_inspector_edit_reason = reason_code.empty() ? std::string("unknown_rejection") : reason_code;
+        refresh_inspector_surface_label();
+        return false;
+      };
+
+      if (selected_builder_node_id.empty()) {
+        return fail_invalid("no_selected_node");
+      }
+      if (!node_exists(selected_builder_node_id)) {
+        return fail_invalid("selected_node_not_found");
+      }
+      auto* selected_node = find_node_by_id(selected_builder_node_id);
+      if (!selected_node) {
+        return fail_invalid("selected_node_lookup_failed");
+      }
+
+      const auto before_nodes = builder_doc.nodes;
+      const std::string before_root = builder_doc.root_node_id;
+      const std::string before_sel = selected_builder_node_id;
+      const auto before_multi = multi_selected_node_ids;
+
+      ngk::ui::builder::BuilderDocument candidate_doc = builder_doc;
+      int applied_count = 0;
+      for (const auto& update : updates) {
+        if (update.first.empty()) {
+          continue;
+        }
+        if (update.second.empty()) {
+          return fail_rejected("empty_value_for_" + update.first);
+        }
+        ngk::ui::builder::BuilderPropertyUpdateCommand prop_cmd;
+        prop_cmd.node_id = selected_builder_node_id;
+        prop_cmd.property_key = update.first;
+        prop_cmd.property_value = update.second;
+        std::string prop_apply_error;
+        if (!ngk::ui::builder::apply_property_update_command(candidate_doc, prop_cmd, &prop_apply_error)) {
+          return fail_rejected(prop_apply_error);
+        }
+        applied_count += 1;
+      }
+
+      if (applied_count <= 0) {
+        return fail_invalid("no_property_updates");
+      }
+
+      if (!node_exists_in_document(candidate_doc, selected_builder_node_id)) {
+        return fail_rejected("selected_node_missing_after_property_edit");
+      }
+
+      builder_doc = std::move(candidate_doc);
+
+      push_to_history(history_tag.empty() ? std::string("inspector_property_edit") : history_tag,
+                      before_nodes, before_root, before_sel, &before_multi,
+                      builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids);
+      recompute_builder_dirty_state(true);
+      last_inspector_edit_status_code = "SUCCESS";
+      last_inspector_edit_reason = "none";
+      refresh_inspector_surface_label();
+      return true;
+    };
+
   auto apply_undo_command = [&]() -> bool {
+    auto normalize_selected_id_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
+                                                  const std::string& preferred_selected_id,
+                                                  const std::vector<std::string>& preferred_multi_selected_ids,
+                                                  const ngk::ui::builder::BuilderDocument* counterpart_doc,
+                                                  const std::string& counterpart_selected_id) -> std::string {
+      if (!preferred_selected_id.empty() && node_exists_in_document(target_doc, preferred_selected_id)) {
+        return preferred_selected_id;
+      }
+      for (const auto& node_id : preferred_multi_selected_ids) {
+        if (!node_id.empty() && node_exists_in_document(target_doc, node_id)) {
+          return node_id;
+        }
+      }
+      if (counterpart_doc != nullptr && !counterpart_selected_id.empty()) {
+        const auto* counterpart_selected = find_node_by_id_in_document(*counterpart_doc, counterpart_selected_id);
+        if (counterpart_selected != nullptr) {
+          std::string fallback_parent_id = counterpart_selected->parent_id;
+          while (!fallback_parent_id.empty()) {
+            if (node_exists_in_document(target_doc, fallback_parent_id)) {
+              return fallback_parent_id;
+            }
+            const auto* fallback_parent = find_node_by_id_in_document(*counterpart_doc, fallback_parent_id);
+            if (fallback_parent == nullptr) {
+              break;
+            }
+            fallback_parent_id = fallback_parent->parent_id;
+          }
+        }
+      }
+      if (!target_doc.root_node_id.empty() && node_exists_in_document(target_doc, target_doc.root_node_id)) {
+        return target_doc.root_node_id;
+      }
+      return std::string{};
+    };
+
+    auto normalize_multi_selection_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
+                                                      const std::string& selected_id,
+                                                      const std::vector<std::string>& preferred_multi_selected_ids) {
+      std::vector<std::string> stable{};
+      stable.reserve(preferred_multi_selected_ids.size() + 1);
+      auto append_unique_valid = [&](const std::string& node_id) {
+        if (node_id.empty() || !node_exists_in_document(target_doc, node_id)) {
+          return;
+        }
+        if (std::find(stable.begin(), stable.end(), node_id) == stable.end()) {
+          stable.push_back(node_id);
+        }
+      };
+      append_unique_valid(selected_id);
+      for (const auto& node_id : preferred_multi_selected_ids) {
+        append_unique_valid(node_id);
+      }
+      return stable;
+    };
+
+    auto normalize_history_entry = [&](CommandHistoryEntry& entry) -> bool {
+      ngk::ui::builder::BuilderDocument before_doc{};
+      before_doc.root_node_id = entry.before_root_node_id;
+      before_doc.nodes = entry.before_nodes;
+
+      ngk::ui::builder::BuilderDocument after_doc{};
+      after_doc.root_node_id = entry.after_root_node_id;
+      after_doc.nodes = entry.after_nodes;
+
+      std::string before_error;
+      std::string after_error;
+      if (!ngk::ui::builder::validate_builder_document(before_doc, &before_error) ||
+          !ngk::ui::builder::validate_builder_document(after_doc, &after_error)) {
+        return false;
+      }
+
+      entry.before_selected_id = normalize_selected_id_for_snapshot(
+        before_doc,
+        entry.before_selected_id,
+        entry.before_multi_selected_ids,
+        &after_doc,
+        entry.after_selected_id);
+      entry.before_multi_selected_ids = normalize_multi_selection_for_snapshot(
+        before_doc,
+        entry.before_selected_id,
+        entry.before_multi_selected_ids);
+
+      entry.after_selected_id = normalize_selected_id_for_snapshot(
+        after_doc,
+        entry.after_selected_id,
+        entry.after_multi_selected_ids,
+        &before_doc,
+        entry.before_selected_id);
+      entry.after_multi_selected_ids = normalize_multi_selection_for_snapshot(
+        after_doc,
+        entry.after_selected_id,
+        entry.after_multi_selected_ids);
+
+      return !entry.before_selected_id.empty() && !entry.after_selected_id.empty();
+    };
+
+    auto clear_transient_builder_restore_state = [&]() {
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      focused_builder_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      hover_node_id.clear();
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+    };
+
+    auto restore_history_state = [&](const CommandHistoryEntry& raw_entry, bool restore_before) -> bool {
+      CommandHistoryEntry entry = raw_entry;
+      if (!normalize_history_entry(entry)) {
+        model.undefined_state_detected = true;
+        return false;
+      }
+
+      clear_transient_builder_restore_state();
+      if (restore_before) {
+        builder_doc.nodes = entry.before_nodes;
+        builder_doc.root_node_id = entry.before_root_node_id;
+        selected_builder_node_id = entry.before_selected_id;
+        multi_selected_node_ids = entry.before_multi_selected_ids;
+      } else {
+        builder_doc.nodes = entry.after_nodes;
+        builder_doc.root_node_id = entry.after_root_node_id;
+        selected_builder_node_id = entry.after_selected_id;
+        multi_selected_node_ids = entry.after_multi_selected_ids;
+      }
+
+      const bool remap_ok = remap_selection_or_fail();
+      const bool focus_ok = sync_focus_with_selection_or_fail();
+      refresh_tree_surface_label();
+      const bool inspector_ok = refresh_inspector_or_fail();
+      const bool preview_ok = refresh_preview_or_fail();
+      update_add_child_target_display();
+      return remap_ok && focus_ok && inspector_ok && preview_ok;
+    };
+
     if (undo_history.empty()) {
       return false;
     }
-    CommandHistoryEntry entry = std::move(undo_history.back());
+    const CommandHistoryEntry entry = undo_history.back();
+    if (!restore_history_state(entry, true)) {
+      return false;
+    }
+    redo_stack.push_back(entry);
     undo_history.pop_back();
-    builder_doc.nodes = entry.before_nodes;
-    builder_doc.root_node_id = entry.before_root_node_id;
-    selected_builder_node_id = entry.before_selected_id;
-    multi_selected_node_ids = entry.before_multi_selected_ids;
-    redo_stack.push_back(std::move(entry));
-    remap_selection_or_fail();
-    sync_focus_with_selection_or_fail();
-    refresh_inspector_or_fail();
-    refresh_preview_or_fail();
-    recompute_builder_dirty_state(true);
-    return true;
+    const bool dirty_ok = recompute_builder_dirty_state(true);
+    update_add_child_target_display();
+    const bool sync_ok = check_cross_surface_sync();
+    return dirty_ok && sync_ok;
   };
 
   auto apply_redo_command = [&]() -> bool {
+    auto normalize_selected_id_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
+                                                  const std::string& preferred_selected_id,
+                                                  const std::vector<std::string>& preferred_multi_selected_ids,
+                                                  const ngk::ui::builder::BuilderDocument* counterpart_doc,
+                                                  const std::string& counterpart_selected_id) -> std::string {
+      if (!preferred_selected_id.empty() && node_exists_in_document(target_doc, preferred_selected_id)) {
+        return preferred_selected_id;
+      }
+      for (const auto& node_id : preferred_multi_selected_ids) {
+        if (!node_id.empty() && node_exists_in_document(target_doc, node_id)) {
+          return node_id;
+        }
+      }
+      if (counterpart_doc != nullptr && !counterpart_selected_id.empty()) {
+        const auto* counterpart_selected = find_node_by_id_in_document(*counterpart_doc, counterpart_selected_id);
+        if (counterpart_selected != nullptr) {
+          std::string fallback_parent_id = counterpart_selected->parent_id;
+          while (!fallback_parent_id.empty()) {
+            if (node_exists_in_document(target_doc, fallback_parent_id)) {
+              return fallback_parent_id;
+            }
+            const auto* fallback_parent = find_node_by_id_in_document(*counterpart_doc, fallback_parent_id);
+            if (fallback_parent == nullptr) {
+              break;
+            }
+            fallback_parent_id = fallback_parent->parent_id;
+          }
+        }
+      }
+      if (!target_doc.root_node_id.empty() && node_exists_in_document(target_doc, target_doc.root_node_id)) {
+        return target_doc.root_node_id;
+      }
+      return std::string{};
+    };
+
+    auto normalize_multi_selection_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
+                                                      const std::string& selected_id,
+                                                      const std::vector<std::string>& preferred_multi_selected_ids) {
+      std::vector<std::string> stable{};
+      stable.reserve(preferred_multi_selected_ids.size() + 1);
+      auto append_unique_valid = [&](const std::string& node_id) {
+        if (node_id.empty() || !node_exists_in_document(target_doc, node_id)) {
+          return;
+        }
+        if (std::find(stable.begin(), stable.end(), node_id) == stable.end()) {
+          stable.push_back(node_id);
+        }
+      };
+      append_unique_valid(selected_id);
+      for (const auto& node_id : preferred_multi_selected_ids) {
+        append_unique_valid(node_id);
+      }
+      return stable;
+    };
+
+    auto normalize_history_entry = [&](CommandHistoryEntry& entry) -> bool {
+      ngk::ui::builder::BuilderDocument before_doc{};
+      before_doc.root_node_id = entry.before_root_node_id;
+      before_doc.nodes = entry.before_nodes;
+
+      ngk::ui::builder::BuilderDocument after_doc{};
+      after_doc.root_node_id = entry.after_root_node_id;
+      after_doc.nodes = entry.after_nodes;
+
+      std::string before_error;
+      std::string after_error;
+      if (!ngk::ui::builder::validate_builder_document(before_doc, &before_error) ||
+          !ngk::ui::builder::validate_builder_document(after_doc, &after_error)) {
+        return false;
+      }
+
+      entry.before_selected_id = normalize_selected_id_for_snapshot(
+        before_doc,
+        entry.before_selected_id,
+        entry.before_multi_selected_ids,
+        &after_doc,
+        entry.after_selected_id);
+      entry.before_multi_selected_ids = normalize_multi_selection_for_snapshot(
+        before_doc,
+        entry.before_selected_id,
+        entry.before_multi_selected_ids);
+
+      entry.after_selected_id = normalize_selected_id_for_snapshot(
+        after_doc,
+        entry.after_selected_id,
+        entry.after_multi_selected_ids,
+        &before_doc,
+        entry.before_selected_id);
+      entry.after_multi_selected_ids = normalize_multi_selection_for_snapshot(
+        after_doc,
+        entry.after_selected_id,
+        entry.after_multi_selected_ids);
+
+      return !entry.before_selected_id.empty() && !entry.after_selected_id.empty();
+    };
+
+    auto clear_transient_builder_restore_state = [&]() {
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      focused_builder_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      hover_node_id.clear();
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+    };
+
+    auto restore_history_state = [&](const CommandHistoryEntry& raw_entry, bool restore_before) -> bool {
+      CommandHistoryEntry entry = raw_entry;
+      if (!normalize_history_entry(entry)) {
+        model.undefined_state_detected = true;
+        return false;
+      }
+
+      clear_transient_builder_restore_state();
+      if (restore_before) {
+        builder_doc.nodes = entry.before_nodes;
+        builder_doc.root_node_id = entry.before_root_node_id;
+        selected_builder_node_id = entry.before_selected_id;
+        multi_selected_node_ids = entry.before_multi_selected_ids;
+      } else {
+        builder_doc.nodes = entry.after_nodes;
+        builder_doc.root_node_id = entry.after_root_node_id;
+        selected_builder_node_id = entry.after_selected_id;
+        multi_selected_node_ids = entry.after_multi_selected_ids;
+      }
+
+      const bool remap_ok = remap_selection_or_fail();
+      const bool focus_ok = sync_focus_with_selection_or_fail();
+      refresh_tree_surface_label();
+      const bool inspector_ok = refresh_inspector_or_fail();
+      const bool preview_ok = refresh_preview_or_fail();
+      update_add_child_target_display();
+      return remap_ok && focus_ok && inspector_ok && preview_ok;
+    };
+
     if (redo_stack.empty()) {
       return false;
     }
-    CommandHistoryEntry entry = std::move(redo_stack.back());
+    const CommandHistoryEntry entry = redo_stack.back();
+    if (!restore_history_state(entry, false)) {
+      return false;
+    }
+    undo_history.push_back(entry);
     redo_stack.pop_back();
-    builder_doc.nodes = entry.after_nodes;
-    builder_doc.root_node_id = entry.after_root_node_id;
-    selected_builder_node_id = entry.after_selected_id;
-    multi_selected_node_ids = entry.after_multi_selected_ids;
-    undo_history.push_back(std::move(entry));
-    remap_selection_or_fail();
-    sync_focus_with_selection_or_fail();
-    refresh_inspector_or_fail();
-    refresh_preview_or_fail();
-    recompute_builder_dirty_state(true);
-    return true;
+    const bool dirty_ok = recompute_builder_dirty_state(true);
+    update_add_child_target_display();
+    const bool sync_ok = check_cross_surface_sync();
+    return dirty_ok && sync_ok;
   };
 
   auto enter_inline_edit_mode = [&](const std::string& node_id) -> bool {
@@ -4954,6 +6397,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       }
     }
 
+    scrub_stale_lifecycle_references();
+
     sync_multi_selection_with_primary();
     bulk_move_reparent_diag.eligible_selected_nodes_moved = true;
     bulk_move_reparent_diag.post_move_selection_deterministic =
@@ -5092,6 +6537,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     parent->child_ids.push_back(new_node_id);
     builder_doc.nodes.push_back(std::move(new_node));
     selected_builder_node_id = new_node_id;
+        multi_selected_node_ids = {new_node_id};
+        sync_multi_selection_with_primary();
     push_to_history("typed_insert", before, before_root, before_sel, &before_multi,
             builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids);
     return true;
@@ -7244,6 +8691,654 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
   };
 
+  auto run_phase103_56 = [&] {
+    bool flow_ok = true;
+    node_lifecycle_integrity_diag = BuilderNodeLifecycleIntegrityDiagnostics{};
+
+    auto build_document_signature = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                        const char* context_name) -> std::string {
+      std::string error;
+      if (!ngk::ui::builder::validate_builder_document(doc, &error)) {
+        return std::string("invalid:") + (context_name == nullptr ? "document" : context_name) + ":" + error;
+      }
+      const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(doc);
+      if (serialized.empty()) {
+        return std::string("invalid:") + (context_name == nullptr ? "document" : context_name) + ":serialize_failed";
+      }
+      return serialized;
+    };
+
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto preview_matches_structure = [&]() -> bool {
+      std::vector<PreviewExportParityEntry> entries{};
+      std::string reason;
+      if (!build_preview_export_parity_entries(builder_doc, entries, reason, "phase103_56")) {
+        return false;
+      }
+
+      std::vector<std::string> preview_ids{};
+      std::vector<int> preview_depths{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        preview_ids.push_back(preview_visual_row_node_ids[idx]);
+        preview_depths.push_back(preview_visual_row_depths[idx]);
+      }
+
+      if (preview_ids.size() != entries.size()) {
+        return false;
+      }
+      for (std::size_t idx = 0; idx < entries.size(); ++idx) {
+        if (preview_ids[idx] != entries[idx].node_id || preview_depths[idx] != entries[idx].depth) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    auto preview_contains = [&](const std::string& node_id) -> bool {
+      if (node_id.empty()) {
+        return false;
+      }
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (builder_preview_row_buttons[idx].visible() && preview_visual_row_node_ids[idx] == node_id) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    auto structure_contains = [&](const std::string& node_id) -> bool {
+      if (node_id.empty()) {
+        return false;
+      }
+      for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+        if (builder_tree_row_buttons[idx].visible() && tree_visual_row_node_ids[idx] == node_id) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    auto count_in_parent = [&](const std::string& parent_id, const std::string& child_id) -> std::size_t {
+      auto* parent = find_node_by_id(parent_id);
+      if (!parent) {
+        return 0;
+      }
+      std::size_t count = 0;
+      for (const auto& id : parent->child_ids) {
+        if (id == child_id) {
+          count += 1;
+        }
+      }
+      return count;
+    };
+
+    auto document_has_unique_node_ids = [&](const ngk::ui::builder::BuilderDocument& doc) -> bool {
+      std::vector<std::string> seen{};
+      for (const auto& node : doc.nodes) {
+        if (node.node_id.empty()) {
+          return false;
+        }
+        if (std::find(seen.begin(), seen.end(), node.node_id) != seen.end()) {
+          return false;
+        }
+        seen.push_back(node.node_id);
+      }
+      return seen.size() == doc.nodes.size();
+    };
+
+    auto reset_phase = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      builder_doc_dirty = false;
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_active = false;
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      return refresh_all_surfaces();
+    };
+
+    auto apply_recorded_delete = [&](const std::string& history_tag) -> bool {
+      const auto before_nodes = builder_doc.nodes;
+      const std::string before_root = builder_doc.root_node_id;
+      const std::string before_sel = selected_builder_node_id;
+      const auto before_multi = multi_selected_node_ids;
+      const bool ok = apply_delete_command_for_current_selection();
+      if (!ok) {
+        return false;
+      }
+      push_to_history(history_tag,
+                      before_nodes,
+                      before_root,
+                      before_sel,
+                      &before_multi,
+                      builder_doc.nodes,
+                      builder_doc.root_node_id,
+                      selected_builder_node_id,
+                      &multi_selected_node_ids);
+      return true;
+    };
+
+    flow_ok = reset_phase() && flow_ok;
+
+    const std::string parent_id = builder_doc.root_node_id;
+    const std::string created_id = "phase103_56-created-a";
+    const bool created_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Label,
+      parent_id,
+      created_id);
+    flow_ok = created_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    node_lifecycle_integrity_diag.created_node_has_valid_identity =
+      created_ok &&
+      node_exists(created_id) &&
+      count_in_parent(parent_id, created_id) == 1 &&
+      document_has_unique_node_ids(builder_doc) &&
+      preview_contains(created_id) &&
+      structure_contains(created_id);
+
+    hover_node_id = created_id;
+    drag_source_node_id = created_id;
+    drag_active = true;
+    drag_target_preview_node_id = created_id;
+    preview_visual_feedback_node_id = created_id;
+    tree_visual_feedback_node_id = created_id;
+    inline_edit_active = true;
+    inline_edit_node_id = created_id;
+    inline_edit_buffer = "phase103_56-inline";
+    inline_edit_original_text = "phase103_56-inline";
+    selected_builder_node_id = created_id;
+    focused_builder_node_id = created_id;
+    multi_selected_node_ids = {created_id};
+    sync_multi_selection_with_primary();
+
+    const bool delete_created_ok = apply_delete_command_for_current_selection();
+    flow_ok = delete_created_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    node_lifecycle_integrity_diag.deleted_node_fully_removed =
+      delete_created_ok &&
+      !node_exists(created_id) &&
+      !preview_contains(created_id) &&
+      !structure_contains(created_id);
+
+    node_lifecycle_integrity_diag.no_stale_references_after_delete =
+      hover_node_id.empty() &&
+      drag_source_node_id.empty() &&
+      drag_target_preview_node_id.empty() &&
+      preview_visual_feedback_node_id.empty() &&
+      tree_visual_feedback_node_id.empty() &&
+      inline_edit_node_id.empty() &&
+      !drag_active;
+
+    const std::string container_a = "phase103_56-container-a";
+    const std::string container_b = "phase103_56-container-b";
+    const std::string moving_child = "phase103_56-moving-child";
+    const bool add_container_a_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::VerticalLayout,
+      parent_id,
+      container_a);
+    const bool add_container_b_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::VerticalLayout,
+      parent_id,
+      container_b);
+    const bool add_moving_child_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Label,
+      container_a,
+      moving_child);
+    flow_ok = add_container_a_ok && add_container_b_ok && add_moving_child_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    std::size_t before_move_row_index = kMaxVisualPreviewRows;
+    for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+      if (builder_preview_row_buttons[idx].visible() && preview_visual_row_node_ids[idx] == moving_child) {
+        before_move_row_index = idx;
+        break;
+      }
+    }
+
+    const bool move_ok = apply_bulk_move_reparent_selected_nodes_command({moving_child}, container_b);
+    flow_ok = move_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    auto* moved_node = find_node_by_id(moving_child);
+    node_lifecycle_integrity_diag.move_reparent_updates_relations_exact =
+      move_ok &&
+      moved_node != nullptr &&
+      moved_node->parent_id == container_b &&
+      count_in_parent(container_a, moving_child) == 0 &&
+      count_in_parent(container_b, moving_child) == 1;
+
+    std::size_t moved_row_index = kMaxVisualPreviewRows;
+    for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+      if (builder_preview_row_buttons[idx].visible() && preview_visual_row_node_ids[idx] == moving_child) {
+        moved_row_index = idx;
+        break;
+      }
+    }
+    const bool hit_test_move_ok =
+      before_move_row_index < kMaxVisualPreviewRows &&
+      moved_row_index < kMaxVisualPreviewRows &&
+      moved_row_index != before_move_row_index;
+    node_lifecycle_integrity_diag.preview_mapping_updates_after_lifecycle_change =
+      move_ok &&
+      preview_contains(moving_child) &&
+      structure_contains(moving_child) &&
+      hit_test_move_ok;
+
+    const std::string recreate_id = "phase103_56-recreate-node";
+    const bool create_recreate_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Button,
+      parent_id,
+      recreate_id);
+    flow_ok = create_recreate_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    selected_builder_node_id = recreate_id;
+    focused_builder_node_id = recreate_id;
+    multi_selected_node_ids = {recreate_id};
+    sync_multi_selection_with_primary();
+    hover_node_id = recreate_id;
+    drag_source_node_id = recreate_id;
+    drag_target_preview_node_id = recreate_id;
+    drag_active = true;
+    const bool delete_recreate_ok = apply_delete_command_for_current_selection();
+    flow_ok = delete_recreate_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const bool recreate_again_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Button,
+      parent_id,
+      recreate_id);
+    flow_ok = recreate_again_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const bool duplicate_while_live_rejected = !apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Button,
+      parent_id,
+      recreate_id);
+    node_lifecycle_integrity_diag.recreated_node_does_not_collide_or_inherit_stale_state =
+      create_recreate_ok &&
+      delete_recreate_ok &&
+      recreate_again_ok &&
+      duplicate_while_live_rejected &&
+      node_exists(recreate_id) &&
+      count_in_parent(parent_id, recreate_id) == 1 &&
+      hover_node_id.empty() &&
+      drag_source_node_id.empty() &&
+      drag_target_preview_node_id.empty() &&
+      !drag_active;
+
+    const std::string subtree_parent = "phase103_56-subtree-parent";
+    const std::string subtree_child_a = "phase103_56-subtree-child-a";
+    const std::string subtree_child_b = "phase103_56-subtree-child-b";
+    const bool add_subtree_parent_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::VerticalLayout,
+      parent_id,
+      subtree_parent);
+    const bool add_subtree_child_a_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Label,
+      subtree_parent,
+      subtree_child_a);
+    const bool add_subtree_child_b_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Button,
+      subtree_parent,
+      subtree_child_b);
+    flow_ok = add_subtree_parent_ok && add_subtree_child_a_ok && add_subtree_child_b_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string subtree_before_delete = build_document_signature(builder_doc, "phase103_56_subtree_before_delete");
+    selected_builder_node_id = subtree_parent;
+    focused_builder_node_id = subtree_parent;
+    multi_selected_node_ids = {subtree_parent};
+    sync_multi_selection_with_primary();
+    const bool subtree_delete_ok = apply_recorded_delete("phase103_56_subtree_delete");
+    flow_ok = subtree_delete_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const bool subtree_removed_ok =
+      !node_exists(subtree_parent) &&
+      !node_exists(subtree_child_a) &&
+      !node_exists(subtree_child_b);
+    const bool subtree_undo_ok = apply_undo_command();
+    flow_ok = subtree_undo_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string subtree_after_undo = build_document_signature(builder_doc, "phase103_56_subtree_after_undo");
+    node_lifecycle_integrity_diag.subtree_delete_and_restore_exact =
+      subtree_delete_ok &&
+      subtree_removed_ok &&
+      subtree_undo_ok &&
+      subtree_after_undo == subtree_before_delete;
+
+    node_lifecycle_integrity_diag.selection_focus_drag_states_clean_after_lifecycle_change =
+      (selected_builder_node_id.empty() || node_exists(selected_builder_node_id)) &&
+      (focused_builder_node_id.empty() || node_exists(focused_builder_node_id)) &&
+      (hover_node_id.empty() || node_exists(hover_node_id)) &&
+      (drag_source_node_id.empty() || node_exists(drag_source_node_id)) &&
+      (drag_target_preview_node_id.empty() || node_exists(drag_target_preview_node_id)) &&
+      (inline_edit_node_id.empty() || node_exists(inline_edit_node_id)) &&
+      check_cross_surface_sync();
+
+    bool rapid_ok = true;
+    for (int i = 0; i < 4; ++i) {
+      const std::string rapid_id = "phase103_56-rapid-" + std::to_string(i + 1);
+      const bool create_ok = apply_typed_palette_insert(
+        ngk::ui::builder::BuilderWidgetType::Label,
+        parent_id,
+        rapid_id);
+      rapid_ok = rapid_ok && create_ok;
+      flow_ok = create_ok && flow_ok;
+      flow_ok = refresh_all_surfaces() && flow_ok;
+      selected_builder_node_id = rapid_id;
+      focused_builder_node_id = rapid_id;
+      multi_selected_node_ids = {rapid_id};
+      sync_multi_selection_with_primary();
+      const bool delete_ok = apply_delete_command_for_current_selection();
+      rapid_ok = rapid_ok && delete_ok;
+      flow_ok = delete_ok && flow_ok;
+      flow_ok = refresh_all_surfaces() && flow_ok;
+      rapid_ok = rapid_ok && !node_exists(rapid_id);
+    }
+    node_lifecycle_integrity_diag.rapid_lifecycle_sequence_stable =
+      rapid_ok &&
+      document_has_unique_node_ids(builder_doc) &&
+      check_cross_surface_sync();
+
+    node_lifecycle_integrity_diag.preview_matches_structure_after_all_lifecycle_ops =
+      preview_matches_structure() &&
+      check_cross_surface_sync();
+
+    flow_ok = node_lifecycle_integrity_diag.created_node_has_valid_identity && flow_ok;
+    flow_ok = node_lifecycle_integrity_diag.deleted_node_fully_removed && flow_ok;
+    flow_ok = node_lifecycle_integrity_diag.no_stale_references_after_delete && flow_ok;
+    flow_ok = node_lifecycle_integrity_diag.move_reparent_updates_relations_exact && flow_ok;
+    flow_ok = node_lifecycle_integrity_diag.preview_mapping_updates_after_lifecycle_change && flow_ok;
+    flow_ok = node_lifecycle_integrity_diag.recreated_node_does_not_collide_or_inherit_stale_state && flow_ok;
+    flow_ok = node_lifecycle_integrity_diag.subtree_delete_and_restore_exact && flow_ok;
+    flow_ok = node_lifecycle_integrity_diag.selection_focus_drag_states_clean_after_lifecycle_change && flow_ok;
+    flow_ok = node_lifecycle_integrity_diag.rapid_lifecycle_sequence_stable && flow_ok;
+    flow_ok = node_lifecycle_integrity_diag.preview_matches_structure_after_all_lifecycle_ops && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_55 = [&] {
+    bool flow_ok = true;
+    property_edit_integrity_diag = BuilderPropertyEditIntegrityDiagnostics{};
+
+    auto join_ids = [&](const std::vector<std::string>& ids) -> std::string {
+      std::ostringstream oss;
+      for (std::size_t idx = 0; idx < ids.size(); ++idx) {
+        if (idx > 0) {
+          oss << ",";
+        }
+        oss << ids[idx];
+      }
+      return oss.str();
+    };
+
+    auto build_document_signature = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                        const char* context_name) -> std::string {
+      std::string error;
+      if (!ngk::ui::builder::validate_builder_document(doc, &error)) {
+        return std::string("invalid:") + (context_name == nullptr ? "document" : context_name) + ":" + error;
+      }
+      const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(doc);
+      if (serialized.empty()) {
+        return std::string("invalid:") + (context_name == nullptr ? "document" : context_name) + ":serialize_failed";
+      }
+      return serialized;
+    };
+
+    auto build_live_state_signature = [&](const char* context_name) -> std::string {
+      std::ostringstream oss;
+      oss << build_document_signature(builder_doc, context_name) << "\n";
+      oss << "selected=" << selected_builder_node_id << "\n";
+      oss << "multi=" << join_ids(multi_selected_node_ids) << "\n";
+      return oss.str();
+    };
+
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto preview_matches_structure = [&]() -> bool {
+      std::vector<PreviewExportParityEntry> entries{};
+      std::string reason;
+      if (!build_preview_export_parity_entries(builder_doc, entries, reason, "phase103_55")) {
+        return false;
+      }
+
+      std::vector<std::string> preview_ids{};
+      std::vector<int> preview_depths{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        preview_ids.push_back(preview_visual_row_node_ids[idx]);
+        preview_depths.push_back(preview_visual_row_depths[idx]);
+      }
+
+      if (preview_ids.size() != entries.size()) {
+        return false;
+      }
+      for (std::size_t idx = 0; idx < entries.size(); ++idx) {
+        if (preview_ids[idx] != entries[idx].node_id || preview_depths[idx] != entries[idx].depth) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    auto reset_phase = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      builder_doc_dirty = false;
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      return refresh_all_surfaces();
+    };
+
+    flow_ok = reset_phase() && flow_ok;
+    if (!node_exists("label-001")) {
+      flow_ok = false;
+    }
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    auto* editable_node = find_node_by_id("label-001");
+    const std::string selected_before_edit = selected_builder_node_id;
+    const std::string before_valid_edit_live = build_live_state_signature("phase103_55_before_valid_edit");
+    const std::size_t history_before_valid_edit = undo_history.size();
+
+    const bool valid_edit_ok = apply_inspector_property_edits_command(
+      {
+        {"text", "phase103_55_valid_text"},
+        {"layout.min_width", "220"},
+        {"layout.min_height", "36"}
+      },
+      "phase103_55_property_edit");
+    flow_ok = valid_edit_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    editable_node = find_node_by_id("label-001");
+    const bool valid_values_applied =
+      valid_edit_ok &&
+      editable_node != nullptr &&
+      editable_node->text == "phase103_55_valid_text" &&
+      editable_node->layout.min_width == 220 &&
+      editable_node->layout.min_height == 36;
+
+    property_edit_integrity_diag.property_edit_uses_command_system =
+      valid_edit_ok &&
+      undo_history.size() == history_before_valid_edit + 1 &&
+      !undo_history.empty() &&
+      undo_history.back().command_type == "phase103_55_property_edit";
+
+    property_edit_integrity_diag.property_edit_atomic_update =
+      valid_values_applied &&
+      check_cross_surface_sync() &&
+      preview_matches_structure() &&
+      selected_builder_node_id == selected_before_edit;
+
+    const std::string before_invalid_edit_live = build_live_state_signature("phase103_55_before_invalid_edit");
+    const std::size_t history_before_invalid_edit = undo_history.size();
+    const bool invalid_edit_ok = apply_inspector_property_edits_command(
+      {
+        {"layout.min_width", "240"},
+        {"layout.min_height", "-1"}
+      },
+      "phase103_55_invalid_should_reject");
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string after_invalid_edit_live = build_live_state_signature("phase103_55_after_invalid_edit");
+
+    property_edit_integrity_diag.invalid_property_rejected = !invalid_edit_ok;
+    property_edit_integrity_diag.no_partial_state_detected =
+      !invalid_edit_ok &&
+      history_before_invalid_edit == undo_history.size() &&
+      before_invalid_edit_live == after_invalid_edit_live;
+
+    const std::string after_valid_edit_live = build_live_state_signature("phase103_55_after_valid_edit");
+    const bool undo_ok = apply_undo_command();
+    flow_ok = undo_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string after_undo_live = build_live_state_signature("phase103_55_after_undo");
+    property_edit_integrity_diag.undo_restores_property_exact =
+      undo_ok &&
+      after_undo_live == before_valid_edit_live;
+
+    const bool redo_ok = apply_redo_command();
+    flow_ok = redo_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string after_redo_live = build_live_state_signature("phase103_55_after_redo");
+    property_edit_integrity_diag.redo_reapplies_property_exact =
+      redo_ok &&
+      after_redo_live == after_valid_edit_live;
+
+    property_edit_integrity_diag.selection_stable_during_edit =
+      selected_builder_node_id == "label-001" &&
+      multi_selected_node_ids.size() == 1 &&
+      multi_selected_node_ids.front() == "label-001";
+
+    const bool save_ok = apply_save_document_command();
+    flow_ok = save_ok && flow_ok;
+    const bool mutate_after_save_ok = apply_inspector_property_edits_command(
+      {
+        {"text", "phase103_55_mutated_after_save"}
+      },
+      "phase103_55_mutate_after_save");
+    flow_ok = mutate_after_save_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const bool load_ok = apply_load_document_command(true);
+    flow_ok = load_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    editable_node = find_node_by_id("label-001");
+    property_edit_integrity_diag.property_persists_through_save_load =
+      save_ok &&
+      load_ok &&
+      editable_node != nullptr &&
+      editable_node->text == "phase103_55_valid_text" &&
+      editable_node->layout.min_width == 220 &&
+      editable_node->layout.min_height == 36;
+
+    const std::vector<std::string> rapid_texts = {
+      "phase103_55_rapid_1",
+      "phase103_55_rapid_2",
+      "phase103_55_rapid_3",
+      "phase103_55_rapid_4"
+    };
+    const std::string rapid_before = build_live_state_signature("phase103_55_rapid_before");
+    const std::size_t rapid_history_before = undo_history.size();
+    bool rapid_apply_ok = true;
+    for (std::size_t idx = 0; idx < rapid_texts.size(); ++idx) {
+      const bool apply_ok = apply_inspector_property_edits_command(
+        {
+          {"text", rapid_texts[idx]},
+          {"layout.min_width", std::to_string(240 + static_cast<int>(idx) * 10)}
+        },
+        std::string("phase103_55_rapid_edit_") + std::to_string(idx + 1));
+      rapid_apply_ok = rapid_apply_ok && apply_ok;
+      flow_ok = apply_ok && flow_ok;
+      flow_ok = refresh_all_surfaces() && flow_ok;
+    }
+
+    const std::string rapid_after = build_live_state_signature("phase103_55_rapid_after");
+    bool rapid_undo_ok = true;
+    for (std::size_t idx = 0; idx < rapid_texts.size(); ++idx) {
+      const bool ok = apply_undo_command();
+      rapid_undo_ok = rapid_undo_ok && ok;
+      flow_ok = ok && flow_ok;
+      flow_ok = refresh_all_surfaces() && flow_ok;
+    }
+    const std::string rapid_after_undo = build_live_state_signature("phase103_55_rapid_after_undo");
+
+    bool rapid_redo_ok = true;
+    for (std::size_t idx = 0; idx < rapid_texts.size(); ++idx) {
+      const bool ok = apply_redo_command();
+      rapid_redo_ok = rapid_redo_ok && ok;
+      flow_ok = ok && flow_ok;
+      flow_ok = refresh_all_surfaces() && flow_ok;
+    }
+    const std::string rapid_after_redo = build_live_state_signature("phase103_55_rapid_after_redo");
+
+    property_edit_integrity_diag.rapid_edit_sequence_stable =
+      rapid_apply_ok &&
+      rapid_undo_ok &&
+      rapid_redo_ok &&
+      undo_history.size() == rapid_history_before + rapid_texts.size() &&
+      rapid_after_undo == rapid_before &&
+      rapid_after_redo == rapid_after;
+
+    property_edit_integrity_diag.preview_matches_structure_after_edit =
+      preview_matches_structure() &&
+      check_cross_surface_sync();
+
+    flow_ok = property_edit_integrity_diag.property_edit_uses_command_system && flow_ok;
+    flow_ok = property_edit_integrity_diag.property_edit_atomic_update && flow_ok;
+    flow_ok = property_edit_integrity_diag.invalid_property_rejected && flow_ok;
+    flow_ok = property_edit_integrity_diag.undo_restores_property_exact && flow_ok;
+    flow_ok = property_edit_integrity_diag.redo_reapplies_property_exact && flow_ok;
+    flow_ok = property_edit_integrity_diag.no_partial_state_detected && flow_ok;
+    flow_ok = property_edit_integrity_diag.selection_stable_during_edit && flow_ok;
+    flow_ok = property_edit_integrity_diag.property_persists_through_save_load && flow_ok;
+    flow_ok = property_edit_integrity_diag.rapid_edit_sequence_stable && flow_ok;
+    flow_ok = property_edit_integrity_diag.preview_matches_structure_after_edit && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
   auto run_phase103_32 = [&] {
     bool flow_ok = true;
     multi_selection_diag = BuilderMultiSelectionDiagnostics{};
@@ -8484,15 +10579,3249 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
   };
 
+  auto run_phase103_42 = [&] {
+    bool flow_ok = true;
+    button_state_readability_diag = BuilderButtonStateReadabilityDiagnostics{};
+
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    builder_doc_dirty = false;
+
+    selected_builder_node_id = "root-001";
+    flow_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Label, "root-001", "phase42-label-002") && flow_ok;
+    selected_builder_node_id = "root-001";
+    flow_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::VerticalLayout, "root-001", "phase42-target-vlayout") && flow_ok;
+
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    const std::string single_delete = builder_delete_button.text();
+    const std::string single_insert_container = builder_insert_container_button.text();
+    const std::string single_insert_leaf = builder_insert_leaf_button.text();
+    const std::string single_status = status_label.text();
+    const std::string single_inspector = builder_inspector_label.text();
+    const bool single_delete_default = builder_delete_button.is_default_action();
+
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001", "phase42-label-002"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    const std::string multi_legal_delete = builder_delete_button.text();
+    const std::string multi_legal_status = status_label.text();
+    const std::string multi_legal_inspector = builder_inspector_label.text();
+    const bool multi_legal_delete_default = builder_delete_button.is_default_action();
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001", "label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    const std::string multi_blocked_delete = builder_delete_button.text();
+    const std::string multi_blocked_status = status_label.text();
+    const std::string multi_blocked_inspector = builder_inspector_label.text();
+    const bool multi_blocked_delete_default = builder_delete_button.is_default_action();
+
+    button_state_readability_diag.button_state_readability_improved =
+      single_delete.find("Delete Node [AVAILABLE] [SINGLE]") != std::string::npos &&
+      single_insert_container.find("Insert Container [BLOCKED]") != std::string::npos &&
+      single_insert_leaf.find("Insert Leaf [BLOCKED]") != std::string::npos &&
+      multi_legal_delete.find("Delete Node [AVAILABLE] [BULK]") != std::string::npos &&
+      multi_blocked_delete.find("Delete Node [BLOCKED] [BULK]") != std::string::npos;
+    flow_ok = button_state_readability_diag.button_state_readability_improved && flow_ok;
+
+    button_state_readability_diag.available_vs_blocked_actions_visually_clear =
+      single_delete.find("[AVAILABLE]") != std::string::npos &&
+      multi_legal_delete.find("[AVAILABLE]") != std::string::npos &&
+      multi_blocked_delete.find("[BLOCKED]") != std::string::npos;
+    flow_ok = button_state_readability_diag.available_vs_blocked_actions_visually_clear && flow_ok;
+
+    button_state_readability_diag.current_relevant_actions_emphasized =
+      single_delete_default &&
+      multi_legal_delete_default &&
+      !multi_blocked_delete_default;
+    flow_ok = button_state_readability_diag.current_relevant_actions_emphasized && flow_ok;
+
+    button_state_readability_diag.button_state_matches_surface_truth =
+      single_status.find("mode=single") != std::string::npos &&
+      single_inspector.find("ACTION_SURFACE: available=0 blocked=3") != std::string::npos &&
+      multi_legal_status.find("available=3 blocked=0") != std::string::npos &&
+      multi_legal_inspector.find("ACTION_SURFACE: available=3 blocked=0") != std::string::npos &&
+      multi_blocked_status.find("available=0 blocked=3") != std::string::npos &&
+      multi_blocked_inspector.find("ACTION_SURFACE: available=0 blocked=3") != std::string::npos &&
+      multi_blocked_delete.find("[BLOCKED]") != std::string::npos;
+    flow_ok = button_state_readability_diag.button_state_matches_surface_truth && flow_ok;
+
+    const bool sync42_ok = remap_selection_or_fail() &&
+                           sync_focus_with_selection_or_fail() &&
+                           refresh_inspector_or_fail() &&
+                           refresh_preview_or_fail() &&
+                           check_cross_surface_sync();
+    button_state_readability_diag.shell_state_still_coherent = sync42_ok;
+    flow_ok = button_state_readability_diag.shell_state_still_coherent && flow_ok;
+
+    const bool export42_ok = apply_export_command(builder_doc, builder_export_path);
+    flow_ok = export42_ok && flow_ok;
+    const bool parity42_ok = validate_preview_export_parity(builder_doc, builder_export_path);
+    button_state_readability_diag.preview_remains_parity_safe =
+      parity42_ok &&
+      last_preview_export_parity_status_code == "success";
+    flow_ok = button_state_readability_diag.preview_remains_parity_safe && flow_ok;
+
+    const auto audit42 = ngk::ui::builder::audit_layout_tree(&root);
+    button_state_readability_diag.layout_audit_still_compatible = audit42.no_overlap;
+    flow_ok = button_state_readability_diag.layout_audit_still_compatible && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_43 = [&] {
+    bool flow_ok = true;
+    usability_baseline_diag = BuilderUsabilityBaselineDiagnostics{};
+
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    builder_doc_dirty = false;
+    builder_debug_mode = false;
+    builder_debug_mode_toggle_button.set_text("[DEBUG MODE: OFF]");
+    set_last_action_feedback("Ready");
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+
+    usability_baseline_diag.startup_guidance_visible =
+      title_label.text().find("START: Click NEW DOC -> then INSERT CONTAINER -> then INSERT LEAF") != std::string::npos;
+    flow_ok = usability_baseline_diag.startup_guidance_visible && flow_ok;
+
+    usability_baseline_diag.button_labels_humanized =
+      builder_insert_container_button.text() == "Add Container" &&
+      builder_insert_leaf_button.text() == "Add Item" &&
+      builder_delete_button.text() == "Delete" &&
+      builder_export_button.text() == "Export";
+    flow_ok = usability_baseline_diag.button_labels_humanized && flow_ok;
+
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    const std::string tree_text = builder_tree_surface_label.text();
+    const std::string preview_text = builder_preview_label.text();
+    const std::string inspector_text = builder_inspector_label.text();
+
+    usability_baseline_diag.selection_visual_marker_present =
+      tree_text.find("[SELECTED]") != std::string::npos &&
+      preview_text.find("[SELECTED]") != std::string::npos;
+    flow_ok = usability_baseline_diag.selection_visual_marker_present && flow_ok;
+
+    usability_baseline_diag.action_feedback_visible =
+      builder_action_feedback_label.text().find("Action: ") == 0;
+    flow_ok = usability_baseline_diag.action_feedback_visible && flow_ok;
+
+    usability_baseline_diag.preview_readability_improved =
+      preview_text.find("Layout") != std::string::npos &&
+      preview_text.find("Label:") != std::string::npos &&
+      preview_text.find("[SELECTED]") != std::string::npos;
+    flow_ok = usability_baseline_diag.preview_readability_improved && flow_ok;
+
+    builder_debug_mode = false;
+    builder_debug_mode_toggle_button.set_text("[DEBUG MODE: OFF]");
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    const std::string debug_off_inspector = builder_inspector_label.text();
+    const std::string debug_off_preview = builder_preview_label.text();
+
+    builder_debug_mode = true;
+    builder_debug_mode_toggle_button.set_text("[DEBUG MODE: ON]");
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    const std::string debug_on_inspector = builder_inspector_label.text();
+    const std::string debug_on_preview = builder_preview_label.text();
+
+    usability_baseline_diag.debug_information_toggleable =
+      debug_off_inspector.find("[PARITY]") == std::string::npos &&
+      debug_off_preview.find("[PARITY]") == std::string::npos &&
+      debug_on_inspector.find("[PARITY]") != std::string::npos &&
+      debug_on_preview.find("[PARITY]") != std::string::npos &&
+      debug_on_inspector.find("BLOCKED_REASONS:") != std::string::npos &&
+      debug_on_preview.find("BLOCKED_REASONS:") != std::string::npos;
+    flow_ok = usability_baseline_diag.debug_information_toggleable && flow_ok;
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    const bool root_delete_rejected = !apply_delete_command_for_current_selection();
+    const std::string root_delete_reason = delete_rejection_reason_for_node(selected_builder_node_id);
+
+    selected_builder_node_id = "root-001";
+    flow_ok = apply_palette_insert(true) && flow_ok;
+    const bool can_insert_item_after_container = apply_palette_insert(false);
+
+    usability_baseline_diag.existing_system_behavior_unchanged =
+      root_delete_rejected &&
+      root_delete_reason == "protected_root" &&
+      can_insert_item_after_container;
+    flow_ok = usability_baseline_diag.existing_system_behavior_unchanged && flow_ok;
+
+    (void)inspector_text;
+
+    const bool sync43_ok = remap_selection_or_fail() &&
+                           sync_focus_with_selection_or_fail() &&
+                           refresh_inspector_or_fail() &&
+                           refresh_preview_or_fail() &&
+                           check_cross_surface_sync();
+    usability_baseline_diag.shell_state_still_coherent = sync43_ok;
+    flow_ok = usability_baseline_diag.shell_state_still_coherent && flow_ok;
+
+    const bool export43_ok = apply_export_command(builder_doc, builder_export_path);
+    flow_ok = export43_ok && flow_ok;
+    const bool parity43_ok = validate_preview_export_parity(builder_doc, builder_export_path);
+    usability_baseline_diag.preview_remains_parity_safe =
+      parity43_ok &&
+      last_preview_export_parity_status_code == "success";
+    flow_ok = usability_baseline_diag.preview_remains_parity_safe && flow_ok;
+
+    const auto audit43 = ngk::ui::builder::audit_layout_tree(&root);
+    usability_baseline_diag.layout_audit_still_compatible = audit43.no_overlap;
+    flow_ok = usability_baseline_diag.layout_audit_still_compatible && flow_ok;
+
+    if (usability_baseline_diag.existing_system_behavior_unchanged &&
+        root_delete_rejected &&
+        root_delete_reason == "protected_root") {
+      set_last_action_feedback("Cannot delete root");
+    }
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_44 = [&] {
+    bool flow_ok = true;
+    explicit_edit_field_diag = BuilderExplicitEditableFieldDiagnostics{};
+
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    builder_doc_dirty = false;
+    builder_debug_mode = false;
+    builder_debug_mode_toggle_button.set_text("[DEBUG MODE: OFF]");
+    set_last_action_feedback("Ready");
+
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+
+    explicit_edit_field_diag.selected_node_edit_target_clear =
+      builder_inspector_selection_label.text().find("Selected Node: label-001 | Type: label") != std::string::npos &&
+      builder_inspector_label.text().find("Edit Target: label-001") != std::string::npos &&
+      builder_inspector_label.text().find("Type: label") != std::string::npos;
+    flow_ok = explicit_edit_field_diag.selected_node_edit_target_clear && flow_ok;
+
+    explicit_edit_field_diag.editable_field_visible_for_text_nodes =
+      builder_inspector_text_input.visible() &&
+      builder_inspector_text_input.focusable() &&
+      builder_inspector_apply_button.visible() &&
+      builder_inspector_apply_button.enabled() &&
+      builder_inspector_text_input.value() == "Builder Label" &&
+      builder_inspector_apply_button.text().find("Apply Text to label-001") != std::string::npos;
+    flow_ok = explicit_edit_field_diag.editable_field_visible_for_text_nodes && flow_ok;
+
+    const int apply_filter_count_before = model.apply_filter_count;
+    builder_inspector_text_input.set_value("Phase10344 Label");
+    const bool inspector_apply_ok = builder_inspector_apply_button.perform_primary_action();
+    auto* edited_label44 = find_node_by_id("label-001");
+    explicit_edit_field_diag.apply_behavior_unambiguous =
+      apply_button.text() == "Apply Filter" &&
+      builder_inspector_edit_hint_label.text().find("Top bar Apply Filter only filters files") != std::string::npos &&
+      inspector_apply_ok &&
+      last_inspector_edit_status_code == "SUCCESS" &&
+      edited_label44 != nullptr &&
+      edited_label44->text == "Phase10344 Label" &&
+      model.apply_filter_count == apply_filter_count_before;
+    flow_ok = explicit_edit_field_diag.apply_behavior_unambiguous && flow_ok;
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+
+    explicit_edit_field_diag.non_text_nodes_show_non_editable_state =
+      !builder_inspector_text_input.visible() &&
+      !builder_inspector_apply_button.visible() &&
+      !builder_inspector_apply_button.enabled() &&
+      builder_inspector_non_editable_label.visible() &&
+      builder_inspector_non_editable_label.text().find("vertical_layout") != std::string::npos &&
+      builder_inspector_label.text().find("Text Property: not editable for this node type") != std::string::npos;
+    flow_ok = explicit_edit_field_diag.non_text_nodes_show_non_editable_state && flow_ok;
+
+    const bool remap44_ok = remap_selection_or_fail();
+    const bool focus44_ok = sync_focus_with_selection_or_fail();
+    refresh_tree_surface_label();
+    const bool inspector44_ok = refresh_inspector_or_fail();
+    const bool preview44_ok = refresh_preview_or_fail();
+    const bool sync44_ok = check_cross_surface_sync();
+    explicit_edit_field_diag.shell_state_still_coherent =
+      remap44_ok && focus44_ok && inspector44_ok && preview44_ok && sync44_ok;
+    flow_ok = explicit_edit_field_diag.shell_state_still_coherent && flow_ok;
+
+    const bool export44_ok = apply_export_command(builder_doc, builder_export_path);
+    flow_ok = export44_ok && flow_ok;
+    const bool parity44_ok = validate_preview_export_parity(builder_doc, builder_export_path);
+    explicit_edit_field_diag.preview_remains_parity_safe =
+      parity44_ok &&
+      last_preview_export_parity_status_code == "success";
+    flow_ok = explicit_edit_field_diag.preview_remains_parity_safe && flow_ok;
+
+    const auto audit44 = ngk::ui::builder::audit_layout_tree(&root);
+    explicit_edit_field_diag.layout_audit_still_compatible = audit44.no_overlap;
+    flow_ok = explicit_edit_field_diag.layout_audit_still_compatible && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_45 = [&] {
+    bool flow_ok = true;
+    integrated_usability_diag = BuilderIntegratedUsabilityMilestoneDiagnostics{};
+
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    builder_doc_dirty = false;
+    builder_debug_mode = false;
+    builder_debug_mode_toggle_button.set_text("[DEBUG MODE: OFF]");
+    set_last_action_feedback("Ready");
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    refresh_tree_surface_label();
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+
+    std::size_t label_row_idx = kMaxVisualTreeRows;
+    for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+      if (tree_visual_row_node_ids[idx] == "label-001") {
+        label_row_idx = idx;
+        break;
+      }
+    }
+    const bool tree_click_ok =
+      label_row_idx < kMaxVisualTreeRows &&
+      builder_tree_row_buttons[label_row_idx].visible() &&
+      builder_tree_row_buttons[label_row_idx].perform_primary_action() &&
+      selected_builder_node_id == "label-001";
+    integrated_usability_diag.clickable_tree = tree_click_ok;
+    flow_ok = integrated_usability_diag.clickable_tree && flow_ok;
+
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    builder_inspector_text_input.set_value("Milestone45 Label");
+    builder_inspector_layout_min_width_input.set_value("240");
+    builder_inspector_layout_min_height_input.set_value("32");
+    const bool apply_multi_ok = builder_inspector_apply_button.perform_primary_action();
+    auto* edited_node45 = find_node_by_id("label-001");
+    integrated_usability_diag.inspector_multi_property_editing =
+      apply_multi_ok &&
+      last_inspector_edit_status_code == "SUCCESS" &&
+      edited_node45 != nullptr &&
+      edited_node45->text == "Milestone45 Label" &&
+      edited_node45->layout.min_width == 240 &&
+      edited_node45->layout.min_height == 32;
+    flow_ok = integrated_usability_diag.inspector_multi_property_editing && flow_ok;
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    const bool add_container_ok = apply_palette_insert(true);
+    const std::string added_container_id = selected_builder_node_id;
+    const bool add_leaf_ok = apply_palette_insert(false);
+    const std::string added_leaf_id = selected_builder_node_id;
+    const bool delete_leaf_ok = apply_delete_command_for_current_selection();
+    integrated_usability_diag.simple_structure_controls =
+      add_container_ok && node_exists(added_container_id) &&
+      add_leaf_ok && !added_leaf_id.empty() &&
+      delete_leaf_ok && !node_exists(added_leaf_id);
+    flow_ok = integrated_usability_diag.simple_structure_controls && flow_ok;
+
+    builder_debug_mode = false;
+    builder_debug_mode_toggle_button.set_text("[DEBUG MODE: OFF]");
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    std::size_t visible_preview_rows = 0;
+    bool preview_has_clean_label_line = false;
+    bool preview_has_visual_container = false;
+    for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+      if (builder_preview_row_buttons[idx].visible()) {
+        visible_preview_rows += 1;
+        if (!preview_visual_row_is_container[idx] &&
+            builder_preview_row_buttons[idx].text().find("[") == std::string::npos &&
+            !builder_preview_row_buttons[idx].text().empty()) {
+          preview_has_clean_label_line = true;
+        }
+        if (preview_visual_row_is_container[idx] && builder_preview_row_buttons[idx].preferred_height() >= 48) {
+          preview_has_visual_container = true;
+        }
+      }
+    }
+    integrated_usability_diag.visual_preview =
+      builder_preview_visual_rows.visible() &&
+      !builder_preview_label.visible() &&
+      visible_preview_rows > 0 &&
+      preview_has_clean_label_line &&
+      preview_has_visual_container;
+    flow_ok = integrated_usability_diag.visual_preview && flow_ok;
+
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    const std::string inspector_normal = builder_inspector_label.text();
+    const std::string preview_normal = builder_preview_label.text();
+    integrated_usability_diag.reduced_debug_noise_normal_mode =
+      inspector_normal.find("[PARITY]") == std::string::npos &&
+      inspector_normal.find("BLOCKED_REASONS:") == std::string::npos &&
+      preview_normal.find("[PARITY]") == std::string::npos &&
+      preview_normal.find("BLOCKED_REASONS:") == std::string::npos;
+    flow_ok = integrated_usability_diag.reduced_debug_noise_normal_mode && flow_ok;
+
+    const bool sync45_ok = remap_selection_or_fail() &&
+                           sync_focus_with_selection_or_fail() &&
+                           refresh_inspector_or_fail() &&
+                           refresh_preview_or_fail() &&
+                           check_cross_surface_sync();
+    integrated_usability_diag.shell_state_still_coherent = sync45_ok;
+    flow_ok = integrated_usability_diag.shell_state_still_coherent && flow_ok;
+
+    const bool export45_ok = apply_export_command(builder_doc, builder_export_path);
+    flow_ok = export45_ok && flow_ok;
+    const bool parity45_ok = validate_preview_export_parity(builder_doc, builder_export_path);
+    integrated_usability_diag.preview_remains_parity_safe =
+      parity45_ok &&
+      last_preview_export_parity_status_code == "success";
+    flow_ok = integrated_usability_diag.preview_remains_parity_safe && flow_ok;
+
+    const auto audit45 = ngk::ui::builder::audit_layout_tree(&root);
+    integrated_usability_diag.layout_audit_still_compatible =
+      audit45.minimums_ok && audit45.checked_nodes > 0;
+    flow_ok = integrated_usability_diag.layout_audit_still_compatible && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_46 = [&] {
+    bool flow_ok = true;
+    real_interaction_diag = BuilderRealInteractionDiagnostics{};
+
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    builder_doc_dirty = false;
+    builder_debug_mode = false;
+    builder_debug_mode_toggle_button.set_text("[DEBUG MODE: OFF]");
+    set_last_action_feedback("Ready");
+
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    refresh_tree_surface_label();
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+
+    std::size_t tree_selected_idx = kMaxVisualTreeRows;
+    for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+      if (tree_visual_row_node_ids[idx] == "label-001") {
+        tree_selected_idx = idx;
+        break;
+      }
+    }
+    std::size_t preview_selected_idx = kMaxVisualPreviewRows;
+    for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+      if (preview_visual_row_node_ids[idx] == "label-001") {
+        preview_selected_idx = idx;
+        break;
+      }
+    }
+    real_interaction_diag.visual_selection_clear =
+      tree_selected_idx < kMaxVisualTreeRows &&
+      preview_selected_idx < kMaxVisualPreviewRows &&
+      builder_tree_row_buttons[tree_selected_idx].text().find("[ACTIVE]") != std::string::npos &&
+      builder_preview_row_buttons[preview_selected_idx].is_default_action() &&
+      builder_preview_row_buttons[preview_selected_idx].focused();
+    flow_ok = real_interaction_diag.visual_selection_clear && flow_ok;
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    std::size_t preview_click_idx = kMaxVisualPreviewRows;
+    for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+      if (preview_visual_row_node_ids[idx] == "label-001") {
+        preview_click_idx = idx;
+        break;
+      }
+    }
+    const bool preview_click_ok =
+      preview_click_idx < kMaxVisualPreviewRows &&
+      builder_preview_row_buttons[preview_click_idx].perform_primary_action() &&
+      selected_builder_node_id == "label-001" &&
+      builder_inspector_selection_label.text().find("Editing:") == 0;
+    real_interaction_diag.preview_click_selection = preview_click_ok;
+    flow_ok = real_interaction_diag.preview_click_selection && flow_ok;
+
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    const bool inline_mode_visible =
+      inline_edit_active &&
+      inline_edit_node_id == "label-001" &&
+      builder_preview_inline_text_input.visible() &&
+      builder_preview_inline_actions_row.visible();
+    builder_preview_inline_text_input.set_value("Preview Inline 46");
+    const bool inline_apply_ok = builder_preview_inline_apply_button.perform_primary_action();
+    auto* edited_inline_node = find_node_by_id("label-001");
+    real_interaction_diag.inline_text_edit_preview =
+      inline_mode_visible &&
+      inline_apply_ok &&
+      edited_inline_node != nullptr &&
+      edited_inline_node->text == "Preview Inline 46" &&
+      builder_inspector_selection_label.text().find("Editing:") == 0;
+    flow_ok = real_interaction_diag.inline_text_edit_preview && flow_ok;
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    const bool add_child_enabled_on_container = builder_inspector_add_child_button.enabled();
+    const bool controls_visible =
+      builder_inspector_structure_controls_label.visible() &&
+      builder_inspector_structure_controls_row.visible() &&
+      builder_inspector_delete_button.visible() &&
+      builder_inspector_move_up_button.visible() &&
+      builder_inspector_move_down_button.visible();
+    real_interaction_diag.structure_controls_visible = controls_visible && add_child_enabled_on_container;
+    flow_ok = real_interaction_diag.structure_controls_visible && flow_ok;
+
+    selected_builder_node_id.clear();
+    focused_builder_node_id.clear();
+    multi_selected_node_ids.clear();
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    real_interaction_diag.empty_state_guidance_present =
+      builder_inspector_edit_hint_label.text().find("Click NEW DOC to start") != std::string::npos &&
+      builder_preview_interaction_hint_label.text().find("Click NEW DOC to start") != std::string::npos;
+    flow_ok = real_interaction_diag.empty_state_guidance_present && flow_ok;
+
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    real_interaction_diag.confusion_reduced =
+      builder_inspector_selection_label.text().find("Editing:") == 0 &&
+      builder_inspector_edit_hint_label.text().find("You can edit Text, Width, and Height") != std::string::npos &&
+      !builder_inspector_label.visible();
+    flow_ok = real_interaction_diag.confusion_reduced && flow_ok;
+
+    const bool sync46_ok = remap_selection_or_fail() &&
+                           sync_focus_with_selection_or_fail() &&
+                           refresh_inspector_or_fail() &&
+                           refresh_preview_or_fail() &&
+                           check_cross_surface_sync();
+    real_interaction_diag.shell_state_still_coherent = sync46_ok;
+    flow_ok = real_interaction_diag.shell_state_still_coherent && flow_ok;
+
+    const bool export46_ok = apply_export_command(builder_doc, builder_export_path);
+    flow_ok = export46_ok && flow_ok;
+    const bool parity46_ok = validate_preview_export_parity(builder_doc, builder_export_path);
+    real_interaction_diag.preview_remains_parity_safe =
+      parity46_ok &&
+      last_preview_export_parity_status_code == "success";
+    flow_ok = real_interaction_diag.preview_remains_parity_safe && flow_ok;
+
+    const auto audit46 = ngk::ui::builder::audit_layout_tree(&root);
+    real_interaction_diag.layout_audit_still_compatible =
+      audit46.minimums_ok && audit46.checked_nodes > 0;
+    flow_ok = real_interaction_diag.layout_audit_still_compatible && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_47 = [&] {
+    bool flow_ok = true;
+    human_readable_ui_diag = BuilderHumanReadableUiDiagnostics{};
+
+    auto has_forbidden_ui_terms = [&](const std::string& text) -> bool {
+      return text.find("??") != std::string::npos ||
+             text.find("SELECTED?") != std::string::npos ||
+             text.find("EDIT TARGET") != std::string::npos ||
+             text.find("NODE_ID") != std::string::npos ||
+             text.find("TYPE: LABEL") != std::string::npos ||
+             text.find("layout.min_width") != std::string::npos ||
+             text.find("layout.min_height") != std::string::npos ||
+             text.find("TEXT NOT EDITABLE") != std::string::npos;
+    };
+
+    auto find_preview_row_index = [&](const std::string& node_id) -> std::size_t {
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (preview_visual_row_node_ids[idx] == node_id) {
+          return idx;
+        }
+      }
+      return kMaxVisualPreviewRows;
+    };
+
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    builder_doc_dirty = false;
+    builder_debug_mode = false;
+    builder_debug_mode_toggle_button.set_text("[DEBUG MODE: OFF]");
+    set_last_action_feedback("Ready");
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    refresh_tree_surface_label();
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+
+    std::size_t preview_root_idx = find_preview_row_index("root-001");
+    std::size_t preview_label_idx = find_preview_row_index("label-001");
+    const bool root_group_visible =
+      preview_root_idx < kMaxVisualPreviewRows &&
+      preview_visual_row_is_container[preview_root_idx] &&
+      builder_preview_row_buttons[preview_root_idx].preferred_height() >= 48;
+    const bool child_indent_visible =
+      preview_label_idx < kMaxVisualPreviewRows &&
+      !preview_visual_row_is_container[preview_label_idx] &&
+      preview_visual_row_depths[preview_label_idx] > 0;
+    human_readable_ui_diag.preview_visualized = root_group_visible && child_indent_visible;
+    flow_ok = human_readable_ui_diag.preview_visualized && flow_ok;
+
+    const bool no_technical_terms =
+      !has_forbidden_ui_terms(builder_inspector_selection_label.text()) &&
+      !has_forbidden_ui_terms(builder_inspector_edit_hint_label.text()) &&
+      !has_forbidden_ui_terms(builder_preview_interaction_hint_label.text()) &&
+      !has_forbidden_ui_terms(builder_inspector_non_editable_label.text()) &&
+      (preview_root_idx >= kMaxVisualPreviewRows ||
+       !has_forbidden_ui_terms(builder_preview_row_buttons[preview_root_idx].text()));
+    human_readable_ui_diag.human_readable_ui = no_technical_terms;
+    flow_ok = human_readable_ui_diag.human_readable_ui && flow_ok;
+
+    if (preview_label_idx < kMaxVisualPreviewRows) {
+      const bool click_ok = builder_preview_row_buttons[preview_label_idx].perform_primary_action();
+      const std::size_t active_idx = find_preview_row_index("label-001");
+      human_readable_ui_diag.selection_clear =
+        click_ok &&
+        active_idx < kMaxVisualPreviewRows &&
+        builder_preview_row_buttons[active_idx].is_default_action() &&
+        builder_preview_row_buttons[active_idx].focused();
+    }
+    flow_ok = human_readable_ui_diag.selection_clear && flow_ok;
+
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    human_readable_ui_diag.inspector_simplified =
+      builder_inspector_layout_min_width_label.text() == "Width" &&
+      builder_inspector_layout_min_height_label.text() == "Height" &&
+      builder_inspector_edit_hint_label.text().find("layout.min_") == std::string::npos;
+    flow_ok = human_readable_ui_diag.inspector_simplified && flow_ok;
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    const bool add_child_feedback_ok =
+      builder_inspector_add_child_button.perform_primary_action() &&
+      last_action_feedback.find("Added child under") != std::string::npos;
+
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    const std::size_t before_move_idx = find_preview_row_index("label-001");
+    const bool move_invoked =
+      (builder_inspector_move_down_button.enabled() && builder_inspector_move_down_button.perform_primary_action()) ||
+      (builder_inspector_move_up_button.enabled() && builder_inspector_move_up_button.perform_primary_action());
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    const std::size_t after_move_idx = find_preview_row_index("label-001");
+    const bool move_feedback_ok = last_action_feedback.find("Live Preview order updated") != std::string::npos ||
+                                 last_action_feedback.find("already at") != std::string::npos;
+    human_readable_ui_diag.structure_feedback_visible =
+      add_child_feedback_ok &&
+      move_invoked &&
+      move_feedback_ok &&
+      before_move_idx != after_move_idx;
+    flow_ok = human_readable_ui_diag.structure_feedback_visible && flow_ok;
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    human_readable_ui_diag.confusion_removed =
+      builder_inspector_selection_label.text().find("Editing:") == 0 &&
+      builder_inspector_non_editable_label.text().find("This item has no text") != std::string::npos &&
+      !has_forbidden_ui_terms(builder_inspector_edit_hint_label.text()) &&
+      !has_forbidden_ui_terms(builder_preview_interaction_hint_label.text());
+    flow_ok = human_readable_ui_diag.confusion_removed && flow_ok;
+
+    const bool sync47_ok = remap_selection_or_fail() &&
+                           sync_focus_with_selection_or_fail() &&
+                           refresh_inspector_or_fail() &&
+                           refresh_preview_or_fail() &&
+                           check_cross_surface_sync();
+    human_readable_ui_diag.shell_state_still_coherent = sync47_ok;
+    flow_ok = human_readable_ui_diag.shell_state_still_coherent && flow_ok;
+
+    const bool export47_ok = apply_export_command(builder_doc, builder_export_path);
+    flow_ok = export47_ok && flow_ok;
+    const bool parity47_ok = validate_preview_export_parity(builder_doc, builder_export_path);
+    human_readable_ui_diag.preview_remains_parity_safe =
+      parity47_ok &&
+      last_preview_export_parity_status_code == "success";
+    flow_ok = human_readable_ui_diag.preview_remains_parity_safe && flow_ok;
+
+    const auto audit47 = ngk::ui::builder::audit_layout_tree(&root);
+    human_readable_ui_diag.layout_audit_still_compatible =
+      audit47.minimums_ok && audit47.checked_nodes > 0;
+    flow_ok = human_readable_ui_diag.layout_audit_still_compatible && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_48 = [&] {
+    bool flow_ok = true;
+    preview_real_ui_diag = BuilderPreviewRealUiDiagnostics{};
+
+    auto find_preview_row_index = [&](const std::string& node_id) -> std::size_t {
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (preview_visual_row_node_ids[idx] == node_id) {
+          return idx;
+        }
+      }
+      return kMaxVisualPreviewRows;
+    };
+
+    auto has_debug_preview_label = [&](const std::string& text) -> bool {
+      return text.find("[GROUP]") != std::string::npos ||
+             text.find("[TEXT]") != std::string::npos ||
+             text.find("[ACTIVE]") != std::string::npos ||
+             text.find("<<<") != std::string::npos ||
+             text.find(">>>") != std::string::npos;
+    };
+
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    builder_doc_dirty = false;
+    builder_debug_mode = false;
+    builder_debug_mode_toggle_button.set_text("[DEBUG MODE: OFF]");
+    set_last_action_feedback("Ready");
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    refresh_tree_surface_label();
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+
+    std::size_t preview_root_idx = find_preview_row_index("root-001");
+    std::size_t preview_label_idx = find_preview_row_index("label-001");
+
+    preview_real_ui_diag.containers_visual =
+      preview_root_idx < kMaxVisualPreviewRows &&
+      preview_visual_row_is_container[preview_root_idx] &&
+      builder_preview_row_buttons[preview_root_idx].preferred_height() >= 48 &&
+      builder_preview_row_buttons[preview_root_idx].text() == " ";
+    flow_ok = preview_real_ui_diag.containers_visual && flow_ok;
+
+    preview_real_ui_diag.text_clean =
+      preview_label_idx < kMaxVisualPreviewRows &&
+      !preview_visual_row_is_container[preview_label_idx] &&
+      builder_preview_row_buttons[preview_label_idx].text().find("[TEXT]") == std::string::npos &&
+      builder_preview_row_buttons[preview_label_idx].text().find("<<<") == std::string::npos &&
+      builder_preview_row_buttons[preview_label_idx].text().find(">>>") == std::string::npos;
+    flow_ok = preview_real_ui_diag.text_clean && flow_ok;
+
+    bool no_debug_labels = true;
+    for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+      if (builder_preview_row_buttons[idx].visible() && has_debug_preview_label(builder_preview_row_buttons[idx].text())) {
+        no_debug_labels = false;
+        break;
+      }
+    }
+    preview_real_ui_diag.no_debug_labels = no_debug_labels;
+    flow_ok = preview_real_ui_diag.no_debug_labels && flow_ok;
+
+    preview_real_ui_diag.hierarchy_visible =
+      preview_root_idx < kMaxVisualPreviewRows &&
+      preview_label_idx < kMaxVisualPreviewRows &&
+      preview_visual_row_depths[preview_label_idx] > preview_visual_row_depths[preview_root_idx] &&
+      builder_preview_row_buttons[preview_root_idx].preferred_height() > builder_preview_row_buttons[preview_label_idx].preferred_height();
+    flow_ok = preview_real_ui_diag.hierarchy_visible && flow_ok;
+
+    const bool select_label_ok =
+      preview_label_idx < kMaxVisualPreviewRows &&
+      builder_preview_row_buttons[preview_label_idx].perform_primary_action();
+    const std::size_t selected_idx = find_preview_row_index("label-001");
+    preview_real_ui_diag.selection_visual =
+      select_label_ok &&
+      selected_idx < kMaxVisualPreviewRows &&
+      builder_preview_row_buttons[selected_idx].is_default_action() &&
+      builder_preview_row_buttons[selected_idx].focused();
+    flow_ok = preview_real_ui_diag.selection_visual && flow_ok;
+
+    preview_real_ui_diag.preview_real_ui =
+      preview_real_ui_diag.containers_visual &&
+      preview_real_ui_diag.text_clean &&
+      preview_real_ui_diag.no_debug_labels &&
+      preview_real_ui_diag.selection_visual &&
+      preview_real_ui_diag.hierarchy_visible;
+    flow_ok = preview_real_ui_diag.preview_real_ui && flow_ok;
+
+    const bool sync48_ok = remap_selection_or_fail() &&
+                           sync_focus_with_selection_or_fail() &&
+                           refresh_inspector_or_fail() &&
+                           refresh_preview_or_fail() &&
+                           check_cross_surface_sync();
+    preview_real_ui_diag.shell_state_still_coherent = sync48_ok;
+    flow_ok = preview_real_ui_diag.shell_state_still_coherent && flow_ok;
+
+    const bool export48_ok = apply_export_command(builder_doc, builder_export_path);
+    flow_ok = export48_ok && flow_ok;
+    const bool parity48_ok = validate_preview_export_parity(builder_doc, builder_export_path);
+    preview_real_ui_diag.preview_remains_parity_safe =
+      parity48_ok &&
+      last_preview_export_parity_status_code == "success";
+    flow_ok = preview_real_ui_diag.preview_remains_parity_safe && flow_ok;
+
+    const auto audit48 = ngk::ui::builder::audit_layout_tree(&root);
+    preview_real_ui_diag.layout_audit_still_compatible =
+      audit48.minimums_ok && audit48.checked_nodes > 0;
+    flow_ok = preview_real_ui_diag.layout_audit_still_compatible && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_49 = [&] {
+    bool flow_ok = true;
+    action_visibility_diag = BuilderActionVisibilityDiagnostics{};
+
+    auto find_preview_row_index = [&](const std::string& node_id) -> std::size_t {
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (preview_visual_row_node_ids[idx] == node_id) {
+          return idx;
+        }
+      }
+      return kMaxVisualPreviewRows;
+    };
+
+    auto count_visible_preview_rows = [&]() -> std::size_t {
+      std::size_t count = 0;
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (builder_preview_row_buttons[idx].visible()) {
+          count += 1;
+        }
+      }
+      return count;
+    };
+
+    auto find_preview_hint_row = [&]() -> bool {
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (builder_preview_row_buttons[idx].visible() &&
+            builder_preview_row_buttons[idx].text().find("child will appear here") != std::string::npos) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    auto find_any_non_container_id = [&]() -> std::string {
+      for (const auto& node : builder_doc.nodes) {
+        if (!ngk::ui::builder::widget_allows_children(node.widget_type) && node.node_id != builder_doc.root_node_id) {
+          return node.node_id;
+        }
+      }
+      return std::string("label-001");
+    };
+
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    builder_doc_dirty = false;
+    builder_debug_mode = false;
+    builder_debug_mode_toggle_button.set_text("[DEBUG MODE: OFF]");
+    preview_visual_feedback_message.clear();
+    preview_visual_feedback_node_id.clear();
+    set_last_action_feedback("Ready");
+
+    const std::string non_container_id = find_any_non_container_id();
+    selected_builder_node_id = non_container_id;
+    focused_builder_node_id = non_container_id;
+    multi_selected_node_ids = {non_container_id};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    action_visibility_diag.add_child_validated =
+      !builder_inspector_add_child_button.enabled() &&
+      (builder_inspector_structure_controls_label.text().find("Only containers can have children") != std::string::npos ||
+       builder_preview_interaction_hint_label.text().find("Only containers can have children") != std::string::npos);
+    flow_ok = action_visibility_diag.add_child_validated && flow_ok;
+
+    std::size_t size_row_before = find_preview_row_index(non_container_id);
+    int before_height = 0;
+    std::size_t before_text_len = 0;
+    if (size_row_before < kMaxVisualPreviewRows) {
+      before_height = builder_preview_row_buttons[size_row_before].preferred_height();
+      before_text_len = builder_preview_row_buttons[size_row_before].text().size();
+    }
+    builder_inspector_layout_min_width_input.set_value("420");
+    builder_inspector_layout_min_height_input.set_value("72");
+    const bool size_apply_ok = builder_inspector_apply_button.perform_primary_action();
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    std::size_t size_row_after = find_preview_row_index(non_container_id);
+    int after_height = 0;
+    std::size_t after_text_len = 0;
+    if (size_row_after < kMaxVisualPreviewRows) {
+      after_height = builder_preview_row_buttons[size_row_after].preferred_height();
+      after_text_len = builder_preview_row_buttons[size_row_after].text().size();
+    }
+    action_visibility_diag.size_affects_preview =
+      size_apply_ok &&
+      size_row_before < kMaxVisualPreviewRows &&
+      size_row_after < kMaxVisualPreviewRows &&
+      (after_height > before_height || after_text_len > before_text_len);
+    flow_ok = action_visibility_diag.size_affects_preview && flow_ok;
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    action_visibility_diag.structure_feedback_visible = find_preview_hint_row();
+    flow_ok = action_visibility_diag.structure_feedback_visible && flow_ok;
+
+    const std::size_t rows_before_add = count_visible_preview_rows();
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    const bool add_child_ok = builder_inspector_add_child_button.perform_primary_action();
+    const std::string added_child_id = selected_builder_node_id;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    const std::size_t rows_after_add = count_visible_preview_rows();
+    const bool add_child_visible =
+      add_child_ok &&
+      (rows_after_add > rows_before_add ||
+       builder_preview_interaction_hint_label.text().find("Added child") != std::string::npos);
+
+    selected_builder_node_id = non_container_id;
+    focused_builder_node_id = non_container_id;
+    multi_selected_node_ids = {non_container_id};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    const bool move_triggered =
+      (builder_inspector_move_down_button.enabled() && builder_inspector_move_down_button.perform_primary_action()) ||
+      (builder_inspector_move_up_button.enabled() && builder_inspector_move_up_button.perform_primary_action());
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    const bool move_visible =
+      move_triggered &&
+      (builder_preview_interaction_hint_label.text().find("Moved item") != std::string::npos ||
+       builder_preview_interaction_hint_label.text().find("already at") != std::string::npos);
+
+    selected_builder_node_id = !added_child_id.empty() ? added_child_id : non_container_id;
+    focused_builder_node_id = selected_builder_node_id;
+    multi_selected_node_ids = {selected_builder_node_id};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    const std::size_t rows_before_delete = count_visible_preview_rows();
+    const bool delete_ok = builder_inspector_delete_button.enabled() && builder_inspector_delete_button.perform_primary_action();
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    const std::size_t rows_after_delete = count_visible_preview_rows();
+    const bool delete_visible =
+      delete_ok &&
+      (rows_after_delete < rows_before_delete ||
+       builder_preview_interaction_hint_label.text().find("Deleted") != std::string::npos);
+
+    action_visibility_diag.actions_not_silent = add_child_visible && move_visible && delete_visible;
+    flow_ok = action_visibility_diag.actions_not_silent && flow_ok;
+
+    selected_builder_node_id = non_container_id;
+    focused_builder_node_id = non_container_id;
+    multi_selected_node_ids = {non_container_id};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    action_visibility_diag.confusion_removed =
+      !builder_inspector_add_child_button.enabled() &&
+      builder_inspector_structure_controls_label.text().find("Only containers can have children") != std::string::npos &&
+      !builder_preview_interaction_hint_label.text().empty();
+    flow_ok = action_visibility_diag.confusion_removed && flow_ok;
+
+    const bool sync49_ok = remap_selection_or_fail() &&
+                           sync_focus_with_selection_or_fail() &&
+                           refresh_inspector_or_fail() &&
+                           refresh_preview_or_fail() &&
+                           check_cross_surface_sync();
+    action_visibility_diag.shell_state_still_coherent = sync49_ok;
+    flow_ok = action_visibility_diag.shell_state_still_coherent && flow_ok;
+
+    const bool export49_ok = apply_export_command(builder_doc, builder_export_path);
+    flow_ok = export49_ok && flow_ok;
+    const bool parity49_ok = validate_preview_export_parity(builder_doc, builder_export_path);
+    action_visibility_diag.preview_remains_parity_safe =
+      parity49_ok &&
+      last_preview_export_parity_status_code == "success";
+    flow_ok = action_visibility_diag.preview_remains_parity_safe && flow_ok;
+
+    const auto audit49 = ngk::ui::builder::audit_layout_tree(&root);
+    action_visibility_diag.layout_audit_still_compatible =
+      audit49.minimums_ok && audit49.checked_nodes > 0;
+    flow_ok = action_visibility_diag.layout_audit_still_compatible && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto attempt_add_child_with_auto_parent = [&]() -> bool {
+    bool redirected_to_parent = false;
+    std::string requested_id = selected_builder_node_id;
+    std::string selected_parent_id;
+
+    if (auto* requested = find_node_by_id(selected_builder_node_id)) {
+      if (!is_container_widget_type(requested->widget_type) &&
+          !requested->parent_id.empty() &&
+          node_exists(requested->parent_id)) {
+        selected_parent_id = requested->parent_id;
+        selected_builder_node_id = selected_parent_id;
+        focused_builder_node_id = selected_parent_id;
+        multi_selected_node_ids = {selected_parent_id};
+        sync_multi_selection_with_primary();
+        redirected_to_parent = true;
+        set_tree_visual_feedback(selected_parent_id);
+      }
+    }
+
+    const std::string parent_before = selected_builder_node_id;
+    if (apply_palette_insert(false)) {
+      const std::string new_child_id = selected_builder_node_id;
+      if (redirected_to_parent) {
+        set_last_action_feedback("Switched to parent container to add child. Child added");
+        set_preview_visual_feedback("Switched to parent container to add child. Child added", selected_parent_id);
+      } else {
+        set_last_action_feedback("Child added");
+        set_preview_visual_feedback("Child added", new_child_id);
+      }
+      set_tree_visual_feedback(new_child_id);
+      recompute_builder_dirty_state(true);
+      return true;
+    }
+
+    set_last_action_feedback("Only containers can have children");
+    set_preview_visual_feedback("Only containers can have children.", requested_id.empty() ? parent_before : requested_id);
+    set_tree_visual_feedback(requested_id);
+    return false;
+  };
+
+  auto run_phase103_50 = [&] {
+    bool flow_ok = true;
+    clarity_enforcement_diag = BuilderClarityEnforcementDiagnostics{};
+
+    auto find_preview_row_index = [&](const std::string& node_id) -> std::size_t {
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (preview_visual_row_node_ids[idx] == node_id) {
+          return idx;
+        }
+      }
+      return kMaxVisualPreviewRows;
+    };
+
+    auto find_tree_row_index = [&](const std::string& node_id) -> std::size_t {
+      for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+        if (tree_visual_row_node_ids[idx] == node_id) {
+          return idx;
+        }
+      }
+      return kMaxVisualTreeRows;
+    };
+
+    auto leading_spaces = [&](const std::string& text) -> std::size_t {
+      std::size_t count = 0;
+      for (char ch : text) {
+        if (ch != ' ') {
+          break;
+        }
+        count += 1;
+      }
+      return count;
+    };
+
+    auto has_forbidden_debug_text = [&](const std::string& text) -> bool {
+      return text.find("[GROUP]") != std::string::npos ||
+             text.find("[TEXT]") != std::string::npos ||
+             text.find("[ACTIVE]") != std::string::npos ||
+             text.find("[SELECTED]") != std::string::npos ||
+             text.find("?ACTIVE?") != std::string::npos ||
+             text.find("?SELECTED?") != std::string::npos ||
+             text.find("?LAYOUT?") != std::string::npos ||
+             text.find("<<<") != std::string::npos ||
+             text.find(">>>") != std::string::npos;
+    };
+
+    auto find_preview_insertion_slot = [&]() -> bool {
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible()) {
+          continue;
+        }
+        if (builder_preview_row_buttons[idx].text().find("New item will appear here") != std::string::npos) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    auto find_any_non_container_id = [&]() -> std::string {
+      for (const auto& node : builder_doc.nodes) {
+        if (!ngk::ui::builder::widget_allows_children(node.widget_type) && node.node_id != builder_doc.root_node_id) {
+          return node.node_id;
+        }
+      }
+      return std::string("label-001");
+    };
+
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    builder_doc_dirty = false;
+    builder_debug_mode = false;
+    builder_debug_mode_toggle_button.set_text("[DEBUG MODE: OFF]");
+    preview_visual_feedback_message.clear();
+    preview_visual_feedback_node_id.clear();
+    tree_visual_feedback_node_id.clear();
+    set_last_action_feedback("Ready");
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    refresh_tree_surface_label();
+    update_add_child_target_display();
+
+    const std::size_t preview_root_idx = find_preview_row_index("root-001");
+    const std::size_t preview_label_idx = find_preview_row_index("label-001");
+    clarity_enforcement_diag.container_visual_clear =
+      preview_root_idx < kMaxVisualPreviewRows &&
+      preview_visual_row_is_container[preview_root_idx] &&
+      builder_preview_row_buttons[preview_root_idx].preferred_height() >= 42 &&
+      builder_preview_row_buttons[preview_root_idx].text().find("CONTAINER (") != std::string::npos;
+    flow_ok = clarity_enforcement_diag.container_visual_clear && flow_ok;
+
+    clarity_enforcement_diag.label_visual_clear =
+      preview_label_idx < kMaxVisualPreviewRows &&
+      !preview_visual_row_is_container[preview_label_idx] &&
+      builder_preview_row_buttons[preview_label_idx].text().find("CONTAINER (") == std::string::npos &&
+      builder_preview_row_buttons[preview_label_idx].preferred_height() <= 36;
+    flow_ok = clarity_enforcement_diag.label_visual_clear && flow_ok;
+
+    const std::string non_container_id = find_any_non_container_id();
+    selected_builder_node_id = non_container_id;
+    focused_builder_node_id = non_container_id;
+    multi_selected_node_ids = {non_container_id};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    refresh_tree_surface_label();
+    update_add_child_target_display();
+    clarity_enforcement_diag.add_child_disabled_for_label =
+      !builder_inspector_add_child_button.enabled() &&
+      builder_inspector_structure_controls_label.text().find("Only containers can have children") != std::string::npos;
+    flow_ok = clarity_enforcement_diag.add_child_disabled_for_label && flow_ok;
+
+    std::string expected_parent_id;
+    if (auto* node = find_node_by_id(non_container_id)) {
+      expected_parent_id = node->parent_id;
+    }
+    const bool corrected_add_ok = attempt_add_child_with_auto_parent();
+    refresh_tree_surface_label();
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    clarity_enforcement_diag.auto_parent_correction =
+      corrected_add_ok &&
+      !expected_parent_id.empty() &&
+      builder_preview_interaction_hint_label.text().find("Switched to parent container to add child") != std::string::npos &&
+      preview_visual_feedback_node_id == expected_parent_id;
+    flow_ok = clarity_enforcement_diag.auto_parent_correction && flow_ok;
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    refresh_tree_surface_label();
+    clarity_enforcement_diag.insertion_slot_visible = find_preview_insertion_slot();
+    flow_ok = clarity_enforcement_diag.insertion_slot_visible && flow_ok;
+
+    const std::size_t tree_root_idx = find_tree_row_index("root-001");
+    const std::size_t tree_label_idx = find_tree_row_index("label-001");
+    clarity_enforcement_diag.hierarchy_visually_clear =
+      preview_root_idx < kMaxVisualPreviewRows &&
+      preview_label_idx < kMaxVisualPreviewRows &&
+      preview_visual_row_depths[preview_label_idx] > preview_visual_row_depths[preview_root_idx] &&
+      tree_root_idx < kMaxVisualTreeRows &&
+      tree_label_idx < kMaxVisualTreeRows &&
+      leading_spaces(builder_tree_row_buttons[tree_label_idx].text()) >
+        leading_spaces(builder_tree_row_buttons[tree_root_idx].text());
+    flow_ok = clarity_enforcement_diag.hierarchy_visually_clear && flow_ok;
+
+    const bool select_label_from_tree =
+      tree_label_idx < kMaxVisualTreeRows &&
+      builder_tree_row_buttons[tree_label_idx].perform_primary_action();
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    refresh_tree_surface_label();
+    const std::size_t selected_tree_idx = find_tree_row_index("label-001");
+    const std::size_t selected_preview_idx = find_preview_row_index("label-001");
+    clarity_enforcement_diag.selection_unmistakable =
+      select_label_from_tree &&
+      selected_tree_idx < kMaxVisualTreeRows &&
+      selected_preview_idx < kMaxVisualPreviewRows &&
+      builder_tree_row_buttons[selected_tree_idx].focused() &&
+      builder_tree_row_buttons[selected_tree_idx].is_default_action() &&
+      builder_preview_row_buttons[selected_preview_idx].focused() &&
+      builder_preview_row_buttons[selected_preview_idx].is_default_action();
+    flow_ok = clarity_enforcement_diag.selection_unmistakable && flow_ok;
+
+    bool no_debug_text = !has_forbidden_debug_text(builder_preview_interaction_hint_label.text()) &&
+                         !has_forbidden_debug_text(builder_inspector_structure_controls_label.text()) &&
+                         !has_forbidden_debug_text(builder_inspector_edit_hint_label.text());
+    for (std::size_t idx = 0; idx < kMaxVisualTreeRows && no_debug_text; ++idx) {
+      if (builder_tree_row_buttons[idx].visible() && has_forbidden_debug_text(builder_tree_row_buttons[idx].text())) {
+        no_debug_text = false;
+      }
+    }
+    for (std::size_t idx = 0; idx < kMaxVisualPreviewRows && no_debug_text; ++idx) {
+      if (builder_preview_row_buttons[idx].visible() && has_forbidden_debug_text(builder_preview_row_buttons[idx].text())) {
+        no_debug_text = false;
+      }
+    }
+    clarity_enforcement_diag.no_debug_text_remaining = no_debug_text;
+    flow_ok = clarity_enforcement_diag.no_debug_text_remaining && flow_ok;
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    refresh_tree_surface_label();
+    const bool add_ok = attempt_add_child_with_auto_parent();
+    const bool add_feedback_ok = builder_preview_interaction_hint_label.text().find("Child added") != std::string::npos;
+
+    selected_builder_node_id = non_container_id;
+    focused_builder_node_id = non_container_id;
+    multi_selected_node_ids = {non_container_id};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    refresh_tree_surface_label();
+    const bool move_ok =
+      (builder_inspector_move_up_button.enabled() && builder_inspector_move_up_button.perform_primary_action()) ||
+      (builder_inspector_move_down_button.enabled() && builder_inspector_move_down_button.perform_primary_action());
+    const bool move_feedback_ok =
+      builder_preview_interaction_hint_label.text().find("Moved up") != std::string::npos ||
+      builder_preview_interaction_hint_label.text().find("Moved down") != std::string::npos ||
+      builder_preview_interaction_hint_label.text().find("already") != std::string::npos;
+
+    const std::string delete_target = selected_builder_node_id;
+    selected_builder_node_id = delete_target;
+    focused_builder_node_id = delete_target;
+    multi_selected_node_ids = {delete_target};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    refresh_tree_surface_label();
+    const bool delete_ok = builder_inspector_delete_button.enabled() && builder_inspector_delete_button.perform_primary_action();
+    const bool delete_feedback_ok = builder_preview_interaction_hint_label.text().find("Item removed") != std::string::npos;
+
+    clarity_enforcement_diag.actions_not_silent =
+      add_ok && add_feedback_ok && move_ok && move_feedback_ok && delete_ok && delete_feedback_ok;
+    flow_ok = clarity_enforcement_diag.actions_not_silent && flow_ok;
+
+    clarity_enforcement_diag.confusion_removed =
+      builder_inspector_structure_controls_label.text().find("Only containers can have children") != std::string::npos &&
+      builder_preview_interaction_hint_label.text().find("?") == std::string::npos &&
+      !builder_preview_interaction_hint_label.text().empty();
+    flow_ok = clarity_enforcement_diag.confusion_removed && flow_ok;
+
+    const bool sync50_ok = remap_selection_or_fail() &&
+                           sync_focus_with_selection_or_fail() &&
+                           refresh_inspector_or_fail() &&
+                           refresh_preview_or_fail() &&
+                           check_cross_surface_sync();
+    clarity_enforcement_diag.shell_state_still_coherent = sync50_ok;
+    flow_ok = clarity_enforcement_diag.shell_state_still_coherent && flow_ok;
+
+    // Rebuild a clean, deterministic doc state before final parity validation.
+    run_phase103_2();
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+
+    const bool export50_ok = apply_export_command(builder_doc, builder_export_path);
+    flow_ok = export50_ok && flow_ok;
+    const bool parity50_ok = validate_preview_export_parity(builder_doc, builder_export_path);
+    clarity_enforcement_diag.preview_remains_parity_safe =
+      parity50_ok &&
+      last_preview_export_parity_status_code == "success";
+    flow_ok = clarity_enforcement_diag.preview_remains_parity_safe && flow_ok;
+
+    const auto audit50 = ngk::ui::builder::audit_layout_tree(&root);
+    clarity_enforcement_diag.layout_audit_still_compatible =
+      audit50.minimums_ok && audit50.checked_nodes > 0;
+    flow_ok = clarity_enforcement_diag.layout_audit_still_compatible && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_51 = [&] {
+    bool flow_ok = true;
+    insert_target_clarity_diag = BuilderInsertTargetClarityDiagnostics{};
+
+    auto find_preview_row_index = [&](const std::string& node_id) -> std::size_t {
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (preview_visual_row_node_ids[idx] == node_id) {
+          return idx;
+        }
+      }
+      return kMaxVisualPreviewRows;
+    };
+
+    // Reset to deterministic state
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    builder_doc_dirty = false;
+    builder_debug_mode = false;
+    builder_debug_mode_toggle_button.set_text("[DEBUG MODE: OFF]");
+    preview_visual_feedback_message.clear();
+    preview_visual_feedback_node_id.clear();
+    tree_visual_feedback_node_id.clear();
+    set_last_action_feedback("Ready");
+
+    // 1. TARGET DISPLAY VISIBLE - Check that target label exists and is non-empty
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    refresh_tree_surface_label();
+    
+    insert_target_clarity_diag.target_display_visible =
+      builder_add_child_target_label.visible() &&
+      !builder_add_child_target_label.text().empty();
+    flow_ok = insert_target_clarity_diag.target_display_visible && flow_ok;
+
+    // 2. TARGET MATCHES STRUCTURE SELECTION - Label should track selection semantics
+    const bool root_target_ok =
+      node_exists(selected_builder_node_id) &&
+      builder_inspector_add_child_button.enabled();
+
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    refresh_tree_surface_label();
+    const bool label_target_ok =
+      node_exists(selected_builder_node_id) &&
+      !builder_inspector_add_child_button.enabled();
+
+    insert_target_clarity_diag.target_matches_structure_selection = root_target_ok && label_target_ok;
+    flow_ok = insert_target_clarity_diag.target_matches_structure_selection && flow_ok;
+
+    // 3. PREVIEW CLICK UPDATES STRUCTURE SELECTION - Test clicking a preview node
+    const std::size_t label_idx = find_preview_row_index("label-001");
+    std::string clicked_node_id;
+    if (label_idx < kMaxVisualPreviewRows && builder_preview_row_buttons[label_idx].visible()) {
+      builder_preview_row_buttons[label_idx].perform_primary_action();
+      clicked_node_id = selected_builder_node_id;
+    }
+    refresh_inspector_or_fail();
+    refresh_preview_or_fail();
+    refresh_tree_surface_label();
+    update_add_child_target_display();
+    
+    insert_target_clarity_diag.preview_click_updates_structure_selection =
+      !clicked_node_id.empty() &&
+      selected_builder_node_id == clicked_node_id &&
+      builder_add_child_target_label.text().find("LABEL") != std::string::npos;
+    flow_ok = insert_target_clarity_diag.preview_click_updates_structure_selection && flow_ok;
+
+    // 4. ADD CHILD USES CORRECT TARGET - Add child to selected container
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    refresh_tree_surface_label();
+    
+    const auto root_before = find_node_by_id("root-001");
+    const std::size_t root_children_before = root_before ? root_before->child_ids.size() : 0;
+    const bool add_to_root_ok = attempt_add_child_with_auto_parent();
+    const auto root_after = find_node_by_id("root-001");
+    const std::size_t root_children_after = root_after ? root_after->child_ids.size() : 0;
+    
+    insert_target_clarity_diag.add_child_uses_correct_target =
+      add_to_root_ok &&
+      root_children_after > root_children_before;
+    flow_ok = insert_target_clarity_diag.add_child_uses_correct_target && flow_ok;
+
+    // 5. INSERT VISIBLE IN STRUCTURE - New node must appear in tree
+    refresh_tree_surface_label();
+    bool inserted_visible_in_tree = false;
+    if (root_after && !root_after->child_ids.empty()) {
+      const std::string new_node_id = root_after->child_ids.back();
+      if (!new_node_id.empty()) {
+        for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+          if (tree_visual_row_node_ids[idx] == new_node_id && builder_tree_row_buttons[idx].visible()) {
+            inserted_visible_in_tree = true;
+            break;
+          }
+        }
+      }
+    }
+    insert_target_clarity_diag.insert_visible_in_structure = inserted_visible_in_tree;
+    flow_ok = insert_target_clarity_diag.insert_visible_in_structure && flow_ok;
+
+    // 6. INSERT VISIBLE IN PREVIEW - New node must appear in preview
+    refresh_preview_or_fail();
+    bool inserted_visible_in_preview = false;
+    if (root_after && !root_after->child_ids.empty()) {
+      const std::string new_node_id = root_after->child_ids.back();
+      const std::size_t new_idx = find_preview_row_index(new_node_id);
+      if (new_idx < kMaxVisualPreviewRows && builder_preview_row_buttons[new_idx].visible()) {
+        inserted_visible_in_preview = true;
+      }
+    }
+    insert_target_clarity_diag.insert_visible_in_preview = inserted_visible_in_preview;
+    flow_ok = insert_target_clarity_diag.insert_visible_in_preview && flow_ok;
+
+    // 7. POST INSERT SELECTION DETERMINISTIC - Selection should be stable after insert
+    const std::string post_insert_selection = selected_builder_node_id;
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    
+    insert_target_clarity_diag.post_insert_selection_deterministic =
+      selected_builder_node_id == post_insert_selection &&
+      !selected_builder_node_id.empty() &&
+      node_exists(selected_builder_node_id);
+    flow_ok = insert_target_clarity_diag.post_insert_selection_deterministic && flow_ok;
+
+    // 8. INVALID INSERT BLOCKED - Cannot add to non-containers
+    const std::string non_container_id = "label-001";
+    if (node_exists(non_container_id)) {
+      selected_builder_node_id = non_container_id;
+      focused_builder_node_id = non_container_id;
+      multi_selected_node_ids = {non_container_id};
+      sync_multi_selection_with_primary();
+      flow_ok = remap_selection_or_fail() && flow_ok;
+      flow_ok = refresh_inspector_or_fail() && flow_ok;
+      flow_ok = refresh_preview_or_fail() && flow_ok;
+      refresh_tree_surface_label();
+      
+      const bool button_enabled = builder_inspector_add_child_button.enabled();
+      insert_target_clarity_diag.invalid_insert_blocked = !button_enabled;
+      flow_ok = insert_target_clarity_diag.invalid_insert_blocked && flow_ok;
+    }
+
+    // 9. NO COMMAND PIPELINE REGRESSION - Export should still work
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+    
+    const bool export51_ok = apply_export_command(builder_doc, builder_export_path);
+    insert_target_clarity_diag.no_command_pipeline_regression = export51_ok;
+    flow_ok = insert_target_clarity_diag.no_command_pipeline_regression && flow_ok;
+
+    // 10. UI STATE COHERENT - All surfaces consistent
+    const bool sync51_ok = remap_selection_or_fail() &&
+                           sync_focus_with_selection_or_fail() &&
+                           refresh_inspector_or_fail() &&
+                           refresh_preview_or_fail() &&
+                           check_cross_surface_sync();
+    insert_target_clarity_diag.ui_state_coherent = sync51_ok;
+    flow_ok = insert_target_clarity_diag.ui_state_coherent && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_52 = [&] {
+    bool flow_ok = true;
+    preview_structure_parity_diag = BuilderPreviewStructureParityDiagnostics{};
+
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      refresh_tree_surface_label();
+      update_add_child_target_display();
+      return ok;
+    };
+
+    auto collect_preview_rows = [&](std::vector<std::string>& ids_out,
+                                   std::vector<int>& depths_out) {
+      ids_out.clear();
+      depths_out.clear();
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible()) {
+          continue;
+        }
+        if (preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        ids_out.push_back(preview_visual_row_node_ids[idx]);
+        depths_out.push_back(preview_visual_row_depths[idx]);
+      }
+    };
+
+    auto get_doc_parent_id = [&](const std::string& node_id) -> std::string {
+      auto* node = find_node_by_id(node_id);
+      return node ? node->parent_id : std::string();
+    };
+
+    auto preview_ids_all_valid = [&](const std::vector<std::string>& preview_ids) -> bool {
+      std::vector<std::string> seen{};
+      for (const auto& node_id : preview_ids) {
+        if (node_id.empty() || !node_exists(node_id)) {
+          return false;
+        }
+        if (std::find(seen.begin(), seen.end(), node_id) != seen.end()) {
+          return false;
+        }
+        seen.push_back(node_id);
+      }
+      return true;
+    };
+
+    auto preview_parent_child_matches = [&](const std::vector<std::string>& preview_ids,
+                                            const std::vector<int>& preview_depths) -> bool {
+      if (preview_ids.size() != preview_depths.size()) {
+        return false;
+      }
+      std::vector<std::string> depth_stack{};
+      for (std::size_t idx = 0; idx < preview_ids.size(); ++idx) {
+        const int depth = std::max(0, preview_depths[idx]);
+        while (static_cast<int>(depth_stack.size()) > depth) {
+          depth_stack.pop_back();
+        }
+
+        const std::string expected_parent = depth == 0
+          ? std::string()
+          : (depth_stack.empty() ? std::string() : depth_stack.back());
+        const std::string actual_parent = get_doc_parent_id(preview_ids[idx]);
+        if (expected_parent != actual_parent) {
+          return false;
+        }
+        depth_stack.push_back(preview_ids[idx]);
+      }
+      return true;
+    };
+
+    auto find_first_deletable_node_id = [&]() -> std::string {
+      for (const auto& node : builder_doc.nodes) {
+        if (node.node_id == builder_doc.root_node_id) {
+          continue;
+        }
+        if (node.parent_id.empty() || !node_exists(node.parent_id)) {
+          continue;
+        }
+        if (node.container_type == ngk::ui::builder::BuilderContainerType::Shell) {
+          continue;
+        }
+        return node.node_id;
+      }
+      return std::string();
+    };
+
+    auto structure_contains = [&](const std::string& node_id) -> bool {
+      for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+        if (tree_visual_row_node_ids[idx] == node_id && builder_tree_row_buttons[idx].visible()) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    auto preview_contains = [&](const std::string& node_id) -> bool {
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (preview_visual_row_node_ids[idx] == node_id && builder_preview_row_buttons[idx].visible()) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    auto find_preview_row_index = [&](const std::string& node_id) -> std::size_t {
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (preview_visual_row_node_ids[idx] == node_id && builder_preview_row_buttons[idx].visible()) {
+          return idx;
+        }
+      }
+      return kMaxVisualPreviewRows;
+    };
+
+    auto check_preview_structure_parity = [&]() -> bool {
+      std::vector<PreviewExportParityEntry> entries{};
+      std::string reason;
+      if (!build_preview_export_parity_entries(builder_doc, entries, reason, "phase103_52")) {
+        return false;
+      }
+
+      std::vector<std::string> preview_ids{};
+      std::vector<int> preview_depths{};
+      collect_preview_rows(preview_ids, preview_depths);
+
+      const bool count_match = preview_ids.size() == entries.size();
+      const bool all_preview_valid = preview_ids_all_valid(preview_ids);
+
+      bool order_match = count_match;
+      if (order_match) {
+        for (std::size_t idx = 0; idx < preview_ids.size(); ++idx) {
+          if (preview_ids[idx] != entries[idx].node_id || preview_depths[idx] != entries[idx].depth) {
+            order_match = false;
+            break;
+          }
+        }
+      }
+
+      const bool parent_child_ok = preview_parent_child_matches(preview_ids, preview_depths);
+
+      preview_structure_parity_diag.preview_nodes_match_structure = count_match;
+      preview_structure_parity_diag.no_orphan_preview_nodes = all_preview_valid;
+      preview_structure_parity_diag.render_order_matches_structure = order_match;
+      preview_structure_parity_diag.parent_child_relationships_match = parent_child_ok;
+
+      return count_match && all_preview_valid && order_match && parent_child_ok;
+    };
+
+    // Baseline state
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    builder_doc_dirty = false;
+    builder_debug_mode = false;
+    builder_debug_mode_toggle_button.set_text("[DEBUG MODE: OFF]");
+    preview_visual_feedback_message.clear();
+    preview_visual_feedback_node_id.clear();
+    tree_visual_feedback_node_id.clear();
+    set_last_action_feedback("Ready");
+
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const bool baseline_parity_ok = check_preview_structure_parity();
+    flow_ok = baseline_parity_ok && flow_ok;
+
+    // Hit-test exact node resolution + parent/depth correctness
+    std::vector<PreviewExportParityEntry> hit_entries{};
+    std::string hit_reason;
+    bool hit_map_ok = build_preview_click_hit_entries(hit_entries, hit_reason);
+    bool hit_exact_ok = false;
+    if (hit_map_ok) {
+      int outline_first_line_index = -1;
+      const std::string preview_text = builder_preview_label.text();
+      const std::string outline_token = "runtime_outline:\n";
+      const auto outline_pos = preview_text.find(outline_token);
+      if (outline_pos != std::string::npos) {
+        outline_first_line_index = 0;
+        for (std::size_t i = 0; i < outline_pos + outline_token.size(); ++i) {
+          if (preview_text[i] == '\n') {
+            outline_first_line_index += 1;
+          }
+        }
+      }
+
+      constexpr int kPreviewLineHeightPx = 16;
+      const int visible_line_capacity = std::max(1, builder_preview_label.height() / kPreviewLineHeightPx);
+      std::size_t target_index = 0;
+      bool target_found = false;
+      if (outline_first_line_index >= 0) {
+        for (std::size_t i = 0; i < hit_entries.size(); ++i) {
+          if (hit_entries[i].node_id != "label-001") {
+            continue;
+          }
+          const auto line_index = outline_first_line_index + static_cast<int>(i);
+          if (line_index < 0 || line_index >= visible_line_capacity) {
+            continue;
+          }
+          target_index = i;
+          target_found = true;
+          break;
+        }
+      }
+
+      const int click_x = builder_preview_label.x() + 8;
+      bool click_ok = false;
+      if (target_found) {
+        const int preferred_click_y =
+          builder_preview_label.y() + ((outline_first_line_index + static_cast<int>(target_index)) * kPreviewLineHeightPx) + 2;
+        if (apply_preview_click_select_at_point(click_x, preferred_click_y) && selected_builder_node_id == "label-001") {
+          click_ok = true;
+        }
+      }
+      if (!click_ok) {
+        for (int line = 0; line < visible_line_capacity; ++line) {
+          const int probe_y = builder_preview_label.y() + (line * kPreviewLineHeightPx) + 2;
+          if (!apply_preview_click_select_at_point(click_x, probe_y)) {
+            continue;
+          }
+          if (selected_builder_node_id == "label-001") {
+            click_ok = true;
+            break;
+          }
+        }
+      }
+      flow_ok = refresh_all_surfaces() && flow_ok;
+
+      int expected_depth = -1;
+      for (const auto& entry : hit_entries) {
+        if (entry.node_id == "label-001") {
+          expected_depth = entry.depth;
+          break;
+        }
+      }
+      const std::size_t selected_idx = find_preview_row_index(selected_builder_node_id);
+      const bool depth_ok =
+        selected_idx < kMaxVisualPreviewRows &&
+        expected_depth >= 0 &&
+        preview_visual_row_depths[selected_idx] == expected_depth;
+      const bool parent_ok =
+        node_exists(selected_builder_node_id) &&
+        !get_doc_parent_id(selected_builder_node_id).empty();
+      hit_exact_ok = click_ok && selected_builder_node_id == "label-001" && depth_ok && parent_ok;
+    }
+    preview_structure_parity_diag.hit_test_returns_exact_node = hit_exact_ok;
+    flow_ok = preview_structure_parity_diag.hit_test_returns_exact_node && flow_ok;
+
+    // Selection stability after insert
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const bool insert_ok = attempt_add_child_with_auto_parent();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    preview_structure_parity_diag.selection_stable_after_insert =
+      insert_ok &&
+      !selected_builder_node_id.empty() &&
+      node_exists(selected_builder_node_id) &&
+      check_cross_surface_sync();
+    flow_ok = preview_structure_parity_diag.selection_stable_after_insert && flow_ok;
+
+    // Selection stability after delete and no stale nodes after mutation
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const std::string delete_target = find_first_deletable_node_id();
+    bool delete_ok = false;
+    if (!delete_target.empty()) {
+      selected_builder_node_id = delete_target;
+      focused_builder_node_id = delete_target;
+      multi_selected_node_ids = {delete_target};
+      sync_multi_selection_with_primary();
+      flow_ok = refresh_all_surfaces() && flow_ok;
+      delete_ok = apply_delete_command_for_current_selection();
+      flow_ok = refresh_all_surfaces() && flow_ok;
+    }
+
+    preview_structure_parity_diag.selection_stable_after_delete =
+      delete_ok &&
+      !selected_builder_node_id.empty() &&
+      node_exists(selected_builder_node_id) &&
+      check_cross_surface_sync();
+    flow_ok = preview_structure_parity_diag.selection_stable_after_delete && flow_ok;
+
+    preview_structure_parity_diag.no_stale_nodes_after_mutation =
+      delete_ok &&
+      !delete_target.empty() &&
+      !node_exists(delete_target) &&
+      !preview_contains(delete_target) &&
+      !structure_contains(delete_target) &&
+      check_preview_structure_parity();
+    flow_ok = preview_structure_parity_diag.no_stale_nodes_after_mutation && flow_ok;
+
+    // Selection stability after move
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    selected_builder_node_id = "root-001";
+    focused_builder_node_id = "root-001";
+    multi_selected_node_ids = {"root-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const bool add_for_move_ok = attempt_add_child_with_auto_parent();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    bool move_ok = false;
+    if (add_for_move_ok && builder_inspector_move_up_button.enabled()) {
+      builder_inspector_move_up_button.perform_primary_action();
+      move_ok = true;
+      flow_ok = refresh_all_surfaces() && flow_ok;
+    } else if (add_for_move_ok && builder_inspector_move_down_button.enabled()) {
+      builder_inspector_move_down_button.perform_primary_action();
+      move_ok = true;
+      flow_ok = refresh_all_surfaces() && flow_ok;
+    }
+
+    preview_structure_parity_diag.selection_stable_after_move =
+      move_ok &&
+      !selected_builder_node_id.empty() &&
+      node_exists(selected_builder_node_id) &&
+      check_cross_surface_sync() &&
+      check_preview_structure_parity();
+    flow_ok = preview_structure_parity_diag.selection_stable_after_move && flow_ok;
+
+    preview_structure_parity_diag.no_selection_desync_detected =
+      check_cross_surface_sync() &&
+      (!selected_builder_node_id.empty()) &&
+      node_exists(selected_builder_node_id) &&
+      preview_contains(selected_builder_node_id) &&
+      structure_contains(selected_builder_node_id);
+    flow_ok = preview_structure_parity_diag.no_selection_desync_detected && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_53 = [&] {
+    bool flow_ok = true;
+    command_integrity_diag = BuilderCommandIntegrityDiagnostics{};
+
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto join_ids = [&](const std::vector<std::string>& ids) -> std::string {
+      std::ostringstream oss;
+      for (std::size_t idx = 0; idx < ids.size(); ++idx) {
+        if (idx > 0) {
+          oss << ",";
+        }
+        oss << ids[idx];
+      }
+      return oss.str();
+    };
+
+    auto build_document_signature = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                        const char* context_name) -> std::string {
+      std::string error;
+      if (!ngk::ui::builder::validate_builder_document(doc, &error)) {
+        return std::string("invalid:") + (context_name == nullptr ? "document" : context_name) + ":" + error;
+      }
+      const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(doc);
+      if (serialized.empty()) {
+        return std::string("invalid:") + (context_name == nullptr ? "document" : context_name) + ":serialize_failed";
+      }
+      return serialized;
+    };
+
+    auto build_live_state_signature = [&](const char* context_name) -> std::string {
+      std::ostringstream oss;
+      oss << build_document_signature(builder_doc, context_name) << "\n";
+      oss << "selected=" << selected_builder_node_id << "\n";
+      oss << "multi=" << join_ids(multi_selected_node_ids) << "\n";
+      return oss.str();
+    };
+
+    auto preview_matches_structure = [&]() -> bool {
+      std::vector<PreviewExportParityEntry> entries{};
+      std::string reason;
+      if (!build_preview_export_parity_entries(builder_doc, entries, reason, "phase103_53")) {
+        return false;
+      }
+
+      std::vector<std::string> preview_ids{};
+      std::vector<int> preview_depths{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        preview_ids.push_back(preview_visual_row_node_ids[idx]);
+        preview_depths.push_back(preview_visual_row_depths[idx]);
+      }
+
+      if (preview_ids.size() != entries.size()) {
+        return false;
+      }
+      for (std::size_t idx = 0; idx < entries.size(); ++idx) {
+        if (preview_ids[idx] != entries[idx].node_id || preview_depths[idx] != entries[idx].depth) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    auto document_has_unique_node_ids = [&](const ngk::ui::builder::BuilderDocument& doc) -> bool {
+      std::vector<std::string> seen{};
+      for (const auto& node : doc.nodes) {
+        if (node.node_id.empty()) {
+          return false;
+        }
+        if (std::find(seen.begin(), seen.end(), node.node_id) != seen.end()) {
+          return false;
+        }
+        seen.push_back(node.node_id);
+      }
+      return seen.size() == doc.nodes.size();
+    };
+
+    auto history_entry_has_valid_references = [&](const CommandHistoryEntry& entry) -> bool {
+      auto normalize_selected_id_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
+                                                    const std::string& preferred_selected_id,
+                                                    const std::vector<std::string>& preferred_multi_selected_ids,
+                                                    const ngk::ui::builder::BuilderDocument* counterpart_doc,
+                                                    const std::string& counterpart_selected_id) -> std::string {
+        if (!preferred_selected_id.empty() && node_exists_in_document(target_doc, preferred_selected_id)) {
+          return preferred_selected_id;
+        }
+        for (const auto& node_id : preferred_multi_selected_ids) {
+          if (!node_id.empty() && node_exists_in_document(target_doc, node_id)) {
+            return node_id;
+          }
+        }
+        if (counterpart_doc != nullptr && !counterpart_selected_id.empty()) {
+          const auto* counterpart_selected = find_node_by_id_in_document(*counterpart_doc, counterpart_selected_id);
+          if (counterpart_selected != nullptr) {
+            std::string fallback_parent_id = counterpart_selected->parent_id;
+            while (!fallback_parent_id.empty()) {
+              if (node_exists_in_document(target_doc, fallback_parent_id)) {
+                return fallback_parent_id;
+              }
+              const auto* fallback_parent = find_node_by_id_in_document(*counterpart_doc, fallback_parent_id);
+              if (fallback_parent == nullptr) {
+                break;
+              }
+              fallback_parent_id = fallback_parent->parent_id;
+            }
+          }
+        }
+        if (!target_doc.root_node_id.empty() && node_exists_in_document(target_doc, target_doc.root_node_id)) {
+          return target_doc.root_node_id;
+        }
+        return std::string{};
+      };
+
+      auto normalize_multi_selection_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
+                                                        const std::string& selected_id,
+                                                        const std::vector<std::string>& preferred_multi_selected_ids) {
+        std::vector<std::string> stable{};
+        stable.reserve(preferred_multi_selected_ids.size() + 1);
+        auto append_unique_valid = [&](const std::string& node_id) {
+          if (node_id.empty() || !node_exists_in_document(target_doc, node_id)) {
+            return;
+          }
+          if (std::find(stable.begin(), stable.end(), node_id) == stable.end()) {
+            stable.push_back(node_id);
+          }
+        };
+        append_unique_valid(selected_id);
+        for (const auto& node_id : preferred_multi_selected_ids) {
+          append_unique_valid(node_id);
+        }
+        return stable;
+      };
+
+      CommandHistoryEntry normalized = entry;
+      ngk::ui::builder::BuilderDocument before_doc{};
+      before_doc.root_node_id = normalized.before_root_node_id;
+      before_doc.nodes = normalized.before_nodes;
+      ngk::ui::builder::BuilderDocument after_doc{};
+      after_doc.root_node_id = normalized.after_root_node_id;
+      after_doc.nodes = normalized.after_nodes;
+
+      std::string before_error;
+      std::string after_error;
+      if (!ngk::ui::builder::validate_builder_document(before_doc, &before_error) ||
+          !ngk::ui::builder::validate_builder_document(after_doc, &after_error)) {
+        return false;
+      }
+
+      normalized.before_selected_id = normalize_selected_id_for_snapshot(
+        before_doc,
+        normalized.before_selected_id,
+        normalized.before_multi_selected_ids,
+        &after_doc,
+        normalized.after_selected_id);
+      normalized.before_multi_selected_ids = normalize_multi_selection_for_snapshot(
+        before_doc,
+        normalized.before_selected_id,
+        normalized.before_multi_selected_ids);
+      normalized.after_selected_id = normalize_selected_id_for_snapshot(
+        after_doc,
+        normalized.after_selected_id,
+        normalized.after_multi_selected_ids,
+        &before_doc,
+        normalized.before_selected_id);
+      normalized.after_multi_selected_ids = normalize_multi_selection_for_snapshot(
+        after_doc,
+        normalized.after_selected_id,
+        normalized.after_multi_selected_ids);
+
+      return normalized.before_selected_id == entry.before_selected_id &&
+             normalized.before_multi_selected_ids == entry.before_multi_selected_ids &&
+             normalized.after_selected_id == entry.after_selected_id &&
+             normalized.after_multi_selected_ids == entry.after_multi_selected_ids;
+    };
+
+    auto history_stacks_valid = [&]() -> bool {
+      for (const auto& entry : undo_history) {
+        if (!history_entry_has_valid_references(entry)) {
+          return false;
+        }
+      }
+      for (const auto& entry : redo_stack) {
+        if (!history_entry_has_valid_references(entry)) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    auto reset_phase = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      builder_doc_dirty = false;
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      return refresh_all_surfaces();
+    };
+
+    auto apply_recorded_delete = [&](const std::string& history_tag) -> bool {
+      const auto before_nodes = builder_doc.nodes;
+      const std::string before_root = builder_doc.root_node_id;
+      const std::string before_sel = selected_builder_node_id;
+      const auto before_multi = multi_selected_node_ids;
+      const bool ok = apply_delete_command_for_current_selection();
+      if (!ok) {
+        return false;
+      }
+      push_to_history(history_tag,
+                      before_nodes,
+                      before_root,
+                      before_sel,
+                      &before_multi,
+                      builder_doc.nodes,
+                      builder_doc.root_node_id,
+                      selected_builder_node_id,
+                      &multi_selected_node_ids);
+      return true;
+    };
+
+    auto apply_recorded_move_up = [&](const std::string& history_tag) -> bool {
+      const std::string before_signature = build_document_signature(builder_doc, "phase103_53_move_before");
+      const auto before_nodes = builder_doc.nodes;
+      const std::string before_root = builder_doc.root_node_id;
+      const std::string before_sel = selected_builder_node_id;
+      const auto before_multi = multi_selected_node_ids;
+      apply_move_sibling_up();
+      const std::string after_signature = build_document_signature(builder_doc, "phase103_53_move_after");
+      if (before_signature == after_signature) {
+        return false;
+      }
+      push_to_history(history_tag,
+                      before_nodes,
+                      before_root,
+                      before_sel,
+                      &before_multi,
+                      builder_doc.nodes,
+                      builder_doc.root_node_id,
+                      selected_builder_node_id,
+                      &multi_selected_node_ids);
+      return true;
+    };
+
+    bool preview_parity_ok = true;
+    bool stack_integrity_ok = true;
+
+    // Edit round-trip integrity
+    flow_ok = reset_phase() && flow_ok;
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string edit_before_state = build_live_state_signature("phase103_53_edit_before");
+    const bool edit_ok = apply_inspector_text_edit_command("phase103_53_label_edited");
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string edit_after_state = build_live_state_signature("phase103_53_edit_after");
+    const bool edit_undo_ok = edit_ok && apply_undo_command();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const bool edit_undo_exact = edit_undo_ok && build_live_state_signature("phase103_53_edit_undo") == edit_before_state;
+    const bool edit_redo_ok = edit_undo_ok && apply_redo_command();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const bool edit_redo_exact = edit_redo_ok && build_live_state_signature("phase103_53_edit_redo") == edit_after_state;
+    preview_parity_ok = preview_parity_ok && preview_matches_structure();
+    stack_integrity_ok = stack_integrity_ok && history_stacks_valid();
+
+    // Move round-trip integrity
+    flow_ok = reset_phase() && flow_ok;
+    const bool move_setup_a = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Label, builder_doc.root_node_id, "phase103_53-move-a");
+    const bool move_setup_b = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Button, builder_doc.root_node_id, "phase103_53-move-b");
+    flow_ok = move_setup_a && move_setup_b && flow_ok;
+    undo_history.clear();
+    redo_stack.clear();
+    selected_builder_node_id = "phase103_53-move-b";
+    focused_builder_node_id = "phase103_53-move-b";
+    multi_selected_node_ids = {"phase103_53-move-b"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string move_before_state = build_live_state_signature("phase103_53_move_before");
+    const bool move_ok = apply_recorded_move_up("phase103_53_move");
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string move_after_state = build_live_state_signature("phase103_53_move_after");
+    const bool move_undo_ok = move_ok && apply_undo_command();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const bool move_undo_exact = move_undo_ok && build_live_state_signature("phase103_53_move_undo") == move_before_state;
+    const bool move_redo_ok = move_undo_ok && apply_redo_command();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const bool move_redo_exact = move_redo_ok && build_live_state_signature("phase103_53_move_redo") == move_after_state;
+    preview_parity_ok = preview_parity_ok && preview_matches_structure();
+    stack_integrity_ok = stack_integrity_ok && history_stacks_valid();
+
+    // Add -> Add -> Delete -> Undo -> Undo -> Redo -> Redo stability
+    flow_ok = reset_phase() && flow_ok;
+    const std::string root_id = builder_doc.root_node_id;
+    const bool seq_add_1_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Label, root_id, "phase103_53-seq-a");
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string seq_state_after_add_1 = build_live_state_signature("phase103_53_seq_after_add_1");
+    const bool seq_add_2_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Button, root_id, "phase103_53-seq-b");
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string seq_state_after_add_2 = build_live_state_signature("phase103_53_seq_after_add_2");
+    const std::size_t seq_node_count_after_add_2 = builder_doc.nodes.size();
+    const std::string deleted_node_id = selected_builder_node_id;
+    const auto* deleted_before = find_node_by_id(deleted_node_id);
+    const std::string deleted_parent_id = deleted_before ? deleted_before->parent_id : root_id;
+    const bool seq_delete_ok = apply_recorded_delete("phase103_53_delete");
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string seq_state_after_delete = build_live_state_signature("phase103_53_seq_after_delete");
+    const bool fallback_ok = seq_delete_ok &&
+      (selected_builder_node_id == deleted_parent_id || selected_builder_node_id == root_id) &&
+      node_exists(selected_builder_node_id);
+
+    const bool seq_undo_delete_ok = seq_delete_ok && apply_undo_command();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string seq_state_after_undo_delete = build_live_state_signature("phase103_53_seq_after_undo_delete");
+    const bool seq_undo_delete_exact = seq_undo_delete_ok && seq_state_after_undo_delete == seq_state_after_add_2;
+    const bool seq_undo_delete_selection = seq_undo_delete_ok &&
+      selected_builder_node_id == deleted_node_id &&
+      multi_selected_node_ids.size() == 1 &&
+      multi_selected_node_ids.front() == deleted_node_id;
+    const bool no_missing_after_undo =
+      seq_undo_delete_ok &&
+      node_exists(deleted_node_id) &&
+      builder_doc.nodes.size() == seq_node_count_after_add_2;
+
+    const bool seq_undo_add_2_ok = seq_undo_delete_ok && apply_undo_command();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const bool seq_undo_add_2_exact = seq_undo_add_2_ok &&
+      build_live_state_signature("phase103_53_seq_after_undo_add_2") == seq_state_after_add_1;
+
+    const bool seq_redo_add_2_ok = seq_undo_add_2_ok && apply_redo_command();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const bool seq_redo_add_2_exact = seq_redo_add_2_ok &&
+      build_live_state_signature("phase103_53_seq_after_redo_add_2") == seq_state_after_add_2;
+
+    const bool seq_redo_delete_ok = seq_redo_add_2_ok && apply_redo_command();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string seq_state_after_redo_delete = build_live_state_signature("phase103_53_seq_after_redo_delete");
+    const bool seq_redo_delete_exact = seq_redo_delete_ok && seq_state_after_redo_delete == seq_state_after_delete;
+    const bool no_duplicate_on_redo =
+      seq_redo_delete_ok &&
+      document_has_unique_node_ids(builder_doc) &&
+      !node_exists(deleted_node_id);
+
+    preview_parity_ok = preview_parity_ok && preview_matches_structure();
+    stack_integrity_ok = stack_integrity_ok && history_stacks_valid();
+
+    command_integrity_diag.undo_restores_exact_structure =
+      edit_undo_exact && move_undo_exact && seq_undo_delete_exact;
+    command_integrity_diag.undo_restores_selection =
+      edit_undo_exact && move_undo_exact && seq_undo_delete_selection;
+    command_integrity_diag.redo_reapplies_exact_state =
+      edit_redo_exact && move_redo_exact && seq_redo_delete_exact;
+    command_integrity_diag.no_duplicate_nodes_on_redo = no_duplicate_on_redo;
+    command_integrity_diag.no_missing_nodes_after_undo = no_missing_after_undo;
+    command_integrity_diag.command_stack_no_invalid_references = stack_integrity_ok;
+    command_integrity_diag.selection_fallback_deterministic = fallback_ok;
+    command_integrity_diag.multi_step_sequence_stable =
+      seq_add_1_ok &&
+      seq_add_2_ok &&
+      seq_delete_ok &&
+      seq_undo_delete_exact &&
+      seq_undo_add_2_exact &&
+      seq_redo_add_2_exact &&
+      seq_redo_delete_exact &&
+      undo_history.size() == 3 &&
+      redo_stack.empty();
+    command_integrity_diag.no_side_effect_mutations =
+      seq_undo_delete_exact &&
+      seq_undo_add_2_exact &&
+      seq_redo_add_2_exact &&
+      seq_redo_delete_exact;
+    command_integrity_diag.preview_matches_structure_after_undo_redo = preview_parity_ok;
+
+    flow_ok = command_integrity_diag.undo_restores_exact_structure && flow_ok;
+    flow_ok = command_integrity_diag.undo_restores_selection && flow_ok;
+    flow_ok = command_integrity_diag.redo_reapplies_exact_state && flow_ok;
+    flow_ok = command_integrity_diag.no_duplicate_nodes_on_redo && flow_ok;
+    flow_ok = command_integrity_diag.no_missing_nodes_after_undo && flow_ok;
+    flow_ok = command_integrity_diag.command_stack_no_invalid_references && flow_ok;
+    flow_ok = command_integrity_diag.selection_fallback_deterministic && flow_ok;
+    flow_ok = command_integrity_diag.multi_step_sequence_stable && flow_ok;
+    flow_ok = command_integrity_diag.no_side_effect_mutations && flow_ok;
+    flow_ok = command_integrity_diag.preview_matches_structure_after_undo_redo && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_54 = [&] {
+    bool flow_ok = true;
+    save_load_integrity_diag = BuilderSaveLoadStateIntegrityDiagnostics{};
+
+    auto join_ids = [&](const std::vector<std::string>& ids) -> std::string {
+      std::ostringstream oss;
+      for (std::size_t idx = 0; idx < ids.size(); ++idx) {
+        if (idx > 0) {
+          oss << ",";
+        }
+        oss << ids[idx];
+      }
+      return oss.str();
+    };
+
+    auto build_document_signature = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                        const char* context_name) -> std::string {
+      std::string error;
+      if (!ngk::ui::builder::validate_builder_document(doc, &error)) {
+        return std::string("invalid:") + (context_name == nullptr ? "document" : context_name) + ":" + error;
+      }
+      const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(doc);
+      if (serialized.empty()) {
+        return std::string("invalid:") + (context_name == nullptr ? "document" : context_name) + ":serialize_failed";
+      }
+      return serialized;
+    };
+
+    auto build_live_state_signature = [&](const char* context_name) -> std::string {
+      std::ostringstream oss;
+      oss << build_document_signature(builder_doc, context_name) << "\n";
+      oss << "selected=" << selected_builder_node_id << "\n";
+      oss << "multi=" << join_ids(multi_selected_node_ids) << "\n";
+      return oss.str();
+    };
+
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto preview_matches_structure = [&]() -> bool {
+      std::vector<PreviewExportParityEntry> entries{};
+      std::string reason;
+      if (!build_preview_export_parity_entries(builder_doc, entries, reason, "phase103_54")) {
+        return false;
+      }
+
+      std::vector<std::string> preview_ids{};
+      std::vector<int> preview_depths{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        preview_ids.push_back(preview_visual_row_node_ids[idx]);
+        preview_depths.push_back(preview_visual_row_depths[idx]);
+      }
+
+      if (preview_ids.size() != entries.size()) {
+        return false;
+      }
+      for (std::size_t idx = 0; idx < entries.size(); ++idx) {
+        if (preview_ids[idx] != entries[idx].node_id || preview_depths[idx] != entries[idx].depth) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    auto reset_phase = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      builder_doc_dirty = false;
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      return refresh_all_surfaces();
+    };
+
+    auto replace_first = [&](std::string& text,
+                             const std::string& target,
+                             const std::string& replacement) -> bool {
+      const std::size_t pos = text.find(target);
+      if (pos == std::string::npos) {
+        return false;
+      }
+      text.replace(pos, target.size(), replacement);
+      return true;
+    };
+
+    flow_ok = reset_phase() && flow_ok;
+    const bool inserted = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Label, builder_doc.root_node_id, "phase103_54-node-a");
+    flow_ok = inserted && flow_ok;
+
+    auto* inserted_node = find_node_by_id("phase103_54-node-a");
+    if (inserted_node != nullptr) {
+      inserted_node->text = "phase103_54_text_seed";
+    } else {
+      flow_ok = false;
+    }
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const std::string before_save_doc = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    const std::string before_save_live = build_live_state_signature("phase103_54_before_save");
+    const bool first_save_ok = apply_save_document_command();
+    flow_ok = first_save_ok && flow_ok;
+    std::string first_saved_file_text{};
+    const bool read_first_save_ok = first_save_ok && read_text_file(builder_doc_save_path, first_saved_file_text);
+    flow_ok = read_first_save_ok && flow_ok;
+
+    if (inserted_node != nullptr) {
+      inserted_node->text = "phase103_54_mutated_after_save";
+      undo_history.push_back(CommandHistoryEntry{});
+      redo_stack.push_back(CommandHistoryEntry{});
+      flow_ok = refresh_all_surfaces() && flow_ok;
+    }
+
+    const bool roundtrip_load_ok = apply_load_document_command(true);
+    flow_ok = roundtrip_load_ok && flow_ok;
+    const std::string after_roundtrip_doc = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    const std::string after_roundtrip_live = build_live_state_signature("phase103_54_after_roundtrip_load");
+
+    save_load_integrity_diag.serialized_roundtrip_exact =
+      first_save_ok &&
+      roundtrip_load_ok &&
+      !before_save_doc.empty() &&
+      before_save_doc == after_roundtrip_doc;
+    save_load_integrity_diag.no_implicit_state_mutation_after_roundtrip =
+      roundtrip_load_ok &&
+      before_save_live == after_roundtrip_live;
+    save_load_integrity_diag.history_reset_deterministic_on_load =
+      roundtrip_load_ok &&
+      undo_history.empty() &&
+      redo_stack.empty();
+    save_load_integrity_diag.cross_surface_sync_preserved_after_load =
+      roundtrip_load_ok &&
+      check_cross_surface_sync();
+    save_load_integrity_diag.preview_structure_parity_preserved_after_load =
+      roundtrip_load_ok &&
+      preview_matches_structure();
+
+    const bool second_save_ok = apply_save_document_command();
+    flow_ok = second_save_ok && flow_ok;
+    std::string second_saved_file_text{};
+    const bool read_second_save_ok = second_save_ok && read_text_file(builder_doc_save_path, second_saved_file_text);
+    flow_ok = read_second_save_ok && flow_ok;
+    save_load_integrity_diag.save_load_repeatability_stable =
+      first_save_ok &&
+      roundtrip_load_ok &&
+      second_save_ok &&
+      read_first_save_ok &&
+      read_second_save_ok &&
+      first_saved_file_text == second_saved_file_text;
+
+    selected_builder_node_id = "phase103_54_missing_selection";
+    focused_builder_node_id = "phase103_54_missing_selection";
+    multi_selected_node_ids = {"phase103_54_missing_selection"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const bool rebound_load_ok = apply_load_document_command(true);
+    flow_ok = rebound_load_ok && flow_ok;
+    save_load_integrity_diag.selection_rebound_to_valid_node_on_load =
+      rebound_load_ok &&
+      !selected_builder_node_id.empty() &&
+      node_exists(selected_builder_node_id) &&
+      selected_builder_node_id == builder_doc.root_node_id &&
+      multi_selected_node_ids.size() == 1 &&
+      multi_selected_node_ids.front() == selected_builder_node_id;
+
+    const std::string before_invalid_live = build_live_state_signature("phase103_54_before_invalid_load");
+    const std::filesystem::path corrupt_path = builder_doc_save_path.string() + ".phase103_54_corrupt";
+    const bool wrote_corrupt = write_text_file(corrupt_path, "not-a-valid-builder-document");
+    const bool corrupt_rejected = wrote_corrupt && !load_builder_document_from_path(corrupt_path);
+    const std::string after_corrupt_live = build_live_state_signature("phase103_54_after_corrupt_load");
+
+    std::string schema_invalid_payload = first_saved_file_text;
+    const bool payload_mutated = replace_first(
+      schema_invalid_payload,
+      builder_doc.root_node_id,
+      "phase103_54_missing_root_reference");
+    const std::filesystem::path schema_invalid_path = builder_doc_save_path.string() + ".phase103_54_schema_invalid";
+    const bool wrote_schema_invalid = payload_mutated && write_text_file(schema_invalid_path, schema_invalid_payload);
+    const bool schema_invalid_rejected = wrote_schema_invalid && !load_builder_document_from_path(schema_invalid_path);
+    const std::string after_schema_live = build_live_state_signature("phase103_54_after_schema_invalid_load");
+
+    save_load_integrity_diag.load_rejects_corrupt_payload = corrupt_rejected;
+    save_load_integrity_diag.load_rejects_schema_violation_payload = schema_invalid_rejected;
+    save_load_integrity_diag.failed_load_preserves_previous_state =
+      corrupt_rejected &&
+      schema_invalid_rejected &&
+      before_invalid_live == after_corrupt_live &&
+      before_invalid_live == after_schema_live;
+
+    flow_ok = save_load_integrity_diag.serialized_roundtrip_exact && flow_ok;
+    flow_ok = save_load_integrity_diag.save_load_repeatability_stable && flow_ok;
+    flow_ok = save_load_integrity_diag.load_rejects_corrupt_payload && flow_ok;
+    flow_ok = save_load_integrity_diag.load_rejects_schema_violation_payload && flow_ok;
+    flow_ok = save_load_integrity_diag.failed_load_preserves_previous_state && flow_ok;
+    flow_ok = save_load_integrity_diag.selection_rebound_to_valid_node_on_load && flow_ok;
+    flow_ok = save_load_integrity_diag.history_reset_deterministic_on_load && flow_ok;
+    flow_ok = save_load_integrity_diag.no_implicit_state_mutation_after_roundtrip && flow_ok;
+    flow_ok = save_load_integrity_diag.cross_surface_sync_preserved_after_load && flow_ok;
+    flow_ok = save_load_integrity_diag.preview_structure_parity_preserved_after_load && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_57 = [&] {
+    bool flow_ok = true;
+    bounds_layout_constraint_diag = BuilderBoundsLayoutConstraintIntegrityDiagnostics{};
+
+    auto build_document_signature = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                        const char* context_name) -> std::string {
+      std::string error;
+      if (!ngk::ui::builder::validate_builder_document(doc, &error)) {
+        return std::string("invalid:") + (context_name == nullptr ? "document" : context_name) + ":" + error;
+      }
+      const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(doc);
+      if (serialized.empty()) {
+        return std::string("invalid:") + (context_name == nullptr ? "document" : context_name) + ":serialize_failed";
+      }
+      return serialized;
+    };
+
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto preview_matches_structure = [&]() -> bool {
+      std::vector<PreviewExportParityEntry> entries{};
+      std::string reason;
+      if (!build_preview_export_parity_entries(builder_doc, entries, reason, "phase103_57")) {
+        return false;
+      }
+      std::vector<std::string> preview_ids{};
+      std::vector<int> preview_depths{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        preview_ids.push_back(preview_visual_row_node_ids[idx]);
+        preview_depths.push_back(preview_visual_row_depths[idx]);
+      }
+      if (preview_ids.size() != entries.size()) {
+        return false;
+      }
+      for (std::size_t idx = 0; idx < entries.size(); ++idx) {
+        if (preview_ids[idx] != entries[idx].node_id || preview_depths[idx] != entries[idx].depth) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    auto reset_phase = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      builder_doc_dirty = false;
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      return refresh_all_surfaces();
+    };
+
+    flow_ok = reset_phase() && flow_ok;
+
+    // ---- Marker 1: negative_dimensions_rejected ----
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const std::string sig_before_neg = build_document_signature(builder_doc, "phase103_57_before_neg");
+    const std::size_t history_before_neg = undo_history.size();
+    const bool neg_width_rejected = !apply_inspector_property_edits_command(
+      {{"layout.min_width", "-10"}}, "phase103_57_neg_width");
+    const bool neg_height_rejected = !apply_inspector_property_edits_command(
+      {{"layout.min_height", "-5"}}, "phase103_57_neg_height");
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string sig_after_neg = build_document_signature(builder_doc, "phase103_57_after_neg");
+
+    bounds_layout_constraint_diag.negative_dimensions_rejected =
+      neg_width_rejected &&
+      neg_height_rejected &&
+      history_before_neg == undo_history.size() &&
+      sig_before_neg == sig_after_neg;
+
+    // ---- Marker 2: invalid_child_parent_geometry_rejected ----
+    // layout.weight=0 violates layout_weight > 0 (child partition constraint)
+    // layout.preferred_width=-8 violates preferred_width >= 0 (child size constraint)
+    const std::string sig_before_weight = build_document_signature(builder_doc, "phase103_57_before_weight");
+    const std::size_t history_before_weight = undo_history.size();
+    const bool zero_weight_rejected = !apply_inspector_property_edits_command(
+      {{"layout.weight", "0"}}, "phase103_57_zero_weight");
+    const bool neg_preferred_rejected = !apply_inspector_property_edits_command(
+      {{"layout.preferred_width", "-8"}}, "phase103_57_neg_preferred");
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string sig_after_weight = build_document_signature(builder_doc, "phase103_57_after_weight");
+
+    bounds_layout_constraint_diag.invalid_child_parent_geometry_rejected =
+      zero_weight_rejected &&
+      neg_preferred_rejected &&
+      history_before_weight == undo_history.size() &&
+      sig_before_weight == sig_after_weight;
+
+    // ---- Marker 3: move_reparent_respects_layout_constraints ----
+    // Insert a container under root, reparent label-001 into it, verify doc valid
+    selected_builder_node_id = builder_doc.root_node_id;
+    focused_builder_node_id = builder_doc.root_node_id;
+    multi_selected_node_ids = {builder_doc.root_node_id};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const bool insert_container_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::VerticalLayout,
+      builder_doc.root_node_id,
+      "phase103-57-cont");
+    flow_ok = insert_container_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const bool move_ok = insert_container_ok &&
+      apply_bulk_move_reparent_selected_nodes_command({"label-001"}, "phase103-57-cont");
+    flow_ok = move_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    std::string validation_err_after_move;
+    bounds_layout_constraint_diag.move_reparent_respects_layout_constraints =
+      move_ok &&
+      ngk::ui::builder::validate_builder_document(builder_doc, &validation_err_after_move) &&
+      preview_matches_structure() &&
+      check_cross_surface_sync();
+
+    // ---- Marker 4: invalid_layout_not_committed_to_history ----
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const std::size_t history_before_compound_reject = undo_history.size();
+    const bool compound_reject_ok = !apply_inspector_property_edits_command(
+      {{"layout.min_width", "-1"}, {"layout.min_height", "-2"}},
+      "phase103_57_compound_reject");
+    const std::size_t history_after_compound_reject = undo_history.size();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    bounds_layout_constraint_diag.invalid_layout_not_committed_to_history =
+      compound_reject_ok &&
+      history_before_compound_reject == history_after_compound_reject;
+
+    // ---- Marker 5: preview_never_reflects_invalid_document_state ----
+    bounds_layout_constraint_diag.preview_never_reflects_invalid_document_state =
+      preview_matches_structure() &&
+      ngk::ui::builder::validate_builder_document(builder_doc, nullptr) &&
+      check_cross_surface_sync();
+
+    // ---- Marker 6: undo_redo_restore_valid_layout_exact ----
+    const std::string before_layout_edit_sig = build_document_signature(builder_doc, "phase103_57_before_layout_edit");
+    const bool valid_layout_edit_ok = apply_inspector_property_edits_command(
+      {{"layout.min_width", "160"}, {"layout.min_height", "40"}},
+      "phase103_57_valid_layout_edit");
+    flow_ok = valid_layout_edit_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string after_layout_edit_sig = build_document_signature(builder_doc, "phase103_57_after_layout_edit");
+
+    const auto* node_after_edit = find_node_by_id("label-001");
+    const bool edit_values_correct =
+      node_after_edit != nullptr &&
+      node_after_edit->layout.min_width == 160 &&
+      node_after_edit->layout.min_height == 40;
+
+    const bool undo_layout_ok = apply_undo_command();
+    flow_ok = undo_layout_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string after_undo_sig = build_document_signature(builder_doc, "phase103_57_after_undo");
+
+    const bool redo_layout_ok = apply_redo_command();
+    flow_ok = redo_layout_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+    const std::string after_redo_sig = build_document_signature(builder_doc, "phase103_57_after_redo");
+
+    bounds_layout_constraint_diag.undo_redo_restore_valid_layout_exact =
+      valid_layout_edit_ok &&
+      edit_values_correct &&
+      undo_layout_ok && redo_layout_ok &&
+      after_undo_sig == before_layout_edit_sig &&
+      after_redo_sig == after_layout_edit_sig;
+
+    // ---- Marker 7: save_load_rejects_constraint_violating_payload ----
+    // Serialise current doc, corrupt layout.min_width to -99, write to a test file,
+    // then verify load returns false and doc remains unchanged.
+    const std::filesystem::path invalid_payload_path =
+      builder_doc_save_path.parent_path() / "phase103_57_invalid_layout_payload.ngkb";
+    const std::string valid_serial = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    bool invalid_rejected = false;
+    if (!valid_serial.empty()) {
+      std::string corrupted = valid_serial;
+      const std::string search_tok = "layout.min_width=";
+      const std::size_t tok_pos = corrupted.find(search_tok);
+      if (tok_pos != std::string::npos) {
+        const std::size_t value_start = tok_pos + search_tok.size();
+        const std::size_t value_end = corrupted.find('\n', value_start);
+        if (value_end != std::string::npos) {
+          corrupted.replace(value_start, value_end - value_start, "-99");
+          const std::string sig_before_bad_load = build_document_signature(builder_doc, "phase103_57_before_bad_load");
+          if (write_text_file(invalid_payload_path, corrupted)) {
+            const bool load_returned_false = !load_builder_document_from_path(invalid_payload_path);
+            const std::string sig_after_bad_load = build_document_signature(builder_doc, "phase103_57_after_bad_load");
+            invalid_rejected = load_returned_false &&
+              ngk::ui::builder::validate_builder_document(builder_doc, nullptr) &&
+              sig_before_bad_load == sig_after_bad_load;
+          }
+        }
+      }
+    }
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    bounds_layout_constraint_diag.save_load_rejects_constraint_violating_payload = invalid_rejected;
+
+    // ---- Marker 8: valid_layout_roundtrip_preserved ----
+    // Current label-001 has min_width=160, min_height=40 (from marker 6 redo).
+    // Save, mutate, load back, verify original layout values restored.
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const std::string sig_before_save = build_document_signature(builder_doc, "phase103_57_before_save");
+    const bool save_ok = apply_save_document_command();
+    flow_ok = save_ok && flow_ok;
+
+    const bool mutate_ok = apply_inspector_property_edits_command(
+      {{"layout.min_width", "999"}},
+      "phase103_57_mutate_before_load");
+    flow_ok = mutate_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const bool load_ok = apply_load_document_command(true);
+    flow_ok = load_ok && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const std::string sig_after_roundtrip = build_document_signature(builder_doc, "phase103_57_after_roundtrip");
+    const auto* roundtrip_node = find_node_by_id("label-001");
+    const bool roundtrip_layout_correct =
+      roundtrip_node != nullptr &&
+      roundtrip_node->layout.min_width == 160 &&
+      roundtrip_node->layout.min_height == 40;
+
+    bounds_layout_constraint_diag.valid_layout_roundtrip_preserved =
+      save_ok && load_ok &&
+      roundtrip_layout_correct &&
+      sig_after_roundtrip == sig_before_save;
+
+    // ---- Marker 9: no_silent_geometry_autocorrection ----
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const auto* pre_node = find_node_by_id("label-001");
+    const int pre_min_width = pre_node ? pre_node->layout.min_width : -1;
+    const int pre_min_height = pre_node ? pre_node->layout.min_height : -1;
+
+    const bool autocorrect_rejected = !apply_inspector_property_edits_command(
+      {{"layout.min_width", "-50"}}, "phase103_57_autocorrect_test");
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const auto* post_node = find_node_by_id("label-001");
+    const int post_min_width = post_node ? post_node->layout.min_width : -1;
+    const int post_min_height = post_node ? post_node->layout.min_height : -1;
+
+    bounds_layout_constraint_diag.no_silent_geometry_autocorrection =
+      autocorrect_rejected &&
+      pre_min_width >= 0 &&
+      pre_min_height >= 0 &&
+      post_min_width == pre_min_width &&
+      post_min_height == pre_min_height;
+
+    // ---- Marker 10: preview_matches_structure_after_layout_mutations ----
+    bounds_layout_constraint_diag.preview_matches_structure_after_layout_mutations =
+      preview_matches_structure() &&
+      ngk::ui::builder::validate_builder_document(builder_doc, nullptr) &&
+      check_cross_surface_sync();
+
+    flow_ok = bounds_layout_constraint_diag.negative_dimensions_rejected && flow_ok;
+    flow_ok = bounds_layout_constraint_diag.invalid_child_parent_geometry_rejected && flow_ok;
+    flow_ok = bounds_layout_constraint_diag.move_reparent_respects_layout_constraints && flow_ok;
+    flow_ok = bounds_layout_constraint_diag.invalid_layout_not_committed_to_history && flow_ok;
+    flow_ok = bounds_layout_constraint_diag.preview_never_reflects_invalid_document_state && flow_ok;
+    flow_ok = bounds_layout_constraint_diag.undo_redo_restore_valid_layout_exact && flow_ok;
+    flow_ok = bounds_layout_constraint_diag.save_load_rejects_constraint_violating_payload && flow_ok;
+    flow_ok = bounds_layout_constraint_diag.valid_layout_roundtrip_preserved && flow_ok;
+    flow_ok = bounds_layout_constraint_diag.no_silent_geometry_autocorrection && flow_ok;
+    flow_ok = bounds_layout_constraint_diag.preview_matches_structure_after_layout_mutations && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_58 = [&] {
+    bool flow_ok = true;
+    event_input_routing_diag = BuilderEventInputRoutingIntegrityDiagnostics{};
+
+    const std::string kStaleRoutingRef{"phase103-58-nonexistent-stale-target"};
+
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto preview_matches_structure = [&]() -> bool {
+      std::vector<PreviewExportParityEntry> entries{};
+      std::string reason;
+      if (!build_preview_export_parity_entries(builder_doc, entries, reason, "phase103_58")) {
+        return false;
+      }
+      std::vector<std::string> preview_ids{};
+      std::vector<int> preview_depths{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        preview_ids.push_back(preview_visual_row_node_ids[idx]);
+        preview_depths.push_back(preview_visual_row_depths[idx]);
+      }
+      if (preview_ids.size() != entries.size()) {
+        return false;
+      }
+      for (std::size_t idx = 0; idx < entries.size(); ++idx) {
+        if (preview_ids[idx] != entries[idx].node_id || preview_depths[idx] != entries[idx].depth) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    auto reset_phase = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      builder_doc_dirty = false;
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      sync_multi_selection_with_primary();
+      return refresh_all_surfaces();
+    };
+
+    flow_ok = reset_phase() && flow_ok;
+
+    // ---- Marker 1: hit_test_returns_single_correct_node ----
+    // build_preview_click_hit_entries must produce a non-empty, duplicate-free,
+    // fully-valid set of entries — exactly what click routing relies on.
+    {
+      std::vector<PreviewExportParityEntry> hit_entries{};
+      std::string hit_reason;
+      const bool hit_map_ok = build_preview_click_hit_entries(hit_entries, hit_reason);
+      bool all_valid = hit_map_ok && !hit_entries.empty();
+      bool no_duplicates = true;
+      std::vector<std::string> seen_ids{};
+      for (const auto& entry : hit_entries) {
+        if (entry.node_id.empty() || !node_exists(entry.node_id)) {
+          all_valid = false;
+          break;
+        }
+        if (std::find(seen_ids.begin(), seen_ids.end(), entry.node_id) != seen_ids.end()) {
+          no_duplicates = false;
+          break;
+        }
+        seen_ids.push_back(entry.node_id);
+      }
+      event_input_routing_diag.hit_test_returns_single_correct_node =
+        hit_map_ok && all_valid && no_duplicates;
+    }
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    // ---- Marker 2: preview_click_matches_structure_selection ----
+    // preview_visual_row_node_ids (row map powering click routing) must agree exactly
+    // with build_preview_click_hit_entries. Also verify programmatic selection via
+    // the node IDs in the row map resolves correctly through the routing pipeline.
+    {
+      std::vector<PreviewExportParityEntry> hit_entries{};
+      std::string hit_reason;
+      const bool hit_map_ok = build_preview_click_hit_entries(hit_entries, hit_reason);
+      std::vector<std::string> row_ids{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        row_ids.push_back(preview_visual_row_node_ids[idx]);
+      }
+      bool mapping_consistent = hit_map_ok && (row_ids.size() == hit_entries.size());
+      if (mapping_consistent) {
+        for (std::size_t idx = 0; idx < hit_entries.size(); ++idx) {
+          if (row_ids[idx] != hit_entries[idx].node_id) {
+            mapping_consistent = false;
+            break;
+          }
+        }
+      }
+      // Verify programmatic routing: set selection to a known row-mapped node,
+      // confirm routing pipeline resolves it correctly.
+      bool routing_consistent = mapping_consistent;
+      if (mapping_consistent && !hit_entries.empty()) {
+        const std::size_t test_idx = hit_entries.size() > 1 ? 1 : 0;
+        const std::string& target_id = hit_entries[test_idx].node_id;
+        selected_builder_node_id = target_id;
+        sync_multi_selection_with_primary();
+        const bool remap_ok = remap_selection_or_fail();
+        const bool focus_ok = sync_focus_with_selection_or_fail();
+        routing_consistent = remap_ok && focus_ok &&
+          selected_builder_node_id == target_id &&
+          focused_builder_node_id == target_id;
+        // Restore root selection
+        selected_builder_node_id = builder_doc.root_node_id;
+        focused_builder_node_id = builder_doc.root_node_id;
+        multi_selected_node_ids = {builder_doc.root_node_id};
+        sync_multi_selection_with_primary();
+      }
+      event_input_routing_diag.preview_click_matches_structure_selection =
+        mapping_consistent && routing_consistent;
+    }
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    // ---- Marker 3: no_input_routed_to_stale_nodes ----
+    // Inject stale IDs into hover/drag/focused states and verify routing
+    // functions reject them without acting on the stale targets.
+    {
+      // hover stale cleared by scrub
+      hover_node_id = kStaleRoutingRef;
+      scrub_stale_lifecycle_references();
+      const bool hover_cleared = hover_node_id.empty();
+      // drag stale cleared by scrub (also clears drag_active)
+      drag_source_node_id = kStaleRoutingRef;
+      drag_active = true;
+      scrub_stale_lifecycle_references();
+      const bool drag_cleared = drag_source_node_id.empty() && !drag_active;
+      // stale focused → sync_focus_with_selection_or_fail returns false
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = kStaleRoutingRef;
+      const bool stale_focus_rejected = !sync_focus_with_selection_or_fail();
+      focused_builder_node_id = builder_doc.root_node_id;
+      // stale focused → apply_keyboard_multi_selection_add_focused returns false
+      focused_builder_node_id = kStaleRoutingRef;
+      const bool stale_kbfocus_rejected = !apply_keyboard_multi_selection_add_focused();
+      focused_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      event_input_routing_diag.no_input_routed_to_stale_nodes =
+        hover_cleared && drag_cleared && stale_focus_rejected && stale_kbfocus_rejected;
+    }
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    // ---- Marker 4: event_order_deterministic ----
+    // collect_preorder_node_ids is stable across calls.
+    // Forward + backward navigation produces a deterministic round-trip.
+    {
+      const std::vector<std::string> order1 = collect_preorder_node_ids();
+      const std::vector<std::string> order2 = collect_preorder_node_ids();
+      const bool preorder_stable = order1.size() > 1 && order1 == order2;
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      const bool nav_fwd = apply_tree_navigation(true);
+      const std::string after_fwd = selected_builder_node_id;
+      const bool nav_back = apply_tree_navigation(false);
+      const std::string after_back = selected_builder_node_id;
+      // Forward from root → second node; backward from second node → root
+      const bool round_trip_ok =
+        nav_fwd && nav_back &&
+        !after_fwd.empty() && node_exists(after_fwd) &&
+        after_back == builder_doc.root_node_id;
+      // Restore
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      event_input_routing_diag.event_order_deterministic = preorder_stable && round_trip_ok;
+    }
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    // ---- Marker 5: focus_hover_drag_states_valid ----
+    // Valid states pass check_cross_surface_sync.
+    // Stale states are explicitly cleared by scrub_stale_lifecycle_references.
+    {
+      // Baseline: after reset_phase, hover/drag should be empty
+      const bool initial_clean = hover_node_id.empty() && drag_source_node_id.empty() && !drag_active;
+      // Assign valid hover → check_cross_surface_sync passes (scrubs inside, root valid)
+      hover_node_id = builder_doc.root_node_id;
+      const bool valid_hover_sync = check_cross_surface_sync();
+      hover_node_id.clear();
+      // Stale hover → not a real node ID
+      hover_node_id = kStaleRoutingRef;
+      const bool stale_hover_present = !node_exists(hover_node_id);
+      scrub_stale_lifecycle_references();
+      const bool stale_hover_cleared = hover_node_id.empty();
+      // Stale drag → scrub clears both drag_source and drag_active
+      drag_source_node_id = kStaleRoutingRef;
+      drag_active = true;
+      const bool stale_drag_present = !node_exists(drag_source_node_id);
+      scrub_stale_lifecycle_references();
+      const bool stale_drag_cleared = drag_source_node_id.empty() && !drag_active;
+      // After all scrubs, sync recovers
+      const bool final_sync = check_cross_surface_sync();
+      event_input_routing_diag.focus_hover_drag_states_valid =
+        initial_clean &&
+        valid_hover_sync &&
+        stale_hover_present && stale_hover_cleared &&
+        stale_drag_present && stale_drag_cleared &&
+        final_sync;
+    }
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    // ---- Marker 6: keyboard_targets_current_selection_only ----
+    // Stale focused → apply_focus_navigation resolves to a valid node, not the stale target.
+    // Stale focused → apply_keyboard_multi_selection_add_focused does not add the stale ID.
+    {
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = kStaleRoutingRef;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      const bool nav_ok = apply_focus_navigation(true);
+      const bool nav_resolved_valid =
+        nav_ok &&
+        focused_builder_node_id != kStaleRoutingRef &&
+        !focused_builder_node_id.empty() &&
+        node_exists(focused_builder_node_id);
+      // Stale focused → keyboard multi-select add does not add the stale ID
+      focused_builder_node_id = kStaleRoutingRef;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      const bool stale_add_rejected = !apply_keyboard_multi_selection_add_focused();
+      const bool stale_not_in_multi =
+        std::find(multi_selected_node_ids.begin(), multi_selected_node_ids.end(),
+                  kStaleRoutingRef) == multi_selected_node_ids.end();
+      // Restore
+      focused_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      event_input_routing_diag.keyboard_targets_current_selection_only =
+        nav_resolved_valid && stale_add_rejected && stale_not_in_multi;
+    }
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    // ---- Marker 7: rapid_interaction_sequence_stable ----
+    // 10 consecutive tree navigations leave the system coherent after each step.
+    {
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      sync_multi_selection_with_primary();
+      bool rapid_stable = true;
+      for (int iter = 0; iter < 10 && rapid_stable; ++iter) {
+        const bool nav_ok = apply_tree_navigation(true);
+        multi_selected_node_ids = {selected_builder_node_id};
+        rapid_stable = nav_ok && refresh_all_surfaces();
+      }
+      // Restore to root
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      event_input_routing_diag.rapid_interaction_sequence_stable = rapid_stable;
+    }
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    // ---- Marker 8: no_ghost_or_duplicate_event_targets ----
+    // sync_multi_selection_with_primary deduplicates and removes stale IDs.
+    {
+      const std::string primary = builder_doc.root_node_id;
+      // Inject duplicates and a stale ID
+      multi_selected_node_ids = {primary, primary, kStaleRoutingRef, primary};
+      selected_builder_node_id = primary;
+      focused_builder_node_id = primary;
+      sync_multi_selection_with_primary();
+      const bool no_dups = multi_selected_node_ids.size() == 1;
+      const bool stale_removed =
+        std::find(multi_selected_node_ids.begin(), multi_selected_node_ids.end(),
+                  kStaleRoutingRef) == multi_selected_node_ids.end();
+      const bool primary_intact =
+        !multi_selected_node_ids.empty() && multi_selected_node_ids.front() == primary;
+      // Restore
+      multi_selected_node_ids = {primary};
+      sync_multi_selection_with_primary();
+      event_input_routing_diag.no_ghost_or_duplicate_event_targets =
+        no_dups && stale_removed && primary_intact;
+    }
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    // ---- Marker 9: event_routing_respects_render_hierarchy ----
+    // build_preview_click_hit_entries order is a subsequence of
+    // collect_preorder_node_ids (both use the same DFS document traversal).
+    {
+      std::vector<PreviewExportParityEntry> hit_entries{};
+      std::string hit_reason;
+      const bool hit_map_ok = build_preview_click_hit_entries(hit_entries, hit_reason);
+      const std::vector<std::string> preorder = collect_preorder_node_ids();
+      bool hierarchy_ok = hit_map_ok && !hit_entries.empty() && !preorder.empty();
+      if (hierarchy_ok) {
+        std::size_t search_from = 0;
+        for (const auto& entry : hit_entries) {
+          bool found = false;
+          for (std::size_t pi = search_from; pi < preorder.size(); ++pi) {
+            if (preorder[pi] == entry.node_id) {
+              search_from = pi + 1;
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            hierarchy_ok = false;
+            break;
+          }
+        }
+      }
+      event_input_routing_diag.event_routing_respects_render_hierarchy = hierarchy_ok;
+    }
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    // ---- Marker 10: preview_matches_structure_after_input_sequences ----
+    event_input_routing_diag.preview_matches_structure_after_input_sequences =
+      preview_matches_structure() &&
+      ngk::ui::builder::validate_builder_document(builder_doc, nullptr) &&
+      check_cross_surface_sync();
+
+    flow_ok = event_input_routing_diag.hit_test_returns_single_correct_node && flow_ok;
+    flow_ok = event_input_routing_diag.preview_click_matches_structure_selection && flow_ok;
+    flow_ok = event_input_routing_diag.no_input_routed_to_stale_nodes && flow_ok;
+    flow_ok = event_input_routing_diag.event_order_deterministic && flow_ok;
+    flow_ok = event_input_routing_diag.focus_hover_drag_states_valid && flow_ok;
+    flow_ok = event_input_routing_diag.keyboard_targets_current_selection_only && flow_ok;
+    flow_ok = event_input_routing_diag.rapid_interaction_sequence_stable && flow_ok;
+    flow_ok = event_input_routing_diag.no_ghost_or_duplicate_event_targets && flow_ok;
+    flow_ok = event_input_routing_diag.event_routing_respects_render_hierarchy && flow_ok;
+    flow_ok = event_input_routing_diag.preview_matches_structure_after_input_sequences && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
 
   builder_insert_container_button.set_on_click([&] {
     if (apply_palette_insert(true)) {
+      set_last_action_feedback("Added Container");
       recompute_builder_dirty_state(true);
+    } else {
+      set_last_action_feedback("Cannot add container here");
     }
   });
   builder_insert_leaf_button.set_on_click([&] {
     if (apply_palette_insert(false)) {
+      set_last_action_feedback("Added Item");
       recompute_builder_dirty_state(true);
+    } else {
+      set_last_action_feedback("Cannot add item here");
     }
   });
   builder_move_up_button.set_on_click([&] {
@@ -8509,7 +13838,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   });
   builder_delete_button.set_on_click([&] {
     if (apply_delete_command_for_current_selection()) {
+      set_last_action_feedback("Deleted Node");
       recompute_builder_dirty_state(true);
+    } else {
+      const std::string delete_reason = delete_rejection_reason_for_node(selected_builder_node_id);
+      if (delete_reason == "protected_root") {
+        set_last_action_feedback("Cannot delete root");
+      } else {
+        set_last_action_feedback("Delete blocked");
+      }
     }
     remap_selection_or_fail();
     sync_focus_with_selection_or_fail();
@@ -8528,10 +13865,12 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   });
   builder_save_button.set_on_click([&] {
     apply_save_document_command();
+    set_last_action_feedback("Saved Document");
     request_redraw("builder_save", false, false);
   });
   builder_export_button.set_on_click([&] {
     apply_export_command(builder_doc, builder_export_path);
+    set_last_action_feedback("Exported Runtime");
     request_redraw("builder_export", false, false);
   });
   builder_load_button.set_on_click([&] {
@@ -8543,26 +13882,267 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     request_redraw("builder_load_discard", false, false);
   });
   builder_new_button.set_on_click([&] {
-    apply_new_document_command(false);
+    if (apply_new_document_command(false)) {
+      set_last_action_feedback("Created New Document");
+    } else {
+      set_last_action_feedback("New document blocked by unsaved changes");
+    }
     request_redraw("builder_new", false, false);
   });
   builder_new_discard_button.set_on_click([&] {
-    apply_new_document_command(true);
+    if (apply_new_document_command(true)) {
+      set_last_action_feedback("Created New Document");
+    } else {
+      set_last_action_feedback("New document failed");
+    }
     request_redraw("builder_new_discard", false, false);
   });
+  builder_debug_mode_toggle_button.set_on_click([&] {
+    builder_debug_mode = !builder_debug_mode;
+    builder_debug_mode_toggle_button.set_text(builder_debug_mode ? "[DEBUG MODE: ON]" : "[DEBUG MODE: OFF]");
+    refresh_inspector_or_fail();
+    refresh_preview_or_fail();
+    refresh_tree_surface_label();
+    request_redraw("builder_debug_toggle", false, false);
+  });
+  builder_inspector_add_child_button.set_on_click([&] {
+    attempt_add_child_with_auto_parent();
+    remap_selection_or_fail();
+    sync_focus_with_selection_or_fail();
+    refresh_tree_surface_label();
+    refresh_inspector_or_fail();
+    refresh_preview_or_fail();
+    check_cross_surface_sync();
+    request_redraw("inspector_add_child", false, false);
+  });
+  builder_inspector_delete_button.set_on_click([&] {
+    const std::string deleted_target = selected_builder_node_id;
+    if (apply_delete_command_for_current_selection()) {
+      set_last_action_feedback("Item removed");
+      set_preview_visual_feedback("Item removed", deleted_target);
+      set_tree_visual_feedback(deleted_target);
+      recompute_builder_dirty_state(true);
+    } else {
+      set_last_action_feedback("Delete blocked");
+      set_preview_visual_feedback("This item cannot be deleted.", deleted_target);
+      set_tree_visual_feedback(deleted_target);
+    }
+    remap_selection_or_fail();
+    sync_focus_with_selection_or_fail();
+    refresh_tree_surface_label();
+    refresh_inspector_or_fail();
+    refresh_preview_or_fail();
+    check_cross_surface_sync();
+    request_redraw("inspector_delete", false, false);
+  });
+  builder_inspector_move_up_button.set_on_click([&] {
+    const std::string moving_id = selected_builder_node_id;
+    std::size_t before_index = kMaxVisualPreviewRows;
+    for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+      if (preview_visual_row_node_ids[idx] == moving_id) {
+        before_index = idx;
+        break;
+      }
+    }
+    apply_move_sibling_up();
+    recompute_builder_dirty_state(true);
+    remap_selection_or_fail();
+    sync_focus_with_selection_or_fail();
+    refresh_tree_surface_label();
+    refresh_inspector_or_fail();
+    refresh_preview_or_fail();
+    std::size_t after_index = kMaxVisualPreviewRows;
+    for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+      if (preview_visual_row_node_ids[idx] == moving_id) {
+        after_index = idx;
+        break;
+      }
+    }
+    if (after_index < before_index) {
+      set_last_action_feedback("Moved up");
+      set_preview_visual_feedback("Moved up", moving_id);
+      set_tree_visual_feedback(moving_id);
+    } else {
+      set_last_action_feedback("This item is already at the top of its group.");
+      set_preview_visual_feedback("This item is already at the top of its group.", moving_id);
+      set_tree_visual_feedback(moving_id);
+    }
+    check_cross_surface_sync();
+    request_redraw("inspector_move_up", false, false);
+  });
+  builder_inspector_move_down_button.set_on_click([&] {
+    const std::string moving_id = selected_builder_node_id;
+    std::size_t before_index = kMaxVisualPreviewRows;
+    for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+      if (preview_visual_row_node_ids[idx] == moving_id) {
+        before_index = idx;
+        break;
+      }
+    }
+    apply_move_sibling_down();
+    recompute_builder_dirty_state(true);
+    remap_selection_or_fail();
+    sync_focus_with_selection_or_fail();
+    refresh_tree_surface_label();
+    refresh_inspector_or_fail();
+    refresh_preview_or_fail();
+    std::size_t after_index = kMaxVisualPreviewRows;
+    for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+      if (preview_visual_row_node_ids[idx] == moving_id) {
+        after_index = idx;
+        break;
+      }
+    }
+    if (after_index > before_index && after_index < kMaxVisualPreviewRows) {
+      set_last_action_feedback("Moved down");
+      set_preview_visual_feedback("Moved down", moving_id);
+      set_tree_visual_feedback(moving_id);
+    } else {
+      set_last_action_feedback("This item is already at the bottom of its group.");
+      set_preview_visual_feedback("This item is already at the bottom of its group.", moving_id);
+      set_tree_visual_feedback(moving_id);
+    }
+    check_cross_surface_sync();
+    request_redraw("inspector_move_down", false, false);
+  });
+  builder_inspector_apply_button.set_on_click([&] {
+    const std::string target_id = selected_builder_node_id;
+    std::vector<std::pair<std::string, std::string>> updates;
+    if (builder_inspector_text_input.visible()) {
+      updates.push_back({"text", builder_inspector_text_input.value()});
+    }
+    if (builder_inspector_layout_min_width_input.visible()) {
+      updates.push_back({"layout.min_width", builder_inspector_layout_min_width_input.value()});
+    }
+    if (builder_inspector_layout_min_height_input.visible()) {
+      updates.push_back({"layout.min_height", builder_inspector_layout_min_height_input.value()});
+    }
+
+    const bool ok = apply_inspector_property_edits_command(updates, "inspector_multi_property_edit");
+    if (ok) {
+      inspector_edit_binding_node_id = target_id;
+      if (builder_inspector_text_input.visible()) {
+        inspector_edit_loaded_text = builder_inspector_text_input.value();
+      } else {
+        inspector_edit_loaded_text.clear();
+      }
+      inspector_edit_loaded_min_width = builder_inspector_layout_min_width_input.value();
+      inspector_edit_loaded_min_height = builder_inspector_layout_min_height_input.value();
+      set_last_action_feedback(target_id.empty() ? "Applied properties" : std::string("Applied properties to ") + target_id);
+      set_preview_visual_feedback("Size and content updated in preview.", target_id);
+      remap_selection_or_fail();
+      sync_focus_with_selection_or_fail();
+      refresh_tree_surface_label();
+      refresh_inspector_or_fail();
+      refresh_preview_or_fail();
+      check_cross_surface_sync();
+    } else {
+      set_last_action_feedback("Property edit rejected");
+      set_preview_visual_feedback("Could not apply changes. Check input values.", target_id);
+      refresh_inspector_or_fail();
+    }
+    request_redraw("builder_inspector_apply", false, false);
+  });
+  builder_preview_inline_apply_button.set_on_click([&] {
+    if (!inline_edit_active) {
+      return;
+    }
+    inline_edit_buffer = builder_preview_inline_text_input.value();
+    const bool ok = commit_inline_edit();
+    if (ok) {
+      preview_inline_loaded_text = builder_preview_inline_text_input.value();
+      set_last_action_feedback("Preview text updated");
+    } else {
+      set_last_action_feedback("Preview text update blocked");
+    }
+    refresh_tree_surface_label();
+    refresh_inspector_or_fail();
+    refresh_preview_or_fail();
+    check_cross_surface_sync();
+    request_redraw("preview_inline_apply", false, false);
+  });
+  builder_preview_inline_cancel_button.set_on_click([&] {
+    cancel_inline_edit();
+    set_last_action_feedback("Preview edit canceled");
+    refresh_preview_or_fail();
+    refresh_inspector_or_fail();
+    request_redraw("preview_inline_cancel", false, false);
+  });
+
+  for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+    builder_tree_row_buttons[idx].set_on_click([&, idx] {
+      const std::string& target_id = tree_visual_row_node_ids[idx];
+      if (target_id.empty() || !node_exists(target_id)) {
+        return;
+      }
+      selected_builder_node_id = target_id;
+      set_last_action_feedback(std::string("Selected ") + target_id);
+      set_preview_visual_feedback("Selected item in structure.", target_id);
+      set_tree_visual_feedback(target_id);
+      remap_selection_or_fail();
+      sync_focus_with_selection_or_fail();
+      refresh_inspector_or_fail();
+      refresh_preview_or_fail();
+      check_cross_surface_sync();
+      request_redraw("tree_visual_select", true, false);
+    });
+  }
+
+  for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+    builder_preview_row_buttons[idx].set_on_click([&, idx] {
+      const std::string& target_id = preview_visual_row_node_ids[idx];
+      if (target_id.empty() || !node_exists(target_id)) {
+        return;
+      }
+      const int click_x = builder_preview_label.x() + 6;
+      const int click_y = builder_preview_row_buttons[idx].y() + 6;
+      if (!apply_preview_click_select_at_point(click_x, click_y)) {
+        return;
+      }
+      if (selected_builder_node_id != target_id) {
+        return;
+      }
+
+      auto* preview_node = find_node_by_id(selected_builder_node_id);
+      if (preview_node && preview_node->widget_type == ngk::ui::builder::BuilderWidgetType::Label) {
+        if (inline_edit_active && inline_edit_node_id != selected_builder_node_id) {
+          commit_inline_edit();
+        }
+        if (!inline_edit_active || inline_edit_node_id != selected_builder_node_id) {
+          enter_inline_edit_mode(selected_builder_node_id);
+          preview_inline_loaded_text = inline_edit_buffer;
+        }
+      } else if (inline_edit_active) {
+        commit_inline_edit();
+      }
+      set_last_action_feedback(std::string("Selected ") + selected_builder_node_id);
+      set_preview_visual_feedback("Selected item in preview.", selected_builder_node_id);
+      set_tree_visual_feedback(selected_builder_node_id);
+      remap_selection_or_fail();
+      sync_focus_with_selection_or_fail();
+      refresh_inspector_or_fail();
+      refresh_preview_or_fail();
+      check_cross_surface_sync();
+      request_redraw("preview_visual_select", true, false);
+    });
+  }
 
   root.add_child(&shell);
   shell.add_child(&builder_shell_panel);
-  builder_shell_panel.add_child(&builder_header_bar);
+
+  builder_shell_panel.add_child(&builder_header_block);
+  builder_header_block.add_child(&builder_header_bar);
   builder_header_bar.add_child(&title_label);
-  builder_shell_panel.add_child(&builder_filter_bar);
+
+  builder_shell_panel.add_child(&builder_input_toolbar_block);
+  builder_input_toolbar_block.add_child(&builder_filter_bar);
   builder_filter_bar.add_child(&filter_box);
   builder_filter_bar.add_child(&apply_button);
   builder_filter_bar.add_child(&refresh_button);
   builder_filter_bar.add_child(&prev_button);
   builder_filter_bar.add_child(&next_button);
   builder_filter_bar.add_child(&builder_delete_button);
-  builder_shell_panel.add_child(&builder_primary_actions_bar);
+  builder_input_toolbar_block.add_child(&builder_primary_actions_bar);
   builder_primary_actions_bar.add_child(&builder_undo_button);
   builder_primary_actions_bar.add_child(&builder_redo_button);
   builder_primary_actions_bar.add_child(&builder_save_button);
@@ -8570,32 +14150,71 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   builder_primary_actions_bar.add_child(&builder_load_discard_button);
   builder_primary_actions_bar.add_child(&builder_new_button);
   builder_primary_actions_bar.add_child(&builder_new_discard_button);
-  builder_shell_panel.add_child(&builder_secondary_actions_bar);
+  builder_input_toolbar_block.add_child(&builder_secondary_actions_bar);
   builder_secondary_actions_bar.add_child(&builder_insert_container_button);
   builder_secondary_actions_bar.add_child(&builder_insert_leaf_button);
   builder_secondary_actions_bar.add_child(&builder_export_button);
-  builder_shell_panel.add_child(&builder_info_row);
+  builder_secondary_actions_bar.add_child(&builder_debug_mode_toggle_button);
+
+  builder_shell_panel.add_child(&builder_status_info_block);
+  builder_status_info_block.add_child(&builder_info_row);
   builder_info_row.add_child(&builder_detail_panel);
   builder_detail_panel.add_child(&status_label);
   builder_detail_panel.add_child(&selected_label);
   builder_detail_panel.add_child(&detail_label);
   builder_info_row.add_child(&builder_export_panel);
   builder_export_panel.add_child(&builder_export_status_label);
+
   builder_shell_panel.add_child(&builder_surface_row);
   builder_surface_row.add_child(&builder_tree_panel);
   builder_tree_panel.add_child(&builder_tree_header);
   builder_tree_panel.add_child(&builder_tree_scroll);
-  builder_tree_scroll.add_child(&builder_tree_surface_label);
+  builder_tree_scroll.add_child(&builder_tree_scroll_content);
+  builder_tree_scroll_content.add_child(&builder_tree_visual_rows);
+  for (auto& row : builder_tree_row_buttons) {
+    builder_tree_visual_rows.add_child(&row);
+  }
+  builder_tree_scroll_content.add_child(&builder_tree_surface_label);
   builder_surface_row.add_child(&builder_inspector_panel);
   builder_inspector_panel.add_child(&builder_inspector_header);
   builder_inspector_panel.add_child(&builder_inspector_scroll);
-  builder_inspector_scroll.add_child(&builder_inspector_label);
+  builder_inspector_scroll.add_child(&builder_inspector_scroll_content);
+  builder_inspector_scroll_content.add_child(&builder_inspector_selection_label);
+  builder_inspector_scroll_content.add_child(&builder_add_child_target_label);
+  builder_inspector_scroll_content.add_child(&builder_inspector_edit_hint_label);
+  builder_inspector_scroll_content.add_child(&builder_inspector_text_input);
+  builder_inspector_scroll_content.add_child(&builder_inspector_layout_min_width_label);
+  builder_inspector_scroll_content.add_child(&builder_inspector_layout_min_width_input);
+  builder_inspector_scroll_content.add_child(&builder_inspector_layout_min_height_label);
+  builder_inspector_scroll_content.add_child(&builder_inspector_layout_min_height_input);
+  builder_inspector_scroll_content.add_child(&builder_inspector_structure_controls_label);
+  builder_inspector_scroll_content.add_child(&builder_inspector_structure_controls_row);
+  builder_inspector_structure_controls_row.add_child(&builder_inspector_add_child_button);
+  builder_inspector_structure_controls_row.add_child(&builder_inspector_delete_button);
+  builder_inspector_structure_controls_row.add_child(&builder_inspector_move_up_button);
+  builder_inspector_structure_controls_row.add_child(&builder_inspector_move_down_button);
+  builder_inspector_scroll_content.add_child(&builder_inspector_apply_button);
+  builder_inspector_scroll_content.add_child(&builder_inspector_non_editable_label);
+  builder_inspector_scroll_content.add_child(&builder_inspector_label);
   builder_surface_row.add_child(&builder_preview_panel);
   builder_preview_panel.add_child(&builder_preview_header);
   builder_preview_panel.add_child(&builder_preview_scroll);
-  builder_preview_scroll.add_child(&builder_preview_label);
-  builder_shell_panel.add_child(&builder_footer_bar);
+  builder_preview_scroll.add_child(&builder_preview_scroll_content);
+  builder_preview_scroll_content.add_child(&builder_preview_visual_rows);
+  for (auto& row : builder_preview_row_buttons) {
+    builder_preview_visual_rows.add_child(&row);
+  }
+  builder_preview_scroll_content.add_child(&builder_preview_interaction_hint_label);
+  builder_preview_scroll_content.add_child(&builder_preview_inline_text_input);
+  builder_preview_scroll_content.add_child(&builder_preview_inline_actions_row);
+  builder_preview_inline_actions_row.add_child(&builder_preview_inline_apply_button);
+  builder_preview_inline_actions_row.add_child(&builder_preview_inline_cancel_button);
+  builder_preview_scroll_content.add_child(&builder_preview_label);
+
+  builder_shell_panel.add_child(&builder_footer_block);
+  builder_footer_block.add_child(&builder_footer_bar);
   builder_footer_bar.add_child(&path_label);
+  builder_footer_bar.add_child(&builder_action_feedback_label);
 
   tree.set_root(&root);
   input_router.set_tree(&tree);
@@ -8609,6 +14228,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   model.filter = "";
   reload_entries(model, scan_root);
   update_labels();
+  set_last_action_feedback("Ready");
   refresh_tree_surface_label();
   refresh_inspector_surface_label();
   refresh_preview_surface_label();
@@ -8645,7 +14265,23 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     constexpr std::uint32_t wmLButtonDown = 0x0201;
     bool handled = false;
 
-    if (down && message == wmLButtonDown) {
+    if (down && message == wmLButtonDown && inline_edit_active) {
+      const int mx = input_router.mouse_x();
+      const int my = input_router.mouse_y();
+      const bool inside_inline_editor =
+        builder_preview_inline_text_input.contains_point(mx, my) ||
+        builder_preview_inline_apply_button.contains_point(mx, my) ||
+        builder_preview_inline_cancel_button.contains_point(mx, my);
+      if (!inside_inline_editor) {
+        inline_edit_buffer = builder_preview_inline_text_input.value();
+        commit_inline_edit();
+        refresh_tree_surface_label();
+        refresh_inspector_or_fail();
+        refresh_preview_or_fail();
+      }
+    }
+
+    if (builder_debug_mode && down && message == wmLButtonDown) {
       const bool preview_click_handled =
         apply_preview_click_select_at_point(input_router.mouse_x(), input_router.mouse_y());
       if (preview_click_handled) {
@@ -8659,11 +14295,25 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       request_redraw("mouse_button", true, false);
     }
 
-    if (!handled && down && message == wmLButtonDown && builder_preview_label.contains_point(input_router.mouse_x(), input_router.mouse_y())) {
+    if (builder_debug_mode && !handled && down && message == wmLButtonDown && builder_preview_label.contains_point(input_router.mouse_x(), input_router.mouse_y())) {
       request_redraw("preview_click_rejected", true, false);
     }
   });
   window.set_key_callback([&](std::uint32_t key, bool down, bool repeat) {
+    constexpr std::uint32_t vkReturn = 0x0D;
+    if (down && !repeat && key == vkReturn && builder_preview_inline_text_input.focused() && inline_edit_active) {
+      inline_edit_buffer = builder_preview_inline_text_input.value();
+      if (commit_inline_edit()) {
+        set_last_action_feedback("Preview text updated");
+      } else {
+        set_last_action_feedback("Preview text update blocked");
+      }
+      refresh_tree_surface_label();
+      refresh_inspector_or_fail();
+      refresh_preview_or_fail();
+      request_redraw("preview_inline_enter", true, false);
+      return;
+    }
     if (handle_builder_shortcut_key(key, down, repeat)) {
       request_redraw("builder_shortcut", true, false);
       return;
@@ -8783,6 +14433,23 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     loop.set_timeout(milliseconds(11100), [&] { run_phase103_39(); });
     loop.set_timeout(milliseconds(11300), [&] { run_phase103_40(); });
     loop.set_timeout(milliseconds(11500), [&] { run_phase103_41(); });
+    loop.set_timeout(milliseconds(11700), [&] { run_phase103_42(); });
+    loop.set_timeout(milliseconds(11900), [&] { run_phase103_43(); });
+    loop.set_timeout(milliseconds(12100), [&] { run_phase103_44(); });
+    loop.set_timeout(milliseconds(12300), [&] { run_phase103_45(); });
+    loop.set_timeout(milliseconds(12500), [&] { run_phase103_46(); });
+    loop.set_timeout(milliseconds(12700), [&] { run_phase103_47(); });
+    loop.set_timeout(milliseconds(12900), [&] { run_phase103_48(); });
+    loop.set_timeout(milliseconds(13100), [&] { run_phase103_49(); });
+    loop.set_timeout(milliseconds(13300), [&] { run_phase103_50(); });
+    loop.set_timeout(milliseconds(13500), [&] { run_phase103_51(); });
+    loop.set_timeout(milliseconds(13700), [&] { run_phase103_52(); });
+    loop.set_timeout(milliseconds(13900), [&] { run_phase103_53(); });
+    loop.set_timeout(milliseconds(14100), [&] { run_phase103_54(); });
+    loop.set_timeout(milliseconds(14300), [&] { run_phase103_55(); });
+    loop.set_timeout(milliseconds(14500), [&] { run_phase103_56(); });
+    loop.set_timeout(milliseconds(14700), [&] { run_phase103_57(); });
+    loop.set_timeout(milliseconds(14900), [&] { run_phase103_58(); });
   }
 
   if (auto_close_ms > 0) {
@@ -8801,6 +14468,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   loop.set_interval(milliseconds(16), [&] {
     redraw_diag.steady_loop_iterations += 1;
     std::cout << "phase101_4_steady_loop iteration=" << redraw_diag.steady_loop_iterations << "\n";
+    update_add_child_target_display();
     request_redraw("steady_state_tick", false, false);
     render_frames += 1;
     if (renderer.is_device_lost()) {
@@ -9158,6 +14826,166 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         std::cout << "phase103_41_shell_state_still_coherent=" << (top_action_surface_diag.shell_state_still_coherent ? 1 : 0) << "\n";
         std::cout << "phase103_41_preview_remains_parity_safe=" << (top_action_surface_diag.preview_remains_parity_safe ? 1 : 0) << "\n";
         std::cout << "phase103_41_layout_audit_still_compatible=" << (top_action_surface_diag.layout_audit_still_compatible ? 1 : 0) << "\n";
+        std::cout << "phase103_42_button_state_readability_improved=" << (button_state_readability_diag.button_state_readability_improved ? 1 : 0) << "\n";
+        std::cout << "phase103_42_available_vs_blocked_actions_visually_clear=" << (button_state_readability_diag.available_vs_blocked_actions_visually_clear ? 1 : 0) << "\n";
+        std::cout << "phase103_42_current_relevant_actions_emphasized=" << (button_state_readability_diag.current_relevant_actions_emphasized ? 1 : 0) << "\n";
+        std::cout << "phase103_42_button_state_matches_surface_truth=" << (button_state_readability_diag.button_state_matches_surface_truth ? 1 : 0) << "\n";
+        std::cout << "phase103_42_shell_state_still_coherent=" << (button_state_readability_diag.shell_state_still_coherent ? 1 : 0) << "\n";
+        std::cout << "phase103_42_preview_remains_parity_safe=" << (button_state_readability_diag.preview_remains_parity_safe ? 1 : 0) << "\n";
+        std::cout << "phase103_42_layout_audit_still_compatible=" << (button_state_readability_diag.layout_audit_still_compatible ? 1 : 0) << "\n";
+        std::cout << "phase103_43_startup_guidance_visible=" << (usability_baseline_diag.startup_guidance_visible ? 1 : 0) << "\n";
+        std::cout << "phase103_43_button_labels_humanized=" << (usability_baseline_diag.button_labels_humanized ? 1 : 0) << "\n";
+        std::cout << "phase103_43_selection_visual_marker_present=" << (usability_baseline_diag.selection_visual_marker_present ? 1 : 0) << "\n";
+        std::cout << "phase103_43_action_feedback_visible=" << (usability_baseline_diag.action_feedback_visible ? 1 : 0) << "\n";
+        std::cout << "phase103_43_preview_readability_improved=" << (usability_baseline_diag.preview_readability_improved ? 1 : 0) << "\n";
+        std::cout << "phase103_43_debug_information_toggleable=" << (usability_baseline_diag.debug_information_toggleable ? 1 : 0) << "\n";
+        std::cout << "phase103_43_existing_system_behavior_unchanged=" << (usability_baseline_diag.existing_system_behavior_unchanged ? 1 : 0) << "\n";
+        std::cout << "phase103_43_shell_state_still_coherent=" << (usability_baseline_diag.shell_state_still_coherent ? 1 : 0) << "\n";
+        std::cout << "phase103_43_preview_remains_parity_safe=" << (usability_baseline_diag.preview_remains_parity_safe ? 1 : 0) << "\n";
+        std::cout << "phase103_43_layout_audit_still_compatible=" << (usability_baseline_diag.layout_audit_still_compatible ? 1 : 0) << "\n";
+        std::cout << "phase103_44_selected_node_edit_target_clear=" << (explicit_edit_field_diag.selected_node_edit_target_clear ? 1 : 0) << "\n";
+        std::cout << "phase103_44_editable_field_visible_for_text_nodes=" << (explicit_edit_field_diag.editable_field_visible_for_text_nodes ? 1 : 0) << "\n";
+        std::cout << "phase103_44_non_text_nodes_show_non_editable_state=" << (explicit_edit_field_diag.non_text_nodes_show_non_editable_state ? 1 : 0) << "\n";
+        std::cout << "phase103_44_apply_behavior_unambiguous=" << (explicit_edit_field_diag.apply_behavior_unambiguous ? 1 : 0) << "\n";
+        std::cout << "phase103_44_shell_state_still_coherent=" << (explicit_edit_field_diag.shell_state_still_coherent ? 1 : 0) << "\n";
+        std::cout << "phase103_44_preview_remains_parity_safe=" << (explicit_edit_field_diag.preview_remains_parity_safe ? 1 : 0) << "\n";
+        std::cout << "phase103_44_layout_audit_still_compatible=" << (explicit_edit_field_diag.layout_audit_still_compatible ? 1 : 0) << "\n";
+        std::cout << "phase103_45_clickable_tree=" << (integrated_usability_diag.clickable_tree ? 1 : 0) << "\n";
+        std::cout << "phase103_45_inspector_multi_property_editing=" << (integrated_usability_diag.inspector_multi_property_editing ? 1 : 0) << "\n";
+        std::cout << "phase103_45_simple_structure_controls=" << (integrated_usability_diag.simple_structure_controls ? 1 : 0) << "\n";
+        std::cout << "phase103_45_visual_preview=" << (integrated_usability_diag.visual_preview ? 1 : 0) << "\n";
+        std::cout << "phase103_45_reduced_debug_noise_normal_mode=" << (integrated_usability_diag.reduced_debug_noise_normal_mode ? 1 : 0) << "\n";
+        std::cout << "phase103_45_shell_state_still_coherent=" << (integrated_usability_diag.shell_state_still_coherent ? 1 : 0) << "\n";
+        std::cout << "phase103_45_preview_remains_parity_safe=" << (integrated_usability_diag.preview_remains_parity_safe ? 1 : 0) << "\n";
+        std::cout << "phase103_45_layout_audit_still_compatible=" << (integrated_usability_diag.layout_audit_still_compatible ? 1 : 0) << "\n";
+        std::cout << "phase103_46_visual_selection_clear=" << (real_interaction_diag.visual_selection_clear ? 1 : 0) << "\n";
+        std::cout << "phase103_46_preview_click_selection=" << (real_interaction_diag.preview_click_selection ? 1 : 0) << "\n";
+        std::cout << "phase103_46_inline_text_edit_preview=" << (real_interaction_diag.inline_text_edit_preview ? 1 : 0) << "\n";
+        std::cout << "phase103_46_structure_controls_visible=" << (real_interaction_diag.structure_controls_visible ? 1 : 0) << "\n";
+        std::cout << "phase103_46_empty_state_guidance_present=" << (real_interaction_diag.empty_state_guidance_present ? 1 : 0) << "\n";
+        std::cout << "phase103_46_confusion_reduced=" << (real_interaction_diag.confusion_reduced ? 1 : 0) << "\n";
+        std::cout << "phase103_46_shell_state_still_coherent=" << (real_interaction_diag.shell_state_still_coherent ? 1 : 0) << "\n";
+        std::cout << "phase103_46_preview_remains_parity_safe=" << (real_interaction_diag.preview_remains_parity_safe ? 1 : 0) << "\n";
+        std::cout << "phase103_46_layout_audit_still_compatible=" << (real_interaction_diag.layout_audit_still_compatible ? 1 : 0) << "\n";
+        std::cout << "phase103_47_human_readable_ui=" << (human_readable_ui_diag.human_readable_ui ? "YES" : "NO") << "\n";
+        std::cout << "phase103_47_preview_visualized=" << (human_readable_ui_diag.preview_visualized ? "YES" : "NO") << "\n";
+        std::cout << "phase103_47_selection_clear=" << (human_readable_ui_diag.selection_clear ? "YES" : "NO") << "\n";
+        std::cout << "phase103_47_inspector_simplified=" << (human_readable_ui_diag.inspector_simplified ? "YES" : "NO") << "\n";
+        std::cout << "phase103_47_structure_feedback_visible=" << (human_readable_ui_diag.structure_feedback_visible ? "YES" : "NO") << "\n";
+        std::cout << "phase103_47_confusion_removed=" << (human_readable_ui_diag.confusion_removed ? "YES" : "NO") << "\n";
+        std::cout << "phase103_47_shell_state_still_coherent=" << (human_readable_ui_diag.shell_state_still_coherent ? "YES" : "NO") << "\n";
+        std::cout << "phase103_47_preview_remains_parity_safe=" << (human_readable_ui_diag.preview_remains_parity_safe ? "YES" : "NO") << "\n";
+        std::cout << "phase103_47_layout_audit_still_compatible=" << (human_readable_ui_diag.layout_audit_still_compatible ? "YES" : "NO") << "\n";
+        std::cout << "phase103_48_preview_real_ui=" << (preview_real_ui_diag.preview_real_ui ? "YES" : "NO") << "\n";
+        std::cout << "phase103_48_no_debug_labels=" << (preview_real_ui_diag.no_debug_labels ? "YES" : "NO") << "\n";
+        std::cout << "phase103_48_containers_visual=" << (preview_real_ui_diag.containers_visual ? "YES" : "NO") << "\n";
+        std::cout << "phase103_48_text_clean=" << (preview_real_ui_diag.text_clean ? "YES" : "NO") << "\n";
+        std::cout << "phase103_48_selection_visual=" << (preview_real_ui_diag.selection_visual ? "YES" : "NO") << "\n";
+        std::cout << "phase103_48_hierarchy_visible=" << (preview_real_ui_diag.hierarchy_visible ? "YES" : "NO") << "\n";
+        std::cout << "phase103_48_shell_state_still_coherent=" << (preview_real_ui_diag.shell_state_still_coherent ? "YES" : "NO") << "\n";
+        std::cout << "phase103_48_preview_remains_parity_safe=" << (preview_real_ui_diag.preview_remains_parity_safe ? "YES" : "NO") << "\n";
+        std::cout << "phase103_48_layout_audit_still_compatible=" << (preview_real_ui_diag.layout_audit_still_compatible ? "YES" : "NO") << "\n";
+        std::cout << "phase103_49_add_child_validated=" << (action_visibility_diag.add_child_validated ? "YES" : "NO") << "\n";
+        std::cout << "phase103_49_size_affects_preview=" << (action_visibility_diag.size_affects_preview ? "YES" : "NO") << "\n";
+        std::cout << "phase103_49_structure_feedback_visible=" << (action_visibility_diag.structure_feedback_visible ? "YES" : "NO") << "\n";
+        std::cout << "phase103_49_actions_not_silent=" << (action_visibility_diag.actions_not_silent ? "YES" : "NO") << "\n";
+        std::cout << "phase103_49_confusion_removed=" << (action_visibility_diag.confusion_removed ? "YES" : "NO") << "\n";
+        std::cout << "phase103_49_shell_state_still_coherent=" << (action_visibility_diag.shell_state_still_coherent ? "YES" : "NO") << "\n";
+        std::cout << "phase103_49_preview_remains_parity_safe=" << (action_visibility_diag.preview_remains_parity_safe ? "YES" : "NO") << "\n";
+        std::cout << "phase103_49_layout_audit_still_compatible=" << (action_visibility_diag.layout_audit_still_compatible ? "YES" : "NO") << "\n";
+        std::cout << "phase103_50_container_visual_clear=" << (clarity_enforcement_diag.container_visual_clear ? "YES" : "NO") << "\n";
+        std::cout << "phase103_50_label_visual_clear=" << (clarity_enforcement_diag.label_visual_clear ? "YES" : "NO") << "\n";
+        std::cout << "phase103_50_add_child_disabled_for_label=" << (clarity_enforcement_diag.add_child_disabled_for_label ? "YES" : "NO") << "\n";
+        std::cout << "phase103_50_auto_parent_correction=" << (clarity_enforcement_diag.auto_parent_correction ? "YES" : "NO") << "\n";
+        std::cout << "phase103_50_insertion_slot_visible=" << (clarity_enforcement_diag.insertion_slot_visible ? "YES" : "NO") << "\n";
+        std::cout << "phase103_50_hierarchy_visually_clear=" << (clarity_enforcement_diag.hierarchy_visually_clear ? "YES" : "NO") << "\n";
+        std::cout << "phase103_50_selection_unmistakable=" << (clarity_enforcement_diag.selection_unmistakable ? "YES" : "NO") << "\n";
+        std::cout << "phase103_50_no_debug_text_remaining=" << (clarity_enforcement_diag.no_debug_text_remaining ? "YES" : "NO") << "\n";
+        std::cout << "phase103_50_actions_not_silent=" << (clarity_enforcement_diag.actions_not_silent ? "YES" : "NO") << "\n";
+        std::cout << "phase103_50_confusion_removed=" << (clarity_enforcement_diag.confusion_removed ? "YES" : "NO") << "\n";
+        std::cout << "phase103_50_shell_state_still_coherent=" << (clarity_enforcement_diag.shell_state_still_coherent ? "YES" : "NO") << "\n";
+        std::cout << "phase103_50_preview_remains_parity_safe=" << (clarity_enforcement_diag.preview_remains_parity_safe ? "YES" : "NO") << "\n";
+        std::cout << "phase103_50_layout_audit_still_compatible=" << (clarity_enforcement_diag.layout_audit_still_compatible ? "YES" : "NO") << "\n";
+        std::cout << "phase103_51_target_display_visible=" << (insert_target_clarity_diag.target_display_visible ? "YES" : "NO") << "\n";
+        std::cout << "phase103_51_target_matches_structure_selection=" << (insert_target_clarity_diag.target_matches_structure_selection ? "YES" : "NO") << "\n";
+        std::cout << "phase103_51_preview_click_updates_structure_selection=" << (insert_target_clarity_diag.preview_click_updates_structure_selection ? "YES" : "NO") << "\n";
+        std::cout << "phase103_51_add_child_uses_correct_target=" << (insert_target_clarity_diag.add_child_uses_correct_target ? "YES" : "NO") << "\n";
+        std::cout << "phase103_51_insert_visible_in_structure=" << (insert_target_clarity_diag.insert_visible_in_structure ? "YES" : "NO") << "\n";
+        std::cout << "phase103_51_insert_visible_in_preview=" << (insert_target_clarity_diag.insert_visible_in_preview ? "YES" : "NO") << "\n";
+        std::cout << "phase103_51_post_insert_selection_deterministic=" << (insert_target_clarity_diag.post_insert_selection_deterministic ? "YES" : "NO") << "\n";
+        std::cout << "phase103_51_invalid_insert_blocked=" << (insert_target_clarity_diag.invalid_insert_blocked ? "YES" : "NO") << "\n";
+        std::cout << "phase103_51_no_command_pipeline_regression=" << (insert_target_clarity_diag.no_command_pipeline_regression ? "YES" : "NO") << "\n";
+        std::cout << "phase103_51_ui_state_coherent=" << (insert_target_clarity_diag.ui_state_coherent ? "YES" : "NO") << "\n";
+        std::cout << "phase103_52_preview_nodes_match_structure=" << (preview_structure_parity_diag.preview_nodes_match_structure ? "YES" : "NO") << "\n";
+        std::cout << "phase103_52_no_orphan_preview_nodes=" << (preview_structure_parity_diag.no_orphan_preview_nodes ? "YES" : "NO") << "\n";
+        std::cout << "phase103_52_hit_test_returns_exact_node=" << (preview_structure_parity_diag.hit_test_returns_exact_node ? "YES" : "NO") << "\n";
+        std::cout << "phase103_52_render_order_matches_structure=" << (preview_structure_parity_diag.render_order_matches_structure ? "YES" : "NO") << "\n";
+        std::cout << "phase103_52_selection_stable_after_insert=" << (preview_structure_parity_diag.selection_stable_after_insert ? "YES" : "NO") << "\n";
+        std::cout << "phase103_52_selection_stable_after_delete=" << (preview_structure_parity_diag.selection_stable_after_delete ? "YES" : "NO") << "\n";
+        std::cout << "phase103_52_selection_stable_after_move=" << (preview_structure_parity_diag.selection_stable_after_move ? "YES" : "NO") << "\n";
+        std::cout << "phase103_52_no_stale_nodes_after_mutation=" << (preview_structure_parity_diag.no_stale_nodes_after_mutation ? "YES" : "NO") << "\n";
+        std::cout << "phase103_52_parent_child_relationships_match=" << (preview_structure_parity_diag.parent_child_relationships_match ? "YES" : "NO") << "\n";
+        std::cout << "phase103_52_no_selection_desync_detected=" << (preview_structure_parity_diag.no_selection_desync_detected ? "YES" : "NO") << "\n";
+        std::cout << "phase103_53_undo_restores_exact_structure=" << (command_integrity_diag.undo_restores_exact_structure ? "YES" : "NO") << "\n";
+        std::cout << "phase103_53_undo_restores_selection=" << (command_integrity_diag.undo_restores_selection ? "YES" : "NO") << "\n";
+        std::cout << "phase103_53_redo_reapplies_exact_state=" << (command_integrity_diag.redo_reapplies_exact_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_53_no_duplicate_nodes_on_redo=" << (command_integrity_diag.no_duplicate_nodes_on_redo ? "YES" : "NO") << "\n";
+        std::cout << "phase103_53_no_missing_nodes_after_undo=" << (command_integrity_diag.no_missing_nodes_after_undo ? "YES" : "NO") << "\n";
+        std::cout << "phase103_53_command_stack_no_invalid_references=" << (command_integrity_diag.command_stack_no_invalid_references ? "YES" : "NO") << "\n";
+        std::cout << "phase103_53_selection_fallback_deterministic=" << (command_integrity_diag.selection_fallback_deterministic ? "YES" : "NO") << "\n";
+        std::cout << "phase103_53_multi_step_sequence_stable=" << (command_integrity_diag.multi_step_sequence_stable ? "YES" : "NO") << "\n";
+        std::cout << "phase103_53_no_side_effect_mutations=" << (command_integrity_diag.no_side_effect_mutations ? "YES" : "NO") << "\n";
+        std::cout << "phase103_53_preview_matches_structure_after_undo_redo=" << (command_integrity_diag.preview_matches_structure_after_undo_redo ? "YES" : "NO") << "\n";
+        std::cout << "phase103_54_serialized_roundtrip_exact=" << (save_load_integrity_diag.serialized_roundtrip_exact ? "YES" : "NO") << "\n";
+        std::cout << "phase103_54_save_load_repeatability_stable=" << (save_load_integrity_diag.save_load_repeatability_stable ? "YES" : "NO") << "\n";
+        std::cout << "phase103_54_load_rejects_corrupt_payload=" << (save_load_integrity_diag.load_rejects_corrupt_payload ? "YES" : "NO") << "\n";
+        std::cout << "phase103_54_load_rejects_schema_violation_payload=" << (save_load_integrity_diag.load_rejects_schema_violation_payload ? "YES" : "NO") << "\n";
+        std::cout << "phase103_54_failed_load_preserves_previous_state=" << (save_load_integrity_diag.failed_load_preserves_previous_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_54_selection_rebound_to_valid_node_on_load=" << (save_load_integrity_diag.selection_rebound_to_valid_node_on_load ? "YES" : "NO") << "\n";
+        std::cout << "phase103_54_history_reset_deterministic_on_load=" << (save_load_integrity_diag.history_reset_deterministic_on_load ? "YES" : "NO") << "\n";
+        std::cout << "phase103_54_no_implicit_state_mutation_after_roundtrip=" << (save_load_integrity_diag.no_implicit_state_mutation_after_roundtrip ? "YES" : "NO") << "\n";
+        std::cout << "phase103_54_cross_surface_sync_preserved_after_load=" << (save_load_integrity_diag.cross_surface_sync_preserved_after_load ? "YES" : "NO") << "\n";
+        std::cout << "phase103_54_preview_structure_parity_preserved_after_load=" << (save_load_integrity_diag.preview_structure_parity_preserved_after_load ? "YES" : "NO") << "\n";
+        std::cout << "phase103_55_property_edit_uses_command_system=" << (property_edit_integrity_diag.property_edit_uses_command_system ? "YES" : "NO") << "\n";
+        std::cout << "phase103_55_property_edit_atomic_update=" << (property_edit_integrity_diag.property_edit_atomic_update ? "YES" : "NO") << "\n";
+        std::cout << "phase103_55_invalid_property_rejected=" << (property_edit_integrity_diag.invalid_property_rejected ? "YES" : "NO") << "\n";
+        std::cout << "phase103_55_undo_restores_property_exact=" << (property_edit_integrity_diag.undo_restores_property_exact ? "YES" : "NO") << "\n";
+        std::cout << "phase103_55_redo_reapplies_property_exact=" << (property_edit_integrity_diag.redo_reapplies_property_exact ? "YES" : "NO") << "\n";
+        std::cout << "phase103_55_no_partial_state_detected=" << (property_edit_integrity_diag.no_partial_state_detected ? "YES" : "NO") << "\n";
+        std::cout << "phase103_55_selection_stable_during_edit=" << (property_edit_integrity_diag.selection_stable_during_edit ? "YES" : "NO") << "\n";
+        std::cout << "phase103_55_property_persists_through_save_load=" << (property_edit_integrity_diag.property_persists_through_save_load ? "YES" : "NO") << "\n";
+        std::cout << "phase103_55_rapid_edit_sequence_stable=" << (property_edit_integrity_diag.rapid_edit_sequence_stable ? "YES" : "NO") << "\n";
+        std::cout << "phase103_55_preview_matches_structure_after_edit=" << (property_edit_integrity_diag.preview_matches_structure_after_edit ? "YES" : "NO") << "\n";
+        std::cout << "phase103_56_created_node_has_valid_identity=" << (node_lifecycle_integrity_diag.created_node_has_valid_identity ? "YES" : "NO") << "\n";
+        std::cout << "phase103_56_deleted_node_fully_removed=" << (node_lifecycle_integrity_diag.deleted_node_fully_removed ? "YES" : "NO") << "\n";
+        std::cout << "phase103_56_no_stale_references_after_delete=" << (node_lifecycle_integrity_diag.no_stale_references_after_delete ? "YES" : "NO") << "\n";
+        std::cout << "phase103_56_move_reparent_updates_relations_exact=" << (node_lifecycle_integrity_diag.move_reparent_updates_relations_exact ? "YES" : "NO") << "\n";
+        std::cout << "phase103_56_preview_mapping_updates_after_lifecycle_change=" << (node_lifecycle_integrity_diag.preview_mapping_updates_after_lifecycle_change ? "YES" : "NO") << "\n";
+        std::cout << "phase103_56_recreated_node_does_not_collide_or_inherit_stale_state=" << (node_lifecycle_integrity_diag.recreated_node_does_not_collide_or_inherit_stale_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_56_subtree_delete_and_restore_exact=" << (node_lifecycle_integrity_diag.subtree_delete_and_restore_exact ? "YES" : "NO") << "\n";
+        std::cout << "phase103_56_selection_focus_drag_states_clean_after_lifecycle_change=" << (node_lifecycle_integrity_diag.selection_focus_drag_states_clean_after_lifecycle_change ? "YES" : "NO") << "\n";
+        std::cout << "phase103_56_rapid_lifecycle_sequence_stable=" << (node_lifecycle_integrity_diag.rapid_lifecycle_sequence_stable ? "YES" : "NO") << "\n";
+        std::cout << "phase103_56_preview_matches_structure_after_all_lifecycle_ops=" << (node_lifecycle_integrity_diag.preview_matches_structure_after_all_lifecycle_ops ? "YES" : "NO") << "\n";
+        std::cout << "phase103_57_negative_dimensions_rejected=" << (bounds_layout_constraint_diag.negative_dimensions_rejected ? "YES" : "NO") << "\n";
+        std::cout << "phase103_57_invalid_child_parent_geometry_rejected=" << (bounds_layout_constraint_diag.invalid_child_parent_geometry_rejected ? "YES" : "NO") << "\n";
+        std::cout << "phase103_57_move_reparent_respects_layout_constraints=" << (bounds_layout_constraint_diag.move_reparent_respects_layout_constraints ? "YES" : "NO") << "\n";
+        std::cout << "phase103_57_invalid_layout_not_committed_to_history=" << (bounds_layout_constraint_diag.invalid_layout_not_committed_to_history ? "YES" : "NO") << "\n";
+        std::cout << "phase103_57_preview_never_reflects_invalid_document_state=" << (bounds_layout_constraint_diag.preview_never_reflects_invalid_document_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_57_undo_redo_restore_valid_layout_exact=" << (bounds_layout_constraint_diag.undo_redo_restore_valid_layout_exact ? "YES" : "NO") << "\n";
+        std::cout << "phase103_57_save_load_rejects_constraint_violating_payload=" << (bounds_layout_constraint_diag.save_load_rejects_constraint_violating_payload ? "YES" : "NO") << "\n";
+        std::cout << "phase103_57_valid_layout_roundtrip_preserved=" << (bounds_layout_constraint_diag.valid_layout_roundtrip_preserved ? "YES" : "NO") << "\n";
+        std::cout << "phase103_57_no_silent_geometry_autocorrection=" << (bounds_layout_constraint_diag.no_silent_geometry_autocorrection ? "YES" : "NO") << "\n";
+        std::cout << "phase103_57_preview_matches_structure_after_layout_mutations=" << (bounds_layout_constraint_diag.preview_matches_structure_after_layout_mutations ? "YES" : "NO") << "\n";
+        std::cout << "phase103_58_hit_test_returns_single_correct_node=" << (event_input_routing_diag.hit_test_returns_single_correct_node ? "YES" : "NO") << "\n";
+        std::cout << "phase103_58_preview_click_matches_structure_selection=" << (event_input_routing_diag.preview_click_matches_structure_selection ? "YES" : "NO") << "\n";
+        std::cout << "phase103_58_no_input_routed_to_stale_nodes=" << (event_input_routing_diag.no_input_routed_to_stale_nodes ? "YES" : "NO") << "\n";
+        std::cout << "phase103_58_event_order_deterministic=" << (event_input_routing_diag.event_order_deterministic ? "YES" : "NO") << "\n";
+        std::cout << "phase103_58_focus_hover_drag_states_valid=" << (event_input_routing_diag.focus_hover_drag_states_valid ? "YES" : "NO") << "\n";
+        std::cout << "phase103_58_keyboard_targets_current_selection_only=" << (event_input_routing_diag.keyboard_targets_current_selection_only ? "YES" : "NO") << "\n";
+        std::cout << "phase103_58_rapid_interaction_sequence_stable=" << (event_input_routing_diag.rapid_interaction_sequence_stable ? "YES" : "NO") << "\n";
+        std::cout << "phase103_58_no_ghost_or_duplicate_event_targets=" << (event_input_routing_diag.no_ghost_or_duplicate_event_targets ? "YES" : "NO") << "\n";
+        std::cout << "phase103_58_event_routing_respects_render_hierarchy=" << (event_input_routing_diag.event_routing_respects_render_hierarchy ? "YES" : "NO") << "\n";
+        std::cout << "phase103_58_preview_matches_structure_after_input_sequences=" << (event_input_routing_diag.preview_matches_structure_after_input_sequences ? "YES" : "NO") << "\n";
       std::cout << "app_runtime_crash_detected=" << (no_crash ? 0 : 1) << "\n";
     std::cout << "SUMMARY: PASS\n";
   }

@@ -1,2 +1,0 @@
-BuildCore plan: C:\Users\suppo\Desktop\NGKsSystems\NGKsUI Runtime\build_graph\debug\ngksbuildcore_plan.json
-PROOF_ZIP=C:\Users\suppo\Desktop\NGKsSystems\NGKsUI Runtime\_proof\run_20260328_074314.zip

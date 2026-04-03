@@ -1,5 +1,0 @@
-doctor: PASS
-- python_version: PASS (3.13.5)
-- state_dir_write: PASS (writable)
-- proof_root_write: PASS (writable)
-- process_spawn: PASS (SPAWN_OK)
