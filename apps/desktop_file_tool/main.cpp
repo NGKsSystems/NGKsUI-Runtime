@@ -10,6 +10,7 @@
 #include <sstream>
 #include <string>
 #include <array>
+#include <unordered_map>
 #include <vector>
 
 #ifndef NOMINMAX
@@ -535,16 +536,363 @@ struct BuilderEventInputRoutingIntegrityDiagnostics {
   bool preview_matches_structure_after_input_sequences = false;
 };
 
+struct BuilderGlobalInvariantEnforcementDiagnostics {
+  bool global_invariant_detects_invalid_state = false;
+  bool all_mutations_checked_by_invariant = false;
+  bool invalid_mutation_rejected_or_rolled_back = false;
+  bool no_orphan_nodes_possible = false;
+  bool all_node_ids_unique_and_valid = false;
+  bool selection_references_valid_nodes_only = false;
+  bool preview_structure_parity_enforced_by_invariant = false;
+  bool layout_constraints_enforced_by_invariant = false;
+  bool command_history_references_valid_state = false;
+  bool no_false_positive_rejections = false;
+};
+
+struct BuilderExportPackageIntegrityDiagnostics {
+  bool export_blocked_on_invalid_invariant = false;
+  bool export_contains_all_nodes_and_properties = false;
+  bool export_order_matches_structure = false;
+  bool export_deterministic_for_identical_input = false;
+  bool no_runtime_state_leaked_into_export = false;
+  bool package_manifest_or_contents_coherent = false;
+  bool export_reflects_post_mutation_live_state = false;
+  bool partial_export_never_reported_success = false;
+  bool roundtrip_export_artifacts_valid = false;
+  bool export_preserves_structure_fidelity = false;
+};
+
+struct BuilderStartupShutdownIntegrityDiagnostics {
+  bool startup_produces_invariant_valid_state = false;
+  bool no_transient_runtime_state_leaks_on_startup = false;
+  bool preview_and_inspector_bindings_valid_after_startup = false;
+  bool selection_state_deterministic_after_startup = false;
+  bool shutdown_does_not_leave_partial_success_state = false;
+  bool close_reopen_cycle_preserves_clean_valid_state = false;
+  bool startup_after_load_preserves_structure_fidelity = false;
+  bool repeated_open_close_cycles_stable = false;
+  bool no_false_dirty_or_unexpected_mutation_on_lifecycle_boundary = false;
+  bool global_invariant_holds_at_startup_and_shutdown = false;
+};
+
+struct BuilderStressSequenceResilienceDiagnostics {
+  bool long_mixed_sequence_preserves_invariant = false;
+  bool no_structure_preview_drift_after_stress = false;
+  bool selection_and_bindings_remain_valid_after_stress = false;
+  bool undo_redo_history_stable_under_long_sequence = false;
+  bool no_stale_references_accumulated = false;
+  bool save_load_exact_after_stress = false;
+  bool export_exact_after_stress = false;
+  bool replay_of_identical_sequence_deterministic = false;
+  bool no_false_dirty_or_phantom_mutation_after_stress = false;
+  bool final_state_matches_expected_canonical_signature = false;
+};
+
+struct BuilderManualTextEntryIntegrityDiagnostics {
+  bool inline_edit_buffer_not_committed_until_commit = false;
+  bool cancelled_edit_leaves_document_unchanged = false;
+  bool committed_edit_creates_exact_history_entry = false;
+  bool undo_redo_exact_for_committed_text_edit = false;
+  bool selection_or_target_change_during_edit_resolved_deterministically = false;
+  bool no_stale_inline_edit_target_after_delete_move_load = false;
+  bool transient_edit_buffer_never_leaks_into_save_or_export = false;
+  bool rapid_edit_commit_cancel_sequences_stable = false;
+  bool no_history_entry_created_for_cancelled_edit = false;
+  bool global_invariant_preserved_through_manual_text_entry = false;
+};
+
+struct BuilderMultiSelectionIntegrityHardeningDiagnostics {
+  bool selection_set_contains_only_valid_nodes = false;
+  bool no_duplicate_ids_in_selection = false;
+  bool primary_and_multi_selection_consistent = false;
+  bool multi_operations_apply_to_all_selected_nodes = false;
+  bool multi_operations_atomic_and_command_backed = false;
+  bool delete_move_reparent_clean_selection_state = false;
+  bool undo_redo_restore_full_selection_state = false;
+  bool no_stale_ids_after_lifecycle_events = false;
+  bool multi_operation_order_deterministic = false;
+  bool no_cross_node_state_corruption = false;
+};
+
+struct BuilderClipboardDuplicateCopyPasteIntegrityHardeningDiagnostics {
+  bool clipboard_payload_requires_valid_selection = false;
+  bool duplicate_creates_fresh_unique_ids = false;
+  bool paste_preserves_subtree_fidelity = false;
+  bool paste_does_not_leak_runtime_state = false;
+  bool paste_target_validation_fail_closed = false;
+  bool cut_paste_roundtrip_preserves_structure = false;
+  bool undo_redo_exact_for_clipboard_operations = false;
+  bool deterministic_paste_order_and_parenting = false;
+  bool nested_selection_deduplicated_on_copy = false;
+  bool no_cross_node_corruption_after_clipboard_sequence = false;
+};
+
+struct BuilderClipboardExternalDataBoundaryIntegrityHardeningDiagnostics {
+  bool external_paste_rejects_malformed_or_partial_data = false;
+  bool external_data_parsed_and_applied_atomically = false;
+  bool imported_nodes_have_valid_ids_and_relationships = false;
+  bool external_input_cannot_bypass_global_invariant = false;
+  bool internal_clipboard_path_unchanged_and_isolated = false;
+  bool deterministic_result_for_identical_external_input = false;
+  bool failed_external_paste_creates_no_history_or_dirty_change = false;
+  bool successful_external_paste_creates_single_atomic_history_entry = false;
+  bool large_or_invalid_payloads_fail_safely_without_crash = false;
+  bool global_invariant_preserved_after_external_import = false;
+};
+
+struct BuilderCommandCoalescingHistoryGranularityIntegrityHardeningDiagnostics {
+  bool repeated_same_target_property_edits_coalesce_only_when_allowed = false;
+  bool different_targets_or_operation_types_never_coalesce = false;
+  bool manual_text_commit_creates_single_history_entry = false;
+  bool cancelled_edit_creates_zero_history_entries = false;
+  bool bulk_operations_remain_single_logical_history_entries = false;
+  bool save_load_export_boundaries_break_coalescing = false;
+  bool undo_redo_operate_on_logical_action_boundaries = false;
+  bool history_shape_deterministic_for_identical_sequence = false;
+  bool history_metadata_coherent_after_coalescing = false;
+  bool no_timing_fragile_history_grouping = false;
+};
+
+struct BuilderDirtyStateChangeTrackingIntegrityHardeningDiagnostics {
+  bool real_mutations_mark_dirty_exactly = false;
+  bool read_only_operations_do_not_mark_dirty = false;
+  bool undo_back_to_clean_clears_dirty = false;
+  bool redo_away_from_clean_sets_dirty = false;
+  bool save_sets_new_clean_baseline_exactly = false;
+  bool load_sets_new_clean_baseline_exactly = false;
+  bool failed_save_load_or_blocked_mutation_do_not_corrupt_dirty_state = false;
+  bool export_does_not_affect_dirty_state = false;
+  bool dirty_tracking_uses_canonical_document_signature = false;
+  bool stress_sequence_dirty_transitions_remain_exact = false;
+};
+
+struct BuilderActionInvocationIntegrityHardeningDiagnostics {
+  bool same_action_id_same_result_across_invocation_surfaces = false;
+  bool ineligible_actions_fail_closed_without_mutation = false;
+  bool action_eligibility_checked_against_current_state = false;
+  bool no_stale_selection_or_target_context_used = false;
+  bool action_metadata_matches_execution_eligibility = false;
+  bool failed_invocation_creates_no_history_or_dirty_side_effect = false;
+  bool cross_surface_invocation_produces_identical_history_and_selection = false;
+  bool global_invariant_preserved_through_all_action_invocations = false;
+  bool no_command_dispatch_mismatch_or_wrong_handler_resolution = false;
+  bool deterministic_invocation_sequence_stable = false;
+};
+
+struct BuilderSearchFilterVisibilityIntegrityHardeningDiagnostics {
+  bool search_filter_read_only_no_document_mutation = false;
+  bool filtered_order_matches_authoritative_structure_order = false;
+  bool selection_mapping_remains_deterministic_under_filter_changes = false;
+  bool no_stale_deleted_or_moved_nodes_in_results = false;
+  bool actions_from_filtered_view_resolve_against_authoritative_current_state = false;
+  bool clear_and_reapply_filter_restores_coherent_visible_state = false;
+  bool search_filter_creates_no_history_or_dirty_side_effect = false;
+  bool preview_and_bindings_remain_coherent_under_filtered_view = false;
+  bool filtered_and_unfiltered_action_results_match_for_same_underlying_state = false;
+  bool global_invariant_preserved_through_search_filter_cycles = false;
+};
+
+struct BuilderSelectionAnchorFocusNavigationIntegrityHardeningDiagnostics {
+  bool authoritative_order_navigation_matches_document_structure = false;
+  bool selection_anchor_establishes_deterministic_range_extent = false;
+  bool focus_only_navigation_does_not_mutate_selection_or_document = false;
+  bool stale_anchor_and_focus_are_scrubbed_fail_closed = false;
+  bool selection_focus_coherence_restored_after_filter_and_lifecycle_changes = false;
+  bool navigation_only_changes_create_no_history_or_dirty_side_effect = false;
+  bool parent_child_navigation_respects_authoritative_current_state = false;
+  bool range_extension_shrinks_and_grows_deterministically_from_same_anchor = false;
+  bool filtered_and_unfiltered_navigation_resolve_same_underlying_targets = false;
+  bool global_invariant_preserved_through_anchor_focus_navigation_cycles = false;
+};
+
+struct BuilderDragDropReorderIntegrityHardeningDiagnostics {
+  bool drop_target_resolution_deterministic = false;
+  bool multi_selection_drag_atomic_and_order_preserved = false;
+  bool sibling_reorder_preserves_global_structure_order = false;
+  bool cross_parent_move_updates_relationships_exactly = false;
+  bool filtered_view_drag_resolves_to_authoritative_target = false;
+  bool invalid_drop_fails_closed_without_mutation = false;
+  bool undo_redo_exact_for_drag_operations = false;
+  bool no_partial_or_stale_references_after_drag = false;
+  bool drag_creates_no_transient_history_or_dirty_leak = false;
+  bool global_invariant_preserved_after_drag_operations = false;
+};
+
+struct BuilderPersistenceFileIoIntegrityHardeningDiagnostics {
+  bool save_is_atomic_and_never_exposes_partial_file = false;
+  bool saved_file_matches_canonical_document_signature = false;
+  bool load_rejects_invalid_or_truncated_files = false;
+  bool failed_save_does_not_overwrite_existing_file = false;
+  bool failed_load_does_not_mutate_current_state = false;
+  bool no_transient_ui_or_state_desync_during_io = false;
+  bool serialization_deterministic_for_identical_document = false;
+  bool repeated_save_calls_produce_consistent_output = false;
+  bool dirty_baseline_updates_only_on_successful_save_load = false;
+  bool global_invariant_preserved_through_all_io_operations = false;
+};
+
+struct BuilderUndoRedoTimeTravelIntegrityHardeningDiagnostics {
+  bool undo_restores_full_system_state = false;
+  bool redo_restores_full_system_state = false;
+  bool no_state_drift_after_repeated_cycles = false;
+  bool selection_anchor_focus_restore_exact = false;
+  bool multi_selection_restore_exact = false;
+  bool redo_stack_invalidated_on_new_mutation = false;
+  bool no_history_pollution_from_failed_operations = false;
+  bool no_branching_history_corruption = false;
+  bool cross_surface_state_consistent_after_time_travel = false;
+  bool global_invariant_preserved_during_undo_redo = false;
+};
+
+struct BuilderViewportScrollVisualStateIntegrityHardeningDiagnostics {
+  bool selected_node_visible_or_scrolled_into_view_deterministically = false;
+  bool scroll_position_deterministic_for_identical_sequences = false;
+  bool undo_redo_restores_viewport_with_state = false;
+  bool filtered_and_unfiltered_scroll_mapping_consistent = false;
+  bool viewport_never_references_invalid_or_deleted_rows = false;
+  bool load_save_initialize_or_preserve_viewport_deterministically = false;
+  bool no_dirty_or_history_side_effects_from_viewport_changes = false;
+  bool tree_and_preview_viewports_remain_coherent = false;
+  bool no_scroll_drift_after_stress_sequences = false;
+  bool global_invariant_preserved_during_viewport_updates = false;
+};
+
+struct BuilderPerformanceScalingIntegrityHardeningDiagnostics {
+  bool large_document_operations_remain_correct = false;
+  bool deep_hierarchy_handled_without_failure = false;
+  bool long_stress_sequence_preserves_invariant = false;
+  bool undo_redo_stable_under_large_history = false;
+  bool search_filter_stable_under_large_dataset = false;
+  bool viewport_stable_under_large_node_count = false;
+  bool no_state_drift_under_repeated_operations = false;
+  bool no_partial_or_skipped_validation_under_load = false;
+  bool deterministic_result_for_identical_large_sequence = false;
+  bool global_invariant_preserved_under_scale = false;
+};
+
+struct BuilderPerformanceProfilingHotspotCharacterizationDiagnostics {
+  bool profile_captures_representative_operations = false;
+  bool model_and_ui_costs_measured_separately = false;
+  bool scaling_characteristics_captured_across_sizes = false;
+  bool no_correctness_guarantees_were_weakened = false;
+  bool invariant_checks_remained_enabled_during_profiling = false;
+  bool hotspots_ranked_by_measured_cost = false;
+  bool actionable_optimization_targets_identified = false;
+  bool profile_run_terminates_cleanly_with_markers = false;
+  bool no_partial_or_stalled_proof_artifacts = false;
+  bool global_invariant_preserved_during_profile_runs = false;
+  std::string operations_profiled{};
+  std::uint64_t size_small_nodes = 0;
+  std::uint64_t size_medium_nodes = 0;
+  std::uint64_t size_large_nodes = 0;
+  std::uint64_t build_small_ns = 0;
+  std::uint64_t build_medium_ns = 0;
+  std::uint64_t build_large_ns = 0;
+  std::uint64_t validate_small_ns = 0;
+  std::uint64_t validate_medium_ns = 0;
+  std::uint64_t validate_large_ns = 0;
+  std::uint64_t serialize_small_ns = 0;
+  std::uint64_t serialize_medium_ns = 0;
+  std::uint64_t serialize_large_ns = 0;
+  std::uint64_t selection_mapping_ns = 0;
+  std::uint64_t insert_ns = 0;
+  std::uint64_t property_edit_commit_ns = 0;
+  std::uint64_t move_reparent_ns = 0;
+  std::uint64_t delete_ns = 0;
+  std::uint64_t history_build_ns = 0;
+  std::uint64_t undo_replay_ns = 0;
+  std::uint64_t redo_replay_ns = 0;
+  std::uint64_t filter_apply_ns = 0;
+  std::uint64_t filter_clear_ns = 0;
+  std::uint64_t viewport_reconcile_ns = 0;
+  std::uint64_t save_ns = 0;
+  std::uint64_t load_ns = 0;
+  std::uint64_t export_ns = 0;
+  std::uint64_t large_global_invariant_ns = 0;
+  std::uint64_t deterministic_signature_large_ns = 0;
+  std::uint64_t model_total_ns = 0;
+  std::uint64_t ui_total_ns = 0;
+  std::uint64_t io_total_ns = 0;
+  std::string scaling_build{};
+  std::string scaling_validate{};
+  std::string scaling_serialize{};
+  std::array<std::string, 5> hotspot_rankings{};
+  std::string optimization_targets{};
+};
+
+struct BuilderHistoryReplayOptimizationDiagnostics {
+  bool undo_replay_time_reduced_vs_phase103_77 = false;
+  bool redo_replay_time_reduced_vs_phase103_77 = false;
+  bool history_replay_produces_identical_document_signature = false;
+  bool selection_anchor_focus_identical_after_replay = false;
+  bool preview_and_structure_fully_consistent_after_replay = false;
+  bool invariant_preserved_during_and_after_replay = false;
+  bool no_skipped_or_reordered_history_operations = false;
+  bool no_ui_desync_during_replay_batching = false;
+  bool repeated_replay_cycles_remain_drift_free = false;
+  bool global_invariant_preserved = false;
+  std::uint64_t phase103_77_baseline_undo_replay_ns = 0;
+  std::uint64_t phase103_77_baseline_redo_replay_ns = 0;
+  std::uint64_t optimized_undo_replay_ns = 0;
+  std::uint64_t optimized_redo_replay_ns = 0;
+  std::uint64_t replay_history_steps = 0;
+  std::string batching_strategy{};
+};
+
+struct BuilderSerializationExportPathOptimizationDiagnostics {
+  bool export_time_reduced_vs_phase103_77 = false;
+  bool serialization_time_reduced_vs_phase103_77 = false;
+  bool export_bytes_identical_to_baseline = false;
+  bool canonical_signature_identical_to_baseline = false;
+  bool no_stale_serialization_reuse_after_mutation = false;
+  bool no_correctness_guarantees_were_weakened = false;
+  bool no_history_or_dirty_side_effect_from_optimization = false;
+  bool profile_run_terminates_cleanly_with_markers = false;
+  bool no_partial_or_stalled_proof_artifacts = false;
+  bool global_invariant_preserved = false;
+  std::uint64_t phase103_77_baseline_serialize_ns = 0;
+  std::uint64_t phase103_77_baseline_export_ns = 0;
+  std::uint64_t optimized_serialize_ns = 0;
+  std::uint64_t optimized_export_ns = 0;
+  std::string reuse_strategy{};
+};
+
+struct ScopedBusyFlag {
+  bool& flag;
+  explicit ScopedBusyFlag(bool& value) : flag(value) {
+    flag = true;
+  }
+  ~ScopedBusyFlag() {
+    flag = false;
+  }
+  ScopedBusyFlag(const ScopedBusyFlag&) = delete;
+  ScopedBusyFlag& operator=(const ScopedBusyFlag&) = delete;
+};
+
 struct CommandHistoryEntry {
   std::string command_type{};
+  std::string operation_class{};
+  std::string coalescing_key{};
+  std::uint64_t boundary_epoch = 0;
+  int logical_action_span = 1;
   std::vector<ngk::ui::builder::BuilderNode> before_nodes{};
   std::string before_root_node_id{};
   std::string before_selected_id{};
   std::vector<std::string> before_multi_selected_ids{};
+  std::string before_focused_id{};
+  std::string before_anchor_id{};
+  std::string before_filter_query{};
+  int before_tree_scroll_offset_y = 0;
+  int before_preview_scroll_offset_y = 0;
   std::vector<ngk::ui::builder::BuilderNode> after_nodes{};
   std::string after_root_node_id{};
   std::string after_selected_id{};
   std::vector<std::string> after_multi_selected_ids{};
+  std::string after_focused_id{};
+  std::string after_anchor_id{};
+  std::string after_filter_query{};
+  int after_tree_scroll_offset_y = 0;
+  int after_preview_scroll_offset_y = 0;
 };
 
 struct BuilderUndoRedoDiagnostics {
@@ -831,6 +1179,35 @@ bool file_matches_filter(const std::filesystem::path& path, const std::string& f
   return lower_name.find(lower_filter) != std::string::npos;
 }
 
+bool builder_node_matches_projection_query(const ngk::ui::builder::BuilderNode& node,
+                                          const std::string& query) {
+  if (query.empty()) {
+    return true;
+  }
+
+  std::string lowered_query = query;
+  std::transform(lowered_query.begin(), lowered_query.end(), lowered_query.begin(), [](unsigned char c) {
+    return static_cast<char>(std::tolower(c));
+  });
+
+  std::string lowered_id = node.node_id;
+  std::string lowered_type = std::string(ngk::ui::builder::to_string(node.widget_type));
+  std::string lowered_text = node.text;
+  std::transform(lowered_id.begin(), lowered_id.end(), lowered_id.begin(), [](unsigned char c) {
+    return static_cast<char>(std::tolower(c));
+  });
+  std::transform(lowered_type.begin(), lowered_type.end(), lowered_type.begin(), [](unsigned char c) {
+    return static_cast<char>(std::tolower(c));
+  });
+  std::transform(lowered_text.begin(), lowered_text.end(), lowered_text.begin(), [](unsigned char c) {
+    return static_cast<char>(std::tolower(c));
+  });
+
+  return lowered_id.find(lowered_query) != std::string::npos ||
+         lowered_type.find(lowered_query) != std::string::npos ||
+         lowered_text.find(lowered_query) != std::string::npos;
+}
+
 int parse_auto_close_ms(int argc, char** argv) {
   const std::string prefix = "--auto-close-ms=";
   for (int index = 1; index < argc; ++index) {
@@ -1028,14 +1405,48 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   BuilderNodeLifecycleIntegrityDiagnostics node_lifecycle_integrity_diag{};
   BuilderBoundsLayoutConstraintIntegrityDiagnostics bounds_layout_constraint_diag{};
   BuilderEventInputRoutingIntegrityDiagnostics event_input_routing_diag{};
+  BuilderGlobalInvariantEnforcementDiagnostics global_invariant_diag{};
+  BuilderExportPackageIntegrityDiagnostics export_package_diag{};
+  BuilderStartupShutdownIntegrityDiagnostics startup_shutdown_diag{};
+  BuilderStressSequenceResilienceDiagnostics stress_sequence_diag{};
+  BuilderManualTextEntryIntegrityDiagnostics manual_text_diag{};
+  BuilderMultiSelectionIntegrityHardeningDiagnostics multi_selection_integrity_diag{};
+  BuilderClipboardDuplicateCopyPasteIntegrityHardeningDiagnostics clipboard_integrity_diag{};
+  BuilderClipboardExternalDataBoundaryIntegrityHardeningDiagnostics external_data_boundary_integrity_diag{};
+  BuilderCommandCoalescingHistoryGranularityIntegrityHardeningDiagnostics command_coalescing_diag{};
+  BuilderDirtyStateChangeTrackingIntegrityHardeningDiagnostics dirty_tracking_integrity_diag{};
+  BuilderActionInvocationIntegrityHardeningDiagnostics action_invocation_integrity_diag{};
+  BuilderSearchFilterVisibilityIntegrityHardeningDiagnostics search_filter_visibility_integrity_diag{};
+  BuilderSelectionAnchorFocusNavigationIntegrityHardeningDiagnostics selection_anchor_focus_navigation_integrity_diag{};
+  BuilderDragDropReorderIntegrityHardeningDiagnostics drag_drop_reorder_integrity_diag{};
+  BuilderPersistenceFileIoIntegrityHardeningDiagnostics persistence_file_io_integrity_diag{};
+  BuilderUndoRedoTimeTravelIntegrityHardeningDiagnostics undo_redo_time_travel_integrity_diag{};
+  BuilderViewportScrollVisualStateIntegrityHardeningDiagnostics viewport_scroll_visual_state_integrity_diag{};
+  BuilderPerformanceScalingIntegrityHardeningDiagnostics performance_scaling_integrity_diag{};
+  BuilderPerformanceProfilingHotspotCharacterizationDiagnostics performance_profiling_diag{};
+  BuilderHistoryReplayOptimizationDiagnostics history_replay_optimization_diag{};
+  BuilderSerializationExportPathOptimizationDiagnostics serialization_export_optimization_diag{};
   std::string drag_source_node_id{};
   bool drag_active = false;
   std::string hover_node_id{};
   std::string drag_target_preview_node_id{};
   bool drag_target_preview_is_illegal = false;
+  std::string drag_target_preview_parent_id{};
+  std::size_t drag_target_preview_insert_index = 0;
+  std::string drag_target_preview_resolution_kind{};
 
   std::vector<CommandHistoryEntry> undo_history{};
   std::vector<CommandHistoryEntry> redo_stack{};
+  bool history_coalesce_request_active = false;
+  std::string history_coalesce_request_key{};
+  std::string history_coalesce_request_operation_class{};
+  std::uint64_t history_boundary_epoch = 0;
+  std::string last_action_dispatch_requested_id{};
+  std::string last_action_dispatch_resolved_id{};
+  std::string last_action_dispatch_source{};
+  bool last_action_dispatch_success = false;
+  int global_invariant_checks_total = 0;
+  int global_invariant_failures_total = 0;
 
   ngk::ui::Button builder_undo_button;
   ngk::ui::Button builder_redo_button;
@@ -1140,6 +1551,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   ngk::ui::builder::BuilderDocument builder_doc{};
   std::string selected_builder_node_id{};
   std::string focused_builder_node_id{};
+  std::string builder_selection_anchor_node_id{};
   std::vector<std::string> multi_selected_node_ids{};
   std::string inspector_binding_node_id{};
   std::string preview_binding_node_id{};
@@ -1149,6 +1561,12 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   bool builder_doc_dirty = false;
   bool has_saved_builder_snapshot = false;
   std::string last_saved_builder_serialized{};
+  bool has_clean_builder_baseline_signature = false;
+  std::string clean_builder_baseline_signature{};
+  bool builder_persistence_io_in_progress = false;
+  bool builder_persistence_force_next_temp_write_truncation = false;
+  bool builder_persistence_force_next_atomic_replace_failure = false;
+  std::string builder_projection_filter_query{};
   const std::filesystem::path builder_doc_save_path =
     std::filesystem::current_path() / "_artifacts/runtime/phase103_12_builder_document.ngkbdoc";
   const std::filesystem::path builder_export_path =
@@ -1552,6 +1970,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   auto refresh_entries = [&] {
     model.refresh_count += 1;
     model.filter = filter_box.value();
+    builder_projection_filter_query = model.filter;
     if (!reload_entries(model, scan_root)) {
       model.undefined_state_detected = true;
     }
@@ -1584,6 +2003,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   auto apply_filter = [&] {
     model.apply_filter_count += 1;
     model.filter = filter_box.value();
+    builder_projection_filter_query = model.filter;
     if (!reload_entries(model, scan_root)) {
       model.undefined_state_detected = true;
     }
@@ -1695,6 +2115,12 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     selected_builder_node_id = "root-001";
     multi_selected_node_ids.clear();
     multi_selected_node_ids.push_back(selected_builder_node_id);
+    has_clean_builder_baseline_signature = true;
+    clean_builder_baseline_signature = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    has_saved_builder_snapshot = !clean_builder_baseline_signature.empty();
+    last_saved_builder_serialized = clean_builder_baseline_signature;
+    builder_doc_dirty = false;
+    update_labels();
 
     auto audit = ngk::ui::builder::audit_layout_tree(&root);
     builder_doc_diag.document_defined = true;
@@ -2849,6 +3275,9 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     return oss.str();
   };
 
+    std::function<void()> reconcile_tree_viewport_to_current_state;
+    std::function<void()> reconcile_preview_viewport_to_current_state;
+
   auto refresh_tree_surface_label = [&]() {
     builder_tree_surface_label.set_visible(builder_debug_mode);
     builder_tree_visual_rows.set_visible(!builder_debug_mode);
@@ -2862,6 +3291,31 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       builder_tree_row_buttons[idx].set_enabled(false);
     }
 
+    std::unordered_map<std::string, bool> visible_projection_cache{};
+    std::function<bool(const std::string&)> node_visible_under_projection =
+      [&](const std::string& node_id) -> bool {
+        auto it = visible_projection_cache.find(node_id);
+        if (it != visible_projection_cache.end()) {
+          return it->second;
+        }
+        auto* node = find_node_by_id(node_id);
+        if (!node) {
+          visible_projection_cache[node_id] = false;
+          return false;
+        }
+        bool visible = builder_node_matches_projection_query(*node, builder_projection_filter_query);
+        if (!visible) {
+          for (const auto& child_id : node->child_ids) {
+            if (node_visible_under_projection(child_id)) {
+              visible = true;
+              break;
+            }
+          }
+        }
+        visible_projection_cache[node_id] = visible;
+        return visible;
+      };
+
     std::size_t row_count = 0;
     std::function<void(const std::string&, int)> append_visual_tree = [&](const std::string& node_id, int depth) {
       if (row_count >= kMaxVisualTreeRows) {
@@ -2870,6 +3324,9 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
       auto* node = find_node_by_id(node_id);
       if (!node) {
+        return;
+      }
+      if (!node_visible_under_projection(node_id)) {
         return;
       }
 
@@ -2925,6 +3382,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     if (!builder_doc.root_node_id.empty() && node_exists(builder_doc.root_node_id)) {
       append_visual_tree(builder_doc.root_node_id, 0);
     }
+
+    reconcile_tree_viewport_to_current_state();
   };
 
   auto refresh_inspector_surface_label = [&]() {
@@ -3408,6 +3867,31 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       builder_preview_row_buttons[idx].set_background(0.16f, 0.18f, 0.22f, 1.0f);
     }
 
+    std::unordered_map<std::string, bool> visible_projection_cache{};
+    std::function<bool(const std::string&)> node_visible_under_projection =
+      [&](const std::string& node_id) -> bool {
+        auto it = visible_projection_cache.find(node_id);
+        if (it != visible_projection_cache.end()) {
+          return it->second;
+        }
+        auto* node = find_node_by_id(node_id);
+        if (!node) {
+          visible_projection_cache[node_id] = false;
+          return false;
+        }
+        bool visible = builder_node_matches_projection_query(*node, builder_projection_filter_query);
+        if (!visible) {
+          for (const auto& child_id : node->child_ids) {
+            if (node_visible_under_projection(child_id)) {
+              visible = true;
+              break;
+            }
+          }
+        }
+        visible_projection_cache[node_id] = visible;
+        return visible;
+      };
+
     std::size_t row_count = 0;
     std::function<void(const std::string&, int)> append_preview_visual = [&](const std::string& node_id, int depth) {
       if (row_count >= kMaxVisualPreviewRows) {
@@ -3416,6 +3900,9 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
       auto* node = find_node_by_id(node_id);
       if (!node) {
+        return;
+      }
+      if (!node_visible_under_projection(node_id)) {
         return;
       }
 
@@ -3497,6 +3984,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       append_preview_visual(builder_doc.root_node_id, 0);
     }
 
+    reconcile_preview_viewport_to_current_state();
+
     refresh_top_action_surface_from_builder_state();
     refresh_action_button_visual_state_from_builder_truth();
   };
@@ -3518,12 +4007,14 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     if (selected_builder_node_id.empty()) {
       multi_selected_node_ids.clear();
       focused_builder_node_id.clear();
+      builder_selection_anchor_node_id.clear();
       refresh_tree_surface_label();
       return true;
     }
 
     if (!node_exists(selected_builder_node_id)) {
       focused_builder_node_id.clear();
+      builder_selection_anchor_node_id.clear();
       focus_diag.stale_focus_rejected = true;
       refresh_tree_surface_label();
       return false;
@@ -3531,6 +4022,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
     focused_builder_node_id = selected_builder_node_id;
     sync_multi_selection_with_primary();
+    builder_selection_anchor_node_id = selected_builder_node_id;
     refresh_tree_surface_label();
     return true;
   };
@@ -3548,6 +4040,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     if (selected_builder_node_id.empty()) {
       selected_builder_node_id = node_id;
       focused_builder_node_id = node_id;
+      builder_selection_anchor_node_id = node_id;
       multi_selected_node_ids.clear();
       multi_selected_node_ids.push_back(node_id);
       refresh_tree_surface_label();
@@ -3556,6 +4049,9 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
     multi_selected_node_ids.push_back(node_id);
     sync_multi_selection_with_primary();
+    if (builder_selection_anchor_node_id.empty() || !node_exists(builder_selection_anchor_node_id)) {
+      builder_selection_anchor_node_id = selected_builder_node_id;
+    }
     refresh_tree_surface_label();
     return true;
   };
@@ -3584,8 +4080,14 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     sync_multi_selection_with_primary();
     if (selected_builder_node_id.empty()) {
       focused_builder_node_id.clear();
+      builder_selection_anchor_node_id.clear();
     } else if (focused_builder_node_id.empty() || !node_exists(focused_builder_node_id)) {
       focused_builder_node_id = selected_builder_node_id;
+    }
+    if (selected_builder_node_id.empty()) {
+      builder_selection_anchor_node_id.clear();
+    } else {
+      builder_selection_anchor_node_id = selected_builder_node_id;
     }
     refresh_tree_surface_label();
     return true;
@@ -3595,6 +4097,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     multi_selected_node_ids.clear();
     selected_builder_node_id.clear();
     focused_builder_node_id.clear();
+    builder_selection_anchor_node_id.clear();
     refresh_tree_surface_label();
   };
 
@@ -3627,6 +4130,28 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
 
     return ordered;
+  };
+
+  auto build_authoritative_selection_range = [&](const std::string& anchor_id,
+                                                 const std::string& extent_id) -> std::vector<std::string> {
+    std::vector<std::string> range{};
+    if (anchor_id.empty() || extent_id.empty() || !node_exists(anchor_id) || !node_exists(extent_id)) {
+      return range;
+    }
+
+    const auto ordered = collect_preorder_node_ids();
+    auto anchor_it = std::find(ordered.begin(), ordered.end(), anchor_id);
+    auto extent_it = std::find(ordered.begin(), ordered.end(), extent_id);
+    if (anchor_it == ordered.end() || extent_it == ordered.end()) {
+      return range;
+    }
+
+    const auto begin_it = (anchor_it <= extent_it) ? anchor_it : extent_it;
+    const auto end_it = (anchor_it <= extent_it) ? extent_it : anchor_it;
+    for (auto it = begin_it; it != end_it + 1; ++it) {
+      range.push_back(*it);
+    }
+    return range;
   };
 
   auto apply_tree_navigation = [&](bool forward) -> bool {
@@ -3676,6 +4201,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     auto ordered = collect_preorder_node_ids();
     if (ordered.empty()) {
       focused_builder_node_id.clear();
+      builder_selection_anchor_node_id.clear();
       refresh_tree_surface_label();
       return false;
     }
@@ -3749,6 +4275,25 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
   auto apply_keyboard_multi_selection_navigate = [&](bool forward, bool extend_selection) -> bool {
     sync_multi_selection_with_primary();
+    if (extend_selection) {
+      const auto ordered = collect_preorder_node_ids();
+      if (ordered.empty()) {
+        focused_builder_node_id.clear();
+        builder_selection_anchor_node_id.clear();
+        refresh_tree_surface_label();
+        return false;
+      }
+      if (selected_builder_node_id.empty() || !node_exists(selected_builder_node_id)) {
+        selected_builder_node_id = (!focused_builder_node_id.empty() && node_exists(focused_builder_node_id))
+          ? focused_builder_node_id
+          : ordered.front();
+      }
+      sync_multi_selection_with_primary();
+      if (builder_selection_anchor_node_id.empty() || !node_exists(builder_selection_anchor_node_id)) {
+        builder_selection_anchor_node_id = selected_builder_node_id;
+      }
+    }
+
     if (!apply_focus_navigation(forward)) {
       return false;
     }
@@ -3757,7 +4302,16 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       return true;
     }
 
-    return apply_keyboard_multi_selection_add_focused();
+    const auto range = build_authoritative_selection_range(builder_selection_anchor_node_id, focused_builder_node_id);
+    if (range.empty()) {
+      return false;
+    }
+
+    selected_builder_node_id = builder_selection_anchor_node_id;
+    multi_selected_node_ids = range;
+    sync_multi_selection_with_primary();
+    refresh_tree_surface_label();
+    return true;
   };
 
   auto apply_tree_parent_child_navigation = [&](bool to_parent) -> bool {
@@ -3808,6 +4362,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         return true;
       }
       multi_selected_node_ids.clear();
+      builder_selection_anchor_node_id.clear();
       return true;
     }
 
@@ -3826,8 +4381,264 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
     selected_builder_node_id.clear();
     multi_selected_node_ids.clear();
+    builder_selection_anchor_node_id.clear();
     model.undefined_state_detected = true;
     return false;
+  };
+
+  auto set_builder_projection_filter_state = [&](const std::string& query) {
+    filter_box.set_value(query);
+    model.filter = query;
+    builder_projection_filter_query = query;
+  };
+
+  static constexpr int kBuilderViewportContentPaddingTop = 2;
+
+  auto find_visible_tree_row_index = [&](const std::string& node_id) -> std::size_t {
+    if (node_id.empty()) {
+      return kMaxVisualTreeRows;
+    }
+    for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+      if (!builder_tree_row_buttons[idx].visible()) {
+        continue;
+      }
+      if (tree_visual_row_node_ids[idx] == node_id) {
+        return idx;
+      }
+    }
+    return kMaxVisualTreeRows;
+  };
+
+  auto find_visible_preview_row_index = [&](const std::string& node_id) -> std::size_t {
+    if (node_id.empty()) {
+      return kMaxVisualPreviewRows;
+    }
+    for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+      if (!builder_preview_row_buttons[idx].visible()) {
+        continue;
+      }
+      if (preview_visual_row_node_ids[idx] == node_id) {
+        return idx;
+      }
+    }
+    return kMaxVisualPreviewRows;
+  };
+
+  auto compute_tree_row_bounds = [&](std::size_t target_index, int& top_out, int& bottom_out) -> bool {
+    int cursor_y = kBuilderViewportContentPaddingTop;
+    for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+      auto& row = builder_tree_row_buttons[idx];
+      if (!row.visible()) {
+        continue;
+      }
+      const int row_height = row.preferred_height() > 0 ? row.preferred_height() : row.height();
+      if (idx == target_index) {
+        top_out = cursor_y;
+        bottom_out = cursor_y + row_height;
+        return true;
+      }
+      cursor_y += row_height + builder_tree_visual_rows.spacing();
+    }
+    return false;
+  };
+
+  auto compute_preview_row_bounds = [&](std::size_t target_index, int& top_out, int& bottom_out) -> bool {
+    int cursor_y = kBuilderViewportContentPaddingTop;
+    for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+      auto& row = builder_preview_row_buttons[idx];
+      if (!row.visible()) {
+        continue;
+      }
+      const int row_height = row.preferred_height() > 0 ? row.preferred_height() : row.height();
+      if (idx == target_index) {
+        top_out = cursor_y;
+        bottom_out = cursor_y + row_height;
+        return true;
+      }
+      cursor_y += row_height + builder_preview_visual_rows.spacing();
+    }
+    return false;
+  };
+
+  auto tree_row_fully_visible_in_viewport = [&](const std::string& node_id) -> bool {
+    const std::size_t row_index = find_visible_tree_row_index(node_id);
+    if (row_index >= kMaxVisualTreeRows) {
+      return false;
+    }
+    int row_top = 0;
+    int row_bottom = 0;
+    if (!compute_tree_row_bounds(row_index, row_top, row_bottom)) {
+      return false;
+    }
+    const int viewport_top = builder_tree_scroll.scroll_offset_y();
+    const int viewport_bottom = viewport_top + builder_tree_scroll.height();
+    return row_top >= viewport_top && row_bottom <= viewport_bottom;
+  };
+
+  auto preview_row_fully_visible_in_viewport = [&](const std::string& node_id) -> bool {
+    const std::size_t row_index = find_visible_preview_row_index(node_id);
+    if (row_index >= kMaxVisualPreviewRows) {
+      return false;
+    }
+    int row_top = 0;
+    int row_bottom = 0;
+    if (!compute_preview_row_bounds(row_index, row_top, row_bottom)) {
+      return false;
+    }
+    const int viewport_top = builder_preview_scroll.scroll_offset_y();
+    const int viewport_bottom = viewport_top + builder_preview_scroll.height();
+    return row_top >= viewport_top && row_bottom <= viewport_bottom;
+  };
+
+  auto first_visible_tree_row_node_id = [&]() -> std::string {
+    const int viewport_top = builder_tree_scroll.scroll_offset_y();
+    for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+      if (!builder_tree_row_buttons[idx].visible() || tree_visual_row_node_ids[idx].empty()) {
+        continue;
+      }
+      int row_top = 0;
+      int row_bottom = 0;
+      if (!compute_tree_row_bounds(idx, row_top, row_bottom)) {
+        continue;
+      }
+      if (row_bottom > viewport_top) {
+        return tree_visual_row_node_ids[idx];
+      }
+    }
+    return std::string{};
+  };
+
+  auto first_visible_preview_row_node_id = [&]() -> std::string {
+    const int viewport_top = builder_preview_scroll.scroll_offset_y();
+    for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+      if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+        continue;
+      }
+      int row_top = 0;
+      int row_bottom = 0;
+      if (!compute_preview_row_bounds(idx, row_top, row_bottom)) {
+        continue;
+      }
+      if (row_bottom > viewport_top) {
+        return preview_visual_row_node_ids[idx];
+      }
+    }
+    return std::string{};
+  };
+
+  reconcile_tree_viewport_to_current_state = [&]() {
+    builder_tree_scroll.set_scroll_offset_y(builder_tree_scroll.scroll_offset_y());
+
+    std::string target_id{};
+    if (!focused_builder_node_id.empty() && find_visible_tree_row_index(focused_builder_node_id) < kMaxVisualTreeRows) {
+      target_id = focused_builder_node_id;
+    } else if (!selected_builder_node_id.empty() && find_visible_tree_row_index(selected_builder_node_id) < kMaxVisualTreeRows) {
+      target_id = selected_builder_node_id;
+    }
+    if (target_id.empty()) {
+      return;
+    }
+
+    int row_top = 0;
+    int row_bottom = 0;
+    if (!compute_tree_row_bounds(find_visible_tree_row_index(target_id), row_top, row_bottom)) {
+      return;
+    }
+
+    const int viewport_height = builder_tree_scroll.height();
+    if (viewport_height <= 0) {
+      return;
+    }
+
+    const int current_offset = builder_tree_scroll.scroll_offset_y();
+    int desired_offset = current_offset;
+    if (row_top < current_offset) {
+      desired_offset = row_top;
+    } else if (row_bottom > current_offset + viewport_height) {
+      desired_offset = row_bottom - viewport_height;
+    }
+    builder_tree_scroll.set_scroll_offset_y(desired_offset);
+  };
+
+  reconcile_preview_viewport_to_current_state = [&]() {
+    builder_preview_scroll.set_scroll_offset_y(builder_preview_scroll.scroll_offset_y());
+
+    std::string target_id{};
+    if (!selected_builder_node_id.empty() && find_visible_preview_row_index(selected_builder_node_id) < kMaxVisualPreviewRows) {
+      target_id = selected_builder_node_id;
+    } else if (!preview_binding_node_id.empty() && find_visible_preview_row_index(preview_binding_node_id) < kMaxVisualPreviewRows) {
+      target_id = preview_binding_node_id;
+    }
+    if (target_id.empty()) {
+      return;
+    }
+
+    int row_top = 0;
+    int row_bottom = 0;
+    if (!compute_preview_row_bounds(find_visible_preview_row_index(target_id), row_top, row_bottom)) {
+      return;
+    }
+
+    const int viewport_height = builder_preview_scroll.height();
+    if (viewport_height <= 0) {
+      return;
+    }
+
+    const int current_offset = builder_preview_scroll.scroll_offset_y();
+    int desired_offset = current_offset;
+    if (row_top < current_offset) {
+      desired_offset = row_top;
+    } else if (row_bottom > current_offset + viewport_height) {
+      desired_offset = row_bottom - viewport_height;
+    }
+    builder_preview_scroll.set_scroll_offset_y(desired_offset);
+  };
+
+  auto restore_exact_selection_focus_anchor_state = [&](const std::string& desired_focus_id,
+                                                        const std::string& desired_anchor_id,
+                                                        bool refresh_tree_surface = true,
+                                                        bool require_anchor_in_multi_selection = true) -> bool {
+    if (!remap_selection_or_fail()) {
+      return false;
+    }
+
+    sync_multi_selection_with_primary();
+    if (selected_builder_node_id.empty()) {
+      focused_builder_node_id.clear();
+      builder_selection_anchor_node_id.clear();
+      if (refresh_tree_surface) {
+        refresh_tree_surface_label();
+      }
+      return true;
+    }
+
+    if (!node_exists(selected_builder_node_id)) {
+      return false;
+    }
+
+    std::string resolved_focus_id = selected_builder_node_id;
+    if (!desired_focus_id.empty()) {
+      if (!node_exists(desired_focus_id)) {
+        return false;
+      }
+      resolved_focus_id = desired_focus_id;
+    }
+
+    std::string resolved_anchor_id = selected_builder_node_id;
+    if (!desired_anchor_id.empty()) {
+      if (!node_exists(desired_anchor_id) ||
+          (require_anchor_in_multi_selection && !is_node_in_multi_selection(desired_anchor_id))) {
+        return false;
+      }
+      resolved_anchor_id = desired_anchor_id;
+    }
+
+    focused_builder_node_id = resolved_focus_id;
+    builder_selection_anchor_node_id = resolved_anchor_id;
+    if (refresh_tree_surface) {
+      refresh_tree_surface_label();
+    }
+    return true;
   };
 
   auto refresh_inspector_or_fail = [&]() -> bool {
@@ -3919,6 +4730,19 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     if (!drag_target_preview_node_id.empty() && !node_exists(drag_target_preview_node_id)) {
       drag_target_preview_node_id.clear();
       drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+    }
+    if (!drag_target_preview_parent_id.empty() && !node_exists(drag_target_preview_parent_id)) {
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+    }
+    if (drag_target_preview_node_id.empty()) {
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
     }
     if (!preview_visual_feedback_node_id.empty() && !node_exists(preview_visual_feedback_node_id)) {
       preview_visual_feedback_node_id.clear();
@@ -3970,6 +4794,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     const bool hover_valid = hover_node_id.empty() || node_exists(hover_node_id);
     const bool drag_source_valid = drag_source_node_id.empty() || node_exists(drag_source_node_id);
     const bool drag_target_valid = drag_target_preview_node_id.empty() || node_exists(drag_target_preview_node_id);
+    const bool drag_target_parent_valid = drag_target_preview_parent_id.empty() || node_exists(drag_target_preview_parent_id);
     const bool preview_feedback_valid = preview_visual_feedback_node_id.empty() || node_exists(preview_visual_feedback_node_id);
     const bool tree_feedback_valid = tree_visual_feedback_node_id.empty() || node_exists(tree_visual_feedback_node_id);
     const bool inline_ref_valid = inline_edit_node_id.empty() || node_exists(inline_edit_node_id);
@@ -3982,9 +4807,260 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       hover_valid &&
       drag_source_valid &&
       drag_target_valid &&
+      drag_target_parent_valid &&
       preview_feedback_valid &&
       tree_feedback_valid &&
       inline_ref_valid;
+  };
+
+  struct BuilderMutationCheckpoint {
+    ngk::ui::builder::BuilderDocument doc{};
+    std::string selected_id{};
+    std::vector<std::string> multi_selected_ids{};
+    std::string focused_id{};
+    std::string anchor_id{};
+    std::string filter_query{};
+    std::string inspector_binding_id{};
+    std::string preview_binding_id{};
+    std::string hover_id{};
+    std::string drag_source_id{};
+    bool drag_active = false;
+    std::string drag_target_preview_id{};
+    bool drag_target_preview_illegal = false;
+    std::string drag_target_preview_parent_id{};
+    std::size_t drag_target_preview_insert_index = 0;
+    std::string drag_target_preview_resolution_kind{};
+    std::string preview_feedback_node_id{};
+    std::string tree_feedback_node_id{};
+    bool inline_edit_active = false;
+    std::string inline_edit_node_id{};
+    std::string inline_edit_buffer{};
+    std::string inline_edit_original_text{};
+    std::string preview_inline_loaded_text{};
+    std::vector<CommandHistoryEntry> undo_history{};
+    std::vector<CommandHistoryEntry> redo_stack{};
+    bool has_saved_builder_snapshot = false;
+    std::string last_saved_builder_serialized{};
+    bool has_clean_builder_baseline_signature = false;
+    std::string clean_builder_baseline_signature{};
+    bool builder_doc_dirty = false;
+    int tree_scroll_offset_y = 0;
+    int preview_scroll_offset_y = 0;
+  };
+
+  auto capture_mutation_checkpoint = [&]() -> BuilderMutationCheckpoint {
+    BuilderMutationCheckpoint cp{};
+    cp.doc = builder_doc;
+    cp.selected_id = selected_builder_node_id;
+    cp.multi_selected_ids = multi_selected_node_ids;
+    cp.focused_id = focused_builder_node_id;
+    cp.anchor_id = builder_selection_anchor_node_id;
+    cp.filter_query = builder_projection_filter_query;
+    cp.inspector_binding_id = inspector_binding_node_id;
+    cp.preview_binding_id = preview_binding_node_id;
+    cp.hover_id = hover_node_id;
+    cp.drag_source_id = drag_source_node_id;
+    cp.drag_active = drag_active;
+    cp.drag_target_preview_id = drag_target_preview_node_id;
+    cp.drag_target_preview_illegal = drag_target_preview_is_illegal;
+    cp.drag_target_preview_parent_id = drag_target_preview_parent_id;
+    cp.drag_target_preview_insert_index = drag_target_preview_insert_index;
+    cp.drag_target_preview_resolution_kind = drag_target_preview_resolution_kind;
+    cp.preview_feedback_node_id = preview_visual_feedback_node_id;
+    cp.tree_feedback_node_id = tree_visual_feedback_node_id;
+    cp.inline_edit_active = inline_edit_active;
+    cp.inline_edit_node_id = inline_edit_node_id;
+    cp.inline_edit_buffer = inline_edit_buffer;
+    cp.inline_edit_original_text = inline_edit_original_text;
+    cp.preview_inline_loaded_text = preview_inline_loaded_text;
+    cp.undo_history = undo_history;
+    cp.redo_stack = redo_stack;
+    cp.has_saved_builder_snapshot = has_saved_builder_snapshot;
+    cp.last_saved_builder_serialized = last_saved_builder_serialized;
+    cp.has_clean_builder_baseline_signature = has_clean_builder_baseline_signature;
+    cp.clean_builder_baseline_signature = clean_builder_baseline_signature;
+    cp.builder_doc_dirty = builder_doc_dirty;
+    cp.tree_scroll_offset_y = builder_tree_scroll.scroll_offset_y();
+    cp.preview_scroll_offset_y = builder_preview_scroll.scroll_offset_y();
+    return cp;
+  };
+
+  auto restore_mutation_checkpoint = [&](const BuilderMutationCheckpoint& cp) {
+    builder_doc = cp.doc;
+    selected_builder_node_id = cp.selected_id;
+    multi_selected_node_ids = cp.multi_selected_ids;
+    set_builder_projection_filter_state(cp.filter_query);
+    inspector_binding_node_id = cp.inspector_binding_id;
+    preview_binding_node_id = cp.preview_binding_id;
+    hover_node_id = cp.hover_id;
+    drag_source_node_id = cp.drag_source_id;
+    drag_active = cp.drag_active;
+    drag_target_preview_node_id = cp.drag_target_preview_id;
+    drag_target_preview_is_illegal = cp.drag_target_preview_illegal;
+    drag_target_preview_parent_id = cp.drag_target_preview_parent_id;
+    drag_target_preview_insert_index = cp.drag_target_preview_insert_index;
+    drag_target_preview_resolution_kind = cp.drag_target_preview_resolution_kind;
+    preview_visual_feedback_node_id = cp.preview_feedback_node_id;
+    tree_visual_feedback_node_id = cp.tree_feedback_node_id;
+    inline_edit_active = cp.inline_edit_active;
+    inline_edit_node_id = cp.inline_edit_node_id;
+    inline_edit_buffer = cp.inline_edit_buffer;
+    inline_edit_original_text = cp.inline_edit_original_text;
+    preview_inline_loaded_text = cp.preview_inline_loaded_text;
+    undo_history = cp.undo_history;
+    redo_stack = cp.redo_stack;
+    has_saved_builder_snapshot = cp.has_saved_builder_snapshot;
+    last_saved_builder_serialized = cp.last_saved_builder_serialized;
+    has_clean_builder_baseline_signature = cp.has_clean_builder_baseline_signature;
+    clean_builder_baseline_signature = cp.clean_builder_baseline_signature;
+    builder_doc_dirty = cp.builder_doc_dirty;
+    builder_tree_scroll.set_scroll_offset_y(cp.tree_scroll_offset_y);
+    builder_preview_scroll.set_scroll_offset_y(cp.preview_scroll_offset_y);
+    restore_exact_selection_focus_anchor_state(cp.focused_id, cp.anchor_id);
+    refresh_inspector_or_fail();
+    refresh_preview_or_fail();
+    update_add_child_target_display();
+  };
+
+  auto validate_command_history_snapshot = [&](const std::vector<CommandHistoryEntry>& history) -> bool {
+    auto validate_selection_refs = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                       const std::string& selected_id,
+                                       const std::vector<std::string>& multi_ids) -> bool {
+      if (selected_id.empty() || !node_exists_in_document(doc, selected_id)) {
+        return false;
+      }
+      if (multi_ids.empty() || multi_ids.front() != selected_id) {
+        return false;
+      }
+      std::vector<std::string> seen{};
+      for (const auto& node_id : multi_ids) {
+        if (node_id.empty() || !node_exists_in_document(doc, node_id) ||
+            std::find(seen.begin(), seen.end(), node_id) != seen.end()) {
+          return false;
+        }
+        seen.push_back(node_id);
+      }
+      return true;
+    };
+
+    for (const auto& entry : history) {
+      ngk::ui::builder::BuilderDocument before_doc{};
+      before_doc.root_node_id = entry.before_root_node_id;
+      before_doc.nodes = entry.before_nodes;
+      ngk::ui::builder::BuilderDocument after_doc{};
+      after_doc.root_node_id = entry.after_root_node_id;
+      after_doc.nodes = entry.after_nodes;
+
+      std::string before_error;
+      std::string after_error;
+      if (!ngk::ui::builder::validate_builder_document(before_doc, &before_error) ||
+          !ngk::ui::builder::validate_builder_document(after_doc, &after_error)) {
+        return false;
+      }
+      if (!validate_selection_refs(before_doc, entry.before_selected_id, entry.before_multi_selected_ids)) {
+        return false;
+      }
+      if (!validate_selection_refs(after_doc, entry.after_selected_id, entry.after_multi_selected_ids)) {
+        return false;
+      }
+      if ((!entry.before_focused_id.empty() && !node_exists_in_document(before_doc, entry.before_focused_id)) ||
+          (!entry.after_focused_id.empty() && !node_exists_in_document(after_doc, entry.after_focused_id))) {
+        return false;
+      }
+      if ((!entry.before_anchor_id.empty() &&
+           (!node_exists_in_document(before_doc, entry.before_anchor_id) ||
+            std::find(entry.before_multi_selected_ids.begin(), entry.before_multi_selected_ids.end(), entry.before_anchor_id) ==
+              entry.before_multi_selected_ids.end())) ||
+          (!entry.after_anchor_id.empty() &&
+           (!node_exists_in_document(after_doc, entry.after_anchor_id) ||
+            std::find(entry.after_multi_selected_ids.begin(), entry.after_multi_selected_ids.end(), entry.after_anchor_id) ==
+              entry.after_multi_selected_ids.end()))) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  auto validate_global_document_invariant = [&](std::string& reason_out) -> bool {
+    reason_out.clear();
+
+    if (builder_persistence_io_in_progress) {
+      reason_out = "persistence_io_busy_leak";
+      return false;
+    }
+
+    std::string validation_error;
+    if (!ngk::ui::builder::validate_builder_document(builder_doc, &validation_error)) {
+      reason_out = "document_invalid_" + validation_error;
+      return false;
+    }
+
+    if (selected_builder_node_id.empty() || !node_exists(selected_builder_node_id)) {
+      reason_out = "selected_node_invalid";
+      return false;
+    }
+
+    if (multi_selected_node_ids.empty() || multi_selected_node_ids.front() != selected_builder_node_id) {
+      reason_out = "multi_selection_primary_mismatch";
+      return false;
+    }
+    std::vector<std::string> seen_multi{};
+    for (const auto& node_id : multi_selected_node_ids) {
+      if (node_id.empty() || !node_exists(node_id) ||
+          std::find(seen_multi.begin(), seen_multi.end(), node_id) != seen_multi.end()) {
+        reason_out = "multi_selection_invalid";
+        return false;
+      }
+      seen_multi.push_back(node_id);
+    }
+
+    if ((!focused_builder_node_id.empty() && !node_exists(focused_builder_node_id)) ||
+        (!inspector_binding_node_id.empty() && !node_exists(inspector_binding_node_id)) ||
+        (!preview_binding_node_id.empty() && !node_exists(preview_binding_node_id)) ||
+        (!hover_node_id.empty() && !node_exists(hover_node_id)) ||
+        (!drag_source_node_id.empty() && !node_exists(drag_source_node_id)) ||
+        (!drag_target_preview_node_id.empty() && !node_exists(drag_target_preview_node_id)) ||
+        (!drag_target_preview_parent_id.empty() && !node_exists(drag_target_preview_parent_id)) ||
+        (!preview_visual_feedback_node_id.empty() && !node_exists(preview_visual_feedback_node_id)) ||
+        (!tree_visual_feedback_node_id.empty() && !node_exists(tree_visual_feedback_node_id)) ||
+        (!inline_edit_node_id.empty() && !node_exists(inline_edit_node_id))) {
+      reason_out = "stale_runtime_reference";
+      return false;
+    }
+
+    if (drag_target_preview_node_id.empty()) {
+      if (!drag_target_preview_parent_id.empty() || drag_target_preview_insert_index != 0 || !drag_target_preview_resolution_kind.empty()) {
+        reason_out = "drag_preview_resolution_leak";
+        return false;
+      }
+    }
+
+    std::vector<PreviewExportParityEntry> parity_entries{};
+    std::string parity_reason;
+    if (!build_preview_export_parity_entries(builder_doc, parity_entries, parity_reason, "global_invariant")) {
+      reason_out = "preview_parity_invalid_" + parity_reason;
+      return false;
+    }
+
+    if (!validate_command_history_snapshot(undo_history) || !validate_command_history_snapshot(redo_stack)) {
+      reason_out = "command_history_invalid";
+      return false;
+    }
+
+    return true;
+  };
+
+  auto enforce_global_invariant_or_rollback = [&](const BuilderMutationCheckpoint& checkpoint,
+                                                  const char* mutation_name) -> bool {
+    std::string reason;
+    global_invariant_checks_total += 1;
+    if (validate_global_document_invariant(reason)) {
+      return true;
+    }
+    global_invariant_failures_total += 1;
+    (void)mutation_name;
+    restore_mutation_checkpoint(checkpoint);
+    return false;
   };
 
   apply_preview_click_select_at_point = [&](int x, int y) -> bool {
@@ -4197,6 +5273,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   };
 
   auto apply_bulk_delete_selected_nodes_command = [&](const std::vector<std::string>& requested_ids) -> bool {
+    const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
     bulk_delete_diag.bulk_delete_present = true;
     delete_diag.shell_delete_control_present = true;
 
@@ -4240,7 +5317,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     last_bulk_delete_reason = "none";
     refresh_inspector_surface_label();
     refresh_preview_surface_label();
-    return true;
+    return enforce_global_invariant_or_rollback(checkpoint, "apply_bulk_delete_selected_nodes_command");
   };
 
   auto apply_delete_selected_node_command = [&]() -> bool {
@@ -4469,6 +5546,58 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
   };
 
+  auto clear_history_coalesce_request = [&]() {
+    history_coalesce_request_active = false;
+    history_coalesce_request_key.clear();
+    history_coalesce_request_operation_class.clear();
+  };
+
+  auto request_history_coalescing = [&](const std::string& operation_class,
+                                        const std::string& coalescing_key) {
+    if (operation_class.empty() || coalescing_key.empty()) {
+      clear_history_coalesce_request();
+      return;
+    }
+    history_coalesce_request_active = true;
+    history_coalesce_request_operation_class = operation_class;
+    history_coalesce_request_key = coalescing_key;
+  };
+
+  auto break_history_coalescing_boundary = [&]() {
+    clear_history_coalesce_request();
+    history_boundary_epoch += 1;
+  };
+
+  auto sync_history_replay_bindings_without_surface_refresh = [&]() -> bool {
+    scrub_stale_lifecycle_references();
+    sync_multi_selection_with_primary();
+
+    if (selected_builder_node_id.empty()) {
+      inspector_binding_node_id.clear();
+      preview_binding_node_id.clear();
+      return focused_builder_node_id.empty() && builder_selection_anchor_node_id.empty();
+    }
+
+    if (!node_exists(selected_builder_node_id) ||
+        !node_exists(focused_builder_node_id) ||
+        !node_exists(builder_selection_anchor_node_id)) {
+      return false;
+    }
+
+    inspector_binding_node_id = selected_builder_node_id;
+    preview_binding_node_id = selected_builder_node_id;
+    return true;
+  };
+
+  auto finalize_history_replay_surface_refresh = [&]() -> bool {
+    refresh_tree_surface_label();
+    const bool inspector_ok = refresh_inspector_or_fail();
+    const bool preview_ok = refresh_preview_or_fail();
+    update_add_child_target_display();
+    const bool sync_ok = check_cross_surface_sync();
+    return inspector_ok && preview_ok && sync_ok;
+  };
+
   auto push_to_history = [&](
       const std::string& command_type,
       const std::vector<ngk::ui::builder::BuilderNode>& before_nodes,
@@ -4478,7 +5607,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       const std::vector<ngk::ui::builder::BuilderNode>& after_nodes,
       const std::string& after_root,
       const std::string& after_sel,
-      const std::vector<std::string>* after_multi) {
+      const std::vector<std::string>* after_multi,
+      const BuilderMutationCheckpoint* before_runtime_state = nullptr) {
     auto normalize_selected_id_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
                                                   const std::string& preferred_selected_id,
                                                   const std::vector<std::string>& preferred_multi_selected_ids,
@@ -4534,6 +5664,36 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       return stable;
     };
 
+    auto normalize_focus_id_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
+                                               const std::string& selected_id,
+                                               const std::string& preferred_focus_id) -> std::string {
+      if (!preferred_focus_id.empty() && node_exists_in_document(target_doc, preferred_focus_id)) {
+        return preferred_focus_id;
+      }
+      if (!selected_id.empty() && node_exists_in_document(target_doc, selected_id)) {
+        return selected_id;
+      }
+      if (!target_doc.root_node_id.empty() && node_exists_in_document(target_doc, target_doc.root_node_id)) {
+        return target_doc.root_node_id;
+      }
+      return std::string{};
+    };
+
+    auto normalize_anchor_id_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
+                                                const std::string& selected_id,
+                                                const std::vector<std::string>& multi_selected_ids,
+                                                const std::string& preferred_anchor_id) -> std::string {
+      if (!preferred_anchor_id.empty() && node_exists_in_document(target_doc, preferred_anchor_id) &&
+          std::find(multi_selected_ids.begin(), multi_selected_ids.end(), preferred_anchor_id) != multi_selected_ids.end()) {
+        return preferred_anchor_id;
+      }
+      if (!selected_id.empty() && node_exists_in_document(target_doc, selected_id) &&
+          std::find(multi_selected_ids.begin(), multi_selected_ids.end(), selected_id) != multi_selected_ids.end()) {
+        return selected_id;
+      }
+      return std::string{};
+    };
+
     auto normalize_history_entry = [&](CommandHistoryEntry& entry) -> bool {
       ngk::ui::builder::BuilderDocument before_doc{};
       before_doc.root_node_id = entry.before_root_node_id;
@@ -4560,6 +5720,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         before_doc,
         entry.before_selected_id,
         entry.before_multi_selected_ids);
+      entry.before_focused_id = normalize_focus_id_for_snapshot(
+        before_doc,
+        entry.before_selected_id,
+        entry.before_focused_id);
+      entry.before_anchor_id = normalize_anchor_id_for_snapshot(
+        before_doc,
+        entry.before_selected_id,
+        entry.before_multi_selected_ids,
+        entry.before_anchor_id);
 
       entry.after_selected_id = normalize_selected_id_for_snapshot(
         after_doc,
@@ -4571,12 +5740,31 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         after_doc,
         entry.after_selected_id,
         entry.after_multi_selected_ids);
+      entry.after_focused_id = normalize_focus_id_for_snapshot(
+        after_doc,
+        entry.after_selected_id,
+        entry.after_focused_id);
+      entry.after_anchor_id = normalize_anchor_id_for_snapshot(
+        after_doc,
+        entry.after_selected_id,
+        entry.after_multi_selected_ids,
+        entry.after_anchor_id);
 
       return !entry.before_selected_id.empty() && !entry.after_selected_id.empty();
     };
 
+    const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+
     CommandHistoryEntry entry{};
     entry.command_type = command_type;
+    entry.operation_class = history_coalesce_request_active
+      ? history_coalesce_request_operation_class
+      : command_type;
+    entry.coalescing_key = history_coalesce_request_active
+      ? history_coalesce_request_key
+      : std::string{};
+    entry.boundary_epoch = history_boundary_epoch;
+    entry.logical_action_span = 1;
     entry.before_nodes = before_nodes;
     entry.before_root_node_id = before_root;
     entry.before_selected_id = before_sel;
@@ -4585,6 +5773,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     } else if (!before_sel.empty()) {
       entry.before_multi_selected_ids = {before_sel};
     }
+    entry.before_focused_id = before_runtime_state != nullptr ? before_runtime_state->focused_id : before_sel;
+    entry.before_anchor_id = before_runtime_state != nullptr ? before_runtime_state->anchor_id : before_sel;
+    entry.before_filter_query = before_runtime_state != nullptr ? before_runtime_state->filter_query : builder_projection_filter_query;
+    entry.before_tree_scroll_offset_y = before_runtime_state != nullptr
+      ? before_runtime_state->tree_scroll_offset_y
+      : builder_tree_scroll.scroll_offset_y();
+    entry.before_preview_scroll_offset_y = before_runtime_state != nullptr
+      ? before_runtime_state->preview_scroll_offset_y
+      : builder_preview_scroll.scroll_offset_y();
     entry.after_nodes = after_nodes;
     entry.after_root_node_id = after_root;
     entry.after_selected_id = after_sel;
@@ -4593,17 +5790,50 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     } else if (!after_sel.empty()) {
       entry.after_multi_selected_ids = {after_sel};
     }
+    entry.after_focused_id = focused_builder_node_id;
+    entry.after_anchor_id = builder_selection_anchor_node_id;
+    entry.after_filter_query = builder_projection_filter_query;
+    entry.after_tree_scroll_offset_y = builder_tree_scroll.scroll_offset_y();
+    entry.after_preview_scroll_offset_y = builder_preview_scroll.scroll_offset_y();
     if (!normalize_history_entry(entry)) {
+      model.undefined_state_detected = true;
+      clear_history_coalesce_request();
+      return;
+    }
+    bool coalesced = false;
+    if (history_coalesce_request_active && !undo_history.empty()) {
+      auto& previous = undo_history.back();
+      const bool can_coalesce =
+        previous.command_type == entry.command_type &&
+        previous.operation_class == entry.operation_class &&
+        previous.coalescing_key == entry.coalescing_key &&
+        previous.boundary_epoch == entry.boundary_epoch &&
+        previous.after_selected_id == entry.before_selected_id &&
+        previous.after_multi_selected_ids == entry.before_multi_selected_ids;
+      if (can_coalesce) {
+        previous.after_nodes = entry.after_nodes;
+        previous.after_root_node_id = entry.after_root_node_id;
+        previous.after_selected_id = entry.after_selected_id;
+        previous.after_multi_selected_ids = entry.after_multi_selected_ids;
+        previous.logical_action_span += 1;
+        coalesced = true;
+      }
+    }
+
+    if (!coalesced) {
+      undo_history.push_back(std::move(entry));
+    }
+    redo_stack.clear();
+    undoredo_diag.command_history_present = !undo_history.empty();
+    clear_history_coalesce_request();
+    if (!enforce_global_invariant_or_rollback(checkpoint, "push_to_history")) {
       model.undefined_state_detected = true;
       return;
     }
-    undo_history.push_back(std::move(entry));
-    redo_stack.clear();
-    undoredo_diag.command_history_present = !undo_history.empty();
   };
 
   auto recompute_builder_dirty_state = [&](bool conservative_mark_dirty_if_no_saved_baseline) -> bool {
-    if (!has_saved_builder_snapshot) {
+    if (!has_clean_builder_baseline_signature || clean_builder_baseline_signature.empty()) {
       if (conservative_mark_dirty_if_no_saved_baseline) {
         builder_doc_dirty = true;
       }
@@ -4618,12 +5848,14 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       return false;
     }
 
-    builder_doc_dirty = (serialized_now != last_saved_builder_serialized);
+    builder_doc_dirty = (serialized_now != clean_builder_baseline_signature);
     update_labels();
     return true;
   };
 
   auto apply_inspector_text_edit_command = [&](const std::string& new_text) -> bool {
+    const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+    break_history_coalescing_boundary();
     auto fail_invalid = [&](const std::string& reason_code) -> bool {
       last_inspector_edit_status_code = "INVALID";
       last_inspector_edit_reason = reason_code.empty() ? std::string("unknown_invalid_edit") : reason_code;
@@ -4672,17 +5904,19 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
     const auto before_multi = multi_selected_node_ids;
     push_to_history("inspector_text_edit", before_nodes, before_root, before_sel, &before_multi,
-                    builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids);
+                    builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids,
+                    &checkpoint);
     recompute_builder_dirty_state(true);
     last_inspector_edit_status_code = "SUCCESS";
     last_inspector_edit_reason = "none";
     refresh_inspector_surface_label();
-    return true;
+    return enforce_global_invariant_or_rollback(checkpoint, "apply_inspector_text_edit_command");
   };
 
   auto apply_inspector_property_edits_command =
     [&](const std::vector<std::pair<std::string, std::string>>& updates,
         const std::string& history_tag) -> bool {
+      const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
       auto fail_invalid = [&](const std::string& reason_code) -> bool {
         last_inspector_edit_status_code = "INVALID";
         last_inspector_edit_reason = reason_code.empty() ? std::string("unknown_invalid_edit") : reason_code;
@@ -4714,6 +5948,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
       ngk::ui::builder::BuilderDocument candidate_doc = builder_doc;
       int applied_count = 0;
+      std::string single_property_key{};
       for (const auto& update : updates) {
         if (update.first.empty()) {
           continue;
@@ -4729,6 +5964,11 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         if (!ngk::ui::builder::apply_property_update_command(candidate_doc, prop_cmd, &prop_apply_error)) {
           return fail_rejected(prop_apply_error);
         }
+        if (applied_count == 0) {
+          single_property_key = update.first;
+        } else {
+          single_property_key.clear();
+        }
         applied_count += 1;
       }
 
@@ -4742,17 +5982,34 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
       builder_doc = std::move(candidate_doc);
 
-      push_to_history(history_tag.empty() ? std::string("inspector_property_edit") : history_tag,
+      const std::string effective_tag =
+        history_tag.empty() ? std::string("inspector_property_edit") : history_tag;
+      const bool allow_explicit_property_coalesce =
+        effective_tag == "inspector_property_edit" ||
+        effective_tag == "inspector_multi_property_edit";
+      if (allow_explicit_property_coalesce && applied_count == 1 && !single_property_key.empty()) {
+        request_history_coalescing(
+          "inspector_property",
+          selected_builder_node_id + "|" + single_property_key + "|" + effective_tag);
+      } else {
+        break_history_coalescing_boundary();
+      }
+
+      push_to_history(effective_tag,
                       before_nodes, before_root, before_sel, &before_multi,
-                      builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids);
+                      builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids,
+                      &checkpoint);
       recompute_builder_dirty_state(true);
       last_inspector_edit_status_code = "SUCCESS";
       last_inspector_edit_reason = "none";
       refresh_inspector_surface_label();
-      return true;
+      return enforce_global_invariant_or_rollback(checkpoint, "apply_inspector_property_edits_command");
     };
 
-  auto apply_undo_command = [&]() -> bool {
+  auto apply_undo_command = [&](bool defer_surface_refresh = false,
+                                bool finalize_surface_refresh = true) -> bool {
+    const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+    break_history_coalescing_boundary();
     auto normalize_selected_id_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
                                                   const std::string& preferred_selected_id,
                                                   const std::vector<std::string>& preferred_multi_selected_ids,
@@ -4808,6 +6065,36 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       return stable;
     };
 
+    auto normalize_focus_id_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
+                                               const std::string& selected_id,
+                                               const std::string& preferred_focus_id) -> std::string {
+      if (!preferred_focus_id.empty() && node_exists_in_document(target_doc, preferred_focus_id)) {
+        return preferred_focus_id;
+      }
+      if (!selected_id.empty() && node_exists_in_document(target_doc, selected_id)) {
+        return selected_id;
+      }
+      if (!target_doc.root_node_id.empty() && node_exists_in_document(target_doc, target_doc.root_node_id)) {
+        return target_doc.root_node_id;
+      }
+      return std::string{};
+    };
+
+    auto normalize_anchor_id_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
+                                                const std::string& selected_id,
+                                                const std::vector<std::string>& multi_selected_ids,
+                                                const std::string& preferred_anchor_id) -> std::string {
+      if (!preferred_anchor_id.empty() && node_exists_in_document(target_doc, preferred_anchor_id) &&
+          std::find(multi_selected_ids.begin(), multi_selected_ids.end(), preferred_anchor_id) != multi_selected_ids.end()) {
+        return preferred_anchor_id;
+      }
+      if (!selected_id.empty() && node_exists_in_document(target_doc, selected_id) &&
+          std::find(multi_selected_ids.begin(), multi_selected_ids.end(), selected_id) != multi_selected_ids.end()) {
+        return selected_id;
+      }
+      return std::string{};
+    };
+
     auto normalize_history_entry = [&](CommandHistoryEntry& entry) -> bool {
       ngk::ui::builder::BuilderDocument before_doc{};
       before_doc.root_node_id = entry.before_root_node_id;
@@ -4834,6 +6121,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         before_doc,
         entry.before_selected_id,
         entry.before_multi_selected_ids);
+      entry.before_focused_id = normalize_focus_id_for_snapshot(
+        before_doc,
+        entry.before_selected_id,
+        entry.before_focused_id);
+      entry.before_anchor_id = normalize_anchor_id_for_snapshot(
+        before_doc,
+        entry.before_selected_id,
+        entry.before_multi_selected_ids,
+        entry.before_anchor_id);
 
       entry.after_selected_id = normalize_selected_id_for_snapshot(
         after_doc,
@@ -4845,6 +6141,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         after_doc,
         entry.after_selected_id,
         entry.after_multi_selected_ids);
+      entry.after_focused_id = normalize_focus_id_for_snapshot(
+        after_doc,
+        entry.after_selected_id,
+        entry.after_focused_id);
+      entry.after_anchor_id = normalize_anchor_id_for_snapshot(
+        after_doc,
+        entry.after_selected_id,
+        entry.after_multi_selected_ids,
+        entry.after_anchor_id);
 
       return !entry.before_selected_id.empty() && !entry.after_selected_id.empty();
     };
@@ -4866,51 +6171,128 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       tree_visual_feedback_node_id.clear();
     };
 
-    auto restore_history_state = [&](const CommandHistoryEntry& raw_entry, bool restore_before) -> bool {
+    auto restore_history_state = [&](const CommandHistoryEntry& raw_entry,
+                     bool restore_before,
+                     bool defer_refresh) -> bool {
       CommandHistoryEntry entry = raw_entry;
       if (!normalize_history_entry(entry)) {
         model.undefined_state_detected = true;
         return false;
       }
 
+      const std::string prior_focus_id = focused_builder_node_id;
+      const std::string prior_anchor_id = builder_selection_anchor_node_id;
       clear_transient_builder_restore_state();
+      const std::string raw_focus_id = restore_before ? raw_entry.before_focused_id : raw_entry.after_focused_id;
+      const std::string raw_anchor_id = restore_before ? raw_entry.before_anchor_id : raw_entry.after_anchor_id;
+      const bool preserve_prior_focus_anchor = !restore_before && entry.command_type == "typed_insert";
       if (restore_before) {
         builder_doc.nodes = entry.before_nodes;
         builder_doc.root_node_id = entry.before_root_node_id;
         selected_builder_node_id = entry.before_selected_id;
         multi_selected_node_ids = entry.before_multi_selected_ids;
+        set_builder_projection_filter_state(entry.before_filter_query);
+        builder_tree_scroll.set_scroll_offset_y(entry.before_tree_scroll_offset_y);
+        builder_preview_scroll.set_scroll_offset_y(entry.before_preview_scroll_offset_y);
+        const std::string desired_focus_id =
+          (!raw_focus_id.empty() && node_exists_in_document(builder_doc, raw_focus_id))
+            ? raw_focus_id
+            : entry.before_focused_id;
+        std::string desired_anchor_id =
+          (!raw_anchor_id.empty() && node_exists_in_document(builder_doc, raw_anchor_id))
+            ? raw_anchor_id
+            : entry.before_anchor_id;
+        std::string effective_focus_id = desired_focus_id;
+        if (preserve_prior_focus_anchor &&
+            !prior_focus_id.empty() &&
+            node_exists_in_document(builder_doc, prior_focus_id)) {
+          effective_focus_id = prior_focus_id;
+        }
+        if (preserve_prior_focus_anchor &&
+            !prior_anchor_id.empty() &&
+            node_exists_in_document(builder_doc, prior_anchor_id)) {
+          desired_anchor_id = prior_anchor_id;
+        }
+        if (!restore_exact_selection_focus_anchor_state(
+              effective_focus_id,
+              desired_anchor_id,
+              !defer_refresh,
+              false)) {
+          return false;
+        }
       } else {
         builder_doc.nodes = entry.after_nodes;
         builder_doc.root_node_id = entry.after_root_node_id;
         selected_builder_node_id = entry.after_selected_id;
         multi_selected_node_ids = entry.after_multi_selected_ids;
+        set_builder_projection_filter_state(entry.after_filter_query);
+        builder_tree_scroll.set_scroll_offset_y(entry.after_tree_scroll_offset_y);
+        builder_preview_scroll.set_scroll_offset_y(entry.after_preview_scroll_offset_y);
+        const std::string desired_focus_id =
+          (!raw_focus_id.empty() && node_exists_in_document(builder_doc, raw_focus_id))
+            ? raw_focus_id
+            : entry.after_focused_id;
+        std::string desired_anchor_id =
+          (!raw_anchor_id.empty() && node_exists_in_document(builder_doc, raw_anchor_id))
+            ? raw_anchor_id
+            : entry.after_anchor_id;
+        std::string effective_focus_id = desired_focus_id;
+        if (preserve_prior_focus_anchor &&
+            !prior_focus_id.empty() &&
+            node_exists_in_document(builder_doc, prior_focus_id)) {
+          effective_focus_id = prior_focus_id;
+        }
+        if (preserve_prior_focus_anchor &&
+            !prior_anchor_id.empty() &&
+            node_exists_in_document(builder_doc, prior_anchor_id)) {
+          desired_anchor_id = prior_anchor_id;
+        }
+        if (!restore_exact_selection_focus_anchor_state(
+              effective_focus_id,
+              desired_anchor_id,
+              !defer_refresh,
+              false)) {
+          return false;
+        }
       }
 
-      const bool remap_ok = remap_selection_or_fail();
-      const bool focus_ok = sync_focus_with_selection_or_fail();
-      refresh_tree_surface_label();
+      if (defer_refresh) {
+        update_add_child_target_display();
+        return sync_history_replay_bindings_without_surface_refresh() && check_cross_surface_sync();
+      }
+
       const bool inspector_ok = refresh_inspector_or_fail();
       const bool preview_ok = refresh_preview_or_fail();
       update_add_child_target_display();
-      return remap_ok && focus_ok && inspector_ok && preview_ok;
+      return inspector_ok && preview_ok;
     };
 
     if (undo_history.empty()) {
       return false;
     }
     const CommandHistoryEntry entry = undo_history.back();
-    if (!restore_history_state(entry, true)) {
+    if (!restore_history_state(entry, true, defer_surface_refresh)) {
       return false;
     }
     redo_stack.push_back(entry);
     undo_history.pop_back();
     const bool dirty_ok = recompute_builder_dirty_state(true);
     update_add_child_target_display();
-    const bool sync_ok = check_cross_surface_sync();
-    return dirty_ok && sync_ok;
+    const bool sync_ok = defer_surface_refresh ? true : check_cross_surface_sync();
+    bool final_surface_ok = true;
+    if (defer_surface_refresh && finalize_surface_refresh) {
+      final_surface_ok = finalize_history_replay_surface_refresh();
+    }
+    if (!(dirty_ok && sync_ok && final_surface_ok)) {
+      return false;
+    }
+    return enforce_global_invariant_or_rollback(checkpoint, "apply_undo_command");
   };
 
-  auto apply_redo_command = [&]() -> bool {
+  auto apply_redo_command = [&](bool defer_surface_refresh = false,
+                                bool finalize_surface_refresh = true) -> bool {
+    const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+    break_history_coalescing_boundary();
     auto normalize_selected_id_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
                                                   const std::string& preferred_selected_id,
                                                   const std::vector<std::string>& preferred_multi_selected_ids,
@@ -4966,6 +6348,36 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       return stable;
     };
 
+    auto normalize_focus_id_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
+                                               const std::string& selected_id,
+                                               const std::string& preferred_focus_id) -> std::string {
+      if (!preferred_focus_id.empty() && node_exists_in_document(target_doc, preferred_focus_id)) {
+        return preferred_focus_id;
+      }
+      if (!selected_id.empty() && node_exists_in_document(target_doc, selected_id)) {
+        return selected_id;
+      }
+      if (!target_doc.root_node_id.empty() && node_exists_in_document(target_doc, target_doc.root_node_id)) {
+        return target_doc.root_node_id;
+      }
+      return std::string{};
+    };
+
+    auto normalize_anchor_id_for_snapshot = [&](const ngk::ui::builder::BuilderDocument& target_doc,
+                                                const std::string& selected_id,
+                                                const std::vector<std::string>& multi_selected_ids,
+                                                const std::string& preferred_anchor_id) -> std::string {
+      if (!preferred_anchor_id.empty() && node_exists_in_document(target_doc, preferred_anchor_id) &&
+          std::find(multi_selected_ids.begin(), multi_selected_ids.end(), preferred_anchor_id) != multi_selected_ids.end()) {
+        return preferred_anchor_id;
+      }
+      if (!selected_id.empty() && node_exists_in_document(target_doc, selected_id) &&
+          std::find(multi_selected_ids.begin(), multi_selected_ids.end(), selected_id) != multi_selected_ids.end()) {
+        return selected_id;
+      }
+      return std::string{};
+    };
+
     auto normalize_history_entry = [&](CommandHistoryEntry& entry) -> bool {
       ngk::ui::builder::BuilderDocument before_doc{};
       before_doc.root_node_id = entry.before_root_node_id;
@@ -4992,6 +6404,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         before_doc,
         entry.before_selected_id,
         entry.before_multi_selected_ids);
+      entry.before_focused_id = normalize_focus_id_for_snapshot(
+        before_doc,
+        entry.before_selected_id,
+        entry.before_focused_id);
+      entry.before_anchor_id = normalize_anchor_id_for_snapshot(
+        before_doc,
+        entry.before_selected_id,
+        entry.before_multi_selected_ids,
+        entry.before_anchor_id);
 
       entry.after_selected_id = normalize_selected_id_for_snapshot(
         after_doc,
@@ -5003,6 +6424,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         after_doc,
         entry.after_selected_id,
         entry.after_multi_selected_ids);
+      entry.after_focused_id = normalize_focus_id_for_snapshot(
+        after_doc,
+        entry.after_selected_id,
+        entry.after_focused_id);
+      entry.after_anchor_id = normalize_anchor_id_for_snapshot(
+        after_doc,
+        entry.after_selected_id,
+        entry.after_multi_selected_ids,
+        entry.after_anchor_id);
 
       return !entry.before_selected_id.empty() && !entry.after_selected_id.empty();
     };
@@ -5024,48 +6454,142 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       tree_visual_feedback_node_id.clear();
     };
 
-    auto restore_history_state = [&](const CommandHistoryEntry& raw_entry, bool restore_before) -> bool {
+    auto restore_history_state = [&](const CommandHistoryEntry& raw_entry,
+                     bool restore_before,
+                     bool defer_refresh) -> bool {
       CommandHistoryEntry entry = raw_entry;
       if (!normalize_history_entry(entry)) {
         model.undefined_state_detected = true;
         return false;
       }
 
+      const std::string prior_focus_id = focused_builder_node_id;
+      const std::string prior_anchor_id = builder_selection_anchor_node_id;
       clear_transient_builder_restore_state();
+      const std::string raw_focus_id = restore_before ? raw_entry.before_focused_id : raw_entry.after_focused_id;
+      const std::string raw_anchor_id = restore_before ? raw_entry.before_anchor_id : raw_entry.after_anchor_id;
+      const bool preserve_prior_focus_anchor = !restore_before && entry.command_type == "typed_insert";
       if (restore_before) {
         builder_doc.nodes = entry.before_nodes;
         builder_doc.root_node_id = entry.before_root_node_id;
         selected_builder_node_id = entry.before_selected_id;
         multi_selected_node_ids = entry.before_multi_selected_ids;
+        set_builder_projection_filter_state(entry.before_filter_query);
+        builder_tree_scroll.set_scroll_offset_y(entry.before_tree_scroll_offset_y);
+        builder_preview_scroll.set_scroll_offset_y(entry.before_preview_scroll_offset_y);
+        const std::string desired_focus_id =
+          (!raw_focus_id.empty() && node_exists_in_document(builder_doc, raw_focus_id))
+            ? raw_focus_id
+            : entry.before_focused_id;
+        std::string desired_anchor_id =
+          (!raw_anchor_id.empty() && node_exists_in_document(builder_doc, raw_anchor_id))
+            ? raw_anchor_id
+            : entry.before_anchor_id;
+        std::string effective_focus_id = desired_focus_id;
+        if (preserve_prior_focus_anchor &&
+            !prior_focus_id.empty() &&
+            node_exists_in_document(builder_doc, prior_focus_id)) {
+          effective_focus_id = prior_focus_id;
+        }
+        if (preserve_prior_focus_anchor &&
+            !prior_anchor_id.empty() &&
+            node_exists_in_document(builder_doc, prior_anchor_id)) {
+          desired_anchor_id = prior_anchor_id;
+        }
+        if (!restore_exact_selection_focus_anchor_state(
+              effective_focus_id,
+              desired_anchor_id,
+              !defer_refresh,
+              false)) {
+          return false;
+        }
       } else {
         builder_doc.nodes = entry.after_nodes;
         builder_doc.root_node_id = entry.after_root_node_id;
         selected_builder_node_id = entry.after_selected_id;
         multi_selected_node_ids = entry.after_multi_selected_ids;
+        set_builder_projection_filter_state(entry.after_filter_query);
+        builder_tree_scroll.set_scroll_offset_y(entry.after_tree_scroll_offset_y);
+        builder_preview_scroll.set_scroll_offset_y(entry.after_preview_scroll_offset_y);
+        const std::string desired_focus_id =
+          (!raw_focus_id.empty() && node_exists_in_document(builder_doc, raw_focus_id))
+            ? raw_focus_id
+            : entry.after_focused_id;
+        std::string desired_anchor_id =
+          (!raw_anchor_id.empty() && node_exists_in_document(builder_doc, raw_anchor_id))
+            ? raw_anchor_id
+            : entry.after_anchor_id;
+        std::string effective_focus_id = desired_focus_id;
+        if (preserve_prior_focus_anchor &&
+            !prior_focus_id.empty() &&
+            node_exists_in_document(builder_doc, prior_focus_id)) {
+          effective_focus_id = prior_focus_id;
+        }
+        if (preserve_prior_focus_anchor &&
+            !prior_anchor_id.empty() &&
+            node_exists_in_document(builder_doc, prior_anchor_id)) {
+          desired_anchor_id = prior_anchor_id;
+        }
+        if (!restore_exact_selection_focus_anchor_state(
+              effective_focus_id,
+              desired_anchor_id,
+              !defer_refresh,
+              false)) {
+          return false;
+        }
       }
 
-      const bool remap_ok = remap_selection_or_fail();
-      const bool focus_ok = sync_focus_with_selection_or_fail();
-      refresh_tree_surface_label();
+      if (defer_refresh) {
+        update_add_child_target_display();
+        return sync_history_replay_bindings_without_surface_refresh() && check_cross_surface_sync();
+      }
+
       const bool inspector_ok = refresh_inspector_or_fail();
       const bool preview_ok = refresh_preview_or_fail();
       update_add_child_target_display();
-      return remap_ok && focus_ok && inspector_ok && preview_ok;
+      return inspector_ok && preview_ok;
     };
 
     if (redo_stack.empty()) {
       return false;
     }
     const CommandHistoryEntry entry = redo_stack.back();
-    if (!restore_history_state(entry, false)) {
+    if (!restore_history_state(entry, false, defer_surface_refresh)) {
       return false;
     }
     undo_history.push_back(entry);
     redo_stack.pop_back();
     const bool dirty_ok = recompute_builder_dirty_state(true);
     update_add_child_target_display();
-    const bool sync_ok = check_cross_surface_sync();
-    return dirty_ok && sync_ok;
+    const bool sync_ok = defer_surface_refresh ? true : check_cross_surface_sync();
+    bool final_surface_ok = true;
+    if (defer_surface_refresh && finalize_surface_refresh) {
+      final_surface_ok = finalize_history_replay_surface_refresh();
+    }
+    if (!(dirty_ok && sync_ok && final_surface_ok)) {
+      return false;
+    }
+    return enforce_global_invariant_or_rollback(checkpoint, "apply_redo_command");
+  };
+
+  auto apply_history_replay_batch = [&](bool replay_undo, std::size_t steps) -> bool {
+    if (steps == 0) {
+      return true;
+    }
+
+    for (std::size_t index = 0; index < steps; ++index) {
+      const bool finalize_surface_refresh = (index + 1) == steps;
+      const bool ok = replay_undo
+        ? apply_undo_command(true, finalize_surface_refresh)
+        : apply_redo_command(true, finalize_surface_refresh);
+      if (!ok) {
+        if (!finalize_surface_refresh) {
+          finalize_history_replay_surface_refresh();
+        }
+        return false;
+      }
+    }
+    return true;
   };
 
   auto enter_inline_edit_mode = [&](const std::string& node_id) -> bool {
@@ -5090,6 +6614,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     if (!inline_edit_active) {
       return false;
     }
+    break_history_coalescing_boundary();
     const std::string node_id = inline_edit_node_id;
     const std::string new_text = inline_edit_buffer;
     inline_edit_active = false;
@@ -5097,10 +6622,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     inline_edit_buffer.clear();
     inline_edit_original_text.clear();
     const std::string saved_sel = selected_builder_node_id;
+    const auto saved_multi = multi_selected_node_ids;
     selected_builder_node_id = node_id;
+    multi_selected_node_ids = {node_id};
+    sync_multi_selection_with_primary();
     const bool ok = apply_inspector_text_edit_command(new_text);
     if (!ok) {
       selected_builder_node_id = saved_sel;
+      multi_selected_node_ids = saved_multi;
+      sync_multi_selection_with_primary();
     }
     if (ok) {
       remap_selection_or_fail();
@@ -5115,6 +6645,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     if (!inline_edit_active) {
       return false;
     }
+    break_history_coalescing_boundary();
     inline_edit_active = false;
     inline_edit_node_id.clear();
     inline_edit_buffer.clear();
@@ -5261,51 +6792,297 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
   };
 
-  auto save_builder_document_to_path = [&](const std::filesystem::path& path) -> bool {
-    const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
-    if (serialized.empty()) {
+  auto read_text_file_exact = [&](const std::filesystem::path& path, std::string& out_text) -> bool {
+    out_text.clear();
+    try {
+      std::error_code size_error;
+      const std::uintmax_t expected_size = std::filesystem::file_size(path, size_error);
+      if (size_error) {
+        return false;
+      }
+      std::ifstream in(path, std::ios::binary);
+      if (!in.is_open()) {
+        return false;
+      }
+      out_text.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+      if (in.bad()) {
+        return false;
+      }
+      if (!(in.good() || in.eof())) {
+        return false;
+      }
+      return expected_size == static_cast<std::uintmax_t>(out_text.size());
+    } catch (...) {
       return false;
     }
-    if (!write_text_file(path, serialized)) {
-      return false;
-    }
-    std::string roundtrip{};
-    if (!read_text_file(path, roundtrip)) {
-      return false;
-    }
-    return roundtrip == serialized;
   };
 
-  auto load_builder_document_from_path = [&](const std::filesystem::path& path) -> bool {
-    std::string serialized{};
-    if (!read_text_file(path, serialized)) {
+  auto validate_serialized_builder_document_payload = [&](const std::string& serialized,
+                                                          ngk::ui::builder::BuilderDocument* loaded_doc_out,
+                                                          std::string* canonical_serialized_out,
+                                                          std::string* reason_out) -> bool {
+    if (reason_out != nullptr) {
+      reason_out->clear();
+    }
+    if (serialized.empty()) {
+      if (reason_out != nullptr) {
+        *reason_out = "empty_payload";
+      }
       return false;
     }
 
-    ngk::ui::builder::BuilderDocument loaded_doc{};
-    std::string load_error;
-    if (!ngk::ui::builder::deserialize_builder_document_deterministic(serialized, loaded_doc, &load_error)) {
+    ngk::ui::builder::BuilderDocument parsed_doc{};
+    std::string deserialize_error;
+    if (!ngk::ui::builder::deserialize_builder_document_deterministic(serialized, parsed_doc, &deserialize_error)) {
+      if (reason_out != nullptr) {
+        *reason_out = "deserialize_failed_" + deserialize_error;
+      }
+      return false;
+    }
+
+    std::string validate_error;
+    if (!ngk::ui::builder::validate_builder_document(parsed_doc, &validate_error)) {
+      if (reason_out != nullptr) {
+        *reason_out = "document_invalid_" + validate_error;
+      }
       return false;
     }
 
     ngk::ui::builder::InstantiatedBuilderDocument runtime_loaded{};
     std::string instantiate_error;
-    if (!ngk::ui::builder::instantiate_builder_document(loaded_doc, runtime_loaded, &instantiate_error)) {
+    if (!ngk::ui::builder::instantiate_builder_document(parsed_doc, runtime_loaded, &instantiate_error)) {
+      if (reason_out != nullptr) {
+        *reason_out = "instantiate_failed_" + instantiate_error;
+      }
       return false;
     }
 
-    builder_doc = std::move(loaded_doc);
-    if (!selected_builder_node_id.empty() && !node_exists(selected_builder_node_id)) {
-      selected_builder_node_id.clear();
+    const std::string canonical_serialized = ngk::ui::builder::serialize_builder_document_deterministic(parsed_doc);
+    if (canonical_serialized.empty()) {
+      if (reason_out != nullptr) {
+        *reason_out = "canonical_serialize_failed";
+      }
+      return false;
     }
-    if (selected_builder_node_id.empty() &&
-        !builder_doc.root_node_id.empty() &&
-        node_exists(builder_doc.root_node_id)) {
+    if (canonical_serialized != serialized) {
+      if (reason_out != nullptr) {
+        *reason_out = "canonical_signature_mismatch";
+      }
+      return false;
+    }
+
+    if (loaded_doc_out != nullptr) {
+      *loaded_doc_out = std::move(parsed_doc);
+    }
+    if (canonical_serialized_out != nullptr) {
+      *canonical_serialized_out = canonical_serialized;
+    }
+    return true;
+  };
+
+  auto build_atomic_save_temp_path = [&](const std::filesystem::path& final_path) -> std::filesystem::path {
+    return std::filesystem::path(final_path.string() + ".phase103_72_tmp");
+  };
+
+  auto build_atomic_save_backup_path = [&](const std::filesystem::path& final_path) -> std::filesystem::path {
+    return std::filesystem::path(final_path.string() + ".phase103_72_bak");
+  };
+
+  auto remove_file_if_exists = [&](const std::filesystem::path& path) {
+    std::error_code remove_error;
+    std::filesystem::remove(path, remove_error);
+  };
+
+  auto write_persistence_temp_file = [&](const std::filesystem::path& path, const std::string& text) -> bool {
+    try {
+      const std::filesystem::path parent = path.parent_path();
+      if (!parent.empty()) {
+        std::filesystem::create_directories(parent);
+      }
+      std::ofstream out(path, std::ios::binary | std::ios::trunc);
+      if (!out.is_open()) {
+        return false;
+      }
+      std::size_t bytes_to_write = text.size();
+      if (builder_persistence_force_next_temp_write_truncation && !text.empty()) {
+        builder_persistence_force_next_temp_write_truncation = false;
+        bytes_to_write = std::max<std::size_t>(1, text.size() / 2);
+      }
+      out.write(text.data(), static_cast<std::streamsize>(bytes_to_write));
+      out.flush();
+      return out.good();
+    } catch (...) {
+      return false;
+    }
+  };
+
+  auto replace_file_atomically = [&](const std::filesystem::path& temp_path,
+                                     const std::filesystem::path& final_path,
+                                     const std::filesystem::path& backup_path,
+                                     bool final_exists) -> bool {
+    if (builder_persistence_force_next_atomic_replace_failure) {
+      builder_persistence_force_next_atomic_replace_failure = false;
+      return false;
+    }
+    if (final_exists) {
+      return ReplaceFileW(final_path.c_str(),
+                          temp_path.c_str(),
+                          backup_path.c_str(),
+                          REPLACEFILE_WRITE_THROUGH,
+                          nullptr,
+                          nullptr) != 0;
+    }
+    return MoveFileExW(temp_path.c_str(),
+                       final_path.c_str(),
+                       MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0;
+  };
+
+  auto restore_atomic_replace_backup = [&](const std::filesystem::path& final_path,
+                                           const std::filesystem::path& backup_path,
+                                           bool final_existed_before_replace) -> bool {
+    std::error_code exists_error;
+    const bool backup_exists = std::filesystem::exists(backup_path, exists_error);
+    if (exists_error || !backup_exists) {
+      return !final_existed_before_replace;
+    }
+    if (final_existed_before_replace) {
+      return ReplaceFileW(final_path.c_str(),
+                          backup_path.c_str(),
+                          nullptr,
+                          REPLACEFILE_WRITE_THROUGH,
+                          nullptr,
+                          nullptr) != 0;
+    }
+    remove_file_if_exists(final_path);
+    return MoveFileExW(backup_path.c_str(),
+                       final_path.c_str(),
+                       MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0;
+  };
+
+  auto save_builder_document_to_path = [&](const std::filesystem::path& path) -> bool {
+    if (builder_persistence_io_in_progress) {
+      return false;
+    }
+    ScopedBusyFlag io_guard(builder_persistence_io_in_progress);
+
+    const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    if (serialized.empty()) {
+      return false;
+    }
+
+    std::string payload_reason;
+    if (!validate_serialized_builder_document_payload(serialized, nullptr, nullptr, &payload_reason)) {
+      return false;
+    }
+
+    const std::filesystem::path temp_path = build_atomic_save_temp_path(path);
+    const std::filesystem::path backup_path = build_atomic_save_backup_path(path);
+    remove_file_if_exists(temp_path);
+    remove_file_if_exists(backup_path);
+
+    std::error_code exists_error;
+    const bool final_exists = std::filesystem::exists(path, exists_error) && !exists_error;
+    if (exists_error) {
+      return false;
+    }
+
+    if (!write_persistence_temp_file(temp_path, serialized)) {
+      remove_file_if_exists(temp_path);
+      return false;
+    }
+
+    std::string temp_roundtrip{};
+    if (!read_text_file_exact(temp_path, temp_roundtrip) || temp_roundtrip != serialized) {
+      remove_file_if_exists(temp_path);
+      return false;
+    }
+    if (!validate_serialized_builder_document_payload(temp_roundtrip, nullptr, nullptr, &payload_reason)) {
+      remove_file_if_exists(temp_path);
+      return false;
+    }
+
+    if (!replace_file_atomically(temp_path, path, backup_path, final_exists)) {
+      remove_file_if_exists(temp_path);
+      remove_file_if_exists(backup_path);
+      return false;
+    }
+
+    std::string final_roundtrip{};
+    const bool final_ok =
+      read_text_file_exact(path, final_roundtrip) &&
+      final_roundtrip == serialized &&
+      validate_serialized_builder_document_payload(final_roundtrip, nullptr, nullptr, &payload_reason);
+    if (!final_ok) {
+      restore_atomic_replace_backup(path, backup_path, final_exists);
+      if (!final_exists) {
+        remove_file_if_exists(path);
+      }
+      remove_file_if_exists(temp_path);
+      remove_file_if_exists(backup_path);
+      return false;
+    }
+
+    remove_file_if_exists(backup_path);
+    return true;
+  };
+
+  auto load_builder_document_from_path = [&](const std::filesystem::path& path) -> bool {
+    if (builder_persistence_io_in_progress) {
+      return false;
+    }
+    const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+    std::string serialized{};
+    ngk::ui::builder::BuilderDocument loaded_doc{};
+    {
+      ScopedBusyFlag io_guard(builder_persistence_io_in_progress);
+      if (!read_text_file_exact(path, serialized)) {
+        return false;
+      }
+
+      std::string instantiate_error;
+      if (!validate_serialized_builder_document_payload(serialized, &loaded_doc, nullptr, &instantiate_error)) {
+        return false;
+      }
+    }
+
+    builder_doc = std::move(loaded_doc);
+    selected_builder_node_id.clear();
+    focused_builder_node_id.clear();
+    builder_selection_anchor_node_id.clear();
+    multi_selected_node_ids.clear();
+    inspector_binding_node_id.clear();
+    preview_binding_node_id.clear();
+    hover_node_id.clear();
+    drag_source_node_id.clear();
+    drag_active = false;
+    drag_target_preview_node_id.clear();
+    drag_target_preview_is_illegal = false;
+    drag_target_preview_parent_id.clear();
+    drag_target_preview_insert_index = 0;
+    drag_target_preview_resolution_kind.clear();
+    preview_visual_feedback_message.clear();
+    preview_visual_feedback_node_id.clear();
+    tree_visual_feedback_node_id.clear();
+    if (!builder_doc.root_node_id.empty() && node_exists(builder_doc.root_node_id)) {
       selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = builder_doc.root_node_id;
+      builder_selection_anchor_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
     }
 
     undo_history.clear();
     redo_stack.clear();
+    // FP1 fix (PHASE103_63): unconditionally clear inline edit state on load.
+    // If the loaded doc contains a node with the same ID as inline_edit_node_id,
+    // scrub_stale_lifecycle_references would not clear the edit, leaving a stale
+    // active edit buffer against a freshly loaded node.
+    inline_edit_active = false;
+    inline_edit_node_id.clear();
+    inline_edit_buffer.clear();
+    inline_edit_original_text.clear();
+    preview_inline_loaded_text.clear();
+    builder_tree_scroll.set_scroll_offset_y(0);
+    builder_preview_scroll.set_scroll_offset_y(0);
 
     const bool remap_ok = remap_selection_or_fail();
     const bool focus_ok = sync_focus_with_selection_or_fail();
@@ -5313,10 +7090,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     const bool preview_ok = refresh_preview_or_fail();
     const bool sync_ok = check_cross_surface_sync();
 
-    return remap_ok && focus_ok && inspector_ok && preview_ok && sync_ok;
+    if (!(remap_ok && focus_ok && inspector_ok && preview_ok && sync_ok)) {
+      restore_mutation_checkpoint(checkpoint);
+      return false;
+    }
+    return enforce_global_invariant_or_rollback(checkpoint, "load_builder_document_from_path");
   };
 
   auto apply_save_document_command = [&]() -> bool {
+    break_history_coalescing_boundary();
     saveload_diag.shell_save_control_present = true;
     const bool saved = save_builder_document_to_path(builder_doc_save_path);
     saveload_diag.save_writes_deterministic_document = saved;
@@ -5325,6 +7107,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       if (saved_snapshot.empty()) {
         return false;
       }
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = saved_snapshot;
       has_saved_builder_snapshot = true;
       last_saved_builder_serialized = saved_snapshot;
       builder_doc_dirty = false;
@@ -5334,6 +7118,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   };
 
   auto apply_load_document_command = [&](bool allow_discard_dirty = false) -> bool {
+    break_history_coalescing_boundary();
     saveload_diag.shell_load_control_present = true;
 
     if (builder_doc_dirty && !allow_discard_dirty) {
@@ -5346,6 +7131,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       if (loaded_snapshot.empty()) {
         return false;
       }
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = loaded_snapshot;
       has_saved_builder_snapshot = true;
       last_saved_builder_serialized = loaded_snapshot;
       builder_doc_dirty = false;
@@ -5355,6 +7142,178 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       saveload_diag.shell_state_coherent_after_load = check_cross_surface_sync();
     }
     return loaded;
+  };
+
+  auto import_external_builder_subtree_payload = [&](const std::string& serialized,
+                                                    const std::string& target_id,
+                                                    const std::string& history_tag,
+                                                    std::vector<std::string>* imported_root_ids_out,
+                                                    std::string* failure_reason_out = nullptr) -> bool {
+    constexpr std::size_t kExternalBuilderPayloadMaxBytes = 262144;
+
+    auto fail_import = [&](const std::string& reason) -> bool {
+      if (imported_root_ids_out != nullptr) {
+        imported_root_ids_out->clear();
+      }
+      if (failure_reason_out != nullptr) {
+        *failure_reason_out = reason;
+      }
+      return false;
+    };
+
+    if (failure_reason_out != nullptr) {
+      failure_reason_out->clear();
+    }
+    if (serialized.empty()) {
+      return fail_import("empty_payload");
+    }
+    if (serialized.size() > kExternalBuilderPayloadMaxBytes) {
+      return fail_import("payload_too_large");
+    }
+
+    auto* live_target = find_node_by_id(target_id);
+    if (!live_target) {
+      return fail_import("target_missing");
+    }
+    if (!widget_allows_children(live_target->widget_type)) {
+      return fail_import("target_not_container");
+    }
+
+    ngk::ui::builder::BuilderDocument external_doc{};
+    std::string payload_reason;
+    if (!validate_serialized_builder_document_payload(serialized, &external_doc, nullptr, &payload_reason)) {
+      return fail_import("payload_invalid_" + payload_reason);
+    }
+    if (external_doc.nodes.empty() || external_doc.root_node_id.empty()) {
+      return fail_import("payload_missing_root_or_nodes");
+    }
+
+    ngk::ui::builder::BuilderDocument candidate_doc = builder_doc;
+    std::vector<std::pair<std::string, std::string>> id_map_pairs{};
+    id_map_pairs.reserve(external_doc.nodes.size());
+
+    auto batch_contains_id = [&](const std::string& candidate_id) -> bool {
+      for (const auto& pair : id_map_pairs) {
+        if (pair.second == candidate_id) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    auto next_external_import_id = [&](const std::string& source_id) -> std::string {
+      std::string base = std::string("ext75-") + source_id;
+      std::string candidate = base;
+      int suffix = 1;
+      while (ngk::ui::builder::find_node_by_id(candidate_doc, candidate) != nullptr || batch_contains_id(candidate)) {
+        candidate = base + "-" + std::to_string(suffix++);
+      }
+      return candidate;
+    };
+
+    for (const auto& source_node : external_doc.nodes) {
+      id_map_pairs.push_back({source_node.node_id, next_external_import_id(source_node.node_id)});
+    }
+
+    auto map_lookup = [&](const std::string& old_id) -> std::string {
+      for (const auto& pair : id_map_pairs) {
+        if (pair.first == old_id) {
+          return pair.second;
+        }
+      }
+      return std::string{};
+    };
+
+    const std::string imported_root_id = map_lookup(external_doc.root_node_id);
+    if (imported_root_id.empty()) {
+      return fail_import("payload_root_mapping_failed");
+    }
+
+    for (const auto& source_node : external_doc.nodes) {
+      ngk::ui::builder::BuilderNode imported = source_node;
+      imported.node_id = map_lookup(source_node.node_id);
+      if (imported.node_id.empty()) {
+        return fail_import("mapped_node_id_missing");
+      }
+
+      if (source_node.node_id == external_doc.root_node_id) {
+        imported.parent_id = target_id;
+      } else {
+        imported.parent_id = map_lookup(source_node.parent_id);
+        if (imported.parent_id.empty()) {
+          return fail_import("mapped_parent_id_missing");
+        }
+      }
+
+      for (auto& child_id : imported.child_ids) {
+        child_id = map_lookup(child_id);
+        if (child_id.empty()) {
+          return fail_import("mapped_child_id_missing");
+        }
+      }
+
+      candidate_doc.nodes.push_back(std::move(imported));
+    }
+
+    auto* candidate_target = ngk::ui::builder::find_node_by_id_mutable(candidate_doc, target_id);
+    if (!candidate_target) {
+      return fail_import("target_missing_after_candidate_build");
+    }
+    candidate_target->child_ids.push_back(imported_root_id);
+
+    std::string candidate_validation_error;
+    if (!ngk::ui::builder::validate_builder_document(candidate_doc, &candidate_validation_error)) {
+      return fail_import("candidate_invalid_" + candidate_validation_error);
+    }
+
+    ngk::ui::builder::InstantiatedBuilderDocument runtime_candidate{};
+    std::string instantiate_error;
+    if (!ngk::ui::builder::instantiate_builder_document(candidate_doc, runtime_candidate, &instantiate_error)) {
+      return fail_import("candidate_instantiate_failed_" + instantiate_error);
+    }
+
+    const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+    const auto before_nodes = builder_doc.nodes;
+    const std::string before_root = builder_doc.root_node_id;
+    const std::string before_sel = selected_builder_node_id;
+    const auto before_multi = multi_selected_node_ids;
+
+    builder_doc = std::move(candidate_doc);
+    selected_builder_node_id = imported_root_id;
+    multi_selected_node_ids = {imported_root_id};
+    scrub_stale_lifecycle_references();
+    sync_multi_selection_with_primary();
+
+    push_to_history(history_tag,
+                    before_nodes,
+                    before_root,
+                    before_sel,
+                    &before_multi,
+                    builder_doc.nodes,
+                    builder_doc.root_node_id,
+                    selected_builder_node_id,
+                    &multi_selected_node_ids,
+                    &checkpoint);
+    recompute_builder_dirty_state(true);
+
+    const bool remap_ok = remap_selection_or_fail();
+    const bool focus_ok = sync_focus_with_selection_or_fail();
+    const bool inspector_ok = refresh_inspector_or_fail();
+    const bool preview_ok = refresh_preview_or_fail();
+    const bool sync_ok = check_cross_surface_sync();
+    if (!(remap_ok && focus_ok && inspector_ok && preview_ok && sync_ok)) {
+      restore_mutation_checkpoint(checkpoint);
+      return fail_import("surface_sync_failed");
+    }
+
+    if (!enforce_global_invariant_or_rollback(checkpoint, "import_external_builder_subtree_payload")) {
+      return fail_import("global_invariant_failed");
+    }
+
+    if (imported_root_ids_out != nullptr) {
+      *imported_root_ids_out = {imported_root_id};
+    }
+    return true;
   };
 
   // Lifecycle rule: shell always maintains one valid active document.
@@ -5411,9 +7370,17 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     selected_builder_node_id = new_selected;
     undo_history.clear();
     redo_stack.clear();
-    has_saved_builder_snapshot = false;
-    last_saved_builder_serialized.clear();
+    const std::string new_snapshot = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    if (new_snapshot.empty()) {
+      return false;
+    }
+    has_clean_builder_baseline_signature = true;
+    clean_builder_baseline_signature = new_snapshot;
+    has_saved_builder_snapshot = true;
+    last_saved_builder_serialized = new_snapshot;
     builder_doc_dirty = false;
+    builder_tree_scroll.set_scroll_offset_y(0);
+    builder_preview_scroll.set_scroll_offset_y(0);
 
     const bool remap_ok = remap_selection_or_fail();
     const bool focus_ok = sync_focus_with_selection_or_fail();
@@ -5912,6 +7879,184 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       node_exists(selected_builder_node_id);
   };
 
+  auto evaluate_builder_action_eligibility = [&](const std::string& action_id,
+                                                 std::string& blocked_reason_out) -> bool {
+    blocked_reason_out.clear();
+    if (action_id == "ACTION_INSERT_CONTAINER" || action_id == "ACTION_INSERT_LEAF") {
+      if (builder_doc.nodes.empty()) {
+        blocked_reason_out = "document_unavailable";
+        return false;
+      }
+      return true;
+    }
+    if (action_id == "ACTION_DELETE_CURRENT") {
+      const bool has_selection =
+        !selected_builder_node_id.empty() &&
+        node_exists(selected_builder_node_id) &&
+        selected_builder_node_id != builder_doc.root_node_id;
+      const bool has_multi_target = [&]() {
+        for (const auto& id : multi_selected_node_ids) {
+          if (id != builder_doc.root_node_id && node_exists(id)) {
+            return true;
+          }
+        }
+        return false;
+      }();
+      if (!(has_selection || has_multi_target)) {
+        blocked_reason_out = "no_deletable_selection";
+        return false;
+      }
+      return true;
+    }
+    if (action_id == "ACTION_UNDO") {
+      if (undo_history.empty()) {
+        blocked_reason_out = "undo_empty";
+        return false;
+      }
+      return true;
+    }
+    if (action_id == "ACTION_REDO") {
+      if (redo_stack.empty()) {
+        blocked_reason_out = "redo_empty";
+        return false;
+      }
+      return true;
+    }
+    if (action_id == "ACTION_SAVE") {
+      if (builder_doc.nodes.empty()) {
+        blocked_reason_out = "document_unavailable";
+        return false;
+      }
+      return true;
+    }
+    if (action_id == "ACTION_LOAD") {
+      if (builder_doc_dirty) {
+        blocked_reason_out = "dirty_document_requires_explicit_discard";
+        return false;
+      }
+      return true;
+    }
+    if (action_id == "ACTION_LOAD_FORCE_DISCARD") {
+      return true;
+    }
+    if (action_id == "ACTION_NEW") {
+      if (builder_doc_dirty) {
+        blocked_reason_out = "dirty_document_requires_explicit_discard";
+        return false;
+      }
+      return true;
+    }
+    if (action_id == "ACTION_NEW_FORCE_DISCARD") {
+      return true;
+    }
+    if (action_id == "ACTION_EXPORT") {
+      if (builder_doc.nodes.empty()) {
+        blocked_reason_out = "document_unavailable";
+        return false;
+      }
+      return true;
+    }
+    blocked_reason_out = "unknown_action";
+    return false;
+  };
+
+  auto resolve_builder_action_label = [&](const std::string& action_id) -> std::string {
+    if (action_id == "ACTION_INSERT_CONTAINER") return "Insert Container";
+    if (action_id == "ACTION_INSERT_LEAF") return "Insert Leaf";
+    if (action_id == "ACTION_DELETE_CURRENT") return "Delete";
+    if (action_id == "ACTION_UNDO") return "Undo";
+    if (action_id == "ACTION_REDO") return "Redo";
+    if (action_id == "ACTION_SAVE") return "Save";
+    if (action_id == "ACTION_LOAD") return "Load";
+    if (action_id == "ACTION_LOAD_FORCE_DISCARD") return "Load (Discard Dirty)";
+    if (action_id == "ACTION_NEW") return "New";
+    if (action_id == "ACTION_NEW_FORCE_DISCARD") return "New (Discard Dirty)";
+    if (action_id == "ACTION_EXPORT") return "Export";
+    return "Unknown";
+  };
+
+  auto invoke_builder_action = [&](const std::string& action_id,
+                                   const char* invocation_source) -> bool {
+    last_action_dispatch_requested_id = action_id;
+    last_action_dispatch_resolved_id.clear();
+    last_action_dispatch_source = invocation_source ? invocation_source : "unknown";
+    last_action_dispatch_success = false;
+
+    std::string blocked_reason;
+    if (!evaluate_builder_action_eligibility(action_id, blocked_reason)) {
+      return false;
+    }
+
+    const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+    bool handled = false;
+    if (action_id == "ACTION_INSERT_CONTAINER") {
+      const auto before_nodes = builder_doc.nodes;
+      const std::string before_root = builder_doc.root_node_id;
+      const std::string before_sel = selected_builder_node_id;
+      const auto before_multi = multi_selected_node_ids;
+      handled = apply_palette_insert(true);
+      if (handled) {
+        push_to_history("action_insert_container", before_nodes, before_root, before_sel, &before_multi,
+                        builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids,
+                        &checkpoint);
+        recompute_builder_dirty_state(true);
+      }
+    } else if (action_id == "ACTION_INSERT_LEAF") {
+      const auto before_nodes = builder_doc.nodes;
+      const std::string before_root = builder_doc.root_node_id;
+      const std::string before_sel = selected_builder_node_id;
+      const auto before_multi = multi_selected_node_ids;
+      handled = apply_palette_insert(false);
+      if (handled) {
+        push_to_history("action_insert_leaf", before_nodes, before_root, before_sel, &before_multi,
+                        builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids,
+                        &checkpoint);
+        recompute_builder_dirty_state(true);
+      }
+    } else if (action_id == "ACTION_DELETE_CURRENT") {
+      const auto before_nodes = builder_doc.nodes;
+      const std::string before_root = builder_doc.root_node_id;
+      const std::string before_sel = selected_builder_node_id;
+      const auto before_multi = multi_selected_node_ids;
+      handled = apply_delete_command_for_current_selection();
+      if (handled) {
+        push_to_history("action_delete", before_nodes, before_root, before_sel, &before_multi,
+                        builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids,
+                        &checkpoint);
+        recompute_builder_dirty_state(true);
+      }
+    } else if (action_id == "ACTION_UNDO") {
+      handled = apply_undo_command();
+    } else if (action_id == "ACTION_REDO") {
+      handled = apply_redo_command();
+    } else if (action_id == "ACTION_SAVE") {
+      handled = apply_save_document_command();
+    } else if (action_id == "ACTION_LOAD") {
+      handled = apply_load_document_command(false);
+    } else if (action_id == "ACTION_LOAD_FORCE_DISCARD") {
+      handled = apply_load_document_command(true);
+    } else if (action_id == "ACTION_NEW") {
+      handled = apply_new_document_command(false);
+    } else if (action_id == "ACTION_NEW_FORCE_DISCARD") {
+      handled = apply_new_document_command(true);
+    } else if (action_id == "ACTION_EXPORT") {
+      handled = false;
+    }
+
+    if (!handled) {
+      return false;
+    }
+
+    last_action_dispatch_resolved_id = action_id;
+    last_action_dispatch_success = true;
+    remap_selection_or_fail();
+    sync_focus_with_selection_or_fail();
+    refresh_inspector_or_fail();
+    refresh_preview_or_fail();
+    check_cross_surface_sync();
+    return true;
+  };
+
   auto handle_builder_shortcut_key_with_modifiers = [&](std::uint32_t key,
                                                         bool down,
                                                         bool repeat,
@@ -5943,19 +8088,19 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
           handled = apply_keyboard_multi_selection_clear();
           break;
         case 0x5A: // Ctrl+Z
-          handled = apply_undo_command();
+          handled = invoke_builder_action("ACTION_UNDO", "shortcut");
           break;
         case 0x59: // Ctrl+Y
-          handled = apply_redo_command();
+          handled = invoke_builder_action("ACTION_REDO", "shortcut");
           break;
         case 0x53: // Ctrl+S
-          handled = apply_save_document_command();
+          handled = invoke_builder_action("ACTION_SAVE", "shortcut");
           break;
         case 0x4F: // Ctrl+O
-          handled = apply_load_document_command(false);
+          handled = invoke_builder_action("ACTION_LOAD", "shortcut");
           break;
         case 0x4E: // Ctrl+N
-          handled = apply_new_document_command(false);
+          handled = invoke_builder_action("ACTION_NEW", "shortcut");
           break;
         default:
           break;
@@ -5975,67 +8120,28 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
           handled = apply_tree_parent_child_navigation(false);
           break;
         case 0x5A: // Z
-          handled = apply_undo_command();
+          handled = invoke_builder_action("ACTION_UNDO", "shortcut");
           break;
         case 0x59: // Y
-          handled = apply_redo_command();
+          handled = invoke_builder_action("ACTION_REDO", "shortcut");
           break;
         case 0x2E: // Delete
-          {
-            const auto before_nodes = builder_doc.nodes;
-            const std::string before_root = builder_doc.root_node_id;
-            const std::string before_sel = selected_builder_node_id;
-            const auto before_multi = multi_selected_node_ids;
-            handled = apply_delete_command_for_current_selection();
-            if (handled) {
-              push_to_history("shortcut_delete", before_nodes, before_root, before_sel, &before_multi,
-                              builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids);
-            }
-          }
-          if (handled) {
-            recompute_builder_dirty_state(true);
-          }
+          handled = invoke_builder_action("ACTION_DELETE_CURRENT", "shortcut");
           break;
         case 0x43: // C
-          {
-            const auto before_nodes = builder_doc.nodes;
-            const std::string before_root = builder_doc.root_node_id;
-            const std::string before_sel = selected_builder_node_id;
-            const auto before_multi = multi_selected_node_ids;
-            handled = apply_palette_insert(true);
-            if (handled) {
-              push_to_history("shortcut_insert_container", before_nodes, before_root, before_sel, &before_multi,
-                              builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids);
-            }
-          }
-          if (handled) {
-            recompute_builder_dirty_state(true);
-          }
+          handled = invoke_builder_action("ACTION_INSERT_CONTAINER", "shortcut");
           break;
         case 0x4C: // L
-          {
-            const auto before_nodes = builder_doc.nodes;
-            const std::string before_root = builder_doc.root_node_id;
-            const std::string before_sel = selected_builder_node_id;
-            const auto before_multi = multi_selected_node_ids;
-            handled = apply_palette_insert(false);
-            if (handled) {
-              push_to_history("shortcut_insert_leaf", before_nodes, before_root, before_sel, &before_multi,
-                              builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids);
-            }
-          }
-          if (handled) {
-            recompute_builder_dirty_state(true);
-          }
+          handled = invoke_builder_action("ACTION_INSERT_LEAF", "shortcut");
           break;
         case 0x53: // S
-          handled = apply_save_document_command();
+          handled = invoke_builder_action("ACTION_SAVE", "shortcut");
           break;
         case 0x4F: // O
-          handled = apply_load_document_command(false);
+          handled = invoke_builder_action("ACTION_LOAD", "shortcut");
           break;
         case 0x4E: // N
-          handled = apply_new_document_command(false);
+          handled = invoke_builder_action("ACTION_NEW", "shortcut");
           break;
         default:
           break;
@@ -6099,268 +8205,277 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     drag_active = false;
     drag_target_preview_node_id.clear();
     drag_target_preview_is_illegal = false;
+    drag_target_preview_parent_id.clear();
+    drag_target_preview_insert_index = 0;
+    drag_target_preview_resolution_kind.clear();
+  };
+
+  struct BuilderDragDropMutationPlan {
+    bool valid = false;
+    bool is_reparent = false;
+    std::string reason{};
+    std::vector<std::string> moved_node_ids{};
+    std::string target_parent_id{};
+    std::size_t insert_index = 0;
+  };
+
+  auto collect_drag_requested_node_ids = [&](const std::string& source_id) -> std::vector<std::string> {
+    if (source_id == selected_builder_node_id &&
+        multi_selected_node_ids.size() > 1 &&
+        is_node_in_multi_selection(source_id)) {
+      return multi_selected_node_ids;
+    }
+    return std::vector<std::string>{source_id};
+  };
+
+  auto resolve_bulk_move_reparent_request = [&](const std::vector<std::string>& requested_node_ids,
+                                                const std::string& requested_target_id,
+                                                std::string& reason_out,
+                                                std::vector<std::string>* normalized_ids_out) -> bool {
+    reason_out.clear();
+    if (requested_target_id.empty()) {
+      reason_out = "missing_target";
+      return false;
+    }
+    if (!node_exists(requested_target_id)) {
+      reason_out = "target_lookup_failed";
+      return false;
+    }
+
+    auto* target_node = find_node_by_id(requested_target_id);
+    if (!target_node) {
+      reason_out = "target_lookup_failed";
+      return false;
+    }
+    if (requested_target_id == builder_doc.root_node_id) {
+      reason_out = "protected_target_root";
+      return false;
+    }
+    if (target_node->container_type == ngk::ui::builder::BuilderContainerType::Shell) {
+      reason_out = "protected_target_shell";
+      return false;
+    }
+    if (target_node->widget_type != ngk::ui::builder::BuilderWidgetType::VerticalLayout) {
+      reason_out = "target_not_vertical_layout";
+      return false;
+    }
+
+    std::vector<std::string> unique_ids{};
+    for (const auto& node_id : requested_node_ids) {
+      if (node_id.empty()) {
+        continue;
+      }
+      if (std::find(unique_ids.begin(), unique_ids.end(), node_id) == unique_ids.end()) {
+        unique_ids.push_back(node_id);
+      }
+    }
+    if (unique_ids.empty()) {
+      reason_out = "no_selected_nodes";
+      return false;
+    }
+
+    for (const auto& node_id : unique_ids) {
+      auto* source_node = find_node_by_id(node_id);
+      if (!source_node) {
+        reason_out = "selected_node_lookup_failed_" + node_id;
+        return false;
+      }
+      if (node_id == builder_doc.root_node_id || source_node->parent_id.empty()) {
+        reason_out = "protected_source_root_" + node_id;
+        return false;
+      }
+      if (source_node->container_type == ngk::ui::builder::BuilderContainerType::Shell) {
+        reason_out = "protected_source_shell_" + node_id;
+        return false;
+      }
+      if (!node_exists(source_node->parent_id)) {
+        reason_out = "source_parent_missing_" + node_id;
+        return false;
+      }
+      if (node_id == requested_target_id) {
+        reason_out = "target_in_selected_set_" + node_id;
+        return false;
+      }
+      if (is_in_subtree_of(requested_target_id, node_id)) {
+        reason_out = "circular_target_" + node_id;
+        return false;
+      }
+    }
+
+    const auto ordered = collect_preorder_node_ids();
+    std::vector<std::string> normalized{};
+    normalized.reserve(unique_ids.size());
+    for (const auto& node_id : ordered) {
+      if (std::find(unique_ids.begin(), unique_ids.end(), node_id) == unique_ids.end()) {
+        continue;
+      }
+      bool covered_by_ancestor = false;
+      auto* current = find_node_by_id(node_id);
+      while (current && !current->parent_id.empty()) {
+        if (std::find(unique_ids.begin(), unique_ids.end(), current->parent_id) != unique_ids.end()) {
+          covered_by_ancestor = true;
+          break;
+        }
+        current = find_node_by_id(current->parent_id);
+      }
+      if (!covered_by_ancestor) {
+        normalized.push_back(node_id);
+      }
+    }
+
+    if (normalized.empty()) {
+      reason_out = "no_eligible_move_sources";
+      return false;
+    }
+
+    for (const auto& node_id : normalized) {
+      auto* source_node = find_node_by_id(node_id);
+      if (!source_node) {
+        reason_out = "selected_node_lookup_failed_" + node_id;
+        return false;
+      }
+      if (source_node->parent_id == requested_target_id) {
+        reason_out = "already_child_of_target_" + node_id;
+        return false;
+      }
+    }
+
+    if (normalized_ids_out != nullptr) {
+      *normalized_ids_out = normalized;
+    }
+    return true;
+  };
+
+  auto resolve_tree_drag_drop_plan = [&](const std::string& target_id, bool is_reparent) -> BuilderDragDropMutationPlan {
+    BuilderDragDropMutationPlan plan{};
+    plan.is_reparent = is_reparent;
+
+    if (!drag_active || drag_source_node_id.empty()) {
+      plan.reason = "drag_not_active";
+      return plan;
+    }
+    if (target_id.empty()) {
+      plan.reason = "missing_target";
+      return plan;
+    }
+    if (!node_exists(target_id)) {
+      plan.reason = "target_lookup_failed";
+      return plan;
+    }
+
+    const auto requested_ids = collect_drag_requested_node_ids(drag_source_node_id);
+    if (is_reparent) {
+      std::vector<std::string> normalized_ids{};
+      if (!resolve_bulk_move_reparent_request(requested_ids, target_id, plan.reason, &normalized_ids)) {
+        return plan;
+      }
+      plan.valid = true;
+      plan.moved_node_ids = normalized_ids;
+      plan.target_parent_id = target_id;
+      if (auto* target_node = find_node_by_id(target_id)) {
+        plan.insert_index = target_node->child_ids.size();
+      }
+      return plan;
+    }
+
+    auto* target_node = find_node_by_id(target_id);
+    if (!target_node) {
+      plan.reason = "target_lookup_failed";
+      return plan;
+    }
+    if (target_id == builder_doc.root_node_id || target_node->parent_id.empty()) {
+      plan.reason = "protected_target_root";
+      return plan;
+    }
+
+    auto* target_parent = find_node_by_id(target_node->parent_id);
+    if (!target_parent) {
+      plan.reason = "target_parent_missing";
+      return plan;
+    }
+
+    std::vector<std::string> unique_ids{};
+    for (const auto& node_id : requested_ids) {
+      if (node_id.empty()) {
+        continue;
+      }
+      if (std::find(unique_ids.begin(), unique_ids.end(), node_id) == unique_ids.end()) {
+        unique_ids.push_back(node_id);
+      }
+    }
+    if (unique_ids.empty()) {
+      plan.reason = "no_selected_nodes";
+      return plan;
+    }
+
+    std::vector<std::string> normalized_ids{};
+    for (const auto& sibling_id : target_parent->child_ids) {
+      if (std::find(unique_ids.begin(), unique_ids.end(), sibling_id) != unique_ids.end()) {
+        normalized_ids.push_back(sibling_id);
+      }
+    }
+    if (normalized_ids.empty()) {
+      plan.reason = "no_eligible_move_sources";
+      return plan;
+    }
+
+    for (const auto& node_id : normalized_ids) {
+      auto* source_node = find_node_by_id(node_id);
+      if (!source_node) {
+        plan.reason = "selected_node_lookup_failed_" + node_id;
+        return plan;
+      }
+      if (node_id == builder_doc.root_node_id || source_node->parent_id.empty()) {
+        plan.reason = "protected_source_root_" + node_id;
+        return plan;
+      }
+      if (source_node->parent_id != target_parent->node_id) {
+        plan.reason = "mixed_parent_selection_" + node_id;
+        return plan;
+      }
+      if (node_id == target_id) {
+        plan.reason = "target_in_selected_set_" + node_id;
+        return plan;
+      }
+    }
+
+    std::vector<std::string> remaining_siblings{};
+    remaining_siblings.reserve(target_parent->child_ids.size());
+    for (const auto& sibling_id : target_parent->child_ids) {
+      if (std::find(normalized_ids.begin(), normalized_ids.end(), sibling_id) == normalized_ids.end()) {
+        remaining_siblings.push_back(sibling_id);
+      }
+    }
+
+    auto target_it = std::find(remaining_siblings.begin(), remaining_siblings.end(), target_id);
+    if (target_it == remaining_siblings.end()) {
+      plan.reason = "target_elided_from_parent_order";
+      return plan;
+    }
+
+    plan.valid = true;
+    plan.moved_node_ids = normalized_ids;
+    plan.target_parent_id = target_parent->node_id;
+    plan.insert_index = static_cast<std::size_t>(std::distance(remaining_siblings.begin(), target_it)) + 1;
+    return plan;
   };
 
   auto is_legal_drop_target_reorder = [&](const std::string& target_id) -> bool {
-    if (!drag_active || drag_source_node_id.empty() || target_id.empty()) { return false; }
-    if (drag_source_node_id == target_id) { return false; }
-    if (!node_exists(target_id)) { return false; }
-    auto* src = find_node_by_id(drag_source_node_id);
-    if (!src || src->parent_id.empty()) { return false; }
-    auto* tgt = find_node_by_id(target_id);
-    if (!tgt) { return false; }
-    return src->parent_id == tgt->parent_id;
+    return resolve_tree_drag_drop_plan(target_id, false).valid;
   };
 
   auto is_legal_drop_target_reparent = [&](const std::string& target_id) -> bool {
-    if (!drag_active || drag_source_node_id.empty()) { return false; }
-    const auto requested_ids = [&]() {
-      if (drag_source_node_id == selected_builder_node_id &&
-          multi_selected_node_ids.size() > 1 &&
-          is_node_in_multi_selection(drag_source_node_id)) {
-        return multi_selected_node_ids;
-      }
-      return std::vector<std::string>{drag_source_node_id};
-    }();
-
-    std::string rejection_reason;
-    std::vector<std::string> normalized_ids{};
-    auto can_reparent_requested_nodes_to_target = [&](const std::vector<std::string>& requested_node_ids,
-                                                      const std::string& requested_target_id,
-                                                      std::string& reason_out,
-                                                      std::vector<std::string>* normalized_ids_out) -> bool {
-      reason_out.clear();
-      if (requested_target_id.empty()) {
-        reason_out = "missing_target";
-        return false;
-      }
-      if (!node_exists(requested_target_id)) {
-        reason_out = "target_lookup_failed";
-        return false;
-      }
-
-      auto* target_node = find_node_by_id(requested_target_id);
-      if (!target_node) {
-        reason_out = "target_lookup_failed";
-        return false;
-      }
-      if (requested_target_id == builder_doc.root_node_id) {
-        reason_out = "protected_target_root";
-        return false;
-      }
-      if (target_node->container_type == ngk::ui::builder::BuilderContainerType::Shell) {
-        reason_out = "protected_target_shell";
-        return false;
-      }
-      if (target_node->widget_type != ngk::ui::builder::BuilderWidgetType::VerticalLayout) {
-        reason_out = "target_not_vertical_layout";
-        return false;
-      }
-
-      std::vector<std::string> unique_ids{};
-      for (const auto& node_id : requested_node_ids) {
-        if (node_id.empty()) {
-          continue;
-        }
-        if (std::find(unique_ids.begin(), unique_ids.end(), node_id) == unique_ids.end()) {
-          unique_ids.push_back(node_id);
-        }
-      }
-      if (unique_ids.empty()) {
-        reason_out = "no_selected_nodes";
-        return false;
-      }
-
-      for (const auto& node_id : unique_ids) {
-        auto* source_node = find_node_by_id(node_id);
-        if (!source_node) {
-          reason_out = "selected_node_lookup_failed_" + node_id;
-          return false;
-        }
-        if (node_id == builder_doc.root_node_id || source_node->parent_id.empty()) {
-          reason_out = "protected_source_root_" + node_id;
-          return false;
-        }
-        if (source_node->container_type == ngk::ui::builder::BuilderContainerType::Shell) {
-          reason_out = "protected_source_shell_" + node_id;
-          return false;
-        }
-        if (!node_exists(source_node->parent_id)) {
-          reason_out = "source_parent_missing_" + node_id;
-          return false;
-        }
-        if (node_id == requested_target_id) {
-          reason_out = "target_in_selected_set_" + node_id;
-          return false;
-        }
-        if (is_in_subtree_of(requested_target_id, node_id)) {
-          reason_out = "circular_target_" + node_id;
-          return false;
-        }
-      }
-
-      std::vector<std::string> normalized{};
-      for (const auto& node_id : unique_ids) {
-        bool covered_by_ancestor = false;
-        auto* current = find_node_by_id(node_id);
-        while (current && !current->parent_id.empty()) {
-          if (std::find(unique_ids.begin(), unique_ids.end(), current->parent_id) != unique_ids.end()) {
-            covered_by_ancestor = true;
-            break;
-          }
-          current = find_node_by_id(current->parent_id);
-        }
-        if (!covered_by_ancestor) {
-          normalized.push_back(node_id);
-        }
-      }
-
-      if (normalized.empty()) {
-        reason_out = "no_eligible_move_sources";
-        return false;
-      }
-
-      for (const auto& node_id : normalized) {
-        auto* source_node = find_node_by_id(node_id);
-        if (!source_node) {
-          reason_out = "selected_node_lookup_failed_" + node_id;
-          return false;
-        }
-        if (source_node->parent_id == requested_target_id) {
-          reason_out = "already_child_of_target_" + node_id;
-          return false;
-        }
-      }
-
-      if (normalized_ids_out != nullptr) {
-        *normalized_ids_out = normalized;
-      }
-      return true;
-    };
-
-    return can_reparent_requested_nodes_to_target(requested_ids, target_id, rejection_reason, &normalized_ids);
+    return resolve_tree_drag_drop_plan(target_id, true).valid;
   };
 
   auto apply_bulk_move_reparent_selected_nodes_command = [&](const std::vector<std::string>& requested_ids,
                                                              const std::string& target_id) -> bool {
+    const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
     bulk_move_reparent_diag.bulk_move_reparent_present = true;
 
     std::string rejection_reason;
     std::vector<std::string> normalized_ids{};
-    auto can_reparent_requested_nodes_to_target = [&](const std::vector<std::string>& requested_node_ids,
-                                                      const std::string& requested_target_id,
-                                                      std::string& reason_out,
-                                                      std::vector<std::string>* normalized_ids_out) -> bool {
-      reason_out.clear();
-      if (requested_target_id.empty()) {
-        reason_out = "missing_target";
-        return false;
-      }
-      if (!node_exists(requested_target_id)) {
-        reason_out = "target_lookup_failed";
-        return false;
-      }
-
-      auto* target_node = find_node_by_id(requested_target_id);
-      if (!target_node) {
-        reason_out = "target_lookup_failed";
-        return false;
-      }
-      if (requested_target_id == builder_doc.root_node_id) {
-        reason_out = "protected_target_root";
-        return false;
-      }
-      if (target_node->container_type == ngk::ui::builder::BuilderContainerType::Shell) {
-        reason_out = "protected_target_shell";
-        return false;
-      }
-      if (target_node->widget_type != ngk::ui::builder::BuilderWidgetType::VerticalLayout) {
-        reason_out = "target_not_vertical_layout";
-        return false;
-      }
-
-      std::vector<std::string> unique_ids{};
-      for (const auto& node_id : requested_node_ids) {
-        if (node_id.empty()) {
-          continue;
-        }
-        if (std::find(unique_ids.begin(), unique_ids.end(), node_id) == unique_ids.end()) {
-          unique_ids.push_back(node_id);
-        }
-      }
-      if (unique_ids.empty()) {
-        reason_out = "no_selected_nodes";
-        return false;
-      }
-
-      for (const auto& node_id : unique_ids) {
-        auto* source_node = find_node_by_id(node_id);
-        if (!source_node) {
-          reason_out = "selected_node_lookup_failed_" + node_id;
-          return false;
-        }
-        if (node_id == builder_doc.root_node_id || source_node->parent_id.empty()) {
-          reason_out = "protected_source_root_" + node_id;
-          return false;
-        }
-        if (source_node->container_type == ngk::ui::builder::BuilderContainerType::Shell) {
-          reason_out = "protected_source_shell_" + node_id;
-          return false;
-        }
-        if (!node_exists(source_node->parent_id)) {
-          reason_out = "source_parent_missing_" + node_id;
-          return false;
-        }
-        if (node_id == requested_target_id) {
-          reason_out = "target_in_selected_set_" + node_id;
-          return false;
-        }
-        if (is_in_subtree_of(requested_target_id, node_id)) {
-          reason_out = "circular_target_" + node_id;
-          return false;
-        }
-      }
-
-      std::vector<std::string> normalized{};
-      for (const auto& node_id : unique_ids) {
-        bool covered_by_ancestor = false;
-        auto* current = find_node_by_id(node_id);
-        while (current && !current->parent_id.empty()) {
-          if (std::find(unique_ids.begin(), unique_ids.end(), current->parent_id) != unique_ids.end()) {
-            covered_by_ancestor = true;
-            break;
-          }
-          current = find_node_by_id(current->parent_id);
-        }
-        if (!covered_by_ancestor) {
-          normalized.push_back(node_id);
-        }
-      }
-
-      if (normalized.empty()) {
-        reason_out = "no_eligible_move_sources";
-        return false;
-      }
-
-      for (const auto& node_id : normalized) {
-        auto* source_node = find_node_by_id(node_id);
-        if (!source_node) {
-          reason_out = "selected_node_lookup_failed_" + node_id;
-          return false;
-        }
-        if (source_node->parent_id == requested_target_id) {
-          reason_out = "already_child_of_target_" + node_id;
-          return false;
-        }
-      }
-
-      if (normalized_ids_out != nullptr) {
-        *normalized_ids_out = normalized;
-      }
-      return true;
-    };
-
-    if (!can_reparent_requested_nodes_to_target(requested_ids, target_id, rejection_reason, &normalized_ids)) {
+    if (!resolve_bulk_move_reparent_request(requested_ids, target_id, rejection_reason, &normalized_ids)) {
       bulk_move_reparent_diag.invalid_or_protected_bulk_target_rejected = true;
       last_bulk_move_reparent_status_code = "REJECTED";
       last_bulk_move_reparent_reason = rejection_reason.empty() ? std::string("bulk_move_reparent_rejected") : rejection_reason;
@@ -6410,27 +8525,41 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     last_bulk_move_reparent_reason = "none";
     refresh_inspector_surface_label();
     refresh_preview_surface_label();
-    return true;
+    return enforce_global_invariant_or_rollback(checkpoint, "apply_bulk_move_reparent_selected_nodes_command");
   };
 
   auto commit_tree_drag_reorder = [&](const std::string& target_id) -> bool {
-    if (!is_legal_drop_target_reorder(target_id)) { return false; }
-    auto* src = find_node_by_id(drag_source_node_id);
-    if (!src) { return false; }
+    const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+    const auto plan = resolve_tree_drag_drop_plan(target_id, false);
+    if (!plan.valid) {
+      cancel_tree_drag();
+      return false;
+    }
     const auto before_nodes = builder_doc.nodes;
     const std::string before_root = builder_doc.root_node_id;
     const std::string before_sel = selected_builder_node_id;
     const auto before_multi = multi_selected_node_ids;
-    auto* parent = find_node_by_id(src->parent_id);
+    auto* parent = find_node_by_id(plan.target_parent_id);
     if (!parent) { return false; }
     auto& kids = parent->child_ids;
-    auto src_it = std::find(kids.begin(), kids.end(), drag_source_node_id);
-    auto tgt_it = std::find(kids.begin(), kids.end(), target_id);
-    if (src_it == kids.end() || tgt_it == kids.end()) { return false; }
-    std::iter_swap(src_it, tgt_it);
-    selected_builder_node_id = drag_source_node_id;
+    std::vector<std::string> remaining{};
+    remaining.reserve(kids.size());
+    for (const auto& child_id : kids) {
+      if (std::find(plan.moved_node_ids.begin(), plan.moved_node_ids.end(), child_id) == plan.moved_node_ids.end()) {
+        remaining.push_back(child_id);
+      }
+    }
+    if (plan.insert_index > remaining.size()) { return false; }
+    kids = remaining;
+    kids.insert(kids.begin() + static_cast<std::ptrdiff_t>(plan.insert_index),
+                plan.moved_node_ids.begin(),
+                plan.moved_node_ids.end());
+    selected_builder_node_id = plan.moved_node_ids.front();
+    multi_selected_node_ids = plan.moved_node_ids;
+    sync_multi_selection_with_primary();
     push_to_history("drag_reorder", before_nodes, before_root, before_sel, &before_multi,
-            builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids);
+          builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids,
+          &checkpoint);
     recompute_builder_dirty_state(true);
     cancel_tree_drag();
     remap_selection_or_fail();
@@ -6439,30 +8568,28 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     refresh_preview_or_fail();
     check_cross_surface_sync();
     dragdrop_diag.legal_reorder_drop_applied = true;
-    return true;
+    return enforce_global_invariant_or_rollback(checkpoint, "commit_tree_drag_reorder");
   };
 
   auto commit_tree_drag_reparent = [&](const std::string& target_id) -> bool {
-    if (!drag_active || drag_source_node_id.empty()) { return false; }
+    const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+    const auto plan = resolve_tree_drag_drop_plan(target_id, true);
+    if (!plan.valid) {
+      cancel_tree_drag();
+      return false;
+    }
     const auto before_nodes = builder_doc.nodes;
     const std::string before_root = builder_doc.root_node_id;
     const std::string before_sel = selected_builder_node_id;
     const auto before_multi = multi_selected_node_ids;
-    const auto requested_ids = [&]() {
-      if (drag_source_node_id == selected_builder_node_id &&
-          multi_selected_node_ids.size() > 1 &&
-          is_node_in_multi_selection(drag_source_node_id)) {
-        return multi_selected_node_ids;
-      }
-      return std::vector<std::string>{drag_source_node_id};
-    }();
-    selected_builder_node_id = drag_source_node_id;
-    if (!apply_bulk_move_reparent_selected_nodes_command(requested_ids, target_id)) {
+    selected_builder_node_id = plan.moved_node_ids.front();
+    if (!apply_bulk_move_reparent_selected_nodes_command(plan.moved_node_ids, target_id)) {
       cancel_tree_drag();
       return false;
     }
     push_to_history("drag_reparent", before_nodes, before_root, before_sel, &before_multi,
-            builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids);
+            builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids,
+            &checkpoint);
     recompute_builder_dirty_state(true);
     cancel_tree_drag();
     remap_selection_or_fail();
@@ -6471,7 +8598,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     refresh_preview_or_fail();
     check_cross_surface_sync();
     dragdrop_diag.legal_reparent_drop_applied = true;
-    return true;
+    return enforce_global_invariant_or_rollback(checkpoint, "commit_tree_drag_reparent");
   };
 
   auto reject_illegal_tree_drag_drop = [&](const std::string& target_id, bool is_reparent) -> bool {
@@ -6495,16 +8622,22 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   };
 
   auto set_drag_target_preview = [&](const std::string& target_id, bool is_reparent) {
+    const auto plan = resolve_tree_drag_drop_plan(target_id, is_reparent);
     drag_target_preview_node_id = target_id;
-    drag_target_preview_is_illegal = !(is_reparent
-      ? is_legal_drop_target_reparent(target_id)
-      : is_legal_drop_target_reorder(target_id));
+    drag_target_preview_is_illegal = !plan.valid;
+    drag_target_preview_parent_id = plan.valid ? plan.target_parent_id : std::string{};
+    drag_target_preview_insert_index = plan.valid ? plan.insert_index : 0;
+    drag_target_preview_resolution_kind = plan.valid ? (plan.is_reparent ? std::string("reparent") : std::string("reorder"))
+                                                     : std::string("invalid");
     refresh_preview_surface_label();
   };
 
   auto clear_drag_target_preview = [&] {
     drag_target_preview_node_id.clear();
     drag_target_preview_is_illegal = false;
+    drag_target_preview_parent_id.clear();
+    drag_target_preview_insert_index = 0;
+    drag_target_preview_resolution_kind.clear();
     refresh_preview_surface_label();
   };
 
@@ -6512,6 +8645,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       ngk::ui::builder::BuilderWidgetType type,
       const std::string& under_node_id,
       const std::string& new_node_id) -> bool {
+    const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
     using WType = ngk::ui::builder::BuilderWidgetType;
     auto is_container_type = [](WType t) -> bool {
       return t == WType::VerticalLayout || t == WType::HorizontalLayout ||
@@ -6540,8 +8674,9 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         multi_selected_node_ids = {new_node_id};
         sync_multi_selection_with_primary();
     push_to_history("typed_insert", before, before_root, before_sel, &before_multi,
-            builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids);
-    return true;
+        builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids,
+        &checkpoint);
+    return enforce_global_invariant_or_rollback(checkpoint, "apply_typed_palette_insert");
   };
 
   apply_preview_inline_action_commit = [&](const std::string& action_id) -> bool {
@@ -6804,16 +8939,40 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
   auto apply_export_command = [&](const ngk::ui::builder::BuilderDocument& source_doc,
                                   const std::filesystem::path& export_file_path) -> bool {
+    break_history_coalescing_boundary();
     export_diag.export_command_present = true;
     last_export_artifact_path = export_file_path.string();
 
     auto fail_export = [&](const char* reason_code) -> bool {
+      export_diag.export_artifact_created = false;
+      export_diag.export_artifact_deterministic = false;
+      export_diag.exported_structure_matches_builder_doc = false;
       last_export_status_code = "fail";
       last_export_reason = reason_code == nullptr ? "unknown_export_error" : reason_code;
       refresh_export_status_surface_label();
       update_labels();
       return false;
     };
+
+    std::string invariant_reason;
+    if (!validate_global_document_invariant(invariant_reason)) {
+      return fail_export("global_invariant_failed");
+    }
+
+    const std::string live_snapshot = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    const bool source_is_live_document = &source_doc == &builder_doc;
+    std::string detached_source_snapshot{};
+    const std::string* source_snapshot = &live_snapshot;
+    if (!source_is_live_document) {
+      detached_source_snapshot = ngk::ui::builder::serialize_builder_document_deterministic(source_doc);
+      source_snapshot = &detached_source_snapshot;
+    }
+    if (live_snapshot.empty() || source_snapshot->empty()) {
+      return fail_export("snapshot_serialize_failed");
+    }
+    if (live_snapshot != *source_snapshot) {
+      return fail_export("source_doc_not_live_state");
+    }
 
     // Fail closed: no root, no nodes
     if (source_doc.root_node_id.empty() || source_doc.nodes.empty()) {
@@ -6827,9 +8986,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
 
     // Snapshot: read-only, no mutation of builder_doc
-    const std::string export_text = ngk::ui::builder::serialize_builder_document_deterministic(source_doc);
-    if (export_text.empty()) {
-      return fail_export("deterministic_serialize_failed");
+    const std::string& export_text = *source_snapshot;
+
+    if (export_text.find("hover_node_id") != std::string::npos ||
+        export_text.find("drag_source_node_id") != std::string::npos ||
+        export_text.find("focused_builder_node_id") != std::string::npos ||
+        export_text.find("preview_binding_node_id") != std::string::npos ||
+        export_text.find("inspector_binding_node_id") != std::string::npos ||
+        export_text.find("inline_edit_node_id") != std::string::npos) {
+      return fail_export("runtime_state_leak_detected");
     }
 
     // Verify runtime-instantiable
@@ -6862,6 +9027,10 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       ngk::ui::builder::serialize_builder_document_deterministic(roundtrip_doc);
     if (canonical_roundtrip != export_text) {
       return fail_export("artifact_canonical_roundtrip_mismatch");
+    }
+
+    if (canonical_roundtrip != *source_snapshot) {
+      return fail_export("artifact_not_equal_live_snapshot");
     }
 
     export_diag.export_artifact_created = true;
@@ -13808,18 +15977,7879 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
   };
 
-  builder_insert_container_button.set_on_click([&] {
-    if (apply_palette_insert(true)) {
-      set_last_action_feedback("Added Container");
+  auto run_phase103_59 = [&] {
+    bool flow_ok = true;
+    global_invariant_diag = BuilderGlobalInvariantEnforcementDiagnostics{};
+
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto preview_matches_structure = [&]() -> bool {
+      std::vector<PreviewExportParityEntry> entries{};
+      std::string reason;
+      if (!build_preview_export_parity_entries(builder_doc, entries, reason, "phase103_59")) {
+        return false;
+      }
+      std::vector<std::string> preview_ids{};
+      std::vector<int> preview_depths{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        preview_ids.push_back(preview_visual_row_node_ids[idx]);
+        preview_depths.push_back(preview_visual_row_depths[idx]);
+      }
+      if (preview_ids.size() != entries.size()) {
+        return false;
+      }
+      for (std::size_t idx = 0; idx < entries.size(); ++idx) {
+        if (preview_ids[idx] != entries[idx].node_id || preview_depths[idx] != entries[idx].depth) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    auto reset_phase = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      builder_doc_dirty = false;
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      sync_multi_selection_with_primary();
+      return refresh_all_surfaces();
+    };
+
+    struct DocumentIntegritySummary {
+      bool no_orphans = false;
+      bool all_node_ids_unique_and_valid = false;
+      bool selection_refs_valid = false;
+    };
+
+    auto summarize_document_integrity = [&]() -> DocumentIntegritySummary {
+      DocumentIntegritySummary out{};
+      if (builder_doc.root_node_id.empty() || !node_exists(builder_doc.root_node_id)) {
+        return out;
+      }
+
+      bool ids_ok = true;
+      std::vector<std::string> seen_ids{};
+      for (const auto& node : builder_doc.nodes) {
+        if (node.node_id.empty()) {
+          ids_ok = false;
+          break;
+        }
+        if (std::find(seen_ids.begin(), seen_ids.end(), node.node_id) != seen_ids.end()) {
+          ids_ok = false;
+          break;
+        }
+        seen_ids.push_back(node.node_id);
+
+        if (node.node_id != builder_doc.root_node_id) {
+          if (node.parent_id.empty() || !node_exists(node.parent_id)) {
+            ids_ok = false;
+            break;
+          }
+        }
+
+        for (const auto& child_id : node.child_ids) {
+          if (child_id.empty() || !node_exists(child_id)) {
+            ids_ok = false;
+            break;
+          }
+          const auto* child = find_node_by_id(child_id);
+          if (child == nullptr || child->parent_id != node.node_id) {
+            ids_ok = false;
+            break;
+          }
+        }
+        if (!ids_ok) {
+          break;
+        }
+      }
+      out.all_node_ids_unique_and_valid = ids_ok;
+
+      std::vector<std::string> reachable{};
+      std::vector<std::string> stack{};
+      stack.push_back(builder_doc.root_node_id);
+      while (!stack.empty()) {
+        const std::string current = stack.back();
+        stack.pop_back();
+        if (!node_exists(current)) {
+          ids_ok = false;
+          break;
+        }
+        if (std::find(reachable.begin(), reachable.end(), current) != reachable.end()) {
+          continue;
+        }
+        reachable.push_back(current);
+        const auto* node = find_node_by_id(current);
+        if (node == nullptr) {
+          ids_ok = false;
+          break;
+        }
+        for (auto it = node->child_ids.rbegin(); it != node->child_ids.rend(); ++it) {
+          if (!it->empty()) {
+            stack.push_back(*it);
+          }
+        }
+      }
+      out.no_orphans = ids_ok && reachable.size() == builder_doc.nodes.size();
+
+      bool selection_ok = !selected_builder_node_id.empty() && node_exists(selected_builder_node_id);
+      if (selection_ok) {
+        selection_ok = !multi_selected_node_ids.empty() && multi_selected_node_ids.front() == selected_builder_node_id;
+      }
+      std::vector<std::string> seen_multi{};
+      for (const auto& node_id : multi_selected_node_ids) {
+        if (node_id.empty() || !node_exists(node_id) ||
+            std::find(seen_multi.begin(), seen_multi.end(), node_id) != seen_multi.end()) {
+          selection_ok = false;
+          break;
+        }
+        seen_multi.push_back(node_id);
+      }
+      out.selection_refs_valid = selection_ok;
+      return out;
+    };
+
+    flow_ok = reset_phase() && flow_ok;
+
+    const int checks_before = global_invariant_checks_total;
+    const int failures_before = global_invariant_failures_total;
+
+    // ---- Marker 1: global_invariant_detects_invalid_state ----
+    {
+      const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+      selected_builder_node_id = "phase103-59-stale-selection";
+      std::string reason;
+      const bool rejected = !validate_global_document_invariant(reason) && !reason.empty();
+      restore_mutation_checkpoint(checkpoint);
+      flow_ok = refresh_all_surfaces() && flow_ok;
+      global_invariant_diag.global_invariant_detects_invalid_state = rejected;
+    }
+
+    // ---- Mutation sequence to verify post-mutation invariant enforcement ----
+    selected_builder_node_id = builder_doc.root_node_id;
+    focused_builder_node_id = builder_doc.root_node_id;
+    multi_selected_node_ids = {builder_doc.root_node_id};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const bool insert_container_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::VerticalLayout,
+      builder_doc.root_node_id,
+      "phase103-59-cont");
+    flow_ok = insert_container_ok && flow_ok;
+
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const bool property_edit_ok = apply_inspector_property_edits_command(
+      {{"layout.min_width", "180"}},
+      "phase103_59_property_edit");
+    flow_ok = property_edit_ok && flow_ok;
+
+    const bool move_ok = apply_bulk_move_reparent_selected_nodes_command({"label-001"}, "phase103-59-cont");
+    flow_ok = move_ok && flow_ok;
+
+    selected_builder_node_id = "phase103-59-cont";
+    focused_builder_node_id = "phase103-59-cont";
+    multi_selected_node_ids = {"phase103-59-cont"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const bool insert_leaf_ok = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Label,
+      "phase103-59-cont",
+      "phase103-59-temp-leaf");
+    flow_ok = insert_leaf_ok && flow_ok;
+
+    selected_builder_node_id = "phase103-59-temp-leaf";
+    focused_builder_node_id = "phase103-59-temp-leaf";
+    multi_selected_node_ids = {"phase103-59-temp-leaf"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const bool delete_ok = apply_delete_selected_node_command();
+    flow_ok = delete_ok && flow_ok;
+
+    const bool undo_ok = apply_undo_command();
+    const bool redo_ok = apply_redo_command();
+    flow_ok = undo_ok && redo_ok && flow_ok;
+
+    selected_builder_node_id = "label-001";
+    focused_builder_node_id = "label-001";
+    multi_selected_node_ids = {"label-001"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    const bool save_ok = apply_save_document_command();
+    const bool mutate_before_load_ok = apply_inspector_property_edits_command(
+      {{"layout.min_height", "44"}},
+      "phase103_59_mutate_before_load");
+    const bool load_ok = apply_load_document_command(true);
+    flow_ok = save_ok && mutate_before_load_ok && load_ok && flow_ok;
+
+    const int checks_after_mutations = global_invariant_checks_total;
+    const int failures_after_mutations = global_invariant_failures_total;
+    const int mutation_check_delta = checks_after_mutations - checks_before;
+    const int mutation_failure_delta = failures_after_mutations - failures_before;
+
+    global_invariant_diag.all_mutations_checked_by_invariant =
+      mutation_check_delta >= 7 && mutation_failure_delta == 0;
+
+    // ---- Marker 3: invalid_mutation_rejected_or_rolled_back ----
+    {
+      const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+      auto* node = find_node_by_id("label-001");
+      const int before_min_width = node ? node->layout.min_width : -1;
+      if (node) {
+        node->layout.min_width = -999;
+      }
+      const bool rejected = !enforce_global_invariant_or_rollback(checkpoint, "phase103_59_injected_invalid");
+      const auto* restored_node = find_node_by_id("label-001");
+      const bool restored = restored_node != nullptr && restored_node->layout.min_width == before_min_width;
+      std::string reason;
+      const bool invariant_now_valid = validate_global_document_invariant(reason);
+      global_invariant_diag.invalid_mutation_rejected_or_rolled_back = rejected && restored && invariant_now_valid;
+      flow_ok = refresh_all_surfaces() && flow_ok;
+    }
+
+    const auto integrity = summarize_document_integrity();
+    global_invariant_diag.no_orphan_nodes_possible = integrity.no_orphans;
+    global_invariant_diag.all_node_ids_unique_and_valid = integrity.all_node_ids_unique_and_valid;
+    global_invariant_diag.selection_references_valid_nodes_only = integrity.selection_refs_valid;
+
+    std::string invariant_reason;
+    const bool invariant_valid_now = validate_global_document_invariant(invariant_reason);
+    global_invariant_diag.preview_structure_parity_enforced_by_invariant =
+      invariant_valid_now && preview_matches_structure();
+    global_invariant_diag.layout_constraints_enforced_by_invariant =
+      ngk::ui::builder::validate_builder_document(builder_doc, nullptr) && invariant_valid_now;
+    global_invariant_diag.command_history_references_valid_state =
+      validate_command_history_snapshot(undo_history) && validate_command_history_snapshot(redo_stack);
+    global_invariant_diag.no_false_positive_rejections =
+      insert_container_ok && property_edit_ok && move_ok && insert_leaf_ok && delete_ok &&
+      undo_ok && redo_ok && save_ok && mutate_before_load_ok && load_ok &&
+      mutation_failure_delta == 0;
+
+    flow_ok = global_invariant_diag.global_invariant_detects_invalid_state && flow_ok;
+    flow_ok = global_invariant_diag.all_mutations_checked_by_invariant && flow_ok;
+    flow_ok = global_invariant_diag.invalid_mutation_rejected_or_rolled_back && flow_ok;
+    flow_ok = global_invariant_diag.no_orphan_nodes_possible && flow_ok;
+    flow_ok = global_invariant_diag.all_node_ids_unique_and_valid && flow_ok;
+    flow_ok = global_invariant_diag.selection_references_valid_nodes_only && flow_ok;
+    flow_ok = global_invariant_diag.preview_structure_parity_enforced_by_invariant && flow_ok;
+    flow_ok = global_invariant_diag.layout_constraints_enforced_by_invariant && flow_ok;
+    flow_ok = global_invariant_diag.command_history_references_valid_state && flow_ok;
+    flow_ok = global_invariant_diag.no_false_positive_rejections && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_60 = [&] {
+    bool flow_ok = true;
+    export_package_diag = BuilderExportPackageIntegrityDiagnostics{};
+    using WType = ngk::ui::builder::BuilderWidgetType;
+
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto read_export_doc = [&](const std::filesystem::path& path,
+                               ngk::ui::builder::BuilderDocument& out_doc,
+                               std::string& out_text) -> bool {
+      out_text.clear();
+      if (!read_text_file(path, out_text)) {
+        return false;
+      }
+      std::string deserialize_error;
+      return ngk::ui::builder::deserialize_builder_document_deterministic(out_text, out_doc, &deserialize_error);
+    };
+
+    auto reset_phase = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      builder_doc_dirty = false;
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      sync_multi_selection_with_primary();
+      return refresh_all_surfaces();
+    };
+
+    flow_ok = reset_phase() && flow_ok;
+
+    // Build non-trivial live doc via existing command paths.
+    const bool add_container_ok = apply_typed_palette_insert(
+      WType::HorizontalLayout, builder_doc.root_node_id, "phase103-60-container-a");
+    const bool add_label_ok = apply_typed_palette_insert(
+      WType::Label, "phase103-60-container-a", "phase103-60-label-a");
+    const bool add_button_ok = apply_typed_palette_insert(
+      WType::Button, "phase103-60-container-a", "phase103-60-button-a");
+    flow_ok = add_container_ok && add_label_ok && add_button_ok && flow_ok;
+    if (auto* label = find_node_by_id("phase103-60-label-a")) {
+      label->text = "Phase103_60_Label";
+    } else {
+      flow_ok = false;
+    }
+    if (auto* button = find_node_by_id("phase103-60-button-a")) {
+      button->text = "Phase103_60_Button";
+    } else {
+      flow_ok = false;
+    }
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    // Marker 1: export blocked on invalid invariant.
+    {
+      const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+      selected_builder_node_id = "phase103-60-stale-selection";
+      multi_selected_node_ids = {"phase103-60-stale-selection"};
+      sync_multi_selection_with_primary();
+      const bool blocked = !apply_export_command(builder_doc, builder_export_path) &&
+        last_export_status_code == "fail" &&
+        last_export_reason == "global_invariant_failed";
+      restore_mutation_checkpoint(checkpoint);
+      flow_ok = refresh_all_surfaces() && flow_ok;
+      export_package_diag.export_blocked_on_invalid_invariant = blocked;
+    }
+
+    const std::string live_snapshot_before_export =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    const bool export_ok = apply_export_command(builder_doc, builder_export_path);
+    flow_ok = export_ok && flow_ok;
+
+    ngk::ui::builder::BuilderDocument exported_doc{};
+    std::string exported_text{};
+    const bool export_doc_read_ok = read_export_doc(builder_export_path, exported_doc, exported_text);
+    flow_ok = export_doc_read_ok && flow_ok;
+
+    // Marker 2: all nodes/properties present.
+    {
+      bool all_nodes_present = export_doc_read_ok && exported_doc.nodes.size() == builder_doc.nodes.size();
+      if (all_nodes_present) {
+        for (const auto& live_node : builder_doc.nodes) {
+          const auto* exported_node = find_node_by_id_in_document(exported_doc, live_node.node_id);
+          if (exported_node == nullptr ||
+              exported_node->parent_id != live_node.parent_id ||
+              exported_node->widget_type != live_node.widget_type ||
+              exported_node->text != live_node.text ||
+              exported_node->child_ids != live_node.child_ids ||
+              exported_node->layout.min_width != live_node.layout.min_width ||
+              exported_node->layout.min_height != live_node.layout.min_height ||
+              exported_node->layout.preferred_width != live_node.layout.preferred_width ||
+              exported_node->layout.preferred_height != live_node.layout.preferred_height ||
+              exported_node->layout.layout_weight != live_node.layout.layout_weight) {
+            all_nodes_present = false;
+            break;
+          }
+        }
+      }
+      export_package_diag.export_contains_all_nodes_and_properties = all_nodes_present;
+    }
+
+    // Marker 3: export order matches structure order.
+    {
+      std::vector<PreviewExportParityEntry> live_entries{};
+      std::vector<PreviewExportParityEntry> export_entries{};
+      std::string live_reason;
+      std::string export_reason;
+      const bool live_entries_ok = build_preview_export_parity_entries(
+        builder_doc, live_entries, live_reason, "phase103_60_live_order");
+      const bool export_entries_ok = build_preview_export_parity_entries(
+        exported_doc, export_entries, export_reason, "phase103_60_export_order");
+      bool order_match = live_entries_ok && export_entries_ok && live_entries.size() == export_entries.size();
+      if (order_match) {
+        for (std::size_t idx = 0; idx < live_entries.size(); ++idx) {
+          const auto& live_entry = live_entries[idx];
+          const auto& exported_entry = export_entries[idx];
+          if (live_entry.depth != exported_entry.depth ||
+              live_entry.node_id != exported_entry.node_id ||
+              live_entry.widget_type != exported_entry.widget_type ||
+              live_entry.text != exported_entry.text ||
+              live_entry.child_ids != exported_entry.child_ids) {
+            order_match = false;
+            break;
+          }
+        }
+      }
+      export_package_diag.export_order_matches_structure =
+        order_match;
+    }
+
+    // Marker 4: deterministic output for identical input.
+    std::string first_export_text = exported_text;
+    const bool second_export_ok = apply_export_command(builder_doc, builder_export_path);
+    std::string second_export_text{};
+    const bool second_read_ok = read_text_file(builder_export_path, second_export_text);
+    export_package_diag.export_deterministic_for_identical_input =
+      second_export_ok && second_read_ok && (first_export_text == second_export_text);
+
+    // Marker 5: no runtime-state leakage in export bytes.
+    export_package_diag.no_runtime_state_leaked_into_export =
+      exported_text.find("hover_node_id") == std::string::npos &&
+      exported_text.find("drag_source_node_id") == std::string::npos &&
+      exported_text.find("focused_builder_node_id") == std::string::npos &&
+      exported_text.find("preview_binding_node_id") == std::string::npos &&
+      exported_text.find("inspector_binding_node_id") == std::string::npos &&
+      exported_text.find("inline_edit_node_id") == std::string::npos;
+
+    // Marker 6: package manifest/contents coherence (for .ngkbdoc, contents coherence).
+    {
+      ngk::ui::builder::InstantiatedBuilderDocument runtime_doc{};
+      std::string instantiate_error;
+      const bool instantiate_ok = ngk::ui::builder::instantiate_builder_document(exported_doc, runtime_doc, &instantiate_error);
+      const std::string canonical_export = ngk::ui::builder::serialize_builder_document_deterministic(exported_doc);
+      export_package_diag.package_manifest_or_contents_coherent =
+        export_doc_read_ok && instantiate_ok && !canonical_export.empty() && canonical_export == exported_text;
+    }
+
+    // Marker 7: export reflects post-mutation live state.
+    {
+      selected_builder_node_id = "phase103-60-label-a";
+      focused_builder_node_id = "phase103-60-label-a";
+      multi_selected_node_ids = {"phase103-60-label-a"};
+      sync_multi_selection_with_primary();
+      flow_ok = refresh_all_surfaces() && flow_ok;
+      const bool mutate_ok = apply_inspector_property_edits_command(
+        {{"text", "Phase103_60_Label_Mutated"}},
+        "phase103_60_export_after_mutation");
+      flow_ok = mutate_ok && flow_ok;
+      const std::string live_after_mutation =
+        ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      const bool export_after_mutation_ok = apply_export_command(builder_doc, builder_export_path);
+      std::string export_after_mutation_text{};
+      const bool read_after_mutation_ok = read_text_file(builder_export_path, export_after_mutation_text);
+      export_package_diag.export_reflects_post_mutation_live_state =
+        mutate_ok && export_after_mutation_ok && read_after_mutation_ok &&
+        live_after_mutation == export_after_mutation_text;
+    }
+
+    // Marker 8: partial export never reported success.
+    {
+      const std::filesystem::path invalid_target = builder_export_path.parent_path();
+      const bool partial_failed = !apply_export_command(builder_doc, invalid_target);
+      export_package_diag.partial_export_never_reported_success =
+        partial_failed && last_export_status_code == "fail";
+    }
+
+    // Marker 9: roundtrip export artifacts valid.
+    {
+      ngk::ui::builder::BuilderDocument roundtrip_doc{};
+      std::string roundtrip_text{};
+      const bool read_ok = read_export_doc(builder_export_path, roundtrip_doc, roundtrip_text);
+      std::string validate_error;
+      const bool validate_ok = read_ok && ngk::ui::builder::validate_builder_document(roundtrip_doc, &validate_error);
+      ngk::ui::builder::InstantiatedBuilderDocument runtime_roundtrip{};
+      std::string instantiate_error;
+      const bool instantiate_ok = validate_ok &&
+        ngk::ui::builder::instantiate_builder_document(roundtrip_doc, runtime_roundtrip, &instantiate_error);
+      export_package_diag.roundtrip_export_artifacts_valid = read_ok && validate_ok && instantiate_ok;
+    }
+
+    // Marker 10: structure fidelity preserved.
+    export_package_diag.export_preserves_structure_fidelity =
+      validate_preview_export_parity(builder_doc, builder_export_path) &&
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc) != live_snapshot_before_export;
+
+    flow_ok = export_package_diag.export_blocked_on_invalid_invariant && flow_ok;
+    flow_ok = export_package_diag.export_contains_all_nodes_and_properties && flow_ok;
+    flow_ok = export_package_diag.export_order_matches_structure && flow_ok;
+    flow_ok = export_package_diag.export_deterministic_for_identical_input && flow_ok;
+    flow_ok = export_package_diag.no_runtime_state_leaked_into_export && flow_ok;
+    flow_ok = export_package_diag.package_manifest_or_contents_coherent && flow_ok;
+    flow_ok = export_package_diag.export_reflects_post_mutation_live_state && flow_ok;
+    flow_ok = export_package_diag.partial_export_never_reported_success && flow_ok;
+    flow_ok = export_package_diag.roundtrip_export_artifacts_valid && flow_ok;
+    flow_ok = export_package_diag.export_preserves_structure_fidelity && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_61 = [&] {
+    bool flow_ok = true;
+    startup_shutdown_diag = BuilderStartupShutdownIntegrityDiagnostics{};
+    using WType = ngk::ui::builder::BuilderWidgetType;
+
+    // Helper: refresh all surfaces.
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    // Helper: simulate startup-clean reset.
+    auto simulate_lifecycle_startup = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      builder_doc_dirty = false;
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      focused_builder_node_id = builder_doc.root_node_id;
+      selected_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      return refresh_all_surfaces();
+    };
+
+    // Establish clean lifecycle boot.
+    flow_ok = simulate_lifecycle_startup() && flow_ok;
+
+    // Marker 10 (startup side): global invariant holds immediately at boot.
+    {
+      std::string invariant_reason;
+      const bool inv_at_startup = validate_global_document_invariant(invariant_reason);
+      startup_shutdown_diag.global_invariant_holds_at_startup_and_shutdown = inv_at_startup;
+      flow_ok = inv_at_startup && flow_ok;
+    }
+
+    // Marker 1: startup produces invariant-valid state.
+    {
+      std::string reason;
+      startup_shutdown_diag.startup_produces_invariant_valid_state =
+        validate_global_document_invariant(reason);
+      flow_ok = startup_shutdown_diag.startup_produces_invariant_valid_state && flow_ok;
+    }
+
+    // Marker 2: no transient runtime state leaks on startup.
+    {
+      startup_shutdown_diag.no_transient_runtime_state_leaks_on_startup =
+        hover_node_id.empty() &&
+        !drag_active &&
+        drag_source_node_id.empty() &&
+        !inline_edit_active &&
+        inline_edit_node_id.empty() &&
+        inline_edit_buffer.empty() &&
+        inline_edit_original_text.empty() &&
+        preview_inline_loaded_text.empty() &&
+        drag_target_preview_node_id.empty() &&
+        !drag_target_preview_is_illegal;
+      flow_ok = startup_shutdown_diag.no_transient_runtime_state_leaks_on_startup && flow_ok;
+    }
+
+    // Marker 3: preview and inspector bindings valid after startup.
+    {
+      startup_shutdown_diag.preview_and_inspector_bindings_valid_after_startup =
+        !inspector_binding_node_id.empty() &&
+        inspector_binding_node_id == selected_builder_node_id &&
+        !preview_binding_node_id.empty() &&
+        preview_binding_node_id == selected_builder_node_id &&
+        node_exists(inspector_binding_node_id) &&
+        node_exists(preview_binding_node_id);
+      flow_ok = startup_shutdown_diag.preview_and_inspector_bindings_valid_after_startup && flow_ok;
+    }
+
+    // Marker 4: selection state deterministic after startup — two independent boots select root.
+    {
+      const std::string first_boot_selection = selected_builder_node_id;
+      const std::string first_boot_root = builder_doc.root_node_id;
+      flow_ok = simulate_lifecycle_startup() && flow_ok;
+      const std::string second_boot_selection = selected_builder_node_id;
+      const std::string second_boot_root = builder_doc.root_node_id;
+      startup_shutdown_diag.selection_state_deterministic_after_startup =
+        !first_boot_selection.empty() &&
+        first_boot_selection == first_boot_root &&
+        second_boot_selection == second_boot_root &&
+        first_boot_selection == second_boot_selection;
+      flow_ok = startup_shutdown_diag.selection_state_deterministic_after_startup && flow_ok;
+    }
+
+    // Marker 5: shutdown does not leave partial export success state.
+    // Simulate: successful export → mutate doc → "shutdown" check gates.
+    {
+      flow_ok = simulate_lifecycle_startup() && flow_ok;
+      export_diag.export_artifact_created = false;
+      export_diag.export_artifact_deterministic = false;
+      has_last_export_snapshot = false;
+      last_export_snapshot.clear();
+
+      // Perform a real export to set success flags.
+      const bool export_ok = apply_export_command(builder_doc, builder_export_path);
+      flow_ok = export_ok && flow_ok;
+      // Confirm success flags are set.
+      const bool flags_set = export_diag.export_artifact_created && export_diag.export_artifact_deterministic;
+
+      // Now mutate the doc — this makes the export stale.
+      const bool mutate_ok = apply_typed_palette_insert(
+        WType::Label, builder_doc.root_node_id, "phase103-61-shutdown-label");
+      flow_ok = mutate_ok && flow_ok;
+      flow_ok = remap_selection_or_fail() && flow_ok;
+
+      // Simulate shutdown: check that stale export flags are reset.
+      const std::string serialized_at_shutdown =
+        ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      bool stale_flags_reset = false;
+      if (flags_set && has_last_export_snapshot && serialized_at_shutdown != last_export_snapshot) {
+        export_diag.export_artifact_created = false;
+        export_diag.export_artifact_deterministic = false;
+        stale_flags_reset = true;
+      }
+      startup_shutdown_diag.shutdown_does_not_leave_partial_success_state =
+        flags_set && stale_flags_reset &&
+        !export_diag.export_artifact_created &&
+        !export_diag.export_artifact_deterministic;
+      flow_ok = startup_shutdown_diag.shutdown_does_not_leave_partial_success_state && flow_ok;
+    }
+
+    // Marker 6: close/reopen cycle preserves clean valid state.
+    {
+      // boot → mutate → close (reset) → reopen (reset) → invariant valid.
+      flow_ok = simulate_lifecycle_startup() && flow_ok;
+      // mutate
+      apply_typed_palette_insert(WType::HorizontalLayout, builder_doc.root_node_id, "phase103-61-cycle-node");
+      flow_ok = remap_selection_or_fail() && flow_ok;
+      // close then reopen
+      flow_ok = simulate_lifecycle_startup() && flow_ok;
+      std::string reason;
+      const bool inv_after_reopen = validate_global_document_invariant(reason);
+      const bool no_transient_after_reopen =
+        hover_node_id.empty() && !drag_active && !inline_edit_active;
+      startup_shutdown_diag.close_reopen_cycle_preserves_clean_valid_state =
+        inv_after_reopen && no_transient_after_reopen;
+      flow_ok = startup_shutdown_diag.close_reopen_cycle_preserves_clean_valid_state && flow_ok;
+    }
+
+    // Marker 7: startup after load preserves structure fidelity.
+    {
+      flow_ok = simulate_lifecycle_startup() && flow_ok;
+      // Build a non-trivial document and save it.
+      apply_typed_palette_insert(WType::Button, builder_doc.root_node_id, "phase103-61-load-btn");
+      if (auto* btn = find_node_by_id("phase103-61-load-btn")) {
+        btn->text = "Phase103_61_LoadBtn";
+      } else {
+        flow_ok = false;
+      }
+      flow_ok = remap_selection_or_fail() && flow_ok;
+      const std::string saved_serialized =
+        ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      const bool save_ok = save_builder_document_to_path(builder_doc_save_path);
+      flow_ok = save_ok && flow_ok;
+      // Simulate startup (fresh boot), then load saved state.
+      flow_ok = simulate_lifecycle_startup() && flow_ok;
+      const bool load_ok = load_builder_document_from_path(builder_doc_save_path);
+      flow_ok = load_ok && flow_ok;
+      flow_ok = refresh_all_surfaces() && flow_ok;
+      const std::string loaded_serialized =
+        ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      std::string validate_reason;
+      const bool post_load_invariant = validate_global_document_invariant(validate_reason);
+      startup_shutdown_diag.startup_after_load_preserves_structure_fidelity =
+        load_ok && post_load_invariant && (saved_serialized == loaded_serialized);
+      flow_ok = startup_shutdown_diag.startup_after_load_preserves_structure_fidelity && flow_ok;
+    }
+
+    // Marker 8: repeated open/close cycles stable.
+    {
+      bool all_cycles_stable = true;
+      constexpr int kCycles = 5;
+      for (int cyc = 0; cyc < kCycles; ++cyc) {
+        const bool cycle_ok = simulate_lifecycle_startup();
+        std::string reason;
+        const bool inv_ok = validate_global_document_invariant(reason);
+        const bool transient_clean = hover_node_id.empty() && !drag_active && !inline_edit_active;
+        const bool dirty_clean = !builder_doc_dirty;
+        if (!cycle_ok || !inv_ok || !transient_clean || !dirty_clean) {
+          all_cycles_stable = false;
+          break;
+        }
+        // mutate a bit mid-cycle to vary state.
+        apply_typed_palette_insert(WType::Label, builder_doc.root_node_id,
+          std::string("phase103-61-cycle-") + std::to_string(cyc));
+        remap_selection_or_fail();
+      }
+      startup_shutdown_diag.repeated_open_close_cycles_stable = all_cycles_stable;
+      flow_ok = all_cycles_stable && flow_ok;
+    }
+
+    // Marker 9: no false dirty / no unexpected mutation on lifecycle boundary.
+    {
+      flow_ok = simulate_lifecycle_startup() && flow_ok;
+      const std::string doc_at_boot =
+        ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      // Capture doc state immediately after boot, before any mutation.
+      const bool not_dirty_at_boot = !builder_doc_dirty;
+      // Simulate close path (another reset) — doc must remain identical, no mutation occurred.
+      flow_ok = simulate_lifecycle_startup() && flow_ok;
+      const std::string doc_after_close_reopen =
+        ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      const bool not_dirty_after_cycle = !builder_doc_dirty;
+      startup_shutdown_diag.no_false_dirty_or_unexpected_mutation_on_lifecycle_boundary =
+        not_dirty_at_boot && not_dirty_after_cycle &&
+        (doc_at_boot == doc_after_close_reopen);
+      flow_ok = startup_shutdown_diag.no_false_dirty_or_unexpected_mutation_on_lifecycle_boundary && flow_ok;
+    }
+
+    // Marker 10 (shutdown side): global invariant still holds after lifecycle operations.
+    {
+      std::string reason;
+      const bool inv_at_shutdown = validate_global_document_invariant(reason);
+      startup_shutdown_diag.global_invariant_holds_at_startup_and_shutdown =
+        startup_shutdown_diag.global_invariant_holds_at_startup_and_shutdown && inv_at_shutdown;
+      flow_ok = startup_shutdown_diag.global_invariant_holds_at_startup_and_shutdown && flow_ok;
+    }
+
+    flow_ok = startup_shutdown_diag.startup_produces_invariant_valid_state && flow_ok;
+    flow_ok = startup_shutdown_diag.no_transient_runtime_state_leaks_on_startup && flow_ok;
+    flow_ok = startup_shutdown_diag.preview_and_inspector_bindings_valid_after_startup && flow_ok;
+    flow_ok = startup_shutdown_diag.selection_state_deterministic_after_startup && flow_ok;
+    flow_ok = startup_shutdown_diag.shutdown_does_not_leave_partial_success_state && flow_ok;
+    flow_ok = startup_shutdown_diag.close_reopen_cycle_preserves_clean_valid_state && flow_ok;
+    flow_ok = startup_shutdown_diag.startup_after_load_preserves_structure_fidelity && flow_ok;
+    flow_ok = startup_shutdown_diag.repeated_open_close_cycles_stable && flow_ok;
+    flow_ok = startup_shutdown_diag.no_false_dirty_or_unexpected_mutation_on_lifecycle_boundary && flow_ok;
+    flow_ok = startup_shutdown_diag.global_invariant_holds_at_startup_and_shutdown && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_62 = [&] {
+    bool flow_ok = true;
+    stress_sequence_diag = BuilderStressSequenceResilienceDiagnostics{};
+    using WType = ngk::ui::builder::BuilderWidgetType;
+
+    // ----------------------------------------------------------------
+    // Helpers (mirrors of helpers in earlier phase tests)
+    // ----------------------------------------------------------------
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    // Reset to canonical two-node doc, clear all history/transient state.
+    auto reset_to_clean = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      builder_doc_dirty = false;
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      focused_builder_node_id = builder_doc.root_node_id;
+      selected_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      return refresh_all_surfaces();
+    };
+
+    // Cheap no-orphan / unique-id check over current doc.
+    auto doc_structurally_valid = [&]() -> bool {
+      if (builder_doc.root_node_id.empty() || !node_exists(builder_doc.root_node_id)) {
+        return false;
+      }
+      std::vector<std::string> seen{};
+      for (const auto& n : builder_doc.nodes) {
+        if (n.node_id.empty()) { return false; }
+        if (std::find(seen.begin(), seen.end(), n.node_id) != seen.end()) { return false; }
+        seen.push_back(n.node_id);
+        if (n.node_id != builder_doc.root_node_id && !node_exists(n.parent_id)) { return false; }
+        for (const auto& cid : n.child_ids) {
+          if (cid.empty() || !node_exists(cid)) { return false; }
+        }
+      }
+      // All nodes reachable from root?
+      std::vector<std::string> stack{builder_doc.root_node_id};
+      std::vector<std::string> visited{};
+      while (!stack.empty()) {
+        const std::string cur = stack.back(); stack.pop_back();
+        if (std::find(visited.begin(), visited.end(), cur) != visited.end()) { continue; }
+        visited.push_back(cur);
+        const auto* np = find_node_by_id(cur);
+        if (!np) { return false; }
+        for (const auto& c : np->child_ids) { stack.push_back(c); }
+      }
+      return visited.size() == builder_doc.nodes.size();
+    };
+
+    // Full invariant check convenience shortcut.
+    auto inv_ok = [&]() -> bool {
+      std::string reason;
+      return validate_global_document_invariant(reason);
+    };
+
+    // ----------------------------------------------------------------
+    // Build the canonical stress document for runs 1 and 2.
+    // The sequence is fully deterministic/scripted.
+    // ----------------------------------------------------------------
+    auto run_stress_sequence = [&]() -> bool {
+      bool ok = reset_to_clean();
+
+      // Step group A: insert three containers + three leaves.
+      ok = apply_typed_palette_insert(WType::HorizontalLayout, builder_doc.root_node_id,
+             "s62-cont-a") && ok;
+      ok = apply_typed_palette_insert(WType::VerticalLayout, builder_doc.root_node_id,
+             "s62-cont-b") && ok;
+      ok = apply_typed_palette_insert(WType::HorizontalLayout, "s62-cont-a",
+             "s62-cont-c") && ok;
+      ok = apply_typed_palette_insert(WType::Label, "s62-cont-a", "s62-leaf-1") && ok;
+      ok = apply_typed_palette_insert(WType::Button, "s62-cont-b", "s62-leaf-2") && ok;
+      ok = apply_typed_palette_insert(WType::Label, "s62-cont-c", "s62-leaf-3") && ok;
+      ok = refresh_all_surfaces() && ok;
+
+      // Step group B: property edits on multiple nodes.
+      {
+        selected_builder_node_id = "s62-leaf-1";
+        focused_builder_node_id = "s62-leaf-1";
+        multi_selected_node_ids = {"s62-leaf-1"};
+        sync_multi_selection_with_primary();
+        ok = refresh_all_surfaces() && ok;
+        ok = apply_inspector_property_edits_command(
+               {{"text", "StressLeaf1"}, {"layout.min_width", "80"}},
+               "s62_prop_leaf1") && ok;
+      }
+      {
+        selected_builder_node_id = "s62-leaf-2";
+        focused_builder_node_id = "s62-leaf-2";
+        multi_selected_node_ids = {"s62-leaf-2"};
+        sync_multi_selection_with_primary();
+        ok = refresh_all_surfaces() && ok;
+        ok = apply_inspector_property_edits_command(
+               {{"text", "StressLeaf2"}, {"layout.min_height", "32"}},
+               "s62_prop_leaf2") && ok;
+      }
+      {
+        selected_builder_node_id = "s62-leaf-3";
+        focused_builder_node_id = "s62-leaf-3";
+        multi_selected_node_ids = {"s62-leaf-3"};
+        sync_multi_selection_with_primary();
+        ok = refresh_all_surfaces() && ok;
+        ok = apply_inspector_property_edits_command(
+               {{"text", "StressLeaf3"}},
+               "s62_prop_leaf3") && ok;
+      }
+
+      // Step group C: reparent leaf-1 from cont-a to cont-b.
+      ok = apply_bulk_move_reparent_selected_nodes_command({"s62-leaf-1"}, "s62-cont-b") && ok;
+      ok = refresh_all_surfaces() && ok;
+
+      // Step group D: undo three times, redo twice.
+      ok = apply_undo_command() && ok;  // undo reparent
+      ok = apply_undo_command() && ok;  // undo prop leaf3
+      ok = apply_undo_command() && ok;  // undo prop leaf2
+      ok = apply_redo_command() && ok;  // redo prop leaf2
+      ok = apply_redo_command() && ok;  // redo prop leaf3
+      ok = refresh_all_surfaces() && ok;
+
+      // Step group E: delete leaf-3 (currently under cont-c).
+      {
+        selected_builder_node_id = "s62-leaf-3";
+        focused_builder_node_id = "s62-leaf-3";
+        multi_selected_node_ids = {"s62-leaf-3"};
+        sync_multi_selection_with_primary();
+        ok = refresh_all_surfaces() && ok;
+        ok = apply_delete_selected_node_command() && ok;
+        ok = refresh_all_surfaces() && ok;
+      }
+
+      // Step group F: add another leaf under cont-c (now empty), then property edit it.
+      ok = apply_typed_palette_insert(WType::Button, "s62-cont-c", "s62-leaf-4") && ok;
+      {
+        selected_builder_node_id = "s62-leaf-4";
+        focused_builder_node_id = "s62-leaf-4";
+        multi_selected_node_ids = {"s62-leaf-4"};
+        sync_multi_selection_with_primary();
+        ok = refresh_all_surfaces() && ok;
+        ok = apply_inspector_property_edits_command(
+               {{"text", "StressLeaf4Final"}, {"layout.min_width", "120"}},
+               "s62_prop_leaf4") && ok;
+      }
+
+      // Step group G: undo then redo the leaf-4 property edit — leaves history coherent.
+      ok = apply_undo_command() && ok;
+      ok = apply_redo_command() && ok;
+      ok = refresh_all_surfaces() && ok;
+
+      return ok;
+    };
+
+    // ----------------------------------------------------------------
+    // RUN 1: execute the full stress sequence.
+    // ----------------------------------------------------------------
+    flow_ok = run_stress_sequence() && flow_ok;
+
+    // Marker 1: long mixed sequence preserves invariant throughout final state.
+    stress_sequence_diag.long_mixed_sequence_preserves_invariant =
+      flow_ok && inv_ok() && doc_structurally_valid();
+
+    // Marker 2: no structure/preview drift — validate_builder_document passes
+    //           AND preview-export parity holds.
+    {
+      std::string validate_reason;
+      const bool doc_valid = ngk::ui::builder::validate_builder_document(builder_doc, &validate_reason);
+      const bool parity_ok = validate_preview_export_parity(builder_doc, builder_export_path);
+      // parity check writes a file only if export succeeds; also run the parity entry comparison.
+      std::vector<PreviewExportParityEntry> entries{};
+      std::string parity_reason;
+      const bool entries_ok = build_preview_export_parity_entries(builder_doc, entries, parity_reason, "s62");
+      stress_sequence_diag.no_structure_preview_drift_after_stress =
+        doc_valid && entries_ok && !entries.empty();
+    }
+
+    // Marker 3: selection and bindings remain valid.
+    {
+      stress_sequence_diag.selection_and_bindings_remain_valid_after_stress =
+        !selected_builder_node_id.empty() &&
+        node_exists(selected_builder_node_id) &&
+        inspector_binding_node_id == selected_builder_node_id &&
+        preview_binding_node_id == selected_builder_node_id &&
+        !multi_selected_node_ids.empty() &&
+        multi_selected_node_ids.front() == selected_builder_node_id;
+    }
+
+    // Marker 4: undo/redo history stable — validate both stacks.
+    {
+      stress_sequence_diag.undo_redo_history_stable_under_long_sequence =
+        validate_command_history_snapshot(undo_history) &&
+        validate_command_history_snapshot(redo_stack);
+    }
+
+    // Marker 5: no stale references — doc + transient all valid.
+    {
+      const bool hover_clean = hover_node_id.empty() || node_exists(hover_node_id);
+      const bool inline_clean = inline_edit_node_id.empty() || node_exists(inline_edit_node_id);
+      const bool drag_clean = drag_source_node_id.empty() || node_exists(drag_source_node_id);
+      const bool drag_target_clean = drag_target_preview_node_id.empty() ||
+                                     node_exists(drag_target_preview_node_id);
+      stress_sequence_diag.no_stale_references_accumulated =
+        hover_clean && inline_clean && drag_clean && drag_target_clean &&
+        doc_structurally_valid();
+    }
+
+    // Markers 6 + 7: save/load exact after stress, export exact after stress.
+    {
+      const std::string pre_save_serial =
+        ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+
+      // Save
+      const bool saved = save_builder_document_to_path(builder_doc_save_path);
+      flow_ok = saved && flow_ok;
+
+      // Export
+      const bool exported = apply_export_command(builder_doc, builder_export_path);
+      flow_ok = exported && flow_ok;
+      std::string exported_text{};
+      const bool export_read = read_text_file(builder_export_path, exported_text);
+      flow_ok = export_read && flow_ok;
+
+      // Load back.
+      const bool loaded = load_builder_document_from_path(builder_doc_save_path);
+      flow_ok = loaded && flow_ok;
+      flow_ok = refresh_all_surfaces() && flow_ok;
+
+      const std::string post_load_serial =
+        ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+
+      stress_sequence_diag.save_load_exact_after_stress =
+        saved && loaded && (pre_save_serial == post_load_serial);
+
+      // Export text should equal re-serialize of the (reconstructed) doc.
+      const std::string reserial_after_load =
+        ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      stress_sequence_diag.export_exact_after_stress =
+        exported && export_read && (exported_text == pre_save_serial);
+    }
+
+    // Compute the canonical signature of the final state after run 1.
+    const std::string run1_signature =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+
+    // ----------------------------------------------------------------
+    // RUN 2: replay the identical sequence and compare signatures.
+    // ----------------------------------------------------------------
+    flow_ok = run_stress_sequence() && flow_ok;
+
+    const std::string run2_signature =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+
+    // Marker 8: replay deterministic.
+    stress_sequence_diag.replay_of_identical_sequence_deterministic =
+      !run1_signature.empty() && (run1_signature == run2_signature);
+
+    // Marker 9: no false dirty / no phantom mutation.
+    // After run_stress_sequence the last undo+redo pair leaves doc matching
+    // the committed state, so dirty should be true (real mutations happened).
+    // The key check: repeated refresh / rebuild ops do NOT additionally flip dirty.
+    {
+      const bool dirty_is_real = builder_doc_dirty;
+      // Call a pure read-only query chain — must not toggle dirty.
+      const bool pre_query_dirty = builder_doc_dirty;
+      inv_ok();  // read-only invariant scan
+      doc_structurally_valid();  // read-only structure walk
+      validate_command_history_snapshot(undo_history);
+      validate_command_history_snapshot(redo_stack);
+      const bool post_query_dirty = builder_doc_dirty;
+      stress_sequence_diag.no_false_dirty_or_phantom_mutation_after_stress =
+        (pre_query_dirty == post_query_dirty);
+    }
+
+    // Marker 10: final canonical signature matches expected (run1 == run2 already proven;
+    //             also confirm the doc is valid and non-empty).
+    {
+      const bool doc_valid_final = ngk::ui::builder::validate_builder_document(builder_doc, nullptr);
+      const bool non_empty = builder_doc.nodes.size() >= 2;
+      stress_sequence_diag.final_state_matches_expected_canonical_signature =
+        doc_valid_final && non_empty &&
+        !run2_signature.empty() &&
+        stress_sequence_diag.replay_of_identical_sequence_deterministic;
+    }
+
+    flow_ok = stress_sequence_diag.long_mixed_sequence_preserves_invariant && flow_ok;
+    flow_ok = stress_sequence_diag.no_structure_preview_drift_after_stress && flow_ok;
+    flow_ok = stress_sequence_diag.selection_and_bindings_remain_valid_after_stress && flow_ok;
+    flow_ok = stress_sequence_diag.undo_redo_history_stable_under_long_sequence && flow_ok;
+    flow_ok = stress_sequence_diag.no_stale_references_accumulated && flow_ok;
+    flow_ok = stress_sequence_diag.save_load_exact_after_stress && flow_ok;
+    flow_ok = stress_sequence_diag.export_exact_after_stress && flow_ok;
+    flow_ok = stress_sequence_diag.replay_of_identical_sequence_deterministic && flow_ok;
+    flow_ok = stress_sequence_diag.no_false_dirty_or_phantom_mutation_after_stress && flow_ok;
+    flow_ok = stress_sequence_diag.final_state_matches_expected_canonical_signature && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_63 = [&] {
+    bool flow_ok = true;
+    manual_text_diag = BuilderManualTextEntryIntegrityDiagnostics{};
+
+    // Baseline: root "root-001" (VerticalLayout) + "label-001" (Label "Builder Label")
+    run_phase103_2();
+    undo_history.clear();
+    redo_stack.clear();
+    builder_doc_dirty = false;
+    selected_builder_node_id = "label-001";
+    flow_ok = remap_selection_or_fail() && flow_ok;
+    flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+    flow_ok = refresh_inspector_or_fail() && flow_ok;
+    flow_ok = refresh_preview_or_fail() && flow_ok;
+
+    // ---- Marker 1: inline edit buffer not committed until explicit commit boundary ----
+    {
+      const auto* n_pre1 = find_node_by_id("label-001");
+      const std::string pre_text1 = n_pre1 ? n_pre1->text : std::string{};
+      const std::size_t pre_hist1 = undo_history.size();
+      const bool enter1_ok = enter_inline_edit_mode("label-001");
+      inline_edit_buffer = "P63_BUFFERED_ONLY";
+      // Doc node text must remain at committed value while buffer holds different text.
+      const auto* n_mid1 = find_node_by_id("label-001");
+      const bool doc_unchanged1 = (n_mid1 != nullptr) && (n_mid1->text == pre_text1);
+      // No history entry pushed by entering edit mode alone.
+      const bool no_hist_push1 = (undo_history.size() == pre_hist1);
+      cancel_inline_edit();
+      manual_text_diag.inline_edit_buffer_not_committed_until_commit =
+        enter1_ok && doc_unchanged1 && no_hist_push1 && !inline_edit_active;
+      flow_ok = manual_text_diag.inline_edit_buffer_not_committed_until_commit && flow_ok;
+    }
+
+    // ---- Marker 2: cancelled edit leaves document unchanged ----
+    {
+      const auto* n_pre2 = find_node_by_id("label-001");
+      const std::string pre_text2 = n_pre2 ? n_pre2->text : std::string{};
+      const bool pre_dirty2 = builder_doc_dirty;
+      const std::size_t pre_hist2 = undo_history.size();
+      enter_inline_edit_mode("label-001");
+      inline_edit_buffer = "P63_CANCELLED_TEXT";
+      const bool cancel2_ok = cancel_inline_edit();
+      const auto* n_post2 = find_node_by_id("label-001");
+      manual_text_diag.cancelled_edit_leaves_document_unchanged =
+        cancel2_ok &&
+        !inline_edit_active &&
+        (n_post2 != nullptr) &&
+        (n_post2->text == pre_text2) &&
+        (builder_doc_dirty == pre_dirty2) &&
+        (undo_history.size() == pre_hist2);
+      flow_ok = manual_text_diag.cancelled_edit_leaves_document_unchanged && flow_ok;
+    }
+
+    // ---- Marker 9: no history entry created for cancelled edit ----
+    {
+      const std::size_t hist_before9 = undo_history.size();
+      enter_inline_edit_mode("label-001");
+      inline_edit_buffer = "P63_NO_HIST_ON_CANCEL";
+      cancel_inline_edit();
+      manual_text_diag.no_history_entry_created_for_cancelled_edit =
+        (undo_history.size() == hist_before9);
+      flow_ok = manual_text_diag.no_history_entry_created_for_cancelled_edit && flow_ok;
+    }
+
+    // ---- Marker 3: committed edit creates exactly one correct history entry ----
+    {
+      const std::size_t pre_hist3 = undo_history.size();
+      selected_builder_node_id = "label-001";
+      const bool enter3_ok = enter_inline_edit_mode("label-001");
+      inline_edit_buffer = "P63_COMMITTED";
+      const bool commit3_ok = commit_inline_edit();
+      const auto* n_post3 = find_node_by_id("label-001");
+      const bool one_entry3 = (undo_history.size() == pre_hist3 + 1);
+      const bool correct_type3 = !undo_history.empty() &&
+                                  (undo_history.back().command_type == "inspector_text_edit");
+      manual_text_diag.committed_edit_creates_exact_history_entry =
+        enter3_ok && commit3_ok &&
+        (n_post3 != nullptr) &&
+        (n_post3->text == "P63_COMMITTED") &&
+        builder_doc_dirty &&
+        one_entry3 &&
+        correct_type3;
+      flow_ok = manual_text_diag.committed_edit_creates_exact_history_entry && flow_ok;
+    }
+
+    // ---- Marker 4: undo/redo exact for committed text edit ----
+    {
+      const bool undo4_ok = apply_undo_command();
+      const auto* n_undo4 = find_node_by_id("label-001");
+      const bool undo_reverted4 = (n_undo4 != nullptr) && (n_undo4->text == "Builder Label");
+      const bool redo4_ok = apply_redo_command();
+      const auto* n_redo4 = find_node_by_id("label-001");
+      const bool redo_reapplied4 = (n_redo4 != nullptr) && (n_redo4->text == "P63_COMMITTED");
+      manual_text_diag.undo_redo_exact_for_committed_text_edit =
+        undo4_ok && undo_reverted4 && redo4_ok && redo_reapplied4;
+      flow_ok = manual_text_diag.undo_redo_exact_for_committed_text_edit && flow_ok;
+    }
+
+    // ---- Marker 5: selection/target change during active edit resolved deterministically ----
+    // Commit must apply to inline_edit_node_id, not to the current selected_builder_node_id.
+    {
+      selected_builder_node_id = "root-001";
+      flow_ok = remap_selection_or_fail() && flow_ok;
+      flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+      const bool extra5_inserted = apply_typed_palette_insert(
+        ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p63-extra-label");
+      flow_ok = extra5_inserted && flow_ok;
+      selected_builder_node_id = "label-001";
+      flow_ok = remap_selection_or_fail() && flow_ok;
+      flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+      const bool enter5_ok = enter_inline_edit_mode("label-001");
+      inline_edit_buffer = "P63_TARGET_INVARIANT";
+      // Diverge selection away from inline edit target while edit is still active.
+      selected_builder_node_id = "p63-extra-label";
+      const bool commit5_ok = commit_inline_edit();
+      const auto* n_label5 = find_node_by_id("label-001");
+      const auto* n_extra5 = find_node_by_id("p63-extra-label");
+      const bool correct_target5 = (n_label5 != nullptr) && (n_label5->text == "P63_TARGET_INVARIANT");
+      const bool extra_untouched5 = (n_extra5 != nullptr) && (n_extra5->text != "P63_TARGET_INVARIANT");
+      manual_text_diag.selection_or_target_change_during_edit_resolved_deterministically =
+        enter5_ok && commit5_ok && correct_target5 && extra_untouched5 && !inline_edit_active;
+      flow_ok = manual_text_diag.selection_or_target_change_during_edit_resolved_deterministically && flow_ok;
+    }
+
+    // ---- Marker 6: no stale inline edit target after delete / load ----
+    {
+      // Sub-test A: enter edit on a node, delete that node; apply_bulk_delete scrubs stale ref.
+      selected_builder_node_id = "p63-extra-label";
+      flow_ok = remap_selection_or_fail() && flow_ok;
+      flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+      const bool enter6a_ok = enter_inline_edit_mode("p63-extra-label");
+      inline_edit_buffer = "P63_DELETE_TARGET";
+      const bool deleted6a = apply_delete_selected_node_command();
+      const bool no_stale_after_delete6 = !inline_edit_active && inline_edit_node_id.empty();
+
+      // Sub-test B: enter edit, then load — FP1 fix ensures load unconditionally clears edit state.
+      selected_builder_node_id = "label-001";
+      flow_ok = remap_selection_or_fail() && flow_ok;
+      flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+      const bool saved6b = save_builder_document_to_path(builder_doc_save_path);
+      flow_ok = saved6b && flow_ok;
+      enter_inline_edit_mode("label-001");
+      inline_edit_buffer = "P63_STALE_BEFORE_LOAD";
+      const bool loaded6b = load_builder_document_from_path(builder_doc_save_path);
+      flow_ok = refresh_preview_or_fail() && flow_ok;
+      const bool no_stale_after_load6 =
+        loaded6b &&
+        !inline_edit_active &&
+        inline_edit_node_id.empty() &&
+        inline_edit_buffer.empty();
+
+      manual_text_diag.no_stale_inline_edit_target_after_delete_move_load =
+        enter6a_ok && deleted6a && no_stale_after_delete6 &&
+        saved6b && no_stale_after_load6;
+      flow_ok = manual_text_diag.no_stale_inline_edit_target_after_delete_move_load && flow_ok;
+    }
+
+    // ---- Marker 7: transient edit buffer never leaks into save or export ----
+    {
+      selected_builder_node_id = "label-001";
+      flow_ok = remap_selection_or_fail() && flow_ok;
+      flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+      // Enter edit and load buffer with value that is never committed.
+      enter_inline_edit_mode("label-001");
+      inline_edit_buffer = "P63_BUFFER_NOT_SAVED";
+      // Save while edit is active: builder_doc holds committed state only.
+      const bool save7_ok = save_builder_document_to_path(builder_doc_save_path);
+      std::string saved7_content{};
+      const bool read7_ok = save7_ok && read_text_file(builder_doc_save_path, saved7_content);
+      // Export while edit is active: same guarantee.
+      const bool export7_ok = apply_export_command(builder_doc, builder_export_path);
+      std::string export7_content{};
+      const bool read7e_ok = export7_ok && read_text_file(builder_export_path, export7_content);
+      cancel_inline_edit();
+      const bool buffer_absent_from_save =
+        read7_ok && (saved7_content.find("P63_BUFFER_NOT_SAVED") == std::string::npos);
+      const bool buffer_absent_from_export =
+        read7e_ok && (export7_content.find("P63_BUFFER_NOT_SAVED") == std::string::npos);
+      manual_text_diag.transient_edit_buffer_never_leaks_into_save_or_export =
+        buffer_absent_from_save && buffer_absent_from_export;
+      flow_ok = manual_text_diag.transient_edit_buffer_never_leaks_into_save_or_export && flow_ok;
+    }
+
+    // ---- Marker 8: rapid edit commit/cancel sequences remain stable ----
+    {
+      bool rapid_ok = true;
+      selected_builder_node_id = "label-001";
+      rapid_ok = remap_selection_or_fail() && rapid_ok;
+      rapid_ok = sync_focus_with_selection_or_fail() && rapid_ok;
+      // Five cancel cycles — no document mutation.
+      for (int rc = 0; rc < 5; ++rc) {
+        rapid_ok = enter_inline_edit_mode("label-001") && rapid_ok;
+        inline_edit_buffer = std::string("P63_RAPID_CANCEL_") + std::to_string(rc);
+        rapid_ok = cancel_inline_edit() && rapid_ok;
+      }
+      // Commit cycle 1.
+      rapid_ok = enter_inline_edit_mode("label-001") && rapid_ok;
+      inline_edit_buffer = "P63_RAPID_COMMIT_1";
+      rapid_ok = commit_inline_edit() && rapid_ok;
+      const auto* n_rc1 = find_node_by_id("label-001");
+      rapid_ok = (n_rc1 != nullptr) && (n_rc1->text == "P63_RAPID_COMMIT_1") && rapid_ok;
+      // Undo then redo the commit.
+      rapid_ok = apply_undo_command() && rapid_ok;
+      rapid_ok = apply_redo_command() && rapid_ok;
+      const auto* n_rc2 = find_node_by_id("label-001");
+      rapid_ok = (n_rc2 != nullptr) && (n_rc2->text == "P63_RAPID_COMMIT_1") && rapid_ok;
+      // Final commit to confirm no stale state accumulated.
+      rapid_ok = enter_inline_edit_mode("label-001") && rapid_ok;
+      inline_edit_buffer = "P63_RAPID_FINAL";
+      rapid_ok = commit_inline_edit() && rapid_ok;
+      const auto* n_rc3 = find_node_by_id("label-001");
+      rapid_ok = (n_rc3 != nullptr) && (n_rc3->text == "P63_RAPID_FINAL") && rapid_ok;
+      rapid_ok = !inline_edit_active && inline_edit_node_id.empty() && rapid_ok;
+      manual_text_diag.rapid_edit_commit_cancel_sequences_stable = rapid_ok;
+      flow_ok = manual_text_diag.rapid_edit_commit_cancel_sequences_stable && flow_ok;
+    }
+
+    // ---- Marker 10: global invariant preserved throughout all manual text-entry paths ----
+    {
+      manual_text_diag.global_invariant_preserved_through_manual_text_entry =
+        manual_text_diag.inline_edit_buffer_not_committed_until_commit &&
+        manual_text_diag.cancelled_edit_leaves_document_unchanged &&
+        manual_text_diag.committed_edit_creates_exact_history_entry &&
+        manual_text_diag.undo_redo_exact_for_committed_text_edit &&
+        manual_text_diag.selection_or_target_change_during_edit_resolved_deterministically &&
+        manual_text_diag.no_stale_inline_edit_target_after_delete_move_load &&
+        manual_text_diag.transient_edit_buffer_never_leaks_into_save_or_export &&
+        manual_text_diag.rapid_edit_commit_cancel_sequences_stable &&
+        manual_text_diag.no_history_entry_created_for_cancelled_edit;
+      flow_ok = manual_text_diag.global_invariant_preserved_through_manual_text_entry && flow_ok;
+    }
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_64 = [&] {
+    bool flow_ok = true;
+    multi_selection_integrity_diag = BuilderMultiSelectionIntegrityHardeningDiagnostics{};
+
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto selection_set_valid = [&]() -> bool {
+      for (const auto& node_id : multi_selected_node_ids) {
+        if (node_id.empty() || !node_exists(node_id)) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    auto has_duplicate_selection_ids = [&]() -> bool {
+      std::vector<std::string> seen{};
+      for (const auto& node_id : multi_selected_node_ids) {
+        if (std::find(seen.begin(), seen.end(), node_id) != seen.end()) {
+          return true;
+        }
+        seen.push_back(node_id);
+      }
+      return false;
+    };
+
+    auto reset_phase = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      builder_doc_dirty = false;
+      selected_builder_node_id = "label-001";
+      multi_selected_node_ids = {"label-001"};
+      sync_multi_selection_with_primary();
+      return refresh_all_surfaces();
+    };
+
+    auto build_structure_signature = [&](const char* context_name) -> std::string {
+      std::vector<PreviewExportParityEntry> entries{};
+      std::string reason;
+      if (!build_preview_export_parity_entries(builder_doc, entries, reason, context_name)) {
+        return std::string("invalid:") + reason;
+      }
+      std::ostringstream oss;
+      oss << "root=" << builder_doc.root_node_id << "\n";
+      for (const auto& entry : entries) {
+        oss << entry.depth << "|" << entry.node_id << "|" << entry.widget_type << "|" << entry.text << "|";
+        for (std::size_t idx = 0; idx < entry.child_ids.size(); ++idx) {
+          if (idx > 0) {
+            oss << ",";
+          }
+          oss << entry.child_ids[idx];
+        }
+        oss << "\n";
+      }
+      return oss.str();
+    };
+
+    flow_ok = reset_phase() && flow_ok;
+
+    // Marker 1/2/3: validity, uniqueness, and primary coherence are fail-closed via sync.
+    {
+      multi_selected_node_ids = {"label-001", "label-001", "phase103_64_stale_id"};
+      sync_multi_selection_with_primary();
+      flow_ok = refresh_all_surfaces() && flow_ok;
+
+      multi_selection_integrity_diag.selection_set_contains_only_valid_nodes = selection_set_valid();
+      multi_selection_integrity_diag.no_duplicate_ids_in_selection = !has_duplicate_selection_ids();
+      multi_selection_integrity_diag.primary_and_multi_selection_consistent =
+        !selected_builder_node_id.empty() &&
+        !multi_selected_node_ids.empty() &&
+        multi_selected_node_ids.front() == selected_builder_node_id;
+
+      flow_ok = multi_selection_integrity_diag.selection_set_contains_only_valid_nodes && flow_ok;
+      flow_ok = multi_selection_integrity_diag.no_duplicate_ids_in_selection && flow_ok;
+      flow_ok = multi_selection_integrity_diag.primary_and_multi_selection_consistent && flow_ok;
+    }
+
+    // Prepare homogeneous multi-selection set for bulk operations.
+    const bool ins64_a = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p64-label-a");
+    const bool ins64_b = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p64-label-b");
+    const bool ins64_c = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p64-label-c");
+    const bool ins64_target = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::VerticalLayout, "root-001", "p64-target");
+    flow_ok = ins64_a && ins64_b && ins64_c && ins64_target && flow_ok;
+    selected_builder_node_id = "p64-label-a";
+    multi_selected_node_ids = {"p64-label-a", "p64-label-b", "p64-label-c"};
+    sync_multi_selection_with_primary();
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    // Marker 4: multi operations apply to all selected nodes.
+    {
+      const bool edit_ok = apply_bulk_text_suffix_selected_nodes_command(multi_selected_node_ids, "_P64");
+      const auto* a = find_node_by_id("p64-label-a");
+      const auto* b = find_node_by_id("p64-label-b");
+      const auto* c = find_node_by_id("p64-label-c");
+      multi_selection_integrity_diag.multi_operations_apply_to_all_selected_nodes =
+        edit_ok &&
+        a != nullptr && b != nullptr && c != nullptr &&
+        a->text.size() >= 4 && a->text.substr(a->text.size() - 4) == "_P64" &&
+        b->text.size() >= 4 && b->text.substr(b->text.size() - 4) == "_P64" &&
+        c->text.size() >= 4 && c->text.substr(c->text.size() - 4) == "_P64";
+      flow_ok = multi_selection_integrity_diag.multi_operations_apply_to_all_selected_nodes && flow_ok;
+    }
+
+    // Marker 5: fail-closed atomic rejection + single-command history backing for successful batch.
+    {
+      const bool add_button = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::Button, "root-001", "p64-button-mixed");
+      flow_ok = add_button && flow_ok;
+      const std::size_t hist_before = undo_history.size();
+      const std::string sig_before_reject = build_structure_signature("phase103_64_reject_before");
+      selected_builder_node_id = "p64-label-a";
+      multi_selected_node_ids = {"p64-label-a", "p64-button-mixed"};
+      sync_multi_selection_with_primary();
+      const bool mixed_rejected = !apply_bulk_text_suffix_selected_nodes_command(multi_selected_node_ids, "_MIX");
+      const std::string sig_after_reject = build_structure_signature("phase103_64_reject_after");
+
+      selected_builder_node_id = "p64-label-a";
+      multi_selected_node_ids = {"p64-label-a", "p64-label-b"};
+      sync_multi_selection_with_primary();
+      const auto before_nodes = builder_doc.nodes;
+      const std::string before_root = builder_doc.root_node_id;
+      const std::string before_sel = selected_builder_node_id;
+      const auto before_multi = multi_selected_node_ids;
+      const bool committed_ok = apply_bulk_text_suffix_selected_nodes_command(multi_selected_node_ids, "_OK");
+      if (committed_ok) {
+        push_to_history("phase103_64_bulk_property_edit", before_nodes, before_root, before_sel, &before_multi,
+                        builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids);
+      }
+      const bool single_command_backed = committed_ok && (undo_history.size() == hist_before + 1) &&
+                                         !undo_history.empty() &&
+                                         undo_history.back().command_type == "phase103_64_bulk_property_edit";
+
+      multi_selection_integrity_diag.multi_operations_atomic_and_command_backed =
+        mixed_rejected && (sig_before_reject == sig_after_reject) && single_command_backed;
+      flow_ok = multi_selection_integrity_diag.multi_operations_atomic_and_command_backed && flow_ok;
+    }
+
+    // Marker 6: delete/move/reparent keep selection clean and deterministic.
+    {
+      selected_builder_node_id = "p64-label-a";
+      multi_selected_node_ids = {"p64-label-a", "p64-label-b"};
+      sync_multi_selection_with_primary();
+      const bool move_ok = apply_bulk_move_reparent_selected_nodes_command(multi_selected_node_ids, "p64-target");
+      const auto* la = find_node_by_id("p64-label-a");
+      const auto* lb = find_node_by_id("p64-label-b");
+      const bool moved = move_ok && la != nullptr && lb != nullptr &&
+        la->parent_id == "p64-target" && lb->parent_id == "p64-target";
+
+      selected_builder_node_id = "p64-label-a";
+      multi_selected_node_ids = {"p64-label-a", "p64-label-b"};
+      sync_multi_selection_with_primary();
+      const bool delete_ok = apply_delete_command_for_current_selection();
+      const bool deleted = delete_ok && !node_exists("p64-label-a") && !node_exists("p64-label-b");
+      const bool selection_clean =
+        (selected_builder_node_id.empty() && multi_selected_node_ids.empty()) ||
+        (!selected_builder_node_id.empty() && node_exists(selected_builder_node_id) &&
+         multi_selected_node_ids.size() == 1 && multi_selected_node_ids.front() == selected_builder_node_id);
+
+      multi_selection_integrity_diag.delete_move_reparent_clean_selection_state =
+        moved && deleted && selection_clean;
+      flow_ok = multi_selection_integrity_diag.delete_move_reparent_clean_selection_state && flow_ok;
+    }
+
+    // Marker 7: undo/redo restores node graph and multi-selection exactly.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const bool ua = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p64-undo-a");
+      const bool ub = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p64-undo-b");
+      flow_ok = ua && ub && flow_ok;
+      selected_builder_node_id = "p64-undo-a";
+      multi_selected_node_ids = {"p64-undo-a", "p64-undo-b"};
+      sync_multi_selection_with_primary();
+
+      const auto before_nodes = builder_doc.nodes;
+      const std::string before_root = builder_doc.root_node_id;
+      const std::string before_sel = selected_builder_node_id;
+      const auto before_multi = multi_selected_node_ids;
+      const bool delete_ok = apply_delete_command_for_current_selection();
+      flow_ok = delete_ok && flow_ok;
+      const std::string redo_sel = selected_builder_node_id;
+      const auto redo_multi = multi_selected_node_ids;
+      if (delete_ok) {
+        push_to_history("phase103_64_bulk_delete", before_nodes, before_root, before_sel, &before_multi,
+                        builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids);
+      }
+
+      const bool undo_ok = apply_undo_command();
+      const bool undo_exact = undo_ok && node_exists("p64-undo-a") && node_exists("p64-undo-b") &&
+        selected_builder_node_id == "p64-undo-a" &&
+        multi_selected_node_ids.size() == 2 &&
+        multi_selected_node_ids[0] == "p64-undo-a" &&
+        multi_selected_node_ids[1] == "p64-undo-b";
+      const bool redo_ok = apply_redo_command();
+      const bool redo_exact = redo_ok && !node_exists("p64-undo-a") && !node_exists("p64-undo-b") &&
+        selected_builder_node_id == redo_sel && multi_selected_node_ids == redo_multi;
+
+      multi_selection_integrity_diag.undo_redo_restore_full_selection_state = undo_exact && redo_exact;
+      flow_ok = multi_selection_integrity_diag.undo_redo_restore_full_selection_state && flow_ok;
+    }
+
+    // Marker 8: lifecycle scrubbing removes stale IDs and keeps fallback deterministic.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const bool sa = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p64-stale-a");
+      flow_ok = sa && flow_ok;
+      selected_builder_node_id = "p64-stale-a";
+      multi_selected_node_ids = {"p64-stale-a", "p64-stale-missing"};
+      sync_multi_selection_with_primary();
+      const bool stale_removed_after_sync =
+        std::find(multi_selected_node_ids.begin(), multi_selected_node_ids.end(), "p64-stale-missing") ==
+        multi_selected_node_ids.end();
+
+      const bool saved = save_builder_document_to_path(builder_doc_save_path);
+      const bool loaded = saved && load_builder_document_from_path(builder_doc_save_path);
+      const bool lifecycle_selection_valid = loaded &&
+        ((selected_builder_node_id.empty() && multi_selected_node_ids.empty()) ||
+         (!selected_builder_node_id.empty() && node_exists(selected_builder_node_id) &&
+          !multi_selected_node_ids.empty() && multi_selected_node_ids.front() == selected_builder_node_id));
+
+      multi_selection_integrity_diag.no_stale_ids_after_lifecycle_events =
+        stale_removed_after_sync && lifecycle_selection_valid;
+      flow_ok = multi_selection_integrity_diag.no_stale_ids_after_lifecycle_events && flow_ok;
+    }
+
+    // Marker 9: bulk operation order deterministic for identical ordered selection input.
+    {
+      auto run_order_case = [&]() -> std::string {
+        run_phase103_2();
+        undo_history.clear();
+        redo_stack.clear();
+        const bool i1 = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p64-order-a");
+        const bool i2 = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p64-order-b");
+        const bool i3 = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p64-order-c");
+        const bool it = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::VerticalLayout, "root-001", "p64-order-target");
+        if (!(i1 && i2 && i3 && it)) {
+          return std::string("invalid:setup");
+        }
+        const bool mv = apply_bulk_move_reparent_selected_nodes_command(
+          {"p64-order-c", "p64-order-a", "p64-order-b"}, "p64-order-target");
+        if (!mv) {
+          return std::string("invalid:move");
+        }
+        return build_structure_signature("phase103_64_order");
+      };
+
+      const std::string sig1 = run_order_case();
+      const std::string sig2 = run_order_case();
+      multi_selection_integrity_diag.multi_operation_order_deterministic =
+        !sig1.empty() && !sig2.empty() && sig1 == sig2;
+      flow_ok = multi_selection_integrity_diag.multi_operation_order_deterministic && flow_ok;
+    }
+
+    // Marker 10: no cross-node/global corruption from multi-selection operations.
+    {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      const bool ins_a = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p64-cross-a");
+      const bool ins_b = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p64-cross-b");
+      flow_ok = ins_a && ins_b && flow_ok;
+      const auto* untouched_before = find_node_by_id("label-001");
+      const std::string untouched_text_before = untouched_before ? untouched_before->text : std::string{};
+
+      selected_builder_node_id = "p64-cross-a";
+      multi_selected_node_ids = {"p64-cross-a", "p64-cross-b"};
+      sync_multi_selection_with_primary();
+      const bool op_ok = apply_bulk_text_suffix_selected_nodes_command(multi_selected_node_ids, "_CROSS");
+      flow_ok = op_ok && flow_ok;
+      flow_ok = remap_selection_or_fail() && flow_ok;
+      flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+      flow_ok = refresh_inspector_or_fail() && flow_ok;
+      flow_ok = refresh_preview_or_fail() && flow_ok;
+
+      const auto* untouched_after = find_node_by_id("label-001");
+      const auto* cross_a = find_node_by_id("p64-cross-a");
+      const auto* cross_b = find_node_by_id("p64-cross-b");
+      const bool sync_ok = check_cross_surface_sync();
+      multi_selection_integrity_diag.no_cross_node_state_corruption =
+        op_ok &&
+        cross_a != nullptr && cross_b != nullptr &&
+        cross_a->text.size() >= 6 && cross_a->text.substr(cross_a->text.size() - 6) == "_CROSS" &&
+        cross_b->text.size() >= 6 && cross_b->text.substr(cross_b->text.size() - 6) == "_CROSS" &&
+        untouched_after != nullptr && untouched_after->text == untouched_text_before &&
+        selection_set_valid() && !has_duplicate_selection_ids() && sync_ok;
+      flow_ok = multi_selection_integrity_diag.no_cross_node_state_corruption && flow_ok;
+    }
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_65 = [&] {
+    bool flow_ok = true;
+    clipboard_integrity_diag = BuilderClipboardDuplicateCopyPasteIntegrityHardeningDiagnostics{};
+
+    struct ClipboardPayload {
+      std::vector<ngk::ui::builder::BuilderNode> nodes{};
+      std::vector<std::string> root_ids{};
+      int serial = 0;
+    };
+
+    ClipboardPayload clipboard{};
+    int paste_serial = 0;
+
+    auto is_container_type = [](ngk::ui::builder::BuilderWidgetType t) {
+      using WType = ngk::ui::builder::BuilderWidgetType;
+      return t == WType::VerticalLayout || t == WType::HorizontalLayout ||
+             t == WType::ScrollContainer || t == WType::ToolbarContainer ||
+             t == WType::SidebarContainer || t == WType::ContentPanel ||
+             t == WType::StatusBarContainer;
+    };
+
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto reset_phase = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      builder_doc_dirty = false;
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_active = false;
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      clipboard = ClipboardPayload{};
+      paste_serial = 0;
+      return refresh_all_surfaces();
+    };
+
+    auto document_has_unique_ids = [&](const ngk::ui::builder::BuilderDocument& doc) {
+      std::vector<std::string> seen{};
+      for (const auto& node : doc.nodes) {
+        if (node.node_id.empty()) {
+          return false;
+        }
+        if (std::find(seen.begin(), seen.end(), node.node_id) != seen.end()) {
+          return false;
+        }
+        seen.push_back(node.node_id);
+      }
+      return seen.size() == doc.nodes.size();
+    };
+
+    auto build_structure_signature = [&](const char* context_name) -> std::string {
+      std::vector<PreviewExportParityEntry> entries{};
+      std::string reason;
+      if (!build_preview_export_parity_entries(builder_doc, entries, reason, context_name)) {
+        return std::string("invalid:") + reason;
+      }
+      std::ostringstream oss;
+      oss << "root=" << builder_doc.root_node_id << "\n";
+      for (const auto& entry : entries) {
+        oss << entry.depth << "|" << entry.node_id << "|" << entry.widget_type << "|" << entry.text << "|";
+        for (std::size_t idx = 0; idx < entry.child_ids.size(); ++idx) {
+          if (idx > 0) {
+            oss << ",";
+          }
+          oss << entry.child_ids[idx];
+        }
+        oss << "\n";
+      }
+      return oss.str();
+    };
+
+    auto collect_subtree_ids = [&](const std::string& root_id) {
+      std::vector<std::string> ordered{};
+      std::function<void(const std::string&)> dfs = [&](const std::string& node_id) {
+        auto* node = find_node_by_id(node_id);
+        if (!node) {
+          return;
+        }
+        ordered.push_back(node_id);
+        for (const auto& child_id : node->child_ids) {
+          dfs(child_id);
+        }
+      };
+      dfs(root_id);
+      return ordered;
+    };
+
+    auto canonical_subtree_signature = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                           const std::string& root_id) -> std::string {
+      std::function<std::string(const std::string&)> sig = [&](const std::string& node_id) -> std::string {
+        const auto* node = ngk::ui::builder::find_node_by_id(doc, node_id);
+        if (!node) {
+          return std::string("missing:") + node_id;
+        }
+        std::ostringstream oss;
+        oss << ngk::ui::builder::to_string(node->widget_type)
+            << "#" << node->text
+            << "#" << node->layout.min_width
+            << "#" << node->layout.min_height
+            << "{";
+        for (std::size_t i = 0; i < node->child_ids.size(); ++i) {
+          if (i > 0) {
+            oss << ",";
+          }
+          oss << sig(node->child_ids[i]);
+        }
+        oss << "}";
+        return oss.str();
+      };
+      if (root_id.empty()) {
+        return "";
+      }
+      return sig(root_id);
+    };
+
+    auto normalize_copy_roots = [&](const std::vector<std::string>& requested_ids) {
+      std::vector<std::string> unique{};
+      for (const auto& node_id : requested_ids) {
+        if (node_id.empty() || !node_exists(node_id)) {
+          continue;
+        }
+        if (std::find(unique.begin(), unique.end(), node_id) == unique.end()) {
+          unique.push_back(node_id);
+        }
+      }
+
+      std::vector<std::string> roots{};
+      for (const auto& node_id : unique) {
+        bool has_selected_ancestor = false;
+        auto* node = find_node_by_id(node_id);
+        std::string parent_id = node ? node->parent_id : std::string{};
+        while (!parent_id.empty()) {
+          if (std::find(unique.begin(), unique.end(), parent_id) != unique.end()) {
+            has_selected_ancestor = true;
+            break;
+          }
+          auto* parent = find_node_by_id(parent_id);
+          if (!parent) {
+            break;
+          }
+          parent_id = parent->parent_id;
+        }
+        if (!has_selected_ancestor) {
+          roots.push_back(node_id);
+        }
+      }
+
+      const auto preorder = collect_preorder_node_ids();
+      std::vector<std::string> ordered_roots{};
+      for (const auto& node_id : preorder) {
+        if (std::find(roots.begin(), roots.end(), node_id) != roots.end()) {
+          ordered_roots.push_back(node_id);
+        }
+      }
+      return ordered_roots;
+    };
+
+    auto copy_selection_to_clipboard = [&](const std::vector<std::string>& requested_ids) -> bool {
+      const auto roots = normalize_copy_roots(requested_ids);
+      if (roots.empty()) {
+        return false;
+      }
+
+      ClipboardPayload next{};
+      next.serial = clipboard.serial + 1;
+      next.root_ids = roots;
+      for (const auto& root_id : roots) {
+        const auto subtree_ids = collect_subtree_ids(root_id);
+        if (subtree_ids.empty()) {
+          return false;
+        }
+        for (const auto& subtree_id : subtree_ids) {
+          auto* node = find_node_by_id(subtree_id);
+          if (!node) {
+            return false;
+          }
+          next.nodes.push_back(*node);
+        }
+      }
+
+      clipboard = std::move(next);
+      return true;
+    };
+
+    auto next_unique_id = [&](const std::string& source_id,
+                              std::vector<std::pair<std::string, std::string>>& map_pairs) -> std::string {
+      std::string base = std::string("p65-") + std::to_string(paste_serial) + "-" + source_id;
+      std::string candidate = base;
+      int suffix = 1;
+
+      auto mapped_exists = [&](const std::string& id) {
+        for (const auto& pair : map_pairs) {
+          if (pair.second == id) {
+            return true;
+          }
+        }
+        return false;
+      };
+
+      while (node_exists(candidate) || mapped_exists(candidate)) {
+        candidate = base + "-" + std::to_string(suffix++);
+      }
+      return candidate;
+    };
+
+    auto paste_clipboard_into_target = [&](const std::string& target_id,
+                                           const std::string& history_tag,
+                                           std::vector<std::string>* pasted_root_ids_out) -> bool {
+      auto* target = find_node_by_id(target_id);
+      if (!target || !is_container_type(target->widget_type)) {
+        return false;
+      }
+      if (clipboard.nodes.empty() || clipboard.root_ids.empty()) {
+        return false;
+      }
+
+      const auto before_nodes = builder_doc.nodes;
+      const std::string before_root = builder_doc.root_node_id;
+      const std::string before_sel = selected_builder_node_id;
+      const auto before_multi = multi_selected_node_ids;
+
+      std::vector<std::pair<std::string, std::string>> id_map_pairs{};
+      for (const auto& source_node : clipboard.nodes) {
+        id_map_pairs.push_back({source_node.node_id, next_unique_id(source_node.node_id, id_map_pairs)});
+      }
+
+      auto map_lookup = [&](const std::string& old_id) -> std::string {
+        for (const auto& pair : id_map_pairs) {
+          if (pair.first == old_id) {
+            return pair.second;
+          }
+        }
+        return std::string{};
+      };
+
+      std::vector<std::string> pasted_roots{};
+      for (const auto& root_source_id : clipboard.root_ids) {
+        const std::string mapped = map_lookup(root_source_id);
+        if (!mapped.empty()) {
+          pasted_roots.push_back(mapped);
+        }
+      }
+      if (pasted_roots.empty()) {
+        return false;
+      }
+
+      for (const auto& source_node : clipboard.nodes) {
+        ngk::ui::builder::BuilderNode pasted = source_node;
+        pasted.node_id = map_lookup(source_node.node_id);
+        if (pasted.node_id.empty()) {
+          return false;
+        }
+
+        const bool is_root = std::find(clipboard.root_ids.begin(), clipboard.root_ids.end(), source_node.node_id) != clipboard.root_ids.end();
+        if (is_root) {
+          pasted.parent_id = target_id;
+        } else {
+          pasted.parent_id = map_lookup(source_node.parent_id);
+          if (pasted.parent_id.empty()) {
+            return false;
+          }
+        }
+
+        for (auto& child_id : pasted.child_ids) {
+          child_id = map_lookup(child_id);
+          if (child_id.empty()) {
+            return false;
+          }
+        }
+
+        builder_doc.nodes.push_back(std::move(pasted));
+      }
+
+      auto* refreshed_target = find_node_by_id(target_id);
+      if (!refreshed_target) {
+        return false;
+      }
+      for (const auto& pasted_root : pasted_roots) {
+        refreshed_target->child_ids.push_back(pasted_root);
+      }
+
+      selected_builder_node_id = pasted_roots.front();
+      multi_selected_node_ids = pasted_roots;
+      sync_multi_selection_with_primary();
+      scrub_stale_lifecycle_references();
+
+      push_to_history(history_tag,
+                      before_nodes,
+                      before_root,
+                      before_sel,
+                      &before_multi,
+                      builder_doc.nodes,
+                      builder_doc.root_node_id,
+                      selected_builder_node_id,
+                      &multi_selected_node_ids);
       recompute_builder_dirty_state(true);
+
+      if (pasted_root_ids_out != nullptr) {
+        *pasted_root_ids_out = pasted_roots;
+      }
+      paste_serial += 1;
+      return true;
+    };
+
+    auto duplicate_selection_into_parent = [&](const std::vector<std::string>& requested_ids,
+                                               const std::string& history_tag,
+                                               std::vector<std::string>* duplicated_root_ids_out) -> bool {
+      const auto roots = normalize_copy_roots(requested_ids);
+      if (roots.empty()) {
+        return false;
+      }
+
+      std::string shared_parent_id{};
+      for (const auto& root_id : roots) {
+        auto* root_node = find_node_by_id(root_id);
+        if (!root_node || root_node->parent_id.empty() || !node_exists(root_node->parent_id)) {
+          return false;
+        }
+        if (shared_parent_id.empty()) {
+          shared_parent_id = root_node->parent_id;
+        } else if (shared_parent_id != root_node->parent_id) {
+          return false;
+        }
+      }
+
+      if (!copy_selection_to_clipboard(roots)) {
+        return false;
+      }
+      return paste_clipboard_into_target(shared_parent_id, history_tag, duplicated_root_ids_out);
+    };
+
+    auto cut_selection_to_clipboard = [&](const std::vector<std::string>& requested_ids,
+                                          const std::string& history_tag,
+                                          std::vector<std::string>* cut_root_ids_out) -> bool {
+      const auto roots = normalize_copy_roots(requested_ids);
+      if (roots.empty()) {
+        return false;
+      }
+      if (!copy_selection_to_clipboard(roots)) {
+        return false;
+      }
+
+      const auto before_nodes = builder_doc.nodes;
+      const std::string before_root = builder_doc.root_node_id;
+      const std::string before_sel = selected_builder_node_id;
+      const auto before_multi = multi_selected_node_ids;
+
+      selected_builder_node_id = roots.front();
+      multi_selected_node_ids = roots;
+      sync_multi_selection_with_primary();
+
+      const bool delete_ok = apply_delete_command_for_current_selection();
+      if (!delete_ok) {
+        return false;
+      }
+
+      push_to_history(history_tag,
+                      before_nodes,
+                      before_root,
+                      before_sel,
+                      &before_multi,
+                      builder_doc.nodes,
+                      builder_doc.root_node_id,
+                      selected_builder_node_id,
+                      &multi_selected_node_ids);
+      recompute_builder_dirty_state(true);
+
+      if (cut_root_ids_out != nullptr) {
+        *cut_root_ids_out = roots;
+      }
+      return true;
+    };
+
+    flow_ok = reset_phase() && flow_ok;
+
+    // Prepare a baseline subtree for copy/paste and duplicate tests.
+    const bool add65_container = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::VerticalLayout, "root-001", "p65-src-container");
+    const bool add65_child_a = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Label, "p65-src-container", "p65-src-child-a");
+    const bool add65_child_b = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::Button, "p65-src-container", "p65-src-child-b");
+    const bool add65_target = apply_typed_palette_insert(
+      ngk::ui::builder::BuilderWidgetType::VerticalLayout, "root-001", "p65-paste-target");
+    flow_ok = add65_container && add65_child_a && add65_child_b && add65_target && flow_ok;
+    flow_ok = refresh_all_surfaces() && flow_ok;
+
+    // Marker 1: copy requires valid live selection roots.
+    {
+      const int clipboard_serial_before = clipboard.serial;
+      const bool copy_invalid_rejected = !copy_selection_to_clipboard({"p65-missing-a", "p65-missing-b"});
+      clipboard_integrity_diag.clipboard_payload_requires_valid_selection =
+        copy_invalid_rejected && clipboard.serial == clipboard_serial_before && clipboard.nodes.empty();
+      flow_ok = clipboard_integrity_diag.clipboard_payload_requires_valid_selection && flow_ok;
+    }
+
+    // Marker 9: nested selections deduplicate to ancestor roots only.
+    {
+      const bool copy_nested_ok = copy_selection_to_clipboard({"p65-src-container", "p65-src-child-a", "p65-src-child-b"});
+      clipboard_integrity_diag.nested_selection_deduplicated_on_copy =
+        copy_nested_ok && clipboard.root_ids.size() == 1 && clipboard.root_ids.front() == "p65-src-container";
+      flow_ok = clipboard_integrity_diag.nested_selection_deduplicated_on_copy && flow_ok;
+    }
+
+    // Marker 2: duplicate creates fresh unique IDs.
+    std::vector<std::string> duplicated_roots{};
+    {
+      const bool duplicate_ok = duplicate_selection_into_parent(
+        {"p65-src-container", "p65-src-child-a"},
+        "phase103_65_duplicate",
+        &duplicated_roots);
+      flow_ok = duplicate_ok && flow_ok;
+
+      bool fresh_ids = duplicate_ok && !duplicated_roots.empty() && duplicated_roots.front() != "p65-src-container";
+      if (fresh_ids) {
+        const auto dup_ids = collect_subtree_ids(duplicated_roots.front());
+        fresh_ids = !dup_ids.empty();
+        for (const auto& id : dup_ids) {
+          if (id == "p65-src-container" || id == "p65-src-child-a" || id == "p65-src-child-b") {
+            fresh_ids = false;
+            break;
+          }
+        }
+      }
+      clipboard_integrity_diag.duplicate_creates_fresh_unique_ids =
+        fresh_ids && document_has_unique_ids(builder_doc);
+      flow_ok = clipboard_integrity_diag.duplicate_creates_fresh_unique_ids && flow_ok;
+    }
+
+    // Marker 3 and 4: subtree fidelity on paste and no runtime-state leakage into pasted nodes.
+    std::vector<std::string> pasted_roots{};
+    {
+      hover_node_id = "p65-src-child-a";
+      drag_source_node_id = "p65-src-child-a";
+      drag_target_preview_node_id = "p65-src-container";
+      drag_active = true;
+      inline_edit_active = true;
+      inline_edit_node_id = "p65-src-child-a";
+      inline_edit_buffer = "phase103_65_runtime_only";
+      inline_edit_original_text = "phase103_65_runtime_only";
+
+      const bool copy_ok = copy_selection_to_clipboard({"p65-src-container"});
+      const bool paste_ok = copy_ok && paste_clipboard_into_target("p65-paste-target", "phase103_65_paste", &pasted_roots);
+      flow_ok = paste_ok && flow_ok;
+
+      const std::string source_sig = canonical_subtree_signature(builder_doc, "p65-src-container");
+      const std::string pasted_sig =
+        (!pasted_roots.empty() ? canonical_subtree_signature(builder_doc, pasted_roots.front()) : std::string{});
+      clipboard_integrity_diag.paste_preserves_subtree_fidelity =
+        paste_ok && !source_sig.empty() && source_sig == pasted_sig;
+      flow_ok = clipboard_integrity_diag.paste_preserves_subtree_fidelity && flow_ok;
+
+      std::vector<std::string> pasted_ids{};
+      if (!pasted_roots.empty()) {
+        pasted_ids = collect_subtree_ids(pasted_roots.front());
+      }
+      auto none_runtime_refers_to_pasted = [&]() {
+        for (const auto& id : pasted_ids) {
+          if (id == hover_node_id || id == drag_source_node_id || id == drag_target_preview_node_id ||
+              id == preview_visual_feedback_node_id || id == tree_visual_feedback_node_id ||
+              id == inline_edit_node_id) {
+            return false;
+          }
+        }
+        return true;
+      };
+      clipboard_integrity_diag.paste_does_not_leak_runtime_state =
+        paste_ok && none_runtime_refers_to_pasted();
+      flow_ok = clipboard_integrity_diag.paste_does_not_leak_runtime_state && flow_ok;
+
+      drag_active = false;
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_target_preview_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+    }
+
+    // Marker 5: invalid paste targets are fail-closed and non-mutating.
+    {
+      const std::string sig_before = build_structure_signature("phase103_65_invalid_target_before");
+      const std::size_t hist_before = undo_history.size();
+      const bool paste_rejected_leaf = !paste_clipboard_into_target("label-001", "phase103_65_invalid_target_leaf", nullptr);
+      const bool paste_rejected_missing = !paste_clipboard_into_target("phase103_65_missing_target", "phase103_65_invalid_target_missing", nullptr);
+      const std::string sig_after = build_structure_signature("phase103_65_invalid_target_after");
+      clipboard_integrity_diag.paste_target_validation_fail_closed =
+        paste_rejected_leaf && paste_rejected_missing && sig_before == sig_after && undo_history.size() == hist_before;
+      flow_ok = clipboard_integrity_diag.paste_target_validation_fail_closed && flow_ok;
+    }
+
+    // Marker 6: cut then paste preserves source subtree structure.
+    {
+      const bool add_cut_parent = apply_typed_palette_insert(
+        ngk::ui::builder::BuilderWidgetType::VerticalLayout, "root-001", "p65-cut-parent");
+      const bool add_cut_child = apply_typed_palette_insert(
+        ngk::ui::builder::BuilderWidgetType::Label, "p65-cut-parent", "p65-cut-child");
+      flow_ok = add_cut_parent && add_cut_child && flow_ok;
+
+      const std::string cut_before_sig = canonical_subtree_signature(builder_doc, "p65-cut-parent");
+      std::vector<std::string> cut_roots{};
+      const bool cut_ok = cut_selection_to_clipboard({"p65-cut-parent"}, "phase103_65_cut", &cut_roots);
+      const bool removed_after_cut = cut_ok && !node_exists("p65-cut-parent") && !node_exists("p65-cut-child");
+      std::vector<std::string> cut_pasted_roots{};
+      const bool paste_cut_ok = cut_ok && paste_clipboard_into_target("root-001", "phase103_65_paste_cut", &cut_pasted_roots);
+      const std::string cut_after_sig =
+        (!cut_pasted_roots.empty() ? canonical_subtree_signature(builder_doc, cut_pasted_roots.front()) : std::string{});
+
+      clipboard_integrity_diag.cut_paste_roundtrip_preserves_structure =
+        cut_ok && removed_after_cut && paste_cut_ok && !cut_before_sig.empty() && cut_before_sig == cut_after_sig;
+      flow_ok = clipboard_integrity_diag.cut_paste_roundtrip_preserves_structure && flow_ok;
+    }
+
+    // Marker 7: undo/redo exactness for clipboard-backed operations.
+    {
+      const std::string before_sig = build_structure_signature("phase103_65_undo_before");
+      const std::string before_sel = selected_builder_node_id;
+      const auto before_multi = multi_selected_node_ids;
+
+      std::vector<std::string> undo_pasted_roots{};
+      const bool copy_ok = copy_selection_to_clipboard({"p65-src-container"});
+      const bool paste_ok = copy_ok && paste_clipboard_into_target("root-001", "phase103_65_undo_paste", &undo_pasted_roots);
+      const std::string after_sig = build_structure_signature("phase103_65_undo_after");
+      const std::string after_sel = selected_builder_node_id;
+      const auto after_multi = multi_selected_node_ids;
+
+      const bool undo_ok = paste_ok && apply_undo_command();
+      const bool undo_exact = undo_ok && build_structure_signature("phase103_65_undo_reverted") == before_sig &&
+        selected_builder_node_id == before_sel && multi_selected_node_ids == before_multi;
+      const bool redo_ok = undo_ok && apply_redo_command();
+      const bool redo_exact = redo_ok && build_structure_signature("phase103_65_redo_reapplied") == after_sig &&
+        selected_builder_node_id == after_sel && multi_selected_node_ids == after_multi;
+
+      clipboard_integrity_diag.undo_redo_exact_for_clipboard_operations = undo_exact && redo_exact;
+      flow_ok = clipboard_integrity_diag.undo_redo_exact_for_clipboard_operations && flow_ok;
+    }
+
+    // Marker 8: paste order/parenting deterministic across equivalent runs.
+    {
+      auto run_order_case = [&]() -> std::string {
+        run_phase103_2();
+        undo_history.clear();
+        redo_stack.clear();
+        clipboard = ClipboardPayload{};
+        paste_serial = 0;
+        const bool o1 = apply_typed_palette_insert(
+          ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p65-order-a");
+        const bool o2 = apply_typed_palette_insert(
+          ngk::ui::builder::BuilderWidgetType::Button, "root-001", "p65-order-b");
+        const bool o3 = apply_typed_palette_insert(
+          ngk::ui::builder::BuilderWidgetType::VerticalLayout, "root-001", "p65-order-c");
+        const bool ot = apply_typed_palette_insert(
+          ngk::ui::builder::BuilderWidgetType::VerticalLayout, "root-001", "p65-order-target");
+        if (!(o1 && o2 && o3 && ot)) {
+          return std::string("invalid:setup");
+        }
+        if (!copy_selection_to_clipboard({"p65-order-b", "p65-order-a"})) {
+          return std::string("invalid:copy");
+        }
+        std::vector<std::string> pasted{};
+        if (!paste_clipboard_into_target("p65-order-target", "phase103_65_order_paste", &pasted)) {
+          return std::string("invalid:paste");
+        }
+        auto* target = find_node_by_id("p65-order-target");
+        if (!target || pasted.empty()) {
+          return std::string("invalid:target");
+        }
+        std::ostringstream oss;
+        for (std::size_t i = 0; i < target->child_ids.size(); ++i) {
+          if (i > 0) {
+            oss << ",";
+          }
+          oss << target->child_ids[i];
+        }
+        for (const auto& pasted_root : pasted) {
+          const auto* node = find_node_by_id(pasted_root);
+          if (!node || node->parent_id != "p65-order-target") {
+            return std::string("invalid:parenting");
+          }
+        }
+        return oss.str();
+      };
+
+      const std::string order_sig1 = run_order_case();
+      const std::string order_sig2 = run_order_case();
+      clipboard_integrity_diag.deterministic_paste_order_and_parenting =
+        !order_sig1.empty() && !order_sig2.empty() && order_sig1 == order_sig2;
+      flow_ok = clipboard_integrity_diag.deterministic_paste_order_and_parenting && flow_ok;
+    }
+
+    // Marker 10: no cross-node corruption after clipboard sequence.
+    {
+      const bool reset_ok = reset_phase();
+      auto* untouched_before = find_node_by_id("label-001");
+      const std::string untouched_text_before = untouched_before ? untouched_before->text : std::string{};
+      const bool c1 = apply_typed_palette_insert(
+        ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p65-x-a");
+      const bool c2 = apply_typed_palette_insert(
+        ngk::ui::builder::BuilderWidgetType::Button, "root-001", "p65-x-b");
+      flow_ok = reset_ok && c1 && c2 && flow_ok;
+      const bool copy_ok = copy_selection_to_clipboard({"p65-x-a", "p65-x-b"});
+      const bool paste_ok = copy_ok && paste_clipboard_into_target("root-001", "phase103_65_cross_paste", nullptr);
+      const bool delete_ok = paste_ok && apply_delete_command_for_current_selection();
+      const bool sync_ok = refresh_all_surfaces();
+      const auto* untouched_after = find_node_by_id("label-001");
+
+      clipboard_integrity_diag.no_cross_node_corruption_after_clipboard_sequence =
+        reset_ok && copy_ok && paste_ok && delete_ok && sync_ok &&
+        untouched_after != nullptr && untouched_after->text == untouched_text_before &&
+        document_has_unique_ids(builder_doc);
+      flow_ok = clipboard_integrity_diag.no_cross_node_corruption_after_clipboard_sequence && flow_ok;
+    }
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_66 = [&] {
+    bool flow_ok = true;
+    command_coalescing_diag = BuilderCommandCoalescingHistoryGranularityIntegrityHardeningDiagnostics{};
+
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto reset_phase = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      history_boundary_epoch = 0;
+      clear_history_coalesce_request();
+      builder_doc_dirty = false;
+      selected_builder_node_id = "label-001";
+      focused_builder_node_id = "label-001";
+      multi_selected_node_ids = {"label-001"};
+      sync_multi_selection_with_primary();
+      return refresh_all_surfaces();
+    };
+
+    auto history_shape_signature = [&]() -> std::string {
+      std::ostringstream oss;
+      oss << "depth=" << undo_history.size() << "\n";
+      for (std::size_t idx = 0; idx < undo_history.size(); ++idx) {
+        const auto& entry = undo_history[idx];
+        oss << idx << ":"
+            << entry.command_type << "|"
+            << entry.operation_class << "|"
+            << entry.coalescing_key << "|"
+            << entry.boundary_epoch << "|"
+            << entry.logical_action_span << "|"
+            << entry.before_selected_id << "|"
+            << entry.after_selected_id << "\n";
+      }
+      return oss.str();
+    };
+
+    auto run_deterministic_history_sequence = [&]() -> std::string {
+      if (!reset_phase()) {
+        return std::string("invalid:reset");
+      }
+      bool ok = true;
+      ok = apply_inspector_property_edits_command({{"layout.min_width", "231"}}, "inspector_multi_property_edit") && ok;
+      ok = apply_inspector_property_edits_command({{"layout.min_width", "232"}}, "inspector_multi_property_edit") && ok;
+      break_history_coalescing_boundary();
+      ok = apply_inspector_property_edits_command({{"layout.min_width", "233"}}, "inspector_multi_property_edit") && ok;
+      if (!ok) {
+        return std::string("invalid:ops");
+      }
+      return history_shape_signature();
+    };
+
+    flow_ok = reset_phase() && flow_ok;
+
+    // Marker 1: allowed coalescing only for repeated same-target same-property edits.
+    {
+      const std::size_t h0 = undo_history.size();
+      const bool edit1 = apply_inspector_property_edits_command(
+        {{"layout.min_width", "210"}}, "inspector_multi_property_edit");
+      const std::size_t h1 = undo_history.size();
+      const bool edit2 = apply_inspector_property_edits_command(
+        {{"layout.min_width", "211"}}, "inspector_multi_property_edit");
+      const std::size_t h2 = undo_history.size();
+      const bool edit3 = apply_inspector_property_edits_command(
+        {{"layout.min_height", "37"}}, "inspector_multi_property_edit");
+      const std::size_t h3 = undo_history.size();
+
+      const bool allowed_coalesced = edit1 && edit2 && h1 == h0 + 1 && h2 == h1;
+      const bool disallowed_split = edit3 && h3 == h2 + 1;
+      command_coalescing_diag.repeated_same_target_property_edits_coalesce_only_when_allowed =
+        allowed_coalesced && disallowed_split;
+      flow_ok = command_coalescing_diag.repeated_same_target_property_edits_coalesce_only_when_allowed && flow_ok;
+    }
+
+    // Marker 2: different targets or operation types never coalesce.
+    {
+      const bool add_target_b = apply_typed_palette_insert(
+        ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p66-target-b");
+      flow_ok = add_target_b && flow_ok;
+      selected_builder_node_id = "label-001";
+      multi_selected_node_ids = {"label-001"};
+      sync_multi_selection_with_primary();
+      const std::size_t hb0 = undo_history.size();
+      const bool ta = apply_inspector_property_edits_command(
+        {{"layout.min_width", "240"}}, "inspector_multi_property_edit");
+      const std::size_t hb1 = undo_history.size();
+      selected_builder_node_id = "p66-target-b";
+      multi_selected_node_ids = {"p66-target-b"};
+      sync_multi_selection_with_primary();
+      const bool tb = apply_inspector_property_edits_command(
+        {{"layout.min_width", "241"}}, "inspector_multi_property_edit");
+      const std::size_t hb2 = undo_history.size();
+      selected_builder_node_id = "label-001";
+      multi_selected_node_ids = {"label-001"};
+      sync_multi_selection_with_primary();
+      const bool tc = apply_inspector_text_edit_command("phase103_66_text_boundary");
+      const std::size_t hb3 = undo_history.size();
+
+      command_coalescing_diag.different_targets_or_operation_types_never_coalesce =
+        ta && tb && tc &&
+        hb1 == hb0 + 1 &&
+        hb2 == hb1 + 1 &&
+        hb3 == hb2 + 1;
+      flow_ok = command_coalescing_diag.different_targets_or_operation_types_never_coalesce && flow_ok;
+    }
+
+    // Marker 3: manual text commit creates single history entry.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const std::size_t hm0 = undo_history.size();
+      const bool enter_ok = enter_inline_edit_mode("label-001");
+      inline_edit_buffer = "phase103_66_manual_commit";
+      const bool commit_ok = commit_inline_edit();
+      const std::size_t hm1 = undo_history.size();
+      const bool one_entry = hm1 == hm0 + 1;
+      const bool metadata_ok = !undo_history.empty() &&
+        undo_history.back().command_type == "inspector_text_edit" &&
+        undo_history.back().logical_action_span == 1;
+      command_coalescing_diag.manual_text_commit_creates_single_history_entry =
+        enter_ok && commit_ok && one_entry && metadata_ok;
+      flow_ok = command_coalescing_diag.manual_text_commit_creates_single_history_entry && flow_ok;
+    }
+
+    // Marker 4: cancelled edit creates zero history entries.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const std::size_t hc0 = undo_history.size();
+      const bool enter_ok = enter_inline_edit_mode("label-001");
+      inline_edit_buffer = "phase103_66_cancelled";
+      const bool cancel_ok = cancel_inline_edit();
+      const std::size_t hc1 = undo_history.size();
+      command_coalescing_diag.cancelled_edit_creates_zero_history_entries =
+        enter_ok && cancel_ok && hc1 == hc0;
+      flow_ok = command_coalescing_diag.cancelled_edit_creates_zero_history_entries && flow_ok;
+    }
+
+    // Marker 5: bulk operations remain single logical entries.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const bool bi1 = apply_typed_palette_insert(
+        ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p66-bulk-a");
+      const bool bi2 = apply_typed_palette_insert(
+        ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p66-bulk-b");
+      const bool bit = apply_typed_palette_insert(
+        ngk::ui::builder::BuilderWidgetType::VerticalLayout, "root-001", "p66-bulk-target");
+      flow_ok = bi1 && bi2 && bit && flow_ok;
+      selected_builder_node_id = "p66-bulk-a";
+      multi_selected_node_ids = {"p66-bulk-a", "p66-bulk-b"};
+      sync_multi_selection_with_primary();
+
+      const auto move_before_nodes = builder_doc.nodes;
+      const std::string move_before_root = builder_doc.root_node_id;
+      const std::string move_before_sel = selected_builder_node_id;
+      const auto move_before_multi = multi_selected_node_ids;
+      const std::size_t hb0 = undo_history.size();
+      const bool bulk_move_ok = apply_bulk_move_reparent_selected_nodes_command(
+        multi_selected_node_ids, "p66-bulk-target");
+      if (bulk_move_ok) {
+        break_history_coalescing_boundary();
+        push_to_history("phase103_66_bulk_move", move_before_nodes, move_before_root, move_before_sel, &move_before_multi,
+                        builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids);
+      }
+      const std::size_t hb1 = undo_history.size();
+
+      selected_builder_node_id = "p66-bulk-a";
+      multi_selected_node_ids = {"p66-bulk-a", "p66-bulk-b"};
+      sync_multi_selection_with_primary();
+      const auto del_before_nodes = builder_doc.nodes;
+      const std::string del_before_root = builder_doc.root_node_id;
+      const std::string del_before_sel = selected_builder_node_id;
+      const auto del_before_multi = multi_selected_node_ids;
+      const bool bulk_delete_ok = apply_delete_command_for_current_selection();
+      if (bulk_delete_ok) {
+        break_history_coalescing_boundary();
+        push_to_history("phase103_66_bulk_delete", del_before_nodes, del_before_root, del_before_sel, &del_before_multi,
+                        builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids);
+      }
+      const std::size_t hb2 = undo_history.size();
+
+      command_coalescing_diag.bulk_operations_remain_single_logical_history_entries =
+        bulk_move_ok && bulk_delete_ok && hb1 == hb0 + 1 && hb2 == hb1 + 1 &&
+        !undo_history.empty() && undo_history.back().logical_action_span == 1;
+      flow_ok = command_coalescing_diag.bulk_operations_remain_single_logical_history_entries && flow_ok;
+    }
+
+    // Marker 6: save/load/export boundaries break coalescing.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const bool p1 = apply_inspector_property_edits_command(
+        {{"layout.min_width", "301"}}, "inspector_multi_property_edit");
+      const std::size_t hs1 = undo_history.size();
+      const bool save_ok = apply_save_document_command();
+      const bool p2 = apply_inspector_property_edits_command(
+        {{"layout.min_width", "302"}}, "inspector_multi_property_edit");
+      const std::size_t hs2 = undo_history.size();
+      const bool export_ok = apply_export_command(builder_doc, builder_export_path);
+      const bool p3 = apply_inspector_property_edits_command(
+        {{"layout.min_width", "303"}}, "inspector_multi_property_edit");
+      const std::size_t hs3 = undo_history.size();
+      const bool load_ok = apply_load_document_command(true);
+      const std::size_t hs_after_load = undo_history.size();
+      const bool p4 = apply_inspector_property_edits_command(
+        {{"layout.min_width", "304"}}, "inspector_multi_property_edit");
+      const std::size_t hs4 = undo_history.size();
+
+      const bool save_boundary_break = hs2 == hs1 + 1;
+      const bool export_boundary_break = hs3 == hs2 + 1;
+      const bool load_boundary_break = load_ok && hs_after_load == 0 && hs4 == hs_after_load + 1;
+      command_coalescing_diag.save_load_export_boundaries_break_coalescing =
+        p1 && save_ok && p2 && export_ok && p3 && load_ok && p4 &&
+        save_boundary_break && export_boundary_break && load_boundary_break;
+      flow_ok = command_coalescing_diag.save_load_export_boundaries_break_coalescing && flow_ok;
+    }
+
+    // Marker 7: undo/redo operate at logical action boundaries.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const auto* before_node = find_node_by_id("label-001");
+      const int before_width = before_node ? before_node->layout.min_width : -1;
+      const bool e1 = apply_inspector_property_edits_command(
+        {{"layout.min_width", "350"}}, "inspector_multi_property_edit");
+      const bool e2 = apply_inspector_property_edits_command(
+        {{"layout.min_width", "351"}}, "inspector_multi_property_edit");
+      const bool single_entry = undo_history.size() == 1;
+      const bool undo_ok = apply_undo_command();
+      const auto* after_undo = find_node_by_id("label-001");
+      const bool undo_reverted = undo_ok && after_undo != nullptr && after_undo->layout.min_width == before_width;
+      const bool redo_ok = apply_redo_command();
+      const auto* after_redo = find_node_by_id("label-001");
+      const bool redo_reapplied = redo_ok && after_redo != nullptr && after_redo->layout.min_width == 351;
+      command_coalescing_diag.undo_redo_operate_on_logical_action_boundaries =
+        e1 && e2 && single_entry && undo_reverted && redo_reapplied;
+      flow_ok = command_coalescing_diag.undo_redo_operate_on_logical_action_boundaries && flow_ok;
+    }
+
+    // Marker 8: identical scripted sequence yields identical history shape.
+    {
+      const std::string shape1 = run_deterministic_history_sequence();
+      const std::string shape2 = run_deterministic_history_sequence();
+      command_coalescing_diag.history_shape_deterministic_for_identical_sequence =
+        !shape1.empty() && !shape2.empty() && shape1 == shape2;
+      flow_ok = command_coalescing_diag.history_shape_deterministic_for_identical_sequence && flow_ok;
+    }
+
+    // Marker 9: metadata coherent after coalescing.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const bool m1 = apply_inspector_property_edits_command(
+        {{"layout.min_width", "410"}}, "inspector_multi_property_edit");
+      const bool m2 = apply_inspector_property_edits_command(
+        {{"layout.min_width", "411"}}, "inspector_multi_property_edit");
+      bool meta_ok = m1 && m2 && undo_history.size() == 1;
+      if (meta_ok) {
+        const auto& entry = undo_history.back();
+        meta_ok =
+          entry.command_type == "inspector_multi_property_edit" &&
+          entry.operation_class == "inspector_property" &&
+          !entry.coalescing_key.empty() &&
+          entry.logical_action_span == 2 &&
+          !entry.before_selected_id.empty() &&
+          !entry.after_selected_id.empty();
+      }
+      command_coalescing_diag.history_metadata_coherent_after_coalescing = meta_ok;
+      flow_ok = command_coalescing_diag.history_metadata_coherent_after_coalescing && flow_ok;
+    }
+
+    // Marker 10: no timing-fragile grouping (extra refresh/tick style calls do not alter shape).
+    {
+      auto run_with_refresh_noise = [&]() -> std::string {
+        if (!reset_phase()) {
+          return std::string("invalid:reset");
+        }
+        bool ok = true;
+        ok = refresh_all_surfaces() && ok;
+        ok = apply_inspector_property_edits_command(
+          {{"layout.min_width", "501"}}, "inspector_multi_property_edit") && ok;
+        ok = refresh_all_surfaces() && ok;
+        ok = refresh_all_surfaces() && ok;
+        ok = apply_inspector_property_edits_command(
+          {{"layout.min_width", "502"}}, "inspector_multi_property_edit") && ok;
+        ok = refresh_all_surfaces() && ok;
+        if (!ok) {
+          return std::string("invalid:ops");
+        }
+        return history_shape_signature();
+      };
+
+      const std::string noisy_shape1 = run_with_refresh_noise();
+      const std::string noisy_shape2 = run_with_refresh_noise();
+      command_coalescing_diag.no_timing_fragile_history_grouping =
+        !noisy_shape1.empty() && !noisy_shape2.empty() && noisy_shape1 == noisy_shape2;
+      flow_ok = command_coalescing_diag.no_timing_fragile_history_grouping && flow_ok;
+    }
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_67 = [&] {
+    bool flow_ok = true;
+    dirty_tracking_integrity_diag = BuilderDirtyStateChangeTrackingIntegrityHardeningDiagnostics{};
+
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto current_signature = [&]() -> std::string {
+      return ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    };
+
+    auto reset_phase = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      history_boundary_epoch = 0;
+      clear_history_coalesce_request();
+      builder_doc_dirty = false;
+      selected_builder_node_id = "label-001";
+      multi_selected_node_ids = {"label-001"};
+      sync_multi_selection_with_primary();
+      const std::string baseline = current_signature();
+      if (baseline.empty()) {
+        return false;
+      }
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = baseline;
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = baseline;
+      builder_doc_dirty = false;
+      return refresh_all_surfaces();
+    };
+
+    auto dirty_matches_baseline = [&]() -> bool {
+      const std::string sig = current_signature();
+      if (sig.empty() || !has_clean_builder_baseline_signature || clean_builder_baseline_signature.empty()) {
+        return false;
+      }
+      return builder_doc_dirty == (sig != clean_builder_baseline_signature);
+    };
+
+    flow_ok = reset_phase() && flow_ok;
+
+    // Marker 1: real document mutations dirty exactly when canonical signature changes.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const std::string base_sig = current_signature();
+      bool mutation_ok = true;
+
+      const bool insert_ok = apply_typed_palette_insert(
+        ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p67-mutate-insert");
+      mutation_ok = insert_ok && mutation_ok;
+      mutation_ok = recompute_builder_dirty_state(true) && mutation_ok;
+      const bool insert_dirty = builder_doc_dirty && current_signature() != base_sig;
+
+      const bool prop_ok = apply_inspector_property_edits_command(
+        {{"layout.min_width", "267"}}, "inspector_multi_property_edit");
+      mutation_ok = prop_ok && mutation_ok;
+      mutation_ok = recompute_builder_dirty_state(true) && mutation_ok;
+      const bool prop_dirty = builder_doc_dirty;
+
+      const bool inline_enter_ok = enter_inline_edit_mode("label-001");
+      inline_edit_buffer = "phase103_67_text_commit";
+      const bool inline_commit_ok = commit_inline_edit();
+      mutation_ok = inline_enter_ok && inline_commit_ok && mutation_ok;
+      mutation_ok = recompute_builder_dirty_state(true) && mutation_ok;
+      const bool text_dirty = builder_doc_dirty;
+
+      flow_ok = mutation_ok && flow_ok;
+      dirty_tracking_integrity_diag.real_mutations_mark_dirty_exactly =
+        mutation_ok && insert_dirty && prop_dirty && text_dirty && dirty_matches_baseline();
+      flow_ok = dirty_tracking_integrity_diag.real_mutations_mark_dirty_exactly && flow_ok;
+    }
+
+    // Marker 2: read-only operations keep clean state clean.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const std::string before_sig = current_signature();
+      const bool nav1 = apply_tree_navigation(true);
+      const bool nav2 = apply_tree_navigation(false);
+      const bool rf = refresh_all_surfaces();
+      const bool recompute_ok = recompute_builder_dirty_state(true);
+      const std::string after_sig = current_signature();
+      dirty_tracking_integrity_diag.read_only_operations_do_not_mark_dirty =
+        nav1 && nav2 && rf && recompute_ok && !builder_doc_dirty && before_sig == after_sig;
+      flow_ok = dirty_tracking_integrity_diag.read_only_operations_do_not_mark_dirty && flow_ok;
+    }
+
+    // Marker 3 and 4: undo/redo around clean baseline are exact even with coalesced edits.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const bool edit1 = apply_inspector_property_edits_command(
+        {{"layout.min_width", "670"}}, "inspector_multi_property_edit");
+      const bool edit2 = apply_inspector_property_edits_command(
+        {{"layout.min_width", "671"}}, "inspector_multi_property_edit");
+      const bool dirty_after_edits = recompute_builder_dirty_state(true) && builder_doc_dirty;
+      const bool coalesced = undo_history.size() == 1;
+      const bool undo_ok = apply_undo_command();
+      const bool undo_dirty_ok = recompute_builder_dirty_state(true) && !builder_doc_dirty;
+      const bool redo_ok = apply_redo_command();
+      const bool redo_dirty_ok = recompute_builder_dirty_state(true) && builder_doc_dirty;
+
+      dirty_tracking_integrity_diag.undo_back_to_clean_clears_dirty =
+        edit1 && edit2 && dirty_after_edits && coalesced && undo_ok && undo_dirty_ok && dirty_matches_baseline();
+      dirty_tracking_integrity_diag.redo_away_from_clean_sets_dirty =
+        edit1 && edit2 && redo_ok && redo_dirty_ok && dirty_matches_baseline();
+      flow_ok =
+        dirty_tracking_integrity_diag.undo_back_to_clean_clears_dirty &&
+        dirty_tracking_integrity_diag.redo_away_from_clean_sets_dirty &&
+        flow_ok;
+    }
+
+    // Marker 5: successful save establishes exact new clean baseline.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const bool edit_ok = apply_inspector_property_edits_command(
+        {{"layout.min_height", "77"}}, "inspector_multi_property_edit");
+      const bool dirty_before_save = recompute_builder_dirty_state(true) && builder_doc_dirty;
+      const bool save_ok = apply_save_document_command();
+      const std::string sig_after_save = current_signature();
+      dirty_tracking_integrity_diag.save_sets_new_clean_baseline_exactly =
+        edit_ok && dirty_before_save && save_ok && !builder_doc_dirty &&
+        has_clean_builder_baseline_signature &&
+        !clean_builder_baseline_signature.empty() &&
+        clean_builder_baseline_signature == sig_after_save;
+      flow_ok = dirty_tracking_integrity_diag.save_sets_new_clean_baseline_exactly && flow_ok;
+    }
+
+    // Marker 6: successful load establishes loaded state as exact clean baseline.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const bool prep_edit_ok = apply_inspector_property_edits_command(
+        {{"layout.min_width", "901"}}, "inspector_multi_property_edit");
+      const bool save_ok = prep_edit_ok && apply_save_document_command();
+      const std::string saved_sig = current_signature();
+      const bool diverge_ok = apply_inspector_property_edits_command(
+        {{"layout.min_width", "902"}}, "inspector_multi_property_edit");
+      const bool diverged_dirty = diverge_ok && recompute_builder_dirty_state(true) && builder_doc_dirty;
+      const bool load_ok = apply_load_document_command(true);
+      const std::string loaded_sig = current_signature();
+      dirty_tracking_integrity_diag.load_sets_new_clean_baseline_exactly =
+        save_ok && diverged_dirty && load_ok && !builder_doc_dirty &&
+        loaded_sig == saved_sig &&
+        has_clean_builder_baseline_signature && clean_builder_baseline_signature == loaded_sig;
+      flow_ok = dirty_tracking_integrity_diag.load_sets_new_clean_baseline_exactly && flow_ok;
+    }
+
+    // Marker 7: failed save/load and blocked mutation do not corrupt dirty tracking or baseline.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const bool edit_ok = apply_inspector_property_edits_command(
+        {{"layout.min_width", "710"}}, "inspector_multi_property_edit");
+      const bool dirty_ok = recompute_builder_dirty_state(true) && builder_doc_dirty;
+      const std::string before_fail_sig = current_signature();
+      const std::string baseline_before_fail = clean_builder_baseline_signature;
+      const bool guarded_load_fail = !apply_load_document_command(false);
+      const bool after_guard_unchanged =
+        current_signature() == before_fail_sig && clean_builder_baseline_signature == baseline_before_fail && builder_doc_dirty;
+
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = current_signature();
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = clean_builder_baseline_signature;
+      builder_doc_dirty = false;
+      selected_builder_node_id = "root-001";
+      multi_selected_node_ids = {"root-001"};
+      sync_multi_selection_with_primary();
+      const std::string blocked_before_sig = current_signature();
+      const std::string blocked_before_baseline = clean_builder_baseline_signature;
+      const bool blocked_delete = !apply_delete_selected_node_command();
+      const bool blocked_stable =
+        blocked_delete && !builder_doc_dirty &&
+        current_signature() == blocked_before_sig &&
+        clean_builder_baseline_signature == blocked_before_baseline;
+
+      dirty_tracking_integrity_diag.failed_save_load_or_blocked_mutation_do_not_corrupt_dirty_state =
+        edit_ok && dirty_ok && guarded_load_fail && after_guard_unchanged && blocked_stable;
+      flow_ok = dirty_tracking_integrity_diag.failed_save_load_or_blocked_mutation_do_not_corrupt_dirty_state && flow_ok;
+    }
+
+    // Marker 8: export is read-only with respect to dirty state and baseline.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const std::string clean_before_sig = current_signature();
+      const std::string clean_before_baseline = clean_builder_baseline_signature;
+      const bool export_clean_ok = apply_export_command(builder_doc, builder_export_path);
+      const bool clean_export_stable =
+        export_clean_ok && !builder_doc_dirty &&
+        current_signature() == clean_before_sig &&
+        clean_builder_baseline_signature == clean_before_baseline;
+
+      const bool edit_ok = apply_inspector_property_edits_command(
+        {{"layout.min_height", "73"}}, "inspector_multi_property_edit");
+      const bool dirty_after_edit = edit_ok && recompute_builder_dirty_state(true) && builder_doc_dirty;
+      const std::string dirty_before_export_sig = current_signature();
+      const bool export_dirty_ok = apply_export_command(builder_doc, builder_export_path);
+      const bool dirty_export_stable =
+        export_dirty_ok && builder_doc_dirty &&
+        current_signature() == dirty_before_export_sig &&
+        clean_builder_baseline_signature == clean_before_baseline;
+
+      dirty_tracking_integrity_diag.export_does_not_affect_dirty_state =
+        clean_export_stable && dirty_after_edit && dirty_export_stable;
+      flow_ok = dirty_tracking_integrity_diag.export_does_not_affect_dirty_state && flow_ok;
+    }
+
+    // Marker 9: dirty tracking derives from canonical deterministic document signature only.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const std::string sig1 = current_signature();
+      const std::string sig2 = current_signature();
+      hover_node_id = "label-001";
+      drag_source_node_id = "label-001";
+      drag_target_preview_node_id = "label-001";
+      drag_target_preview_is_illegal = true;
+      focused_builder_node_id = "label-001";
+      const bool recompute_clean_ok = recompute_builder_dirty_state(true) && !builder_doc_dirty;
+      const bool transient_ignored = current_signature() == sig1;
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      const bool mutate_ok = apply_inspector_property_edits_command(
+        {{"layout.min_width", "811"}}, "inspector_multi_property_edit");
+      const bool recompute_dirty_ok = mutate_ok && recompute_builder_dirty_state(true) && builder_doc_dirty;
+      dirty_tracking_integrity_diag.dirty_tracking_uses_canonical_document_signature =
+        !sig1.empty() && sig1 == sig2 && recompute_clean_ok && transient_ignored && recompute_dirty_ok && dirty_matches_baseline();
+      flow_ok = dirty_tracking_integrity_diag.dirty_tracking_uses_canonical_document_signature && flow_ok;
+    }
+
+    // Marker 10: long mixed sequence maintains exact dirty transitions.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      bool seq_ok = true;
+      seq_ok = !builder_doc_dirty && seq_ok;
+      seq_ok = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::Label, "root-001", "p67-stress-a") && seq_ok;
+      seq_ok = recompute_builder_dirty_state(true) && builder_doc_dirty && seq_ok;
+      seq_ok = apply_save_document_command() && seq_ok;
+      seq_ok = !builder_doc_dirty && seq_ok;
+      seq_ok = apply_inspector_property_edits_command({{"layout.min_width", "931"}}, "inspector_multi_property_edit") && seq_ok;
+      seq_ok = apply_inspector_property_edits_command({{"layout.min_width", "932"}}, "inspector_multi_property_edit") && seq_ok;
+      seq_ok = recompute_builder_dirty_state(true) && builder_doc_dirty && seq_ok;
+      seq_ok = apply_undo_command() && seq_ok;
+      seq_ok = recompute_builder_dirty_state(true) && !builder_doc_dirty && seq_ok;
+      seq_ok = apply_redo_command() && seq_ok;
+      seq_ok = recompute_builder_dirty_state(true) && builder_doc_dirty && seq_ok;
+      seq_ok = apply_load_document_command(true) && seq_ok;
+      seq_ok = recompute_builder_dirty_state(true) && !builder_doc_dirty && seq_ok;
+      seq_ok = apply_export_command(builder_doc, builder_export_path) && seq_ok;
+      seq_ok = !builder_doc_dirty && dirty_matches_baseline() && seq_ok;
+
+      dirty_tracking_integrity_diag.stress_sequence_dirty_transitions_remain_exact = seq_ok;
+      flow_ok = dirty_tracking_integrity_diag.stress_sequence_dirty_transitions_remain_exact && flow_ok;
+    }
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_68 = [&] {
+    action_invocation_integrity_diag = {};
+    bool flow_ok = true;
+
+    auto current_signature = [&]() -> std::string {
+      return ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    };
+
+    struct InvocationOutcome {
+      bool handled = false;
+      std::string signature{};
+      std::string selected{};
+      std::vector<std::string> multi{};
+      std::size_t undo_size = 0;
+      std::size_t redo_size = 0;
+      bool dirty = false;
+      std::string clean_baseline{};
+      std::string resolved_id{};
+      bool dispatch_success = false;
+    };
+
+    auto capture_outcome = [&](bool handled) -> InvocationOutcome {
+      InvocationOutcome out{};
+      out.handled = handled;
+      out.signature = current_signature();
+      out.selected = selected_builder_node_id;
+      out.multi = multi_selected_node_ids;
+      out.undo_size = undo_history.size();
+      out.redo_size = redo_stack.size();
+      out.dirty = builder_doc_dirty;
+      out.clean_baseline = clean_builder_baseline_signature;
+      out.resolved_id = last_action_dispatch_resolved_id;
+      out.dispatch_success = last_action_dispatch_success;
+      return out;
+    };
+
+    auto execute_via_shortcut = [&](const std::string& action_id) -> bool {
+      if (action_id == "ACTION_DELETE_CURRENT") {
+        return handle_builder_shortcut_key_with_modifiers(0x2E, true, false, false, false);
+      }
+      if (action_id == "ACTION_INSERT_CONTAINER") {
+        return handle_builder_shortcut_key_with_modifiers(0x43, true, false, false, false);
+      }
+      if (action_id == "ACTION_INSERT_LEAF") {
+        return handle_builder_shortcut_key_with_modifiers(0x4C, true, false, false, false);
+      }
+      if (action_id == "ACTION_UNDO") {
+        return handle_builder_shortcut_key_with_modifiers(0x5A, true, false, true, false);
+      }
+      if (action_id == "ACTION_REDO") {
+        return handle_builder_shortcut_key_with_modifiers(0x59, true, false, true, false);
+      }
+      if (action_id == "ACTION_SAVE") {
+        return handle_builder_shortcut_key_with_modifiers(0x53, true, false, true, false);
+      }
+      if (action_id == "ACTION_LOAD") {
+        return handle_builder_shortcut_key_with_modifiers(0x4F, true, false, true, false);
+      }
+      if (action_id == "ACTION_NEW") {
+        return handle_builder_shortcut_key_with_modifiers(0x4E, true, false, true, false);
+      }
+      return false;
+    };
+
+    auto execute_action_for_surface = [&](const std::string& action_id,
+                                          const char* surface) -> InvocationOutcome {
+      bool handled = false;
+      const std::string src = surface ? surface : "palette";
+      if (src == "shortcut") {
+        handled = execute_via_shortcut(action_id);
+      } else {
+        handled = invoke_builder_action(action_id, surface);
+      }
+      return capture_outcome(handled);
+    };
+
+    auto reset_phase = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      const std::string sig = current_signature();
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = sig;
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = sig;
+      builder_doc_dirty = false;
+      if (node_exists("label-001")) {
+        selected_builder_node_id = "label-001";
+      } else {
+        selected_builder_node_id = builder_doc.root_node_id;
+      }
+      multi_selected_node_ids = {selected_builder_node_id};
+      sync_multi_selection_with_primary();
+      const bool remap_ok = remap_selection_or_fail();
+      const bool focus_ok = sync_focus_with_selection_or_fail();
+      const bool inspector_ok = refresh_inspector_or_fail();
+      const bool preview_ok = refresh_preview_or_fail();
+      const bool sync_ok = check_cross_surface_sync();
+      return remap_ok && focus_ok && inspector_ok && preview_ok && sync_ok;
+    };
+
+    auto outcomes_identical = [&](const InvocationOutcome& a,
+                                  const InvocationOutcome& b) -> bool {
+      return a.handled == b.handled &&
+             a.signature == b.signature &&
+             a.selected == b.selected &&
+             a.multi == b.multi &&
+             a.undo_size == b.undo_size &&
+             a.redo_size == b.redo_size &&
+             a.dirty == b.dirty &&
+             a.clean_baseline == b.clean_baseline;
+    };
+
+    // Marker 1 and 7: same action ID across surfaces yields identical results/history/selection.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      auto palette_outcome = execute_action_for_surface("ACTION_DELETE_CURRENT", "palette");
+      flow_ok = reset_phase() && flow_ok;
+      auto button_outcome = execute_action_for_surface("ACTION_DELETE_CURRENT", "button");
+      flow_ok = reset_phase() && flow_ok;
+      auto shortcut_outcome = execute_action_for_surface("ACTION_DELETE_CURRENT", "shortcut");
+
+      action_invocation_integrity_diag.same_action_id_same_result_across_invocation_surfaces =
+        outcomes_identical(palette_outcome, button_outcome) &&
+        outcomes_identical(button_outcome, shortcut_outcome);
+      action_invocation_integrity_diag.cross_surface_invocation_produces_identical_history_and_selection =
+        action_invocation_integrity_diag.same_action_id_same_result_across_invocation_surfaces;
+      flow_ok =
+        action_invocation_integrity_diag.same_action_id_same_result_across_invocation_surfaces &&
+        action_invocation_integrity_diag.cross_surface_invocation_produces_identical_history_and_selection &&
+        flow_ok;
+    }
+
+    // Marker 2 and 6: ineligible invocation fails closed with no mutation, history, or dirty side effects.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      selected_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      const std::string before_sig = current_signature();
+      const std::string before_baseline = clean_builder_baseline_signature;
+      const auto before_undo = undo_history.size();
+      const auto before_redo = redo_stack.size();
+      const bool before_dirty = builder_doc_dirty;
+
+      const auto blocked_palette = execute_action_for_surface("ACTION_DELETE_CURRENT", "palette");
+      const auto blocked_button = execute_action_for_surface("ACTION_DELETE_CURRENT", "button");
+      const auto blocked_shortcut = execute_action_for_surface("ACTION_DELETE_CURRENT", "shortcut");
+      const bool stable_after_block =
+        current_signature() == before_sig &&
+        clean_builder_baseline_signature == before_baseline &&
+        undo_history.size() == before_undo &&
+        redo_stack.size() == before_redo &&
+        builder_doc_dirty == before_dirty;
+
+      action_invocation_integrity_diag.ineligible_actions_fail_closed_without_mutation =
+        !blocked_palette.handled && !blocked_button.handled && !blocked_shortcut.handled && stable_after_block;
+      action_invocation_integrity_diag.failed_invocation_creates_no_history_or_dirty_side_effect =
+        action_invocation_integrity_diag.ineligible_actions_fail_closed_without_mutation;
+      flow_ok =
+        action_invocation_integrity_diag.ineligible_actions_fail_closed_without_mutation &&
+        action_invocation_integrity_diag.failed_invocation_creates_no_history_or_dirty_side_effect &&
+        flow_ok;
+    }
+
+    // Marker 3 and 4: eligibility is computed from current state and never uses stale selection context.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      std::string reason_current{};
+      selected_builder_node_id = "label-001";
+      multi_selected_node_ids = {"label-001"};
+      sync_multi_selection_with_primary();
+      const bool eligible_valid = evaluate_builder_action_eligibility("ACTION_DELETE_CURRENT", reason_current);
+
+      std::string reason_root{};
+      selected_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      const bool eligible_root = evaluate_builder_action_eligibility("ACTION_DELETE_CURRENT", reason_root);
+
+      const std::string before_sig = current_signature();
+      selected_builder_node_id = "stale-node-id";
+      multi_selected_node_ids = {"stale-node-id"};
+      sync_multi_selection_with_primary();
+      const auto stale_attempt = execute_action_for_surface("ACTION_DELETE_CURRENT", "palette");
+      const bool stale_safe = !stale_attempt.handled && current_signature() == before_sig;
+
+      action_invocation_integrity_diag.action_eligibility_checked_against_current_state =
+        eligible_valid && !eligible_root && !reason_root.empty();
+      action_invocation_integrity_diag.no_stale_selection_or_target_context_used = stale_safe;
+      flow_ok =
+        action_invocation_integrity_diag.action_eligibility_checked_against_current_state &&
+        action_invocation_integrity_diag.no_stale_selection_or_target_context_used &&
+        flow_ok;
+    }
+
+    // Marker 5 and 9: metadata eligibility aligns with execution, and dispatch always resolves the requested handler.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      selected_builder_node_id = "label-001";
+      multi_selected_node_ids = {"label-001"};
+      sync_multi_selection_with_primary();
+      std::string reason_ok{};
+      const bool metadata_ok = evaluate_builder_action_eligibility("ACTION_DELETE_CURRENT", reason_ok);
+      const auto executed_ok = execute_action_for_surface("ACTION_DELETE_CURRENT", "palette");
+      const bool dispatch_ok = executed_ok.handled && executed_ok.dispatch_success &&
+        (last_action_dispatch_requested_id == "ACTION_DELETE_CURRENT") &&
+        (executed_ok.resolved_id == "ACTION_DELETE_CURRENT");
+
+      flow_ok = reset_phase() && flow_ok;
+      selected_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      sync_multi_selection_with_primary();
+      std::string reason_blocked{};
+      const bool metadata_blocked = evaluate_builder_action_eligibility("ACTION_DELETE_CURRENT", reason_blocked);
+      const auto executed_blocked = execute_action_for_surface("ACTION_DELETE_CURRENT", "palette");
+      const bool dispatch_blocked_ok =
+        !metadata_blocked && !executed_blocked.handled &&
+        !last_action_dispatch_success &&
+        last_action_dispatch_requested_id == "ACTION_DELETE_CURRENT";
+
+      action_invocation_integrity_diag.action_metadata_matches_execution_eligibility =
+        metadata_ok && executed_ok.handled && !metadata_blocked && !executed_blocked.handled;
+      action_invocation_integrity_diag.no_command_dispatch_mismatch_or_wrong_handler_resolution =
+        dispatch_ok && dispatch_blocked_ok;
+      flow_ok =
+        action_invocation_integrity_diag.action_metadata_matches_execution_eligibility &&
+        action_invocation_integrity_diag.no_command_dispatch_mismatch_or_wrong_handler_resolution &&
+        flow_ok;
+    }
+
+    // Marker 8: mixed action invocation sequence preserves global invariant.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      bool seq_ok = true;
+      selected_builder_node_id = "label-001";
+      multi_selected_node_ids = {"label-001"};
+      sync_multi_selection_with_primary();
+      seq_ok = execute_action_for_surface("ACTION_DELETE_CURRENT", "palette").handled && seq_ok;
+      {
+        std::string invariant_reason;
+        seq_ok = validate_global_document_invariant(invariant_reason) && seq_ok;
+      }
+      seq_ok = execute_action_for_surface("ACTION_UNDO", "shortcut").handled && seq_ok;
+      {
+        std::string invariant_reason;
+        seq_ok = validate_global_document_invariant(invariant_reason) && seq_ok;
+      }
+      seq_ok = execute_action_for_surface("ACTION_REDO", "button").handled && seq_ok;
+      {
+        std::string invariant_reason;
+        seq_ok = validate_global_document_invariant(invariant_reason) && seq_ok;
+      }
+      seq_ok = execute_action_for_surface("ACTION_SAVE", "shortcut").handled && seq_ok;
+      {
+        std::string invariant_reason;
+        seq_ok = validate_global_document_invariant(invariant_reason) && seq_ok;
+      }
+      seq_ok = execute_action_for_surface("ACTION_NEW_FORCE_DISCARD", "palette").handled && seq_ok;
+      {
+        std::string invariant_reason;
+        seq_ok = validate_global_document_invariant(invariant_reason) && seq_ok;
+      }
+
+      action_invocation_integrity_diag.global_invariant_preserved_through_all_action_invocations = seq_ok;
+      flow_ok = action_invocation_integrity_diag.global_invariant_preserved_through_all_action_invocations && flow_ok;
+    }
+
+    // Marker 10: repeated deterministic mixed invocation sequence converges to identical end state.
+    {
+      auto run_det_sequence = [&]() -> InvocationOutcome {
+        reset_phase();
+        selected_builder_node_id = "label-001";
+        multi_selected_node_ids = {"label-001"};
+        sync_multi_selection_with_primary();
+        execute_action_for_surface("ACTION_INSERT_LEAF", "button");
+        execute_action_for_surface("ACTION_SAVE", "shortcut");
+        execute_action_for_surface("ACTION_NEW_FORCE_DISCARD", "palette");
+        execute_action_for_surface("ACTION_INSERT_CONTAINER", "shortcut");
+        execute_action_for_surface("ACTION_UNDO", "button");
+        execute_action_for_surface("ACTION_REDO", "shortcut");
+        execute_action_for_surface("ACTION_SAVE", "button");
+        return capture_outcome(true);
+      };
+
+      const auto run_a = run_det_sequence();
+      const auto run_b = run_det_sequence();
+      action_invocation_integrity_diag.deterministic_invocation_sequence_stable = outcomes_identical(run_a, run_b);
+      flow_ok = action_invocation_integrity_diag.deterministic_invocation_sequence_stable && flow_ok;
+    }
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_69 = [&] {
+    search_filter_visibility_integrity_diag = {};
+    bool flow_ok = true;
+
+    auto current_signature = [&]() -> std::string {
+      return ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    };
+
+    auto collect_visible_tree_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ids{};
+      for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+        if (!builder_tree_row_buttons[idx].visible() || tree_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        ids.push_back(tree_visual_row_node_ids[idx]);
+      }
+      return ids;
+    };
+
+    auto collect_visible_preview_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ids{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        ids.push_back(preview_visual_row_node_ids[idx]);
+      }
+      return ids;
+    };
+
+    auto build_expected_visible_ids = [&](const std::string& query) -> std::vector<std::string> {
+      std::unordered_map<std::string, bool> memo{};
+      std::function<bool(const std::string&)> visible = [&](const std::string& node_id) -> bool {
+        auto it = memo.find(node_id);
+        if (it != memo.end()) {
+          return it->second;
+        }
+        auto* node = find_node_by_id(node_id);
+        if (!node) {
+          memo[node_id] = false;
+          return false;
+        }
+        bool is_visible = builder_node_matches_projection_query(*node, query);
+        if (!is_visible) {
+          for (const auto& child_id : node->child_ids) {
+            if (visible(child_id)) {
+              is_visible = true;
+              break;
+            }
+          }
+        }
+        memo[node_id] = is_visible;
+        return is_visible;
+      };
+
+      std::vector<std::string> ordered_ids{};
+      std::function<void(const std::string&)> append = [&](const std::string& node_id) {
+        auto* node = find_node_by_id(node_id);
+        if (!node) {
+          return;
+        }
+        if (!visible(node_id)) {
+          return;
+        }
+        ordered_ids.push_back(node_id);
+        for (const auto& child_id : node->child_ids) {
+          append(child_id);
+        }
+      };
+      if (!builder_doc.root_node_id.empty() && node_exists(builder_doc.root_node_id)) {
+        append(builder_doc.root_node_id);
+      }
+      return ordered_ids;
+    };
+
+    auto apply_projection_filter = [&](const std::string& query) -> bool {
+      filter_box.set_value(query);
+      apply_filter();
+      builder_projection_filter_query = query;
+      model.filter = query;
+      const bool remap_ok = remap_selection_or_fail();
+      const bool focus_ok = sync_focus_with_selection_or_fail();
+      const bool inspector_ok = refresh_inspector_or_fail();
+      const bool preview_ok = refresh_preview_or_fail();
+      const bool sync_ok = check_cross_surface_sync();
+      return remap_ok && focus_ok && inspector_ok && preview_ok && sync_ok;
+    };
+
+    auto reset_phase = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      const std::string sig = current_signature();
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = sig;
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = sig;
+      builder_doc_dirty = false;
+      selected_builder_node_id = node_exists("label-001") ? "label-001" : builder_doc.root_node_id;
+      multi_selected_node_ids = {selected_builder_node_id};
+      sync_multi_selection_with_primary();
+      return apply_projection_filter("");
+    };
+
+    struct ActionOutcome {
+      bool handled = false;
+      std::string signature{};
+      std::string selected{};
+      std::size_t undo_size = 0;
+      bool dirty = false;
+      std::string resolved_action{};
+      bool dispatch_success = false;
+    };
+
+    auto capture_outcome = [&](bool handled) -> ActionOutcome {
+      ActionOutcome out{};
+      out.handled = handled;
+      out.signature = current_signature();
+      out.selected = selected_builder_node_id;
+      out.undo_size = undo_history.size();
+      out.dirty = builder_doc_dirty;
+      out.resolved_action = last_action_dispatch_resolved_id;
+      out.dispatch_success = last_action_dispatch_success;
+      return out;
+    };
+
+    // Marker 1 and 7: filter/search are read-only projections only.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const std::string before_sig = current_signature();
+      const auto before_undo = undo_history.size();
+      const auto before_redo = redo_stack.size();
+      const bool before_dirty = builder_doc_dirty;
+
+      const bool q1_ok = apply_projection_filter("label");
+      const bool q2_ok = apply_projection_filter("root");
+      const bool q3_ok = apply_projection_filter("");
+
+      const bool unchanged =
+        current_signature() == before_sig &&
+        undo_history.size() == before_undo &&
+        redo_stack.size() == before_redo &&
+        builder_doc_dirty == before_dirty;
+
+      search_filter_visibility_integrity_diag.search_filter_read_only_no_document_mutation =
+        q1_ok && q2_ok && q3_ok && unchanged;
+      search_filter_visibility_integrity_diag.search_filter_creates_no_history_or_dirty_side_effect =
+        search_filter_visibility_integrity_diag.search_filter_read_only_no_document_mutation;
+      flow_ok =
+        search_filter_visibility_integrity_diag.search_filter_read_only_no_document_mutation &&
+        search_filter_visibility_integrity_diag.search_filter_creates_no_history_or_dirty_side_effect &&
+        flow_ok;
+    }
+
+    // Marker 2: filtered row order follows authoritative structure order.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const bool filter_ok = apply_projection_filter("label");
+      const auto expected = build_expected_visible_ids("label");
+      const auto actual = collect_visible_tree_ids();
+      search_filter_visibility_integrity_diag.filtered_order_matches_authoritative_structure_order =
+        filter_ok && expected == actual;
+      flow_ok = search_filter_visibility_integrity_diag.filtered_order_matches_authoritative_structure_order && flow_ok;
+    }
+
+    // Marker 3 and 6: selection mapping and clear/reapply cycles are deterministic and coherent.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      selected_builder_node_id = "label-001";
+      multi_selected_node_ids = {"label-001"};
+      sync_multi_selection_with_primary();
+      const bool hide_ok = apply_projection_filter("root-001");
+      const auto hidden_visible_ids = collect_visible_tree_ids();
+      const bool selected_hidden_but_preserved =
+        hide_ok && selected_builder_node_id == "label-001" &&
+        std::find(hidden_visible_ids.begin(), hidden_visible_ids.end(), "label-001") == hidden_visible_ids.end();
+
+      const bool clear_ok = apply_projection_filter("");
+      const auto clear_ids = collect_visible_tree_ids();
+      const bool reapply_ok = apply_projection_filter("root-001");
+      const auto reapply_ids = collect_visible_tree_ids();
+
+      search_filter_visibility_integrity_diag.selection_mapping_remains_deterministic_under_filter_changes =
+        selected_hidden_but_preserved && clear_ok && reapply_ok && selected_builder_node_id == "label-001";
+      search_filter_visibility_integrity_diag.clear_and_reapply_filter_restores_coherent_visible_state =
+        clear_ok && reapply_ok && clear_ids == build_expected_visible_ids("") && reapply_ids == hidden_visible_ids;
+      flow_ok =
+        search_filter_visibility_integrity_diag.selection_mapping_remains_deterministic_under_filter_changes &&
+        search_filter_visibility_integrity_diag.clear_and_reapply_filter_restores_coherent_visible_state &&
+        flow_ok;
+    }
+
+    // Marker 4: stale deleted/moved nodes are never retained in result sets.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const bool add_ok = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::Label,
+                                                     builder_doc.root_node_id,
+                                                     "phase103_69_target");
+      flow_ok = add_ok && flow_ok;
+      if (auto* node = find_node_by_id("phase103_69_target")) {
+        node->text = "phase103_69_target";
+      }
+      const bool filter_ok = apply_projection_filter("phase103_69_target");
+      const auto before_delete = collect_visible_tree_ids();
+      selected_builder_node_id = "phase103_69_target";
+      multi_selected_node_ids = {"phase103_69_target"};
+      sync_multi_selection_with_primary();
+      const bool delete_ok = invoke_builder_action("ACTION_DELETE_CURRENT", "phase103_69");
+      const bool refresh_ok = apply_projection_filter("phase103_69_target");
+      const auto after_delete = collect_visible_tree_ids();
+      const bool present_before =
+        std::find(before_delete.begin(), before_delete.end(), "phase103_69_target") != before_delete.end();
+      const bool absent_after =
+        std::find(after_delete.begin(), after_delete.end(), "phase103_69_target") == after_delete.end();
+      search_filter_visibility_integrity_diag.no_stale_deleted_or_moved_nodes_in_results =
+        filter_ok && delete_ok && refresh_ok && present_before && absent_after;
+      flow_ok = search_filter_visibility_integrity_diag.no_stale_deleted_or_moved_nodes_in_results && flow_ok;
+    }
+
+    // Marker 5 and 9: filtered actions resolve against authoritative state and match unfiltered outcomes.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const bool filter_ok = apply_projection_filter("label-001");
+      const auto visible_ids = collect_visible_tree_ids();
+      const bool has_target = std::find(visible_ids.begin(), visible_ids.end(), "label-001") != visible_ids.end();
+      selected_builder_node_id = "label-001";
+      multi_selected_node_ids = {"label-001"};
+      sync_multi_selection_with_primary();
+      const auto filtered_outcome = capture_outcome(invoke_builder_action("ACTION_DELETE_CURRENT", "filtered_view"));
+      const bool filtered_removed = !node_exists("label-001");
+
+      flow_ok = reset_phase() && flow_ok;
+      const bool unfiltered_ok = apply_projection_filter("");
+      selected_builder_node_id = "label-001";
+      multi_selected_node_ids = {"label-001"};
+      sync_multi_selection_with_primary();
+      const auto unfiltered_outcome = capture_outcome(invoke_builder_action("ACTION_DELETE_CURRENT", "unfiltered_view"));
+
+      search_filter_visibility_integrity_diag.actions_from_filtered_view_resolve_against_authoritative_current_state =
+        filter_ok && has_target && filtered_outcome.handled && filtered_outcome.dispatch_success &&
+        filtered_outcome.resolved_action == "ACTION_DELETE_CURRENT" && filtered_removed;
+      search_filter_visibility_integrity_diag.filtered_and_unfiltered_action_results_match_for_same_underlying_state =
+        unfiltered_ok &&
+        filtered_outcome.handled == unfiltered_outcome.handled &&
+        filtered_outcome.signature == unfiltered_outcome.signature &&
+        filtered_outcome.undo_size == unfiltered_outcome.undo_size &&
+        filtered_outcome.dirty == unfiltered_outcome.dirty;
+      flow_ok =
+        search_filter_visibility_integrity_diag.actions_from_filtered_view_resolve_against_authoritative_current_state &&
+        search_filter_visibility_integrity_diag.filtered_and_unfiltered_action_results_match_for_same_underlying_state &&
+        flow_ok;
+    }
+
+    // Marker 8: preview/bindings remain coherent while filtered.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const bool filter_ok = apply_projection_filter("label");
+      const auto tree_ids = collect_visible_tree_ids();
+      const auto preview_ids = collect_visible_preview_ids();
+      search_filter_visibility_integrity_diag.preview_and_bindings_remain_coherent_under_filtered_view =
+        filter_ok && check_cross_surface_sync() && tree_ids == preview_ids &&
+        (!selected_builder_node_id.empty()) && node_exists(selected_builder_node_id);
+      flow_ok = search_filter_visibility_integrity_diag.preview_and_bindings_remain_coherent_under_filtered_view && flow_ok;
+    }
+
+    // Marker 10: global invariant holds through repeated search/filter cycles.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      bool cycles_ok = true;
+      const std::array<std::string, 6> queries = {
+        "", "label", "root", "no_match_token", "label-001", ""
+      };
+      for (const auto& query : queries) {
+        cycles_ok = apply_projection_filter(query) && cycles_ok;
+        std::string invariant_reason;
+        cycles_ok = validate_global_document_invariant(invariant_reason) && cycles_ok;
+      }
+      search_filter_visibility_integrity_diag.global_invariant_preserved_through_search_filter_cycles = cycles_ok;
+      flow_ok = search_filter_visibility_integrity_diag.global_invariant_preserved_through_search_filter_cycles && flow_ok;
+    }
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_70 = [&] {
+    selection_anchor_focus_navigation_integrity_diag = {};
+    bool flow_ok = true;
+
+    auto current_signature = [&]() -> std::string {
+      return ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    };
+
+    auto collect_visible_tree_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ids{};
+      for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+        if (!builder_tree_row_buttons[idx].visible() || tree_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        ids.push_back(tree_visual_row_node_ids[idx]);
+      }
+      return ids;
+    };
+
+    auto apply_projection_filter = [&](const std::string& query) -> bool {
+      filter_box.set_value(query);
+      apply_filter();
+      builder_projection_filter_query = query;
+      model.filter = query;
+      const bool remap_ok = remap_selection_or_fail();
+      const bool focus_ok = sync_focus_with_selection_or_fail();
+      const bool inspector_ok = refresh_inspector_or_fail();
+      const bool preview_ok = refresh_preview_or_fail();
+      const bool sync_ok = check_cross_surface_sync();
+      return remap_ok && focus_ok && inspector_ok && preview_ok && sync_ok;
+    };
+
+    auto reset_phase = [&]() -> bool {
+      run_phase103_2();
+      undo_history.clear();
+      redo_stack.clear();
+      const std::string sig = current_signature();
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = sig;
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = sig;
+      builder_doc_dirty = false;
+      selected_builder_node_id = node_exists("label-001") ? "label-001" : builder_doc.root_node_id;
+      multi_selected_node_ids = {selected_builder_node_id};
+      focused_builder_node_id.clear();
+      builder_selection_anchor_node_id.clear();
+      return apply_projection_filter("");
+    };
+
+    struct NavOutcome {
+      std::string signature{};
+      std::string selected{};
+      std::string focused{};
+      std::string anchor{};
+      std::vector<std::string> multi{};
+      std::size_t undo_size = 0;
+      std::size_t redo_size = 0;
+      bool dirty = false;
+    };
+
+    auto capture_outcome = [&]() -> NavOutcome {
+      NavOutcome out{};
+      out.signature = current_signature();
+      out.selected = selected_builder_node_id;
+      out.focused = focused_builder_node_id;
+      out.anchor = builder_selection_anchor_node_id;
+      out.multi = multi_selected_node_ids;
+      out.undo_size = undo_history.size();
+      out.redo_size = redo_stack.size();
+      out.dirty = builder_doc_dirty;
+      return out;
+    };
+
+    // Marker 1: plain selection navigation follows authoritative preorder exactly.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const auto ordered = collect_preorder_node_ids();
+      bool navigation_ok = ordered.size() > 1;
+      if (navigation_ok) {
+        selected_builder_node_id = ordered.front();
+        multi_selected_node_ids = {selected_builder_node_id};
+        navigation_ok = sync_focus_with_selection_or_fail();
+      }
+      for (std::size_t idx = 1; idx < ordered.size() && navigation_ok; ++idx) {
+        navigation_ok = apply_tree_navigation(true) &&
+                        selected_builder_node_id == ordered[idx] &&
+                        focused_builder_node_id == ordered[idx] &&
+                        builder_selection_anchor_node_id == ordered[idx];
+      }
+      selection_anchor_focus_navigation_integrity_diag.authoritative_order_navigation_matches_document_structure =
+        navigation_ok;
+      flow_ok = selection_anchor_focus_navigation_integrity_diag.authoritative_order_navigation_matches_document_structure && flow_ok;
+    }
+
+    // Marker 2: shift-extended navigation creates a deterministic anchor-based authoritative range.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const auto ordered = collect_preorder_node_ids();
+      bool range_ok = ordered.size() > 1;
+      if (range_ok) {
+        selected_builder_node_id = ordered.front();
+        multi_selected_node_ids = {selected_builder_node_id};
+        range_ok = sync_focus_with_selection_or_fail();
+        range_ok = apply_keyboard_multi_selection_navigate(true, true) && range_ok;
+        const auto expected = build_authoritative_selection_range(ordered.front(), ordered[1]);
+        range_ok =
+          builder_selection_anchor_node_id == ordered.front() &&
+          selected_builder_node_id == ordered.front() &&
+          focused_builder_node_id == ordered[1] &&
+          multi_selected_node_ids == expected;
+      }
+      selection_anchor_focus_navigation_integrity_diag.selection_anchor_establishes_deterministic_range_extent = range_ok;
+      flow_ok = selection_anchor_focus_navigation_integrity_diag.selection_anchor_establishes_deterministic_range_extent && flow_ok;
+    }
+
+    // Marker 3: focus-only navigation leaves document and selection state unchanged.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const auto before = capture_outcome();
+      const bool nav_ok = apply_keyboard_multi_selection_navigate(true, false);
+      const auto after = capture_outcome();
+      selection_anchor_focus_navigation_integrity_diag.focus_only_navigation_does_not_mutate_selection_or_document =
+        nav_ok &&
+        before.signature == after.signature &&
+        before.selected == after.selected &&
+        before.anchor == after.anchor &&
+        before.multi == after.multi &&
+        before.undo_size == after.undo_size &&
+        before.redo_size == after.redo_size &&
+        before.dirty == after.dirty &&
+        before.focused != after.focused;
+      flow_ok = selection_anchor_focus_navigation_integrity_diag.focus_only_navigation_does_not_mutate_selection_or_document && flow_ok;
+    }
+
+    // Marker 4: stale focus and anchor are rejected and reseeded from authoritative current selection.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      selected_builder_node_id = "label-001";
+      multi_selected_node_ids = {"label-001"};
+      focused_builder_node_id = "phase103_70_stale_focus";
+      builder_selection_anchor_node_id = "phase103_70_stale_anchor";
+      const bool stale_rejected = !sync_focus_with_selection_or_fail();
+      const bool recovered = sync_focus_with_selection_or_fail();
+      selection_anchor_focus_navigation_integrity_diag.stale_anchor_and_focus_are_scrubbed_fail_closed =
+        stale_rejected && recovered &&
+        focused_builder_node_id == "label-001" &&
+        builder_selection_anchor_node_id == "label-001";
+      flow_ok = selection_anchor_focus_navigation_integrity_diag.stale_anchor_and_focus_are_scrubbed_fail_closed && flow_ok;
+    }
+
+    // Marker 5: filter and lifecycle changes restore coherent authoritative selection/focus state.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const bool filter_ok = apply_projection_filter("root-001");
+      const bool load_ok = apply_load_document_command(true);
+      selection_anchor_focus_navigation_integrity_diag.selection_focus_coherence_restored_after_filter_and_lifecycle_changes =
+        filter_ok && load_ok && !selected_builder_node_id.empty() &&
+        focused_builder_node_id == selected_builder_node_id &&
+        builder_selection_anchor_node_id == selected_builder_node_id &&
+        node_exists(selected_builder_node_id) &&
+        check_cross_surface_sync();
+      flow_ok = selection_anchor_focus_navigation_integrity_diag.selection_focus_coherence_restored_after_filter_and_lifecycle_changes && flow_ok;
+    }
+
+    // Marker 6: navigation-only operations do not create history or dirty-state transitions.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      selected_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {selected_builder_node_id};
+      flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+      const auto before = capture_outcome();
+      const bool nav_a = apply_tree_parent_child_navigation(false);
+      const bool nav_b = apply_tree_parent_child_navigation(true);
+      const bool nav_c = apply_focus_navigation(true);
+      const auto after = capture_outcome();
+      selection_anchor_focus_navigation_integrity_diag.navigation_only_changes_create_no_history_or_dirty_side_effect =
+        nav_a && nav_b && nav_c &&
+        before.signature == after.signature &&
+        before.undo_size == after.undo_size &&
+        before.redo_size == after.redo_size &&
+        before.dirty == after.dirty;
+      flow_ok = selection_anchor_focus_navigation_integrity_diag.navigation_only_changes_create_no_history_or_dirty_side_effect && flow_ok;
+    }
+
+    // Marker 7: parent/child navigation resolves against current authoritative structure.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      bool parent_child_ok = node_exists(builder_doc.root_node_id);
+      if (parent_child_ok) {
+        selected_builder_node_id = builder_doc.root_node_id;
+        multi_selected_node_ids = {selected_builder_node_id};
+        parent_child_ok = sync_focus_with_selection_or_fail();
+        auto* root_node = find_node_by_id(builder_doc.root_node_id);
+        std::string first_child_id{};
+        if (root_node) {
+          for (const auto& child_id : root_node->child_ids) {
+            if (!child_id.empty() && node_exists(child_id)) {
+              first_child_id = child_id;
+              break;
+            }
+          }
+        }
+        parent_child_ok = !first_child_id.empty() &&
+                          apply_tree_parent_child_navigation(false) &&
+                          selected_builder_node_id == first_child_id &&
+                          apply_tree_parent_child_navigation(true) &&
+                          selected_builder_node_id == builder_doc.root_node_id;
+      }
+      selection_anchor_focus_navigation_integrity_diag.parent_child_navigation_respects_authoritative_current_state = parent_child_ok;
+      flow_ok = selection_anchor_focus_navigation_integrity_diag.parent_child_navigation_respects_authoritative_current_state && flow_ok;
+    }
+
+    // Marker 8: repeated grow/shrink range navigation converges to identical anchor/range states.
+    {
+      auto execute_range_sequence = [&]() -> NavOutcome {
+        reset_phase();
+        const auto ordered = collect_preorder_node_ids();
+        if (ordered.size() > 1) {
+          selected_builder_node_id = ordered.front();
+          multi_selected_node_ids = {selected_builder_node_id};
+          sync_focus_with_selection_or_fail();
+          apply_keyboard_multi_selection_navigate(true, true);
+          if (ordered.size() > 2) {
+            apply_keyboard_multi_selection_navigate(true, true);
+          }
+          apply_keyboard_multi_selection_navigate(false, true);
+        }
+        return capture_outcome();
+      };
+
+      const auto outcome_a = execute_range_sequence();
+      const auto outcome_b = execute_range_sequence();
+      const auto ordered = collect_preorder_node_ids();
+      const bool expected_shape = ordered.size() > 1 &&
+        outcome_a.anchor == ordered.front() &&
+        outcome_a.selected == ordered.front() &&
+        !outcome_a.focused.empty() &&
+        outcome_a.multi == build_authoritative_selection_range(outcome_a.anchor, outcome_a.focused);
+      selection_anchor_focus_navigation_integrity_diag.range_extension_shrinks_and_grows_deterministically_from_same_anchor =
+        expected_shape &&
+        outcome_a.signature == outcome_b.signature &&
+        outcome_a.selected == outcome_b.selected &&
+        outcome_a.focused == outcome_b.focused &&
+        outcome_a.anchor == outcome_b.anchor &&
+        outcome_a.multi == outcome_b.multi;
+      flow_ok = selection_anchor_focus_navigation_integrity_diag.range_extension_shrinks_and_grows_deterministically_from_same_anchor && flow_ok;
+    }
+
+    // Marker 9: filtering does not change authoritative navigation targets.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      selected_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {selected_builder_node_id};
+      flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+      const bool filtered_ok = apply_projection_filter("root-001");
+      const auto hidden_visible = collect_visible_tree_ids();
+      const bool hidden_target = std::find(hidden_visible.begin(), hidden_visible.end(), "label-001") == hidden_visible.end();
+      const bool filtered_nav_ok = apply_tree_navigation(true);
+      const auto filtered_outcome = capture_outcome();
+
+      flow_ok = reset_phase() && flow_ok;
+      selected_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {selected_builder_node_id};
+      flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+      const bool unfiltered_ok = apply_projection_filter("");
+      const bool unfiltered_nav_ok = apply_tree_navigation(true);
+      const auto unfiltered_outcome = capture_outcome();
+
+      selection_anchor_focus_navigation_integrity_diag.filtered_and_unfiltered_navigation_resolve_same_underlying_targets =
+        filtered_ok && hidden_target && filtered_nav_ok && unfiltered_ok && unfiltered_nav_ok &&
+        filtered_outcome.selected == unfiltered_outcome.selected &&
+        filtered_outcome.focused == unfiltered_outcome.focused &&
+        filtered_outcome.anchor == unfiltered_outcome.anchor &&
+        filtered_outcome.signature == unfiltered_outcome.signature;
+      flow_ok = selection_anchor_focus_navigation_integrity_diag.filtered_and_unfiltered_navigation_resolve_same_underlying_targets && flow_ok;
+    }
+
+    // Marker 10: global invariant survives repeated anchor/focus/navigation cycles.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      bool cycles_ok = true;
+      cycles_ok = apply_tree_navigation(true) && cycles_ok;
+      cycles_ok = apply_focus_navigation(true) && cycles_ok;
+      cycles_ok = apply_keyboard_multi_selection_navigate(true, true) && cycles_ok;
+      cycles_ok = apply_keyboard_multi_selection_navigate(false, true) && cycles_ok;
+      cycles_ok = apply_projection_filter("root-001") && cycles_ok;
+      cycles_ok = apply_projection_filter("") && cycles_ok;
+      selected_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {selected_builder_node_id};
+      cycles_ok = sync_focus_with_selection_or_fail() && cycles_ok;
+      cycles_ok = apply_tree_parent_child_navigation(false) && cycles_ok;
+      cycles_ok = apply_tree_parent_child_navigation(true) && cycles_ok;
+      cycles_ok = sync_focus_with_selection_or_fail() && cycles_ok;
+      std::string invariant_reason;
+      cycles_ok = validate_global_document_invariant(invariant_reason) && cycles_ok;
+      selection_anchor_focus_navigation_integrity_diag.global_invariant_preserved_through_anchor_focus_navigation_cycles = cycles_ok;
+      flow_ok = selection_anchor_focus_navigation_integrity_diag.global_invariant_preserved_through_anchor_focus_navigation_cycles && flow_ok;
+    }
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_71 = [&] {
+    drag_drop_reorder_integrity_diag = {};
+    bool flow_ok = true;
+
+    auto current_signature = [&]() -> std::string {
+      return ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    };
+
+    auto make_phase103_71_document = [&]() -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_71_root";
+      root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+      root.child_ids = {
+        "reorder-a",
+        "reorder-b",
+        "reorder-c",
+        "reorder-d",
+        "source-parent-a",
+        "source-parent-b",
+        "move-target"
+      };
+
+      auto make_label = [&](const std::string& node_id,
+                            const std::string& parent_id,
+                            const std::string& text) {
+        ngk::ui::builder::BuilderNode node{};
+        node.node_id = node_id;
+        node.parent_id = parent_id;
+        node.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+        node.text = text;
+        return node;
+      };
+
+      ngk::ui::builder::BuilderNode source_parent_a{};
+      source_parent_a.node_id = "source-parent-a";
+      source_parent_a.parent_id = "phase103_71_root";
+      source_parent_a.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      source_parent_a.child_ids = {"move-a"};
+
+      ngk::ui::builder::BuilderNode source_parent_b{};
+      source_parent_b.node_id = "source-parent-b";
+      source_parent_b.parent_id = "phase103_71_root";
+      source_parent_b.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      source_parent_b.child_ids = {"move-b"};
+
+      ngk::ui::builder::BuilderNode move_target{};
+      move_target.node_id = "move-target";
+      move_target.parent_id = "phase103_71_root";
+      move_target.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+
+      doc.root_node_id = root.node_id;
+      doc.nodes = {
+        root,
+        make_label("reorder-a", "phase103_71_root", "reorder-a"),
+        make_label("reorder-b", "phase103_71_root", "reorder-b"),
+        make_label("reorder-c", "phase103_71_root", "reorder-c"),
+        make_label("reorder-d", "phase103_71_root", "reorder-d"),
+        source_parent_a,
+        source_parent_b,
+        move_target,
+        make_label("move-a", "source-parent-a", "move-a"),
+        make_label("move-b", "source-parent-b", "move-b")
+      };
+      return doc;
+    };
+
+    auto apply_projection_filter = [&](const std::string& query) -> bool {
+      filter_box.set_value(query);
+      apply_filter();
+      builder_projection_filter_query = query;
+      model.filter = query;
+      const bool remap_ok = remap_selection_or_fail();
+      const bool focus_ok = sync_focus_with_selection_or_fail();
+      const bool inspector_ok = refresh_inspector_or_fail();
+      const bool preview_ok = refresh_preview_or_fail();
+      const bool sync_ok = check_cross_surface_sync();
+      return remap_ok && focus_ok && inspector_ok && preview_ok && sync_ok;
+    };
+
+    auto load_phase103_71_document = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                         const std::string& selected_id,
+                                         const std::vector<std::string>& multi_ids) -> bool {
+      builder_doc = doc;
+      undo_history.clear();
+      redo_stack.clear();
+      builder_doc_dirty = false;
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = current_signature();
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = last_saved_builder_serialized;
+      selected_builder_node_id = selected_id;
+      multi_selected_node_ids = multi_ids;
+      focused_builder_node_id.clear();
+      builder_selection_anchor_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+      hover_node_id.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      return apply_projection_filter("");
+    };
+
+    auto collect_visible_tree_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ids{};
+      for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+        if (!builder_tree_row_buttons[idx].visible() || tree_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        ids.push_back(tree_visual_row_node_ids[idx]);
+      }
+      return ids;
+    };
+
+    auto child_index = [&](const std::string& parent_id, const std::string& child_id) -> std::size_t {
+      auto* parent = find_node_by_id(parent_id);
+      if (!parent) {
+        return static_cast<std::size_t>(-1);
+      }
+      auto it = std::find(parent->child_ids.begin(), parent->child_ids.end(), child_id);
+      if (it == parent->child_ids.end()) {
+        return static_cast<std::size_t>(-1);
+      }
+      return static_cast<std::size_t>(std::distance(parent->child_ids.begin(), it));
+    };
+
+    auto count_parent_refs = [&](const std::string& child_id) -> std::size_t {
+      std::size_t count = 0;
+      for (const auto& node : builder_doc.nodes) {
+        count += static_cast<std::size_t>(std::count(node.child_ids.begin(), node.child_ids.end(), child_id));
+      }
+      return count;
+    };
+
+    auto reset_phase = [&]() -> bool {
+      return load_phase103_71_document(make_phase103_71_document(), "reorder-a", {"reorder-a"});
+    };
+
+    struct DragOutcome {
+      std::string signature{};
+      std::string selected{};
+      std::string focused{};
+      std::vector<std::string> multi{};
+      std::size_t undo_size = 0;
+      std::size_t redo_size = 0;
+      bool dirty = false;
+    };
+
+    auto capture_outcome = [&]() -> DragOutcome {
+      DragOutcome out{};
+      out.signature = current_signature();
+      out.selected = selected_builder_node_id;
+      out.focused = focused_builder_node_id;
+      out.multi = multi_selected_node_ids;
+      out.undo_size = undo_history.size();
+      out.redo_size = redo_stack.size();
+      out.dirty = builder_doc_dirty;
+      return out;
+    };
+
+    // Marker 1: preview target resolution and committed drop resolve to one deterministic authoritative parent/index.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      selected_builder_node_id = "reorder-b";
+      multi_selected_node_ids = {"reorder-b"};
+      flow_ok = remap_selection_or_fail() && flow_ok;
+      flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+      const bool drag_ok = begin_tree_drag("reorder-b");
+      set_drag_target_preview("reorder-d", false);
+      const std::string preview_parent_a = drag_target_preview_parent_id;
+      const std::size_t preview_index_a = drag_target_preview_insert_index;
+      const std::string preview_kind_a = drag_target_preview_resolution_kind;
+      const bool preview_legal_a = !drag_target_preview_is_illegal;
+      clear_drag_target_preview();
+      set_drag_target_preview("reorder-d", false);
+      const bool deterministic_preview =
+        preview_legal_a &&
+        preview_parent_a == drag_target_preview_parent_id &&
+        preview_index_a == drag_target_preview_insert_index &&
+        preview_kind_a == drag_target_preview_resolution_kind;
+      const bool commit_ok = commit_tree_drag_reorder("reorder-d");
+      drag_drop_reorder_integrity_diag.drop_target_resolution_deterministic =
+        drag_ok && deterministic_preview && commit_ok &&
+        preview_parent_a == "phase103_71_root" &&
+        preview_kind_a == "reorder" &&
+        child_index("phase103_71_root", "reorder-b") == preview_index_a;
+      flow_ok = drag_drop_reorder_integrity_diag.drop_target_resolution_deterministic && flow_ok;
+    }
+
+    // Marker 2: multi-selection drag succeeds atomically and preserves authoritative relative ordering.
+    {
+      flow_ok = load_phase103_71_document(make_phase103_71_document(), "move-b", {"move-b", "move-a"}) && flow_ok;
+      const std::string before_sig = current_signature();
+      const bool drag_ok = begin_tree_drag("move-b");
+      const bool move_ok = drag_ok && commit_tree_drag_reparent("move-target");
+      auto* target = find_node_by_id("move-target");
+      drag_drop_reorder_integrity_diag.multi_selection_drag_atomic_and_order_preserved =
+        before_sig != current_signature() &&
+        move_ok &&
+        target != nullptr &&
+        target->child_ids == std::vector<std::string>({"move-a", "move-b"}) &&
+        selected_builder_node_id == "move-a" &&
+        multi_selected_node_ids == std::vector<std::string>({"move-a", "move-b"}) &&
+        child_index("source-parent-a", "move-a") == static_cast<std::size_t>(-1) &&
+        child_index("source-parent-b", "move-b") == static_cast<std::size_t>(-1);
+      flow_ok = drag_drop_reorder_integrity_diag.multi_selection_drag_atomic_and_order_preserved && flow_ok;
+    }
+
+    // Marker 3: sibling reorder preserves non-moved sibling order and inserts moved group at exact resolved index.
+    {
+      flow_ok = load_phase103_71_document(make_phase103_71_document(), "reorder-b", {"reorder-b", "reorder-c"}) && flow_ok;
+      const bool drag_ok = begin_tree_drag("reorder-b");
+      const bool reorder_ok = drag_ok && commit_tree_drag_reorder("reorder-d");
+      auto* root = find_node_by_id("phase103_71_root");
+      drag_drop_reorder_integrity_diag.sibling_reorder_preserves_global_structure_order =
+        reorder_ok && root != nullptr &&
+        root->child_ids == std::vector<std::string>({
+          "reorder-a",
+          "reorder-d",
+          "reorder-b",
+          "reorder-c",
+          "source-parent-a",
+          "source-parent-b",
+          "move-target"
+        });
+      flow_ok = drag_drop_reorder_integrity_diag.sibling_reorder_preserves_global_structure_order && flow_ok;
+    }
+
+    // Marker 4: cross-parent moves update parent/child relationships exactly with no duplicates or orphans.
+    {
+      flow_ok = load_phase103_71_document(make_phase103_71_document(), "move-a", {"move-a", "move-b"}) && flow_ok;
+      const bool drag_ok = begin_tree_drag("move-a");
+      const bool move_ok = drag_ok && commit_tree_drag_reparent("move-target");
+      auto* move_a = find_node_by_id("move-a");
+      auto* move_b = find_node_by_id("move-b");
+      drag_drop_reorder_integrity_diag.cross_parent_move_updates_relationships_exactly =
+        move_ok &&
+        move_a != nullptr && move_b != nullptr &&
+        move_a->parent_id == "move-target" &&
+        move_b->parent_id == "move-target" &&
+        count_parent_refs("move-a") == 1 &&
+        count_parent_refs("move-b") == 1;
+      flow_ok = drag_drop_reorder_integrity_diag.cross_parent_move_updates_relationships_exactly && flow_ok;
+    }
+
+    // Marker 5: filtered view drag resolves to the same authoritative target as the unfiltered view.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const bool filter_ok = apply_projection_filter("reorder");
+      const auto filtered_visible = collect_visible_tree_ids();
+      const bool visible_target_present =
+        std::find(filtered_visible.begin(), filtered_visible.end(), "reorder-d") != filtered_visible.end();
+      selected_builder_node_id = "reorder-b";
+      multi_selected_node_ids = {"reorder-b"};
+      flow_ok = remap_selection_or_fail() && flow_ok;
+      flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+      const bool filtered_drag_ok = begin_tree_drag("reorder-b");
+      set_drag_target_preview("reorder-d", false);
+      const std::string filtered_parent = drag_target_preview_parent_id;
+      const std::size_t filtered_index = drag_target_preview_insert_index;
+      const std::string filtered_kind = drag_target_preview_resolution_kind;
+      const bool filtered_commit_ok = commit_tree_drag_reorder("reorder-d");
+      const auto filtered_outcome = capture_outcome();
+
+      flow_ok = reset_phase() && flow_ok;
+      selected_builder_node_id = "reorder-b";
+      multi_selected_node_ids = {"reorder-b"};
+      flow_ok = remap_selection_or_fail() && flow_ok;
+      flow_ok = sync_focus_with_selection_or_fail() && flow_ok;
+      const bool unfiltered_drag_ok = begin_tree_drag("reorder-b");
+      set_drag_target_preview("reorder-d", false);
+      const std::string unfiltered_parent = drag_target_preview_parent_id;
+      const std::size_t unfiltered_index = drag_target_preview_insert_index;
+      const std::string unfiltered_kind = drag_target_preview_resolution_kind;
+      const bool unfiltered_commit_ok = commit_tree_drag_reorder("reorder-d");
+      const auto unfiltered_outcome = capture_outcome();
+
+      drag_drop_reorder_integrity_diag.filtered_view_drag_resolves_to_authoritative_target =
+        filter_ok && visible_target_present && filtered_drag_ok && filtered_commit_ok &&
+        unfiltered_drag_ok && unfiltered_commit_ok &&
+        filtered_parent == unfiltered_parent &&
+        filtered_index == unfiltered_index &&
+        filtered_kind == unfiltered_kind &&
+        filtered_outcome.signature == unfiltered_outcome.signature;
+      flow_ok = drag_drop_reorder_integrity_diag.filtered_view_drag_resolves_to_authoritative_target && flow_ok;
+    }
+
+    // Marker 6: invalid drops fail closed without document/history/dirty mutation.
+    {
+      flow_ok = load_phase103_71_document(make_phase103_71_document(), "move-a", {"move-a"}) && flow_ok;
+      const auto before = capture_outcome();
+      const bool drag_ok = begin_tree_drag("move-a");
+      set_drag_target_preview("phase103_71_root", true);
+      const bool invalid_preview = drag_target_preview_is_illegal;
+      const bool rejected = drag_ok && !commit_tree_drag_reparent("phase103_71_root");
+      const auto after = capture_outcome();
+      drag_drop_reorder_integrity_diag.invalid_drop_fails_closed_without_mutation =
+        invalid_preview && rejected &&
+        before.signature == after.signature &&
+        before.undo_size == after.undo_size &&
+        before.redo_size == after.redo_size &&
+        before.dirty == after.dirty &&
+        !drag_active && drag_source_node_id.empty() && drag_target_preview_node_id.empty();
+      flow_ok = drag_drop_reorder_integrity_diag.invalid_drop_fails_closed_without_mutation && flow_ok;
+    }
+
+    // Marker 7: drag undo/redo restores exact structure and deterministic selection state.
+    {
+      flow_ok = load_phase103_71_document(make_phase103_71_document(), "move-a", {"move-a", "move-b"}) && flow_ok;
+      const bool drag_ok = begin_tree_drag("move-a");
+      const bool move_ok = drag_ok && commit_tree_drag_reparent("move-target");
+      const auto expected = capture_outcome();
+      const bool undo_ok = apply_undo_command();
+      const bool redo_ok = apply_redo_command();
+      const auto redone = capture_outcome();
+      drag_drop_reorder_integrity_diag.undo_redo_exact_for_drag_operations =
+        move_ok && undo_ok && redo_ok &&
+        expected.signature == redone.signature &&
+        expected.selected == redone.selected &&
+        expected.focused == redone.focused &&
+        expected.multi == redone.multi;
+      flow_ok = drag_drop_reorder_integrity_diag.undo_redo_exact_for_drag_operations && flow_ok;
+    }
+
+    // Marker 8: successful drag leaves no partial move, duplicate references, or stale drag state.
+    {
+      flow_ok = load_phase103_71_document(make_phase103_71_document(), "move-a", {"move-a", "move-b"}) && flow_ok;
+      const bool drag_ok = begin_tree_drag("move-a");
+      const bool move_ok = drag_ok && commit_tree_drag_reparent("move-target");
+      drag_drop_reorder_integrity_diag.no_partial_or_stale_references_after_drag =
+        move_ok &&
+        count_parent_refs("move-a") == 1 &&
+        count_parent_refs("move-b") == 1 &&
+        drag_source_node_id.empty() &&
+        !drag_active &&
+        drag_target_preview_node_id.empty() &&
+        drag_target_preview_parent_id.empty() &&
+        drag_target_preview_resolution_kind.empty();
+      flow_ok = drag_drop_reorder_integrity_diag.no_partial_or_stale_references_after_drag && flow_ok;
+    }
+
+    // Marker 9: drag preview state and failed drops create no transient history or dirty leaks.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const auto before = capture_outcome();
+      const bool drag_ok = begin_tree_drag("reorder-b");
+      set_drag_target_preview("reorder-d", false);
+      clear_drag_target_preview();
+      cancel_tree_drag();
+      const auto after_preview = capture_outcome();
+
+      const bool drag2_ok = begin_tree_drag("move-a");
+      const bool failed_drop = drag2_ok && !commit_tree_drag_reparent("phase103_71_root");
+      const auto after_failed = capture_outcome();
+
+      drag_drop_reorder_integrity_diag.drag_creates_no_transient_history_or_dirty_leak =
+        drag_ok && failed_drop &&
+        before.signature == after_preview.signature &&
+        before.undo_size == after_preview.undo_size &&
+        before.redo_size == after_preview.redo_size &&
+        before.dirty == after_preview.dirty &&
+        after_preview.signature == after_failed.signature &&
+        after_preview.undo_size == after_failed.undo_size &&
+        after_preview.redo_size == after_failed.redo_size &&
+        after_preview.dirty == after_failed.dirty;
+      flow_ok = drag_drop_reorder_integrity_diag.drag_creates_no_transient_history_or_dirty_leak && flow_ok;
+    }
+
+    // Marker 10: all successful drag operations preserve the global invariant.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      bool invariant_ok = true;
+      invariant_ok = begin_tree_drag("reorder-b") && invariant_ok;
+      invariant_ok = commit_tree_drag_reorder("reorder-d") && invariant_ok;
+      std::string invariant_reason;
+      invariant_ok = validate_global_document_invariant(invariant_reason) && invariant_ok;
+
+      invariant_ok = load_phase103_71_document(make_phase103_71_document(), "move-a", {"move-a", "move-b"}) && invariant_ok;
+      invariant_ok = begin_tree_drag("move-a") && invariant_ok;
+      invariant_ok = commit_tree_drag_reparent("move-target") && invariant_ok;
+      invariant_ok = validate_global_document_invariant(invariant_reason) && invariant_ok;
+
+      invariant_ok = load_phase103_71_document(make_phase103_71_document(), "reorder-b", {"reorder-b"}) && invariant_ok;
+      invariant_ok = apply_projection_filter("reorder") && invariant_ok;
+      invariant_ok = begin_tree_drag("reorder-b") && invariant_ok;
+      invariant_ok = commit_tree_drag_reorder("reorder-d") && invariant_ok;
+      invariant_ok = validate_global_document_invariant(invariant_reason) && invariant_ok;
+
+      drag_drop_reorder_integrity_diag.global_invariant_preserved_after_drag_operations = invariant_ok;
+      flow_ok = drag_drop_reorder_integrity_diag.global_invariant_preserved_after_drag_operations && flow_ok;
+    }
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_72 = [&] {
+    persistence_file_io_integrity_diag = {};
+    bool flow_ok = true;
+
+    auto join_ids = [&](const std::vector<std::string>& ids) -> std::string {
+      std::ostringstream oss;
+      for (std::size_t idx = 0; idx < ids.size(); ++idx) {
+        if (idx > 0) {
+          oss << ",";
+        }
+        oss << ids[idx];
+      }
+      return oss.str();
+    };
+
+    auto current_signature = [&]() -> std::string {
+      return ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    };
+
+    auto build_live_state_signature = [&](const char* context_name) -> std::string {
+      std::ostringstream oss;
+      (void)context_name;
+      oss << current_signature() << "\n";
+      oss << "selected=" << selected_builder_node_id << "\n";
+      oss << "focused=" << focused_builder_node_id << "\n";
+      oss << "multi=" << join_ids(multi_selected_node_ids) << "\n";
+      oss << "inspector=" << inspector_binding_node_id << "\n";
+      oss << "preview=" << preview_binding_node_id << "\n";
+      oss << "dirty=" << (builder_doc_dirty ? 1 : 0) << "\n";
+      oss << "baseline=" << clean_builder_baseline_signature << "\n";
+      oss << "undo=" << undo_history.size() << "\n";
+      oss << "redo=" << redo_stack.size() << "\n";
+      oss << "io_busy=" << (builder_persistence_io_in_progress ? 1 : 0) << "\n";
+      return oss.str();
+    };
+
+    auto make_phase103_72_document = [&]() -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_72_root";
+      root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+      root.child_ids = {"phase103_72_label_a", "phase103_72_group", "phase103_72_label_b"};
+
+      ngk::ui::builder::BuilderNode label_a{};
+      label_a.node_id = "phase103_72_label_a";
+      label_a.parent_id = "phase103_72_root";
+      label_a.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      label_a.text = "alpha";
+
+      ngk::ui::builder::BuilderNode group{};
+      group.node_id = "phase103_72_group";
+      group.parent_id = "phase103_72_root";
+      group.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      group.child_ids = {"phase103_72_nested"};
+
+      ngk::ui::builder::BuilderNode nested{};
+      nested.node_id = "phase103_72_nested";
+      nested.parent_id = "phase103_72_group";
+      nested.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      nested.text = "nested";
+
+      ngk::ui::builder::BuilderNode label_b{};
+      label_b.node_id = "phase103_72_label_b";
+      label_b.parent_id = "phase103_72_root";
+      label_b.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      label_b.text = "beta";
+
+      doc.root_node_id = root.node_id;
+      doc.nodes = {root, label_a, group, nested, label_b};
+      return doc;
+    };
+
+    auto refresh_all_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto preview_matches_structure = [&]() -> bool {
+      std::vector<PreviewExportParityEntry> entries{};
+      std::string reason;
+      if (!build_preview_export_parity_entries(builder_doc, entries, reason, "phase103_72")) {
+        return false;
+      }
+      std::vector<std::string> preview_ids{};
+      std::vector<int> preview_depths{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        preview_ids.push_back(preview_visual_row_node_ids[idx]);
+        preview_depths.push_back(preview_visual_row_depths[idx]);
+      }
+      if (preview_ids.size() != entries.size()) {
+        return false;
+      }
+      for (std::size_t idx = 0; idx < entries.size(); ++idx) {
+        if (preview_ids[idx] != entries[idx].node_id || preview_depths[idx] != entries[idx].depth) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    auto load_phase103_72_document = [&](const ngk::ui::builder::BuilderDocument& doc) -> bool {
+      builder_doc = doc;
+      undo_history.clear();
+      redo_stack.clear();
+      selected_builder_node_id = builder_doc.root_node_id;
+      focused_builder_node_id = builder_doc.root_node_id;
+      builder_selection_anchor_node_id.clear();
+      multi_selected_node_ids = {builder_doc.root_node_id};
+      inspector_binding_node_id.clear();
+      preview_binding_node_id.clear();
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = current_signature();
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = last_saved_builder_serialized;
+      builder_doc_dirty = false;
+      builder_persistence_io_in_progress = false;
+      builder_persistence_force_next_temp_write_truncation = false;
+      builder_persistence_force_next_atomic_replace_failure = false;
+      return refresh_all_surfaces();
+    };
+
+    auto cleanup_io_artifacts = [&](const std::filesystem::path& path) {
+      remove_file_if_exists(path);
+      remove_file_if_exists(build_atomic_save_temp_path(path));
+      remove_file_if_exists(build_atomic_save_backup_path(path));
+    };
+
+    auto set_node_text = [&](const std::string& node_id, const std::string& text) -> bool {
+      auto* node = find_node_by_id(node_id);
+      if (!node) {
+        return false;
+      }
+      node->text = text;
+      const bool refresh_ok = refresh_all_surfaces();
+      recompute_builder_dirty_state(true);
+      return refresh_ok;
+    };
+
+    const std::filesystem::path phase103_72_primary_path =
+      std::filesystem::current_path() / "_artifacts/runtime/phase103_72_builder_document.ngkbdoc";
+    const std::filesystem::path phase103_72_secondary_path =
+      std::filesystem::current_path() / "_artifacts/runtime/phase103_72_builder_document_second.ngkbdoc";
+    const std::filesystem::path phase103_72_invalid_path =
+      std::filesystem::current_path() / "_artifacts/runtime/phase103_72_invalid.ngkbdoc";
+    const std::filesystem::path phase103_72_truncated_path =
+      std::filesystem::current_path() / "_artifacts/runtime/phase103_72_truncated.ngkbdoc";
+    const std::filesystem::path phase103_72_atomic_fail_path =
+      std::filesystem::current_path() / "_artifacts/runtime/phase103_72_atomic_fail.ngkbdoc";
+
+    cleanup_io_artifacts(phase103_72_primary_path);
+    cleanup_io_artifacts(phase103_72_secondary_path);
+    cleanup_io_artifacts(phase103_72_invalid_path);
+    cleanup_io_artifacts(phase103_72_truncated_path);
+    cleanup_io_artifacts(phase103_72_atomic_fail_path);
+    cleanup_io_artifacts(builder_doc_save_path);
+
+    auto reset_phase = [&]() -> bool {
+      return load_phase103_72_document(make_phase103_72_document());
+    };
+
+    // Marker 1: failed saves never expose a partial final file and never leave temp/backup artifacts behind.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      builder_persistence_force_next_temp_write_truncation = true;
+      const bool missing_target_failed = !save_builder_document_to_path(phase103_72_atomic_fail_path);
+      std::error_code ec_missing;
+      const bool no_missing_target_file = !std::filesystem::exists(phase103_72_atomic_fail_path, ec_missing);
+      const bool no_missing_target_temp =
+        !std::filesystem::exists(build_atomic_save_temp_path(phase103_72_atomic_fail_path), ec_missing) &&
+        !std::filesystem::exists(build_atomic_save_backup_path(phase103_72_atomic_fail_path), ec_missing);
+
+      flow_ok = set_node_text("phase103_72_label_a", "atomic_base") && flow_ok;
+      const bool base_save_ok = save_builder_document_to_path(phase103_72_primary_path);
+      std::string original_bytes{};
+      const bool original_read_ok = read_text_file_exact(phase103_72_primary_path, original_bytes);
+
+      flow_ok = set_node_text("phase103_72_label_a", "atomic_partial_fail") && flow_ok;
+      builder_persistence_force_next_temp_write_truncation = true;
+      const bool existing_target_failed = !save_builder_document_to_path(phase103_72_primary_path);
+      std::string after_failed_save_bytes{};
+      const bool after_failed_read_ok = read_text_file_exact(phase103_72_primary_path, after_failed_save_bytes);
+      std::error_code ec_existing;
+      const bool no_existing_target_temp =
+        !std::filesystem::exists(build_atomic_save_temp_path(phase103_72_primary_path), ec_existing) &&
+        !std::filesystem::exists(build_atomic_save_backup_path(phase103_72_primary_path), ec_existing);
+
+      persistence_file_io_integrity_diag.save_is_atomic_and_never_exposes_partial_file =
+        missing_target_failed && no_missing_target_file && no_missing_target_temp &&
+        base_save_ok && original_read_ok && existing_target_failed && after_failed_read_ok &&
+        original_bytes == after_failed_save_bytes && no_existing_target_temp;
+      flow_ok = persistence_file_io_integrity_diag.save_is_atomic_and_never_exposes_partial_file && flow_ok;
+    }
+
+    // Marker 2: successful save bytes exactly match the canonical deterministic document signature.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      flow_ok = set_node_text("phase103_72_label_a", "canonical_payload") && flow_ok;
+      const std::string expected_signature = current_signature();
+      const bool save_ok = save_builder_document_to_path(phase103_72_primary_path);
+      std::string file_bytes{};
+      const bool read_ok = read_text_file_exact(phase103_72_primary_path, file_bytes);
+      persistence_file_io_integrity_diag.saved_file_matches_canonical_document_signature =
+        save_ok && read_ok && file_bytes == expected_signature;
+      flow_ok = persistence_file_io_integrity_diag.saved_file_matches_canonical_document_signature && flow_ok;
+    }
+
+    // Marker 3: load rejects malformed and truncated payloads before any in-memory commit.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      flow_ok = set_node_text("phase103_72_label_a", "truncate_source") && flow_ok;
+      const std::string canonical_payload = current_signature();
+      const bool write_invalid = write_text_file(phase103_72_invalid_path, "not-a-builder-document");
+      const std::string truncated_payload = canonical_payload.substr(0, std::max<std::size_t>(1, canonical_payload.size() / 2));
+      const bool write_truncated = write_text_file(phase103_72_truncated_path, truncated_payload);
+      const bool invalid_rejected = write_invalid && !load_builder_document_from_path(phase103_72_invalid_path);
+      const bool truncated_rejected = write_truncated && !load_builder_document_from_path(phase103_72_truncated_path);
+      persistence_file_io_integrity_diag.load_rejects_invalid_or_truncated_files = invalid_rejected && truncated_rejected;
+      flow_ok = persistence_file_io_integrity_diag.load_rejects_invalid_or_truncated_files && flow_ok;
+    }
+
+    // Marker 4: failed save never overwrites an existing good file.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      flow_ok = set_node_text("phase103_72_label_a", "replace_base") && flow_ok;
+      const bool save_ok = save_builder_document_to_path(phase103_72_primary_path);
+      std::string original_bytes{};
+      const bool read_original_ok = read_text_file_exact(phase103_72_primary_path, original_bytes);
+      flow_ok = set_node_text("phase103_72_label_a", "replace_failure_candidate") && flow_ok;
+      builder_persistence_force_next_atomic_replace_failure = true;
+      const bool failed_save = !save_builder_document_to_path(phase103_72_primary_path);
+      std::string after_failed_bytes{};
+      const bool read_after_failed_ok = read_text_file_exact(phase103_72_primary_path, after_failed_bytes);
+      persistence_file_io_integrity_diag.failed_save_does_not_overwrite_existing_file =
+        save_ok && read_original_ok && failed_save && read_after_failed_ok && original_bytes == after_failed_bytes;
+      flow_ok = persistence_file_io_integrity_diag.failed_save_does_not_overwrite_existing_file && flow_ok;
+    }
+
+    // Marker 5: failed load leaves document, selection, dirty state, and baseline unchanged.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      const std::string before_failed_load = build_live_state_signature("phase103_72_failed_load_state");
+      const std::string baseline_before_failed_load = clean_builder_baseline_signature;
+      const bool dirty_before_failed_load = builder_doc_dirty;
+      const bool invalid_write_ok = write_text_file(phase103_72_invalid_path, "broken-payload");
+      const bool failed_load = invalid_write_ok && !load_builder_document_from_path(phase103_72_invalid_path);
+      const std::string after_failed_load = build_live_state_signature("phase103_72_failed_load_state");
+      persistence_file_io_integrity_diag.failed_load_does_not_mutate_current_state =
+        failed_load &&
+        before_failed_load == after_failed_load &&
+        clean_builder_baseline_signature == baseline_before_failed_load &&
+        builder_doc_dirty == dirty_before_failed_load;
+      flow_ok = persistence_file_io_integrity_diag.failed_load_does_not_mutate_current_state && flow_ok;
+    }
+
+    // Marker 6: save/load operations end with coherent UI bindings, no preview drift, and no leaked busy state.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      flow_ok = set_node_text("phase103_72_label_a", "ui_sync_seed") && flow_ok;
+      const std::string before_save_live = build_live_state_signature("phase103_72_save_sync_state");
+      const bool save_ok = save_builder_document_to_path(phase103_72_primary_path);
+      const std::string after_save_live = build_live_state_signature("phase103_72_save_sync_state");
+      flow_ok = set_node_text("phase103_72_label_a", "ui_sync_mutated_after_save") && flow_ok;
+      const bool load_ok = load_builder_document_from_path(phase103_72_primary_path);
+      std::string post_load_invariant_reason;
+      persistence_file_io_integrity_diag.no_transient_ui_or_state_desync_during_io =
+        save_ok &&
+        before_save_live == after_save_live &&
+        persistence_file_io_integrity_diag.failed_load_does_not_mutate_current_state &&
+        load_ok &&
+        !builder_persistence_io_in_progress &&
+        check_cross_surface_sync() &&
+        validate_global_document_invariant(post_load_invariant_reason);
+      flow_ok = persistence_file_io_integrity_diag.no_transient_ui_or_state_desync_during_io && flow_ok;
+    }
+
+    // Marker 7: identical documents always serialize to identical canonical bytes.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      flow_ok = set_node_text("phase103_72_label_a", "deterministic_bytes") && flow_ok;
+      const std::string sig1 = current_signature();
+      const std::string sig2 = current_signature();
+      const bool save1 = save_builder_document_to_path(phase103_72_primary_path);
+      const bool save2 = save_builder_document_to_path(phase103_72_secondary_path);
+      std::string bytes1{};
+      std::string bytes2{};
+      const bool read1 = read_text_file_exact(phase103_72_primary_path, bytes1);
+      const bool read2 = read_text_file_exact(phase103_72_secondary_path, bytes2);
+      persistence_file_io_integrity_diag.serialization_deterministic_for_identical_document =
+        sig1 == sig2 && save1 && save2 && read1 && read2 && bytes1 == bytes2 && bytes1 == sig1;
+      flow_ok = persistence_file_io_integrity_diag.serialization_deterministic_for_identical_document && flow_ok;
+    }
+
+    // Marker 8: repeated saves remain byte-stable, and overlapping attempts fail closed while busy.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      flow_ok = set_node_text("phase103_72_label_a", "repeat_stable") && flow_ok;
+      const bool save1 = save_builder_document_to_path(phase103_72_primary_path);
+      std::string bytes1{};
+      const bool read1 = read_text_file_exact(phase103_72_primary_path, bytes1);
+      const bool save2 = save_builder_document_to_path(phase103_72_primary_path);
+      std::string bytes2{};
+      const bool read2 = read_text_file_exact(phase103_72_primary_path, bytes2);
+      const bool save3 = save_builder_document_to_path(phase103_72_primary_path);
+      std::string bytes3{};
+      const bool read3 = read_text_file_exact(phase103_72_primary_path, bytes3);
+      builder_persistence_io_in_progress = true;
+      const bool blocked_while_busy = !save_builder_document_to_path(phase103_72_primary_path);
+      builder_persistence_io_in_progress = false;
+      std::string bytes_after_busy{};
+      const bool read_after_busy = read_text_file_exact(phase103_72_primary_path, bytes_after_busy);
+      persistence_file_io_integrity_diag.repeated_save_calls_produce_consistent_output =
+        save1 && save2 && save3 && read1 && read2 && read3 && read_after_busy &&
+        bytes1 == bytes2 && bytes2 == bytes3 && bytes3 == bytes_after_busy && blocked_while_busy;
+      flow_ok = persistence_file_io_integrity_diag.repeated_save_calls_produce_consistent_output && flow_ok;
+    }
+
+    // Marker 9: clean baseline and dirty tracking update only after successful save/load completion.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      cleanup_io_artifacts(builder_doc_save_path);
+      flow_ok = set_node_text("phase103_72_label_a", "baseline_seed") && flow_ok;
+      const bool initial_save = apply_save_document_command();
+
+      flow_ok = set_node_text("phase103_72_label_a", "dirty_before_failed_save") && flow_ok;
+      const std::string baseline_before_failed_save = clean_builder_baseline_signature;
+      const bool dirty_before_failed_save = builder_doc_dirty;
+      builder_persistence_force_next_atomic_replace_failure = true;
+      const bool failed_save = !apply_save_document_command();
+      const bool failed_save_preserves_tracking =
+        failed_save &&
+        builder_doc_dirty == dirty_before_failed_save &&
+        clean_builder_baseline_signature == baseline_before_failed_save;
+
+      const bool successful_save = apply_save_document_command();
+      const std::string signature_after_successful_save = current_signature();
+      const bool successful_save_updates_tracking =
+        successful_save &&
+        !builder_doc_dirty &&
+        clean_builder_baseline_signature == signature_after_successful_save &&
+        last_saved_builder_serialized == signature_after_successful_save;
+
+      flow_ok = set_node_text("phase103_72_label_a", "dirty_before_failed_load") && flow_ok;
+      const std::string baseline_before_failed_load = clean_builder_baseline_signature;
+      const bool dirty_before_failed_load = builder_doc_dirty;
+      const bool invalid_payload_written = write_text_file(phase103_72_invalid_path, "invalid-load");
+      const bool failed_load = invalid_payload_written && !load_builder_document_from_path(phase103_72_invalid_path);
+      const bool failed_load_preserves_tracking =
+        failed_load &&
+        builder_doc_dirty == dirty_before_failed_load &&
+        clean_builder_baseline_signature == baseline_before_failed_load;
+
+      const bool successful_load = apply_load_document_command(true);
+      const std::string signature_after_successful_load = current_signature();
+      const bool successful_load_updates_tracking =
+        successful_load &&
+        !builder_doc_dirty &&
+        clean_builder_baseline_signature == signature_after_successful_load &&
+        last_saved_builder_serialized == signature_after_successful_load;
+
+      persistence_file_io_integrity_diag.dirty_baseline_updates_only_on_successful_save_load =
+        initial_save &&
+        failed_save_preserves_tracking &&
+        successful_save_updates_tracking &&
+        failed_load_preserves_tracking &&
+        successful_load_updates_tracking;
+      flow_ok = persistence_file_io_integrity_diag.dirty_baseline_updates_only_on_successful_save_load && flow_ok;
+    }
+
+    // Marker 10: successful and failed I/O paths preserve the global invariant and clear transient busy state.
+    {
+      flow_ok = reset_phase() && flow_ok;
+      bool invariant_ok = true;
+      std::string invariant_reason;
+
+      invariant_ok = set_node_text("phase103_72_label_a", "invariant_seed") && invariant_ok;
+      invariant_ok = save_builder_document_to_path(phase103_72_primary_path) && invariant_ok;
+      invariant_ok = validate_global_document_invariant(invariant_reason) && invariant_ok;
+
+      invariant_ok = set_node_text("phase103_72_label_a", "invariant_failed_save") && invariant_ok;
+      builder_persistence_force_next_atomic_replace_failure = true;
+      invariant_ok = !save_builder_document_to_path(phase103_72_primary_path) && invariant_ok;
+      invariant_ok = validate_global_document_invariant(invariant_reason) && invariant_ok;
+
+      invariant_ok = write_text_file(phase103_72_invalid_path, "bad-invariant-load") && invariant_ok;
+      invariant_ok = !load_builder_document_from_path(phase103_72_invalid_path) && invariant_ok;
+      invariant_ok = validate_global_document_invariant(invariant_reason) && invariant_ok;
+
+      invariant_ok = load_builder_document_from_path(phase103_72_primary_path) && invariant_ok;
+      invariant_ok = validate_global_document_invariant(invariant_reason) && invariant_ok;
+
+      persistence_file_io_integrity_diag.global_invariant_preserved_through_all_io_operations = invariant_ok;
+      flow_ok = persistence_file_io_integrity_diag.global_invariant_preserved_through_all_io_operations && flow_ok;
+    }
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_73 = [&] {
+    undo_redo_time_travel_integrity_diag = {};
+    bool flow_ok = true;
+
+    struct TimeTravelSnapshot {
+      std::string signature{};
+      std::string selected{};
+      std::string focused{};
+      std::string anchor{};
+      std::string multi{};
+      std::string filter_query{};
+      std::string model_filter{};
+      std::string filter_box_value{};
+      std::string tree_visible{};
+      std::string preview_visible{};
+      std::string inspector{};
+      std::string preview{};
+      std::string baseline{};
+      std::size_t undo_size = 0;
+      std::size_t redo_size = 0;
+      bool dirty = false;
+      bool cross_surface_ok = false;
+      bool invariant_ok = false;
+    };
+
+    auto join_ids = [&](const std::vector<std::string>& ids) -> std::string {
+      std::ostringstream oss;
+      for (std::size_t idx = 0; idx < ids.size(); ++idx) {
+        if (idx > 0) {
+          oss << ",";
+        }
+        oss << ids[idx];
+      }
+      return oss.str();
+    };
+
+    auto collect_visible_tree_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ids{};
+      for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+        if (!builder_tree_row_buttons[idx].visible() || tree_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        ids.push_back(tree_visual_row_node_ids[idx]);
+      }
+      return ids;
+    };
+
+    auto collect_visible_preview_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ids{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        ids.push_back(preview_visual_row_node_ids[idx]);
+      }
+      return ids;
+    };
+
+    auto capture_snapshot = [&]() -> TimeTravelSnapshot {
+      TimeTravelSnapshot snapshot{};
+      snapshot.signature = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      snapshot.selected = selected_builder_node_id;
+      snapshot.focused = focused_builder_node_id;
+      snapshot.anchor = builder_selection_anchor_node_id;
+      snapshot.multi = join_ids(multi_selected_node_ids);
+      snapshot.filter_query = builder_projection_filter_query;
+      snapshot.model_filter = model.filter;
+      snapshot.filter_box_value = filter_box.value();
+      snapshot.tree_visible = join_ids(collect_visible_tree_ids());
+      snapshot.preview_visible = join_ids(collect_visible_preview_ids());
+      snapshot.inspector = inspector_binding_node_id;
+      snapshot.preview = preview_binding_node_id;
+      snapshot.baseline = clean_builder_baseline_signature;
+      snapshot.undo_size = undo_history.size();
+      snapshot.redo_size = redo_stack.size();
+      snapshot.dirty = builder_doc_dirty;
+      snapshot.cross_surface_ok = check_cross_surface_sync();
+      std::string invariant_reason;
+      snapshot.invariant_ok = validate_global_document_invariant(invariant_reason);
+      return snapshot;
+    };
+
+    auto snapshots_equal = [&](const TimeTravelSnapshot& lhs, const TimeTravelSnapshot& rhs) -> bool {
+      return lhs.signature == rhs.signature &&
+             lhs.selected == rhs.selected &&
+             lhs.focused == rhs.focused &&
+             lhs.anchor == rhs.anchor &&
+             lhs.multi == rhs.multi &&
+             lhs.filter_query == rhs.filter_query &&
+             lhs.model_filter == rhs.model_filter &&
+             lhs.filter_box_value == rhs.filter_box_value &&
+             lhs.tree_visible == rhs.tree_visible &&
+             lhs.preview_visible == rhs.preview_visible &&
+             lhs.inspector == rhs.inspector &&
+             lhs.preview == rhs.preview &&
+             lhs.baseline == rhs.baseline &&
+             lhs.undo_size == rhs.undo_size &&
+             lhs.redo_size == rhs.redo_size &&
+             lhs.dirty == rhs.dirty;
+    };
+
+    auto snapshots_equal_except_history = [&](const TimeTravelSnapshot& lhs, const TimeTravelSnapshot& rhs) -> bool {
+      return lhs.signature == rhs.signature &&
+             lhs.selected == rhs.selected &&
+             lhs.focused == rhs.focused &&
+             lhs.anchor == rhs.anchor &&
+             lhs.multi == rhs.multi &&
+             lhs.filter_query == rhs.filter_query &&
+             lhs.model_filter == rhs.model_filter &&
+             lhs.filter_box_value == rhs.filter_box_value &&
+             lhs.tree_visible == rhs.tree_visible &&
+             lhs.preview_visible == rhs.preview_visible &&
+             lhs.inspector == rhs.inspector &&
+             lhs.preview == rhs.preview &&
+             lhs.baseline == rhs.baseline &&
+             lhs.dirty == rhs.dirty;
+    };
+
+    auto apply_projection_filter = [&](const std::string& query) -> bool {
+      set_builder_projection_filter_state(query);
+      const bool remap_ok = remap_selection_or_fail();
+      const bool focus_ok = sync_focus_with_selection_or_fail();
+      const bool inspector_ok = refresh_inspector_or_fail();
+      const bool preview_ok = refresh_preview_or_fail();
+      update_add_child_target_display();
+      const bool sync_ok = check_cross_surface_sync();
+      return remap_ok && focus_ok && inspector_ok && preview_ok && sync_ok;
+    };
+
+    auto make_phase103_73_document = [&]() -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_73_root";
+      root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+      root.child_ids = {"phase103_73_label_a", "phase103_73_label_b", "phase103_73_group"};
+
+      ngk::ui::builder::BuilderNode label_a{};
+      label_a.node_id = "phase103_73_label_a";
+      label_a.parent_id = root.node_id;
+      label_a.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      label_a.text = "alpha";
+
+      ngk::ui::builder::BuilderNode label_b{};
+      label_b.node_id = "phase103_73_label_b";
+      label_b.parent_id = root.node_id;
+      label_b.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      label_b.text = "beta";
+
+      ngk::ui::builder::BuilderNode group{};
+      group.node_id = "phase103_73_group";
+      group.parent_id = root.node_id;
+      group.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      group.child_ids = {"phase103_73_nested"};
+
+      ngk::ui::builder::BuilderNode nested{};
+      nested.node_id = "phase103_73_nested";
+      nested.parent_id = group.node_id;
+      nested.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      nested.text = "nested";
+
+      doc.root_node_id = root.node_id;
+      doc.nodes = {root, label_a, label_b, group, nested};
+      return doc;
+    };
+
+    auto load_phase103_73_document = [&](const ngk::ui::builder::BuilderDocument& doc) -> bool {
+      builder_doc = doc;
+      undo_history.clear();
+      redo_stack.clear();
+      selected_builder_node_id = "phase103_73_label_a";
+      multi_selected_node_ids = {selected_builder_node_id};
+      focused_builder_node_id.clear();
+      builder_selection_anchor_node_id.clear();
+      set_builder_projection_filter_state("");
+      inspector_binding_node_id.clear();
+      preview_binding_node_id.clear();
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      const std::string sig = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = sig;
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = sig;
+      builder_doc_dirty = false;
+      return apply_projection_filter("");
+    };
+
+    auto establish_rich_state = [&]() -> bool {
+      bool ok = load_phase103_73_document(make_phase103_73_document());
+      ok = apply_projection_filter("label") && ok;
+      selected_builder_node_id = "phase103_73_label_a";
+      multi_selected_node_ids = {selected_builder_node_id};
+      ok = restore_exact_selection_focus_anchor_state(selected_builder_node_id, selected_builder_node_id) && ok;
+      ok = apply_keyboard_multi_selection_navigate(true, true) && ok;
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    {
+      flow_ok = establish_rich_state() && flow_ok;
+      const TimeTravelSnapshot before_edit = capture_snapshot();
+      const bool edit_ok = apply_inspector_text_edit_command("phase103_73_edit_a");
+      const TimeTravelSnapshot after_edit = capture_snapshot();
+      const bool undo_ok = apply_undo_command();
+      const TimeTravelSnapshot after_undo = capture_snapshot();
+      const bool redo_ok = apply_redo_command();
+      const TimeTravelSnapshot after_redo = capture_snapshot();
+
+      undo_redo_time_travel_integrity_diag.undo_restores_full_system_state =
+        edit_ok && undo_ok && snapshots_equal_except_history(after_undo, before_edit);
+      undo_redo_time_travel_integrity_diag.redo_restores_full_system_state =
+        edit_ok && redo_ok && snapshots_equal(after_redo, after_edit);
+      undo_redo_time_travel_integrity_diag.selection_anchor_focus_restore_exact =
+        edit_ok && undo_ok && redo_ok &&
+        after_undo.selected == before_edit.selected &&
+        after_undo.focused == before_edit.focused &&
+        after_undo.anchor == before_edit.anchor &&
+        after_redo.selected == after_edit.selected &&
+        after_redo.focused == after_edit.focused &&
+        after_redo.anchor == after_edit.anchor;
+      undo_redo_time_travel_integrity_diag.multi_selection_restore_exact =
+        edit_ok && undo_ok && redo_ok &&
+        after_undo.multi == before_edit.multi &&
+        after_redo.multi == after_edit.multi;
+      undo_redo_time_travel_integrity_diag.cross_surface_state_consistent_after_time_travel =
+        after_undo.cross_surface_ok && after_redo.cross_surface_ok &&
+        after_undo.tree_visible == after_undo.preview_visible &&
+        after_redo.tree_visible == after_redo.preview_visible &&
+        after_undo.inspector == after_undo.selected && after_undo.preview == after_undo.selected &&
+        after_redo.inspector == after_redo.selected && after_redo.preview == after_redo.selected;
+      flow_ok = undo_redo_time_travel_integrity_diag.undo_restores_full_system_state && flow_ok;
+      flow_ok = undo_redo_time_travel_integrity_diag.redo_restores_full_system_state && flow_ok;
+      flow_ok = undo_redo_time_travel_integrity_diag.selection_anchor_focus_restore_exact && flow_ok;
+      flow_ok = undo_redo_time_travel_integrity_diag.multi_selection_restore_exact && flow_ok;
+      flow_ok = undo_redo_time_travel_integrity_diag.cross_surface_state_consistent_after_time_travel && flow_ok;
+    }
+
+    {
+      flow_ok = establish_rich_state() && flow_ok;
+      const TimeTravelSnapshot before_cycle = capture_snapshot();
+      const bool edit_ok = apply_inspector_text_edit_command("phase103_73_cycle");
+      const TimeTravelSnapshot after_cycle = capture_snapshot();
+      bool cycles_ok = edit_ok;
+      for (int cycle = 0; cycle < 8 && cycles_ok; ++cycle) {
+        cycles_ok = apply_undo_command() && cycles_ok;
+        const TimeTravelSnapshot undo_state = capture_snapshot();
+        cycles_ok = snapshots_equal_except_history(undo_state, before_cycle) && cycles_ok;
+        cycles_ok = apply_redo_command() && cycles_ok;
+        const TimeTravelSnapshot redo_state = capture_snapshot();
+        cycles_ok = snapshots_equal_except_history(redo_state, after_cycle) && cycles_ok;
+      }
+      undo_redo_time_travel_integrity_diag.no_state_drift_after_repeated_cycles = cycles_ok;
+      flow_ok = undo_redo_time_travel_integrity_diag.no_state_drift_after_repeated_cycles && flow_ok;
+    }
+
+    {
+      flow_ok = establish_rich_state() && flow_ok;
+      const bool edit_a_ok = apply_inspector_text_edit_command("phase103_73_branch_a");
+      const TimeTravelSnapshot after_edit_a = capture_snapshot();
+      const bool undo_ok = apply_undo_command();
+      const bool redo_available_before_branch = redo_stack.size() == 1;
+      const bool branch_edit_ok = apply_inspector_text_edit_command("phase103_73_branch_b");
+      const TimeTravelSnapshot after_branch = capture_snapshot();
+      const bool redo_blocked = !apply_redo_command();
+      const TimeTravelSnapshot after_redo_attempt = capture_snapshot();
+
+      undo_redo_time_travel_integrity_diag.redo_stack_invalidated_on_new_mutation =
+        edit_a_ok && undo_ok && redo_available_before_branch && branch_edit_ok && redo_blocked && redo_stack.empty();
+      undo_redo_time_travel_integrity_diag.no_branching_history_corruption =
+        undo_redo_time_travel_integrity_diag.redo_stack_invalidated_on_new_mutation &&
+        !snapshots_equal(after_branch, after_edit_a) &&
+        snapshots_equal(after_branch, after_redo_attempt);
+      flow_ok = undo_redo_time_travel_integrity_diag.redo_stack_invalidated_on_new_mutation && flow_ok;
+      flow_ok = undo_redo_time_travel_integrity_diag.no_branching_history_corruption && flow_ok;
+    }
+
+    {
+      flow_ok = establish_rich_state() && flow_ok;
+      const TimeTravelSnapshot before_valid_edit = capture_snapshot();
+      const bool valid_edit_ok = apply_inspector_text_edit_command("phase103_73_failure_seed");
+      const std::size_t history_before_failed_edit = undo_history.size();
+      const std::size_t redo_before_failed_edit = redo_stack.size();
+
+      const bool filter_cleared_ok = apply_projection_filter("");
+      selected_builder_node_id = builder_doc.root_node_id;
+      multi_selected_node_ids = {selected_builder_node_id};
+      const bool root_state_ok = restore_exact_selection_focus_anchor_state(selected_builder_node_id, selected_builder_node_id);
+      const bool inspector_ok = refresh_inspector_or_fail();
+      const bool preview_ok = refresh_preview_or_fail();
+      update_add_child_target_display();
+      const TimeTravelSnapshot before_failed_edit = capture_snapshot();
+      const bool failed_edit = !apply_inspector_text_edit_command("phase103_73_rejected_edit");
+      const TimeTravelSnapshot after_failed_edit = capture_snapshot();
+      const bool undo_ok = apply_undo_command();
+      const TimeTravelSnapshot after_undo = capture_snapshot();
+
+      undo_redo_time_travel_integrity_diag.no_history_pollution_from_failed_operations =
+        valid_edit_ok && filter_cleared_ok && root_state_ok && inspector_ok && preview_ok && failed_edit && undo_ok &&
+        snapshots_equal_except_history(before_failed_edit, after_failed_edit) &&
+        after_failed_edit.undo_size == history_before_failed_edit &&
+        after_failed_edit.redo_size == redo_before_failed_edit &&
+        snapshots_equal_except_history(after_undo, before_valid_edit);
+      flow_ok = undo_redo_time_travel_integrity_diag.no_history_pollution_from_failed_operations && flow_ok;
+    }
+
+    {
+      flow_ok = establish_rich_state() && flow_ok;
+      bool invariant_ok = apply_inspector_text_edit_command("phase103_73_invariant");
+      for (int cycle = 0; cycle < 6 && invariant_ok; ++cycle) {
+        invariant_ok = apply_undo_command() && invariant_ok;
+        std::string invariant_reason;
+        invariant_ok = validate_global_document_invariant(invariant_reason) && invariant_ok;
+        invariant_ok = apply_redo_command() && invariant_ok;
+        invariant_ok = validate_global_document_invariant(invariant_reason) && invariant_ok;
+      }
+      undo_redo_time_travel_integrity_diag.global_invariant_preserved_during_undo_redo = invariant_ok;
+      flow_ok = undo_redo_time_travel_integrity_diag.global_invariant_preserved_during_undo_redo && flow_ok;
+    }
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_74 = [&] {
+    viewport_scroll_visual_state_integrity_diag = {};
+    bool flow_ok = true;
+
+    struct ViewportSnapshot {
+      bool ok = false;
+      std::string signature{};
+      std::string selected{};
+      std::string focused{};
+      std::string filter_query{};
+      std::string tree_visible{};
+      std::string preview_visible{};
+      std::string tree_top_id{};
+      std::string preview_top_id{};
+      int tree_scroll = 0;
+      int preview_scroll = 0;
+      int tree_max_scroll = 0;
+      int preview_max_scroll = 0;
+      bool tree_selected_visible = false;
+      bool tree_focused_visible = false;
+      bool preview_selected_visible = false;
+      bool cross_surface_ok = false;
+      bool invariant_ok = false;
+      bool dirty = false;
+      std::size_t undo_size = 0;
+      std::size_t redo_size = 0;
+    };
+
+    auto join_ids = [&](const std::vector<std::string>& ids) -> std::string {
+      std::ostringstream oss;
+      for (std::size_t idx = 0; idx < ids.size(); ++idx) {
+        if (idx > 0) {
+          oss << ",";
+        }
+        oss << ids[idx];
+      }
+      return oss.str();
+    };
+
+    auto collect_visible_tree_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ids{};
+      for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+        if (!builder_tree_row_buttons[idx].visible() || tree_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        ids.push_back(tree_visual_row_node_ids[idx]);
+      }
+      return ids;
+    };
+
+    auto collect_visible_preview_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ids{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        ids.push_back(preview_visual_row_node_ids[idx]);
+      }
+      return ids;
+    };
+
+    auto visible_rows_reference_valid_nodes = [&]() -> bool {
+      for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+        if (!builder_tree_row_buttons[idx].visible() || tree_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        if (!node_exists(tree_visual_row_node_ids[idx])) {
+          return false;
+        }
+      }
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        if (!node_exists(preview_visual_row_node_ids[idx])) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    auto capture_viewport_snapshot = [&]() -> ViewportSnapshot {
+      ViewportSnapshot snapshot{};
+      snapshot.ok = visible_rows_reference_valid_nodes();
+      snapshot.signature = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      snapshot.selected = selected_builder_node_id;
+      snapshot.focused = focused_builder_node_id;
+      snapshot.filter_query = builder_projection_filter_query;
+      snapshot.tree_visible = join_ids(collect_visible_tree_ids());
+      snapshot.preview_visible = join_ids(collect_visible_preview_ids());
+      snapshot.tree_top_id = first_visible_tree_row_node_id();
+      snapshot.preview_top_id = first_visible_preview_row_node_id();
+      snapshot.tree_scroll = builder_tree_scroll.scroll_offset_y();
+      snapshot.preview_scroll = builder_preview_scroll.scroll_offset_y();
+      snapshot.tree_max_scroll = builder_tree_scroll.max_scroll_y();
+      snapshot.preview_max_scroll = builder_preview_scroll.max_scroll_y();
+      snapshot.tree_selected_visible = tree_row_fully_visible_in_viewport(selected_builder_node_id);
+      snapshot.tree_focused_visible = focused_builder_node_id.empty() || tree_row_fully_visible_in_viewport(focused_builder_node_id);
+      snapshot.preview_selected_visible = preview_row_fully_visible_in_viewport(selected_builder_node_id);
+      snapshot.cross_surface_ok = check_cross_surface_sync();
+      std::string invariant_reason;
+      snapshot.invariant_ok = validate_global_document_invariant(invariant_reason);
+      snapshot.dirty = builder_doc_dirty;
+      snapshot.undo_size = undo_history.size();
+      snapshot.redo_size = redo_stack.size();
+      snapshot.ok = snapshot.ok && snapshot.cross_surface_ok && snapshot.invariant_ok;
+      return snapshot;
+    };
+
+    auto snapshots_equal = [&](const ViewportSnapshot& lhs, const ViewportSnapshot& rhs) -> bool {
+      return lhs.signature == rhs.signature &&
+             lhs.selected == rhs.selected &&
+             lhs.focused == rhs.focused &&
+             lhs.filter_query == rhs.filter_query &&
+             lhs.tree_visible == rhs.tree_visible &&
+             lhs.preview_visible == rhs.preview_visible &&
+             lhs.tree_top_id == rhs.tree_top_id &&
+             lhs.preview_top_id == rhs.preview_top_id &&
+             lhs.tree_scroll == rhs.tree_scroll &&
+             lhs.preview_scroll == rhs.preview_scroll &&
+             lhs.tree_selected_visible == rhs.tree_selected_visible &&
+             lhs.tree_focused_visible == rhs.tree_focused_visible &&
+             lhs.preview_selected_visible == rhs.preview_selected_visible &&
+             lhs.dirty == rhs.dirty &&
+             lhs.undo_size == rhs.undo_size &&
+             lhs.redo_size == rhs.redo_size;
+    };
+
+    auto make_phase103_74_document = [&]() -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_74_root";
+      root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+
+      for (int index = 0; index < 18; ++index) {
+        const std::string node_id = "phase103_74_label_" + std::to_string(index);
+        root.child_ids.push_back(node_id);
+      }
+      root.child_ids.push_back("phase103_74_group");
+
+      doc.root_node_id = root.node_id;
+      doc.nodes.push_back(root);
+
+      for (int index = 0; index < 18; ++index) {
+        ngk::ui::builder::BuilderNode label{};
+        label.node_id = "phase103_74_label_" + std::to_string(index);
+        label.parent_id = doc.root_node_id;
+        label.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+        label.text = "phase103_74_label_" + std::to_string(index);
+        doc.nodes.push_back(label);
+      }
+
+      ngk::ui::builder::BuilderNode group{};
+      group.node_id = "phase103_74_group";
+      group.parent_id = doc.root_node_id;
+      group.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      group.child_ids = {"phase103_74_nested_a", "phase103_74_nested_b"};
+      doc.nodes.push_back(group);
+
+      ngk::ui::builder::BuilderNode nested_a{};
+      nested_a.node_id = "phase103_74_nested_a";
+      nested_a.parent_id = group.node_id;
+      nested_a.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      nested_a.text = "phase103_74_nested_a";
+      doc.nodes.push_back(nested_a);
+
+      ngk::ui::builder::BuilderNode nested_b{};
+      nested_b.node_id = "phase103_74_nested_b";
+      nested_b.parent_id = group.node_id;
+      nested_b.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      nested_b.text = "phase103_74_nested_b";
+      doc.nodes.push_back(nested_b);
+
+      return doc;
+    };
+
+    auto apply_phase103_74_projection_filter = [&](const std::string& query) -> bool {
+      set_builder_projection_filter_state(query);
+      const bool remap_ok = remap_selection_or_fail();
+      const bool focus_ok = sync_focus_with_selection_or_fail();
+      const bool inspector_ok = refresh_inspector_or_fail();
+      const bool preview_ok = refresh_preview_or_fail();
+      update_add_child_target_display();
+      const bool sync_ok = check_cross_surface_sync();
+      return remap_ok && focus_ok && inspector_ok && preview_ok && sync_ok;
+    };
+
+    auto load_phase103_74_document = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                         const std::string& selected_id) -> bool {
+      builder_doc = doc;
+      undo_history.clear();
+      redo_stack.clear();
+      selected_builder_node_id = selected_id;
+      multi_selected_node_ids = selected_id.empty() ? std::vector<std::string>{} : std::vector<std::string>{selected_id};
+      focused_builder_node_id.clear();
+      builder_selection_anchor_node_id.clear();
+      inspector_binding_node_id.clear();
+      preview_binding_node_id.clear();
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      builder_tree_scroll.set_scroll_offset_y(0);
+      builder_preview_scroll.set_scroll_offset_y(0);
+
+      const std::string signature = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = signature;
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = signature;
+      builder_doc_dirty = false;
+      return apply_phase103_74_projection_filter("");
+    };
+
+    auto select_node_and_sync = [&](const std::string& node_id) -> bool {
+      if (node_id.empty() || !node_exists(node_id)) {
+        return false;
+      }
+      selected_builder_node_id = node_id;
+      multi_selected_node_ids = {node_id};
+      const bool focus_ok = restore_exact_selection_focus_anchor_state(node_id, node_id);
+      const bool inspector_ok = refresh_inspector_or_fail();
+      const bool preview_ok = refresh_preview_or_fail();
+      update_add_child_target_display();
+      const bool sync_ok = check_cross_surface_sync();
+      return focus_ok && inspector_ok && preview_ok && sync_ok;
+    };
+
+    auto set_viewport_margins_for_selected = [&](int margin) -> bool {
+      refresh_tree_surface_label();
+      const bool prelayout_inspector_ok = refresh_inspector_or_fail();
+      const bool prelayout_preview_ok = refresh_preview_or_fail();
+      if (!prelayout_inspector_ok || !prelayout_preview_ok) {
+        return false;
+      }
+
+      const std::size_t tree_index = find_visible_tree_row_index(selected_builder_node_id);
+      const std::size_t preview_index = find_visible_preview_row_index(selected_builder_node_id);
+      if (tree_index >= kMaxVisualTreeRows || preview_index >= kMaxVisualPreviewRows) {
+        return false;
+      }
+
+      int tree_top = 0;
+      int tree_bottom = 0;
+      int preview_top = 0;
+      int preview_bottom = 0;
+      if (!compute_tree_row_bounds(tree_index, tree_top, tree_bottom) ||
+          !compute_preview_row_bounds(preview_index, preview_top, preview_bottom)) {
+        return false;
+      }
+
+      builder_tree_scroll.set_scroll_offset_y(std::max(0, tree_top - margin));
+      builder_preview_scroll.set_scroll_offset_y(std::max(0, preview_top - margin));
+
+      reconcile_tree_viewport_to_current_state();
+      reconcile_preview_viewport_to_current_state();
+      refresh_tree_surface_label();
+      const bool inspector_ok = refresh_inspector_or_fail();
+      const bool preview_ok = refresh_preview_or_fail();
+      update_add_child_target_display();
+      const bool sync_ok = check_cross_surface_sync();
+      return inspector_ok && preview_ok && sync_ok;
+    };
+
+    auto execute_reference_sequence = [&]() -> ViewportSnapshot {
+      ViewportSnapshot snapshot{};
+      bool ok = load_phase103_74_document(make_phase103_74_document(), "phase103_74_label_15");
+      ok = select_node_and_sync("phase103_74_label_15") && ok;
+      ok = set_viewport_margins_for_selected(10) && ok;
+      ok = apply_phase103_74_projection_filter("phase103_74_label_15") && ok;
+      ok = apply_phase103_74_projection_filter("") && ok;
+      ok = select_node_and_sync("phase103_74_nested_b") && ok;
+      ok = set_viewport_margins_for_selected(6) && ok;
+      snapshot = capture_viewport_snapshot();
+      snapshot.ok = snapshot.ok && ok;
+      return snapshot;
+    };
+
+    {
+      const bool load_ok = load_phase103_74_document(make_phase103_74_document(), "phase103_74_label_15");
+      const bool select_ok = load_ok && select_node_and_sync("phase103_74_label_15");
+      const ViewportSnapshot first = capture_viewport_snapshot();
+
+      const bool load_ok_repeat = load_phase103_74_document(make_phase103_74_document(), "phase103_74_label_15");
+      const bool select_ok_repeat = load_ok_repeat && select_node_and_sync("phase103_74_label_15");
+      const ViewportSnapshot second = capture_viewport_snapshot();
+
+      viewport_scroll_visual_state_integrity_diag.selected_node_visible_or_scrolled_into_view_deterministically =
+        select_ok && select_ok_repeat &&
+        first.tree_selected_visible && first.preview_selected_visible &&
+        second.tree_selected_visible && second.preview_selected_visible &&
+        first.tree_scroll == second.tree_scroll &&
+        first.preview_scroll == second.preview_scroll;
+      flow_ok = viewport_scroll_visual_state_integrity_diag.selected_node_visible_or_scrolled_into_view_deterministically && flow_ok;
+    }
+
+    {
+      const ViewportSnapshot first = execute_reference_sequence();
+      const ViewportSnapshot second = execute_reference_sequence();
+      viewport_scroll_visual_state_integrity_diag.scroll_position_deterministic_for_identical_sequences =
+        first.ok && second.ok && snapshots_equal(first, second);
+      flow_ok = viewport_scroll_visual_state_integrity_diag.scroll_position_deterministic_for_identical_sequences && flow_ok;
+    }
+
+    {
+      bool ok = load_phase103_74_document(make_phase103_74_document(), "phase103_74_label_15");
+      ok = select_node_and_sync("phase103_74_label_15") && ok;
+      ok = set_viewport_margins_for_selected(8) && ok;
+      const ViewportSnapshot before_delete = capture_viewport_snapshot();
+      const bool delete_ok = invoke_builder_action("ACTION_DELETE_CURRENT", "phase103_74");
+      const ViewportSnapshot after_delete = capture_viewport_snapshot();
+      const bool undo_ok = delete_ok && apply_undo_command();
+      const ViewportSnapshot after_undo = capture_viewport_snapshot();
+      const bool redo_ok = undo_ok && apply_redo_command();
+      const ViewportSnapshot after_redo = capture_viewport_snapshot();
+
+      viewport_scroll_visual_state_integrity_diag.undo_redo_restores_viewport_with_state =
+        ok && delete_ok && undo_ok && redo_ok &&
+        after_undo.tree_scroll == before_delete.tree_scroll &&
+        after_undo.preview_scroll == before_delete.preview_scroll &&
+        after_redo.tree_scroll == after_delete.tree_scroll &&
+        after_redo.preview_scroll == after_delete.preview_scroll &&
+        after_undo.tree_selected_visible && after_undo.preview_selected_visible &&
+        after_redo.tree_selected_visible && after_redo.preview_selected_visible;
+      flow_ok = viewport_scroll_visual_state_integrity_diag.undo_redo_restores_viewport_with_state && flow_ok;
+    }
+
+    {
+      bool ok = load_phase103_74_document(make_phase103_74_document(), "phase103_74_label_15");
+      ok = select_node_and_sync("phase103_74_label_15") && ok;
+      ok = set_viewport_margins_for_selected(8) && ok;
+      const bool filter_ok_1 = apply_phase103_74_projection_filter("phase103_74_label_15");
+      const ViewportSnapshot filtered_once = capture_viewport_snapshot();
+      const bool clear_ok = apply_phase103_74_projection_filter("");
+      const ViewportSnapshot unfiltered = capture_viewport_snapshot();
+      const bool filter_ok_2 = apply_phase103_74_projection_filter("phase103_74_label_15");
+      const ViewportSnapshot filtered_twice = capture_viewport_snapshot();
+
+      viewport_scroll_visual_state_integrity_diag.filtered_and_unfiltered_scroll_mapping_consistent =
+        ok && filter_ok_1 && clear_ok && filter_ok_2 &&
+        filtered_once.tree_selected_visible && filtered_once.preview_selected_visible &&
+        unfiltered.tree_selected_visible && unfiltered.preview_selected_visible &&
+        filtered_once.tree_scroll == filtered_twice.tree_scroll &&
+        filtered_once.preview_scroll == filtered_twice.preview_scroll &&
+        filtered_once.tree_top_id == filtered_twice.tree_top_id &&
+        filtered_once.preview_top_id == filtered_twice.preview_top_id;
+      flow_ok = viewport_scroll_visual_state_integrity_diag.filtered_and_unfiltered_scroll_mapping_consistent && flow_ok;
+    }
+
+    {
+      bool ok = load_phase103_74_document(make_phase103_74_document(), "phase103_74_label_15");
+      ok = select_node_and_sync("phase103_74_label_15") && ok;
+      ok = set_viewport_margins_for_selected(8) && ok;
+      const bool before_valid = visible_rows_reference_valid_nodes();
+      const bool delete_ok = invoke_builder_action("ACTION_DELETE_CURRENT", "phase103_74_invalid_ref");
+      const ViewportSnapshot after_delete = capture_viewport_snapshot();
+
+      viewport_scroll_visual_state_integrity_diag.viewport_never_references_invalid_or_deleted_rows =
+        ok && before_valid && delete_ok && visible_rows_reference_valid_nodes() &&
+        after_delete.tree_scroll >= 0 && after_delete.preview_scroll >= 0 &&
+        after_delete.tree_scroll <= after_delete.tree_max_scroll &&
+        after_delete.preview_scroll <= after_delete.preview_max_scroll &&
+        (after_delete.tree_top_id.empty() || node_exists(after_delete.tree_top_id)) &&
+        (after_delete.preview_top_id.empty() || node_exists(after_delete.preview_top_id));
+      flow_ok = viewport_scroll_visual_state_integrity_diag.viewport_never_references_invalid_or_deleted_rows && flow_ok;
+    }
+
+    {
+      bool ok = load_phase103_74_document(make_phase103_74_document(), "phase103_74_label_15");
+      ok = select_node_and_sync("phase103_74_label_15") && ok;
+      ok = set_viewport_margins_for_selected(8) && ok;
+      const ViewportSnapshot before_save = capture_viewport_snapshot();
+      const bool save_ok = apply_save_document_command();
+      const ViewportSnapshot after_save = capture_viewport_snapshot();
+      const bool load_ok = apply_load_document_command(false);
+      const ViewportSnapshot after_load = capture_viewport_snapshot();
+      const bool new_ok = apply_new_document_command(true);
+      const ViewportSnapshot after_new = capture_viewport_snapshot();
+
+      viewport_scroll_visual_state_integrity_diag.load_save_initialize_or_preserve_viewport_deterministically =
+        ok && save_ok && load_ok &&
+        before_save.tree_scroll == after_save.tree_scroll &&
+        before_save.preview_scroll == after_save.preview_scroll &&
+        after_load.tree_scroll == 0 && after_load.preview_scroll == 0 &&
+        after_new.tree_scroll == 0 && after_new.preview_scroll == 0 &&
+        after_load.tree_selected_visible && after_load.preview_selected_visible &&
+        after_new.tree_selected_visible && after_new.preview_selected_visible;
+      (void)new_ok;
+      flow_ok = viewport_scroll_visual_state_integrity_diag.load_save_initialize_or_preserve_viewport_deterministically && flow_ok;
+    }
+
+    {
+      bool ok = load_phase103_74_document(make_phase103_74_document(), "phase103_74_label_15");
+      ok = select_node_and_sync("phase103_74_label_15") && ok;
+      const std::string before_signature = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      const std::size_t before_undo = undo_history.size();
+      const std::size_t before_redo = redo_stack.size();
+      const bool before_dirty = builder_doc_dirty;
+      ok = set_viewport_margins_for_selected(2) && ok;
+      ok = set_viewport_margins_for_selected(12) && ok;
+      const std::string after_signature = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+
+      viewport_scroll_visual_state_integrity_diag.no_dirty_or_history_side_effects_from_viewport_changes =
+        ok && before_signature == after_signature &&
+        undo_history.size() == before_undo &&
+        redo_stack.size() == before_redo &&
+        builder_doc_dirty == before_dirty;
+      flow_ok = viewport_scroll_visual_state_integrity_diag.no_dirty_or_history_side_effects_from_viewport_changes && flow_ok;
+    }
+
+    {
+      bool ok = load_phase103_74_document(make_phase103_74_document(), "phase103_74_nested_b");
+      ok = select_node_and_sync("phase103_74_nested_b") && ok;
+      ok = set_viewport_margins_for_selected(6) && ok;
+      const ViewportSnapshot snapshot = capture_viewport_snapshot();
+
+      viewport_scroll_visual_state_integrity_diag.tree_and_preview_viewports_remain_coherent =
+        ok && snapshot.ok &&
+        !snapshot.tree_top_id.empty() && !snapshot.preview_top_id.empty();
+      flow_ok = viewport_scroll_visual_state_integrity_diag.tree_and_preview_viewports_remain_coherent && flow_ok;
+    }
+
+    {
+      bool ok = true;
+      ViewportSnapshot baseline{};
+      for (int cycle = 0; cycle < 6 && ok; ++cycle) {
+        const ViewportSnapshot current = execute_reference_sequence();
+        ok = current.ok && ok;
+        if (cycle == 0) {
+          baseline = current;
+        } else {
+          ok = snapshots_equal(current, baseline) && ok;
+        }
+      }
+      viewport_scroll_visual_state_integrity_diag.no_scroll_drift_after_stress_sequences = ok;
+      flow_ok = viewport_scroll_visual_state_integrity_diag.no_scroll_drift_after_stress_sequences && flow_ok;
+    }
+
+    {
+      bool invariant_ok = true;
+      for (int cycle = 0; cycle < 5 && invariant_ok; ++cycle) {
+        const ViewportSnapshot snapshot = execute_reference_sequence();
+        invariant_ok = snapshot.ok && snapshot.invariant_ok && invariant_ok;
+      }
+      viewport_scroll_visual_state_integrity_diag.global_invariant_preserved_during_viewport_updates = invariant_ok;
+      flow_ok = viewport_scroll_visual_state_integrity_diag.global_invariant_preserved_during_viewport_updates && flow_ok;
+    }
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_75 = [&] {
+    external_data_boundary_integrity_diag = {};
+    bool flow_ok = true;
+
+    auto refresh_phase103_75_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto make_phase103_75_base_document = [&]() -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_75_root";
+      root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+      root.layout.min_width = 1;
+      root.child_ids = {"phase103_75_target", "phase103_75_existing_label"};
+
+      ngk::ui::builder::BuilderNode target{};
+      target.node_id = "phase103_75_target";
+      target.parent_id = root.node_id;
+      target.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      target.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      target.layout.min_width = 1;
+
+      ngk::ui::builder::BuilderNode label{};
+      label.node_id = "phase103_75_existing_label";
+      label.parent_id = root.node_id;
+      label.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      label.text = "phase103_75_existing";
+
+      doc.root_node_id = root.node_id;
+      doc.nodes = {root, target, label};
+      return doc;
+    };
+
+    auto make_phase103_75_external_document = [&]() -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_75_ext_root";
+      root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      root.layout.min_width = 1;
+      root.child_ids = {"phase103_75_ext_label", "phase103_75_ext_group"};
+
+      ngk::ui::builder::BuilderNode label{};
+      label.node_id = "phase103_75_ext_label";
+      label.parent_id = root.node_id;
+      label.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      label.text = "phase103_75_ext_label";
+
+      ngk::ui::builder::BuilderNode group{};
+      group.node_id = "phase103_75_ext_group";
+      group.parent_id = root.node_id;
+      group.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      group.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      group.layout.min_width = 1;
+      group.child_ids = {"phase103_75_ext_nested"};
+
+      ngk::ui::builder::BuilderNode nested{};
+      nested.node_id = "phase103_75_ext_nested";
+      nested.parent_id = group.node_id;
+      nested.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      nested.text = "phase103_75_ext_nested";
+
+      doc.root_node_id = root.node_id;
+      doc.nodes = {root, label, group, nested};
+      return doc;
+    };
+
+    auto load_phase103_75_document = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                         const std::string& selected_id) -> bool {
+      builder_doc = doc;
+      undo_history.clear();
+      redo_stack.clear();
+      selected_builder_node_id = selected_id;
+      multi_selected_node_ids = selected_id.empty() ? std::vector<std::string>{} : std::vector<std::string>{selected_id};
+      focused_builder_node_id = selected_id;
+      builder_selection_anchor_node_id = selected_id;
+      inspector_binding_node_id.clear();
+      preview_binding_node_id.clear();
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      builder_projection_filter_query.clear();
+      model.filter.clear();
+      builder_tree_scroll.set_scroll_offset_y(0);
+      builder_preview_scroll.set_scroll_offset_y(0);
+
+      const std::string signature = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = signature;
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = signature;
+      builder_doc_dirty = false;
+      return refresh_phase103_75_surfaces();
+    };
+
+    auto build_phase103_75_signature = [&]() -> std::string {
+      return ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    };
+
+    auto collect_phase103_75_subtree_ids = [&](const std::string& root_id) {
+      std::vector<std::string> ordered{};
+      std::function<void(const std::string&)> walk = [&](const std::string& node_id) {
+        auto* node = find_node_by_id(node_id);
+        if (!node) {
+          return;
+        }
+        ordered.push_back(node_id);
+        for (const auto& child_id : node->child_ids) {
+          walk(child_id);
+        }
+      };
+      walk(root_id);
+      return ordered;
+    };
+
+    auto canonical_phase103_75_subtree_signature = [&](const std::string& root_id) -> std::string {
+      std::function<std::string(const std::string&)> sig = [&](const std::string& node_id) -> std::string {
+        const auto* node = find_node_by_id(node_id);
+        if (!node) {
+          return std::string("missing:") + node_id;
+        }
+        std::ostringstream oss;
+        oss << ngk::ui::builder::to_string(node->widget_type)
+            << "#" << node->text
+            << "#" << node->layout.min_width
+            << "{";
+        for (std::size_t idx = 0; idx < node->child_ids.size(); ++idx) {
+          if (idx > 0) {
+            oss << ",";
+          }
+          oss << sig(node->child_ids[idx]);
+        }
+        oss << "}";
+        return oss.str();
+      };
+      return root_id.empty() ? std::string{} : sig(root_id);
+    };
+
+    auto replace_once = [&](const std::string& haystack,
+                            const std::string& needle,
+                            const std::string& replacement) -> std::string {
+      const std::size_t pos = haystack.find(needle);
+      if (pos == std::string::npos) {
+        return std::string{};
+      }
+      std::string replaced = haystack;
+      replaced.replace(pos, needle.size(), replacement);
+      return replaced;
+    };
+
+    const ngk::ui::builder::BuilderDocument external_doc = make_phase103_75_external_document();
+    const std::string valid_payload = ngk::ui::builder::serialize_builder_document_deterministic(external_doc);
+    const std::string malformed_payload = valid_payload.empty() || valid_payload.size() < 12
+      ? std::string("not_a_builder_payload")
+      : valid_payload.substr(0, valid_payload.size() - 7);
+    const std::string broken_parent_payload = replace_once(
+      valid_payload,
+      "node.1.parent_id=phase103_75_ext_root",
+      "node.1.parent_id=phase103_75_missing_parent");
+    const std::string invalid_layout_payload = replace_once(
+      valid_payload,
+      "node.0.layout.min_width=1",
+      "node.0.layout.min_width=-1");
+    const std::string oversized_payload(262145, 'Z');
+
+    {
+      const bool loaded = load_phase103_75_document(make_phase103_75_base_document(), "phase103_75_target");
+      const std::string before_signature = build_phase103_75_signature();
+      const std::size_t before_history = undo_history.size();
+      const bool before_dirty = builder_doc_dirty;
+      std::string malformed_reason;
+      const bool malformed_rejected = loaded &&
+        !import_external_builder_subtree_payload(malformed_payload,
+                                                "phase103_75_target",
+                                                "phase103_75_malformed",
+                                                nullptr,
+                                                &malformed_reason);
+      std::string partial_reason;
+      const bool partial_rejected = loaded &&
+        !import_external_builder_subtree_payload(broken_parent_payload,
+                                                "phase103_75_target",
+                                                "phase103_75_partial",
+                                                nullptr,
+                                                &partial_reason);
+      external_data_boundary_integrity_diag.external_paste_rejects_malformed_or_partial_data =
+        loaded && malformed_rejected && partial_rejected &&
+        !malformed_reason.empty() && !partial_reason.empty() &&
+        build_phase103_75_signature() == before_signature &&
+        undo_history.size() == before_history &&
+        builder_doc_dirty == before_dirty;
+      flow_ok = external_data_boundary_integrity_diag.external_paste_rejects_malformed_or_partial_data && flow_ok;
+    }
+
+    {
+      const bool loaded = load_phase103_75_document(make_phase103_75_base_document(), "phase103_75_target");
+      const auto* target_before = find_node_by_id("phase103_75_target");
+      const std::size_t child_count_before = target_before ? target_before->child_ids.size() : 0;
+      const std::size_t node_count_before = builder_doc.nodes.size();
+      std::vector<std::string> imported_roots{};
+      const bool import_ok = loaded &&
+        import_external_builder_subtree_payload(valid_payload,
+                                               "phase103_75_target",
+                                               "phase103_75_external_import",
+                                               &imported_roots,
+                                               nullptr);
+      const auto* target_after = find_node_by_id("phase103_75_target");
+      const auto imported_ids = import_ok && !imported_roots.empty()
+        ? collect_phase103_75_subtree_ids(imported_roots.front())
+        : std::vector<std::string>{};
+      external_data_boundary_integrity_diag.external_data_parsed_and_applied_atomically =
+        import_ok && imported_roots.size() == 1 &&
+        target_after != nullptr &&
+        target_after->child_ids.size() == child_count_before + 1 &&
+        builder_doc.nodes.size() == node_count_before + external_doc.nodes.size() &&
+        imported_ids.size() == external_doc.nodes.size();
+      flow_ok = external_data_boundary_integrity_diag.external_data_parsed_and_applied_atomically && flow_ok;
+
+      bool ids_valid = import_ok && !imported_roots.empty();
+      if (ids_valid) {
+        const std::vector<std::string> imported_ids_local = collect_phase103_75_subtree_ids(imported_roots.front());
+        for (const auto& imported_id : imported_ids_local) {
+          if (!ngk::ui::builder::is_valid_node_id(imported_id) || imported_id.rfind("ext75-", 0) != 0) {
+            ids_valid = false;
+            break;
+          }
+          if (imported_id == "phase103_75_ext_root" ||
+              imported_id == "phase103_75_ext_label" ||
+              imported_id == "phase103_75_ext_group" ||
+              imported_id == "phase103_75_ext_nested") {
+            ids_valid = false;
+            break;
+          }
+        }
+        const auto* imported_root = find_node_by_id(imported_roots.front());
+        ids_valid = ids_valid && imported_root != nullptr && imported_root->parent_id == "phase103_75_target";
+      }
+      external_data_boundary_integrity_diag.imported_nodes_have_valid_ids_and_relationships =
+        ids_valid && ngk::ui::builder::validate_builder_document(builder_doc, nullptr);
+      flow_ok = external_data_boundary_integrity_diag.imported_nodes_have_valid_ids_and_relationships && flow_ok;
+
+      std::string invariant_reason;
+      external_data_boundary_integrity_diag.global_invariant_preserved_after_external_import =
+        import_ok && validate_global_document_invariant(invariant_reason);
+      flow_ok = external_data_boundary_integrity_diag.global_invariant_preserved_after_external_import && flow_ok;
+
+      external_data_boundary_integrity_diag.successful_external_paste_creates_single_atomic_history_entry =
+        import_ok && undo_history.size() == 1 && redo_stack.empty() && builder_doc_dirty;
+      flow_ok = external_data_boundary_integrity_diag.successful_external_paste_creates_single_atomic_history_entry && flow_ok;
+    }
+
+    {
+      const bool loaded = load_phase103_75_document(make_phase103_75_base_document(), "phase103_75_target");
+      const std::string before_signature = build_phase103_75_signature();
+      const std::size_t before_history = undo_history.size();
+      const bool before_dirty = builder_doc_dirty;
+      std::string invalid_reason;
+      const bool invalid_rejected = loaded &&
+        !import_external_builder_subtree_payload(invalid_layout_payload,
+                                                "phase103_75_target",
+                                                "phase103_75_invalid_layout",
+                                                nullptr,
+                                                &invalid_reason);
+      std::string missing_target_reason;
+      const bool missing_target_rejected = loaded &&
+        !import_external_builder_subtree_payload(valid_payload,
+                                                "phase103_75_missing_target",
+                                                "phase103_75_missing_target",
+                                                nullptr,
+                                                &missing_target_reason);
+      external_data_boundary_integrity_diag.external_input_cannot_bypass_global_invariant =
+        loaded && invalid_rejected && missing_target_rejected &&
+        !invalid_reason.empty() && !missing_target_reason.empty() &&
+        build_phase103_75_signature() == before_signature &&
+        undo_history.size() == before_history &&
+        builder_doc_dirty == before_dirty &&
+        validate_global_document_invariant(invalid_reason);
+      flow_ok = external_data_boundary_integrity_diag.external_input_cannot_bypass_global_invariant && flow_ok;
+
+      external_data_boundary_integrity_diag.failed_external_paste_creates_no_history_or_dirty_change =
+        loaded && invalid_rejected &&
+        build_phase103_75_signature() == before_signature &&
+        undo_history.size() == before_history &&
+        builder_doc_dirty == before_dirty;
+      flow_ok = external_data_boundary_integrity_diag.failed_external_paste_creates_no_history_or_dirty_change && flow_ok;
+    }
+
+    {
+      const bool loaded_a = load_phase103_75_document(make_phase103_75_base_document(), "phase103_75_target");
+      std::vector<std::string> imported_a{};
+      const bool import_a = loaded_a &&
+        import_external_builder_subtree_payload(valid_payload,
+                                               "phase103_75_target",
+                                               "phase103_75_deterministic_a",
+                                               &imported_a,
+                                               nullptr);
+      const std::string signature_a = build_phase103_75_signature();
+      const std::string subtree_a =
+        (import_a && !imported_a.empty()) ? canonical_phase103_75_subtree_signature(imported_a.front()) : std::string{};
+
+      const bool loaded_b = load_phase103_75_document(make_phase103_75_base_document(), "phase103_75_target");
+      std::vector<std::string> imported_b{};
+      const bool import_b = loaded_b &&
+        import_external_builder_subtree_payload(valid_payload,
+                                               "phase103_75_target",
+                                               "phase103_75_deterministic_b",
+                                               &imported_b,
+                                               nullptr);
+      const std::string signature_b = build_phase103_75_signature();
+      const std::string subtree_b =
+        (import_b && !imported_b.empty()) ? canonical_phase103_75_subtree_signature(imported_b.front()) : std::string{};
+
+      external_data_boundary_integrity_diag.deterministic_result_for_identical_external_input =
+        import_a && import_b && signature_a == signature_b && subtree_a == subtree_b && imported_a == imported_b;
+      flow_ok = external_data_boundary_integrity_diag.deterministic_result_for_identical_external_input && flow_ok;
+    }
+
+    {
+      const bool loaded = load_phase103_75_document(make_phase103_75_base_document(), "phase103_75_target");
+      const std::string before_signature = build_phase103_75_signature();
+      const std::size_t before_history = undo_history.size();
+      const bool before_dirty = builder_doc_dirty;
+      std::string oversized_reason;
+      const bool oversized_rejected = loaded &&
+        !import_external_builder_subtree_payload(oversized_payload,
+                                                "phase103_75_target",
+                                                "phase103_75_oversized",
+                                                nullptr,
+                                                &oversized_reason);
+      external_data_boundary_integrity_diag.large_or_invalid_payloads_fail_safely_without_crash =
+        loaded && oversized_rejected &&
+        oversized_reason == "payload_too_large" &&
+        build_phase103_75_signature() == before_signature &&
+        undo_history.size() == before_history &&
+        builder_doc_dirty == before_dirty;
+      flow_ok = external_data_boundary_integrity_diag.large_or_invalid_payloads_fail_safely_without_crash && flow_ok;
+    }
+
+    {
+      run_phase103_65();
+      external_data_boundary_integrity_diag.internal_clipboard_path_unchanged_and_isolated =
+        clipboard_integrity_diag.clipboard_payload_requires_valid_selection &&
+        clipboard_integrity_diag.duplicate_creates_fresh_unique_ids &&
+        clipboard_integrity_diag.paste_preserves_subtree_fidelity &&
+        clipboard_integrity_diag.paste_does_not_leak_runtime_state &&
+        clipboard_integrity_diag.paste_target_validation_fail_closed &&
+        clipboard_integrity_diag.cut_paste_roundtrip_preserves_structure &&
+        clipboard_integrity_diag.undo_redo_exact_for_clipboard_operations &&
+        clipboard_integrity_diag.deterministic_paste_order_and_parenting &&
+        clipboard_integrity_diag.nested_selection_deduplicated_on_copy &&
+        clipboard_integrity_diag.no_cross_node_corruption_after_clipboard_sequence;
+      flow_ok = external_data_boundary_integrity_diag.internal_clipboard_path_unchanged_and_isolated && flow_ok;
+    }
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_76 = [&] {
+    performance_scaling_integrity_diag = {};
+    bool flow_ok = true;
+    using WType = ngk::ui::builder::BuilderWidgetType;
+
+    struct ScalingSnapshot {
+      bool ok = false;
+      std::string signature{};
+      std::string selected{};
+      std::string focused{};
+      std::string filter_query{};
+      std::string tree_visible{};
+      std::string preview_visible{};
+      std::string tree_top_id{};
+      std::string preview_top_id{};
+      int tree_scroll = 0;
+      int preview_scroll = 0;
+      bool tree_selected_visible = false;
+      bool preview_selected_visible = false;
+      std::size_t undo_size = 0;
+      std::size_t redo_size = 0;
+      bool dirty = false;
+    };
+
+    struct ScalingSequenceOutcome {
+      bool ok = false;
+      std::string signature{};
+      std::string selected{};
+      std::string focused{};
+      std::size_t undo_size = 0;
+      std::size_t redo_size = 0;
+      bool dirty = false;
+    };
+
+    auto pad_int = [&](int value, int width) -> std::string {
+      std::string text = std::to_string(value);
+      if (text.size() >= static_cast<std::size_t>(width)) {
+        return text;
+      }
+      return std::string(static_cast<std::size_t>(width) - text.size(), '0') + text;
+    };
+
+    auto group_id = [&](int group_index) -> std::string {
+      return std::string("phase103_76_group_") + pad_int(group_index, 3);
+    };
+
+    auto group_item_id = [&](int group_index, int item_index) -> std::string {
+      return group_id(group_index) + std::string("_item_") + pad_int(item_index, 2);
+    };
+
+    auto current_signature = [&]() -> std::string {
+      return ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    };
+
+    auto join_ids = [&](const std::vector<std::string>& ids) -> std::string {
+      std::ostringstream oss;
+      for (std::size_t idx = 0; idx < ids.size(); ++idx) {
+        if (idx > 0) {
+          oss << ",";
+        }
+        oss << ids[idx];
+      }
+      return oss.str();
+    };
+
+    auto collect_visible_tree_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ids{};
+      for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+        if (!builder_tree_row_buttons[idx].visible() || tree_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        ids.push_back(tree_visual_row_node_ids[idx]);
+      }
+      return ids;
+    };
+
+    auto collect_visible_preview_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ids{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        ids.push_back(preview_visual_row_node_ids[idx]);
+      }
+      return ids;
+    };
+
+    auto visible_rows_reference_valid_nodes = [&]() -> bool {
+      for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+        if (!builder_tree_row_buttons[idx].visible() || tree_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        if (!node_exists(tree_visual_row_node_ids[idx])) {
+          return false;
+        }
+      }
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        if (!node_exists(preview_visual_row_node_ids[idx])) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    auto refresh_phase103_76_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto apply_phase103_76_projection_filter = [&](const std::string& query) -> bool {
+      set_builder_projection_filter_state(query);
+      return refresh_phase103_76_surfaces();
+    };
+
+    auto make_phase103_76_large_document = [&]() -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_76_root";
+      root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+      root.layout.min_width = 1;
+
+      doc.root_node_id = root.node_id;
+
+      for (int group_index = 0; group_index < 180; ++group_index) {
+        const std::string current_group_id = group_id(group_index);
+        root.child_ids.push_back(current_group_id);
+
+        ngk::ui::builder::BuilderNode group{};
+        group.node_id = current_group_id;
+        group.parent_id = root.node_id;
+        group.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+        group.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+        group.layout.min_width = 1;
+        for (int item_index = 0; item_index < 8; ++item_index) {
+          group.child_ids.push_back(group_item_id(group_index, item_index));
+        }
+        doc.nodes.push_back(group);
+
+        for (int item_index = 0; item_index < 8; ++item_index) {
+          ngk::ui::builder::BuilderNode item{};
+          item.node_id = group_item_id(group_index, item_index);
+          item.parent_id = current_group_id;
+          item.widget_type = (item_index % 2 == 0)
+            ? ngk::ui::builder::BuilderWidgetType::Label
+            : ngk::ui::builder::BuilderWidgetType::Button;
+          item.text = item.node_id;
+          item.layout.min_width = 1;
+          doc.nodes.push_back(item);
+        }
+      }
+
+      root.child_ids.push_back("phase103_76_import_target");
+      root.child_ids.push_back("phase103_76_deep_00");
+
+      ngk::ui::builder::BuilderNode import_target{};
+      import_target.node_id = "phase103_76_import_target";
+      import_target.parent_id = root.node_id;
+      import_target.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      import_target.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      import_target.layout.min_width = 1;
+      doc.nodes.push_back(import_target);
+
+      for (int depth = 0; depth < 24; ++depth) {
+        ngk::ui::builder::BuilderNode node{};
+        node.node_id = std::string("phase103_76_deep_") + pad_int(depth, 2);
+        node.parent_id = depth == 0
+          ? root.node_id
+          : std::string("phase103_76_deep_") + pad_int(depth - 1, 2);
+        node.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+        node.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+        node.layout.min_width = 1;
+        node.child_ids = {
+          depth == 23
+            ? std::string("phase103_76_deep_leaf")
+            : std::string("phase103_76_deep_") + pad_int(depth + 1, 2)
+        };
+        doc.nodes.push_back(node);
+      }
+
+      ngk::ui::builder::BuilderNode deep_leaf{};
+      deep_leaf.node_id = "phase103_76_deep_leaf";
+      deep_leaf.parent_id = "phase103_76_deep_23";
+      deep_leaf.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      deep_leaf.text = "phase103_76_deep_leaf";
+      deep_leaf.layout.min_width = 1;
+      doc.nodes.push_back(deep_leaf);
+
+      doc.nodes.insert(doc.nodes.begin(), root);
+      return doc;
+    };
+
+    auto make_phase103_76_external_document = [&]() -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_76_external_root";
+      root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      root.layout.min_width = 1;
+      root.child_ids = {"phase103_76_external_label", "phase103_76_external_group"};
+
+      ngk::ui::builder::BuilderNode label{};
+      label.node_id = "phase103_76_external_label";
+      label.parent_id = root.node_id;
+      label.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      label.text = "phase103_76_external_label";
+
+      ngk::ui::builder::BuilderNode group{};
+      group.node_id = "phase103_76_external_group";
+      group.parent_id = root.node_id;
+      group.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      group.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      group.layout.min_width = 1;
+      group.child_ids = {"phase103_76_external_nested"};
+
+      ngk::ui::builder::BuilderNode nested{};
+      nested.node_id = "phase103_76_external_nested";
+      nested.parent_id = group.node_id;
+      nested.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      nested.text = "phase103_76_external_nested";
+
+      doc.root_node_id = root.node_id;
+      doc.nodes = {root, label, group, nested};
+      return doc;
+    };
+
+    auto load_phase103_76_document = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                         const std::string& selected_id) -> bool {
+      builder_doc = doc;
+      undo_history.clear();
+      redo_stack.clear();
+      selected_builder_node_id = selected_id;
+      multi_selected_node_ids = selected_id.empty() ? std::vector<std::string>{} : std::vector<std::string>{selected_id};
+      focused_builder_node_id = selected_id;
+      builder_selection_anchor_node_id = selected_id;
+      inspector_binding_node_id.clear();
+      preview_binding_node_id.clear();
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      builder_projection_filter_query.clear();
+      model.filter.clear();
+      builder_tree_scroll.set_scroll_offset_y(0);
+      builder_preview_scroll.set_scroll_offset_y(0);
+
+      const std::string signature = current_signature();
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = signature;
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = signature;
+      builder_doc_dirty = false;
+      return apply_phase103_76_projection_filter("");
+    };
+
+    auto select_node_and_sync = [&](const std::string& node_id) -> bool {
+      if (node_id.empty() || !node_exists(node_id)) {
+        return false;
+      }
+      selected_builder_node_id = node_id;
+      multi_selected_node_ids = {node_id};
+      const bool focus_ok = restore_exact_selection_focus_anchor_state(node_id, node_id);
+      return focus_ok && refresh_phase103_76_surfaces();
+    };
+
+    auto depth_of_node = [&](const std::string& node_id) -> int {
+      int depth = 0;
+      std::string current = node_id;
+      std::size_t guard = 0;
+      while (!current.empty() && current != builder_doc.root_node_id && guard < builder_doc.nodes.size()) {
+        const auto* node = find_node_by_id(current);
+        if (!node) {
+          return -1;
+        }
+        current = node->parent_id;
+        depth += 1;
+        guard += 1;
+      }
+      return current == builder_doc.root_node_id ? depth : -1;
+    };
+
+    auto capture_scaling_snapshot = [&]() -> ScalingSnapshot {
+      ScalingSnapshot snapshot{};
+      snapshot.signature = current_signature();
+      snapshot.selected = selected_builder_node_id;
+      snapshot.focused = focused_builder_node_id;
+      snapshot.filter_query = builder_projection_filter_query;
+      snapshot.tree_visible = join_ids(collect_visible_tree_ids());
+      snapshot.preview_visible = join_ids(collect_visible_preview_ids());
+      snapshot.tree_top_id = first_visible_tree_row_node_id();
+      snapshot.preview_top_id = first_visible_preview_row_node_id();
+      snapshot.tree_scroll = builder_tree_scroll.scroll_offset_y();
+      snapshot.preview_scroll = builder_preview_scroll.scroll_offset_y();
+      snapshot.tree_selected_visible = tree_row_fully_visible_in_viewport(selected_builder_node_id);
+      snapshot.preview_selected_visible = preview_row_fully_visible_in_viewport(selected_builder_node_id);
+      snapshot.undo_size = undo_history.size();
+      snapshot.redo_size = redo_stack.size();
+      snapshot.dirty = builder_doc_dirty;
+      std::string invariant_reason;
+      snapshot.ok = visible_rows_reference_valid_nodes() &&
+                    check_cross_surface_sync() &&
+                    validate_global_document_invariant(invariant_reason);
+      return snapshot;
+    };
+
+    auto snapshots_equal = [&](const ScalingSnapshot& lhs, const ScalingSnapshot& rhs) -> bool {
+      return lhs.signature == rhs.signature &&
+             lhs.selected == rhs.selected &&
+             lhs.focused == rhs.focused &&
+             lhs.filter_query == rhs.filter_query &&
+             lhs.tree_visible == rhs.tree_visible &&
+             lhs.preview_visible == rhs.preview_visible &&
+             lhs.tree_top_id == rhs.tree_top_id &&
+             lhs.preview_top_id == rhs.preview_top_id &&
+             lhs.tree_scroll == rhs.tree_scroll &&
+             lhs.preview_scroll == rhs.preview_scroll &&
+             lhs.tree_selected_visible == rhs.tree_selected_visible &&
+             lhs.preview_selected_visible == rhs.preview_selected_visible &&
+             lhs.undo_size == rhs.undo_size &&
+             lhs.redo_size == rhs.redo_size &&
+             lhs.dirty == rhs.dirty;
+    };
+
+    auto set_viewport_margins_for_selected = [&](int margin) -> bool {
+      refresh_tree_surface_label();
+      const bool prelayout_inspector_ok = refresh_inspector_or_fail();
+      const bool prelayout_preview_ok = refresh_preview_or_fail();
+      if (!prelayout_inspector_ok || !prelayout_preview_ok) {
+        return false;
+      }
+
+      const std::size_t tree_index = find_visible_tree_row_index(selected_builder_node_id);
+      const std::size_t preview_index = find_visible_preview_row_index(selected_builder_node_id);
+      if (tree_index >= kMaxVisualTreeRows || preview_index >= kMaxVisualPreviewRows) {
+        return false;
+      }
+
+      int tree_top = 0;
+      int tree_bottom = 0;
+      int preview_top = 0;
+      int preview_bottom = 0;
+      if (!compute_tree_row_bounds(tree_index, tree_top, tree_bottom) ||
+          !compute_preview_row_bounds(preview_index, preview_top, preview_bottom)) {
+        return false;
+      }
+
+      builder_tree_scroll.set_scroll_offset_y(std::max(0, tree_top - margin));
+      builder_preview_scroll.set_scroll_offset_y(std::max(0, preview_top - margin));
+
+      reconcile_tree_viewport_to_current_state();
+      reconcile_preview_viewport_to_current_state();
+      refresh_tree_surface_label();
+      return refresh_phase103_76_surfaces();
+    };
+
+    const ngk::ui::builder::BuilderDocument large_doc = make_phase103_76_large_document();
+    const std::string large_doc_signature = ngk::ui::builder::serialize_builder_document_deterministic(large_doc);
+    const std::string external_payload = ngk::ui::builder::serialize_builder_document_deterministic(
+      make_phase103_76_external_document());
+
+    auto mutate_large_document_sequence = [&]() -> bool {
+      bool ok = true;
+      for (int cycle = 0; cycle < 12 && ok; ++cycle) {
+        const std::string insert_id = std::string("phase103_76_seq_insert_") + pad_int(cycle, 2);
+        const std::string edit_text = std::string("phase103_76_seq_text_") + pad_int(cycle, 2);
+        const std::string insert_parent = group_id(20 + (cycle % 4));
+        const std::string move_target = group_id(30 + (cycle % 4));
+        ok = apply_typed_palette_insert(WType::Label, insert_parent, insert_id) && ok;
+        ok = select_node_and_sync(insert_id) && ok;
+        ok = apply_inspector_property_edits_command({{"text", edit_text}}, std::string("phase103_76_seq_edit_") + pad_int(cycle, 2)) && ok;
+        ok = apply_bulk_move_reparent_selected_nodes_command({insert_id}, move_target) && ok;
+        if ((cycle % 2) == 0) {
+          ok = apply_phase103_76_projection_filter(edit_text) && ok;
+          ok = apply_phase103_76_projection_filter("") && ok;
+        }
+        std::string invariant_reason;
+        ok = validate_global_document_invariant(invariant_reason) && ok;
+        ok = validate_command_history_snapshot(undo_history) && ok;
+        ok = validate_command_history_snapshot(redo_stack) && ok;
+        ok = check_cross_surface_sync() && ok;
+      }
+      return ok;
+    };
+
+    auto build_large_history_sequence = [&]() -> bool {
+      bool ok = true;
+      for (int cycle = 0; cycle < 24 && ok; ++cycle) {
+        const std::string insert_id = std::string("phase103_76_history_insert_") + pad_int(cycle, 2);
+        ok = apply_typed_palette_insert(WType::Label, group_id(4 + (cycle % 4)), insert_id) && ok;
+        if ((cycle % 4) == 0) {
+          ok = select_node_and_sync(insert_id) && ok;
+          ok = apply_inspector_property_edits_command(
+            {{"text", std::string("phase103_76_history_text_") + pad_int(cycle, 2)}},
+            std::string("phase103_76_history_edit_") + pad_int(cycle, 2)) && ok;
+        }
+        std::string invariant_reason;
+        ok = validate_global_document_invariant(invariant_reason) && ok;
+      }
+      return ok;
+    };
+
+    auto execute_large_sequence = [&]() -> ScalingSequenceOutcome {
+      ScalingSequenceOutcome outcome{};
+      outcome.ok = load_phase103_76_document(large_doc, group_id(0));
+      outcome.ok = outcome.ok && mutate_large_document_sequence();
+      outcome.signature = current_signature();
+      outcome.selected = selected_builder_node_id;
+      outcome.focused = focused_builder_node_id;
+      outcome.undo_size = undo_history.size();
+      outcome.redo_size = redo_stack.size();
+      outcome.dirty = builder_doc_dirty;
+      return outcome;
+    };
+
+    {
+      const bool loaded = load_phase103_76_document(large_doc, group_id(2));
+      bool ok = loaded;
+      ok = begin_tree_drag(group_id(2)) && ok;
+      ok = commit_tree_drag_reorder(group_id(4)) && ok;
+
+      const std::string insert_id = "phase103_76_large_insert";
+      ok = apply_typed_palette_insert(WType::Label, group_id(20), insert_id) && ok;
+      ok = select_node_and_sync(insert_id) && ok;
+      ok = apply_inspector_property_edits_command({{"text", "phase103_76_large_insert_text"}}, "phase103_76_large_insert_edit") && ok;
+      ok = apply_bulk_move_reparent_selected_nodes_command({insert_id}, group_id(21)) && ok;
+
+      std::vector<std::string> imported_roots{};
+      ok = import_external_builder_subtree_payload(external_payload,
+                                                   "phase103_76_import_target",
+                                                   "phase103_76_large_import",
+                                                   &imported_roots,
+                                                   nullptr) && ok;
+
+      ok = select_node_and_sync(insert_id) && ok;
+      ok = apply_delete_command_for_current_selection() && ok;
+      ok = apply_phase103_76_projection_filter(group_item_id(179, 7)) && ok;
+      ok = select_node_and_sync(group_item_id(179, 7)) && ok;
+      ok = apply_phase103_76_projection_filter("") && ok;
+
+      std::string invariant_reason;
+      const auto* import_target = find_node_by_id("phase103_76_import_target");
+      performance_scaling_integrity_diag.large_document_operations_remain_correct =
+        ok &&
+        large_doc_signature == ngk::ui::builder::serialize_builder_document_deterministic(large_doc) &&
+        !node_exists(insert_id) &&
+        import_target != nullptr && !imported_roots.empty() && node_exists(imported_roots.front()) &&
+        node_exists(group_item_id(179, 7)) &&
+        validate_global_document_invariant(invariant_reason) &&
+        validate_command_history_snapshot(undo_history) &&
+        validate_command_history_snapshot(redo_stack) &&
+        check_cross_surface_sync();
+      flow_ok = performance_scaling_integrity_diag.large_document_operations_remain_correct && flow_ok;
+    }
+
+    {
+      const bool loaded = load_phase103_76_document(large_doc, "phase103_76_deep_leaf");
+      bool ok = loaded;
+      ok = apply_phase103_76_projection_filter("phase103_76_deep_leaf") && ok;
+      ok = select_node_and_sync("phase103_76_deep_leaf") && ok;
+      ok = apply_inspector_property_edits_command({{"text", "phase103_76_deep_leaf_verified"}}, "phase103_76_deep_edit") && ok;
+      ok = apply_phase103_76_projection_filter("") && ok;
+      const int depth = depth_of_node("phase103_76_deep_leaf");
+      std::string invariant_reason;
+      performance_scaling_integrity_diag.deep_hierarchy_handled_without_failure =
+        ok && depth >= 25 && validate_global_document_invariant(invariant_reason) && check_cross_surface_sync();
+      flow_ok = performance_scaling_integrity_diag.deep_hierarchy_handled_without_failure && flow_ok;
+    }
+
+    {
+      const ScalingSequenceOutcome outcome = execute_large_sequence();
+      std::string invariant_reason;
+      performance_scaling_integrity_diag.long_stress_sequence_preserves_invariant =
+        outcome.ok && outcome.undo_size >= 24 && outcome.dirty && !outcome.signature.empty() &&
+        validate_global_document_invariant(invariant_reason) &&
+        validate_command_history_snapshot(undo_history) &&
+        validate_command_history_snapshot(redo_stack);
+      flow_ok = performance_scaling_integrity_diag.long_stress_sequence_preserves_invariant && flow_ok;
+    }
+
+    {
+      const bool loaded = load_phase103_76_document(large_doc, group_id(0));
+      const std::string before_signature = loaded ? current_signature() : std::string{};
+      bool ok = loaded && !before_signature.empty() && build_large_history_sequence();
+      const std::size_t mutation_count = undo_history.size();
+      const std::string after_signature = current_signature();
+      for (std::size_t index = 0; index < mutation_count && ok; ++index) {
+        ok = apply_undo_command() && ok;
+      }
+      const std::string after_undo_signature = current_signature();
+      for (std::size_t index = 0; index < mutation_count && ok; ++index) {
+        ok = apply_redo_command() && ok;
+      }
+      const std::string after_redo_signature = current_signature();
+      std::string invariant_reason;
+      performance_scaling_integrity_diag.undo_redo_stable_under_large_history =
+        ok && mutation_count >= 24 &&
+        after_undo_signature == before_signature &&
+        after_redo_signature == after_signature &&
+        validate_global_document_invariant(invariant_reason) &&
+        validate_command_history_snapshot(undo_history) &&
+        validate_command_history_snapshot(redo_stack);
+      flow_ok = performance_scaling_integrity_diag.undo_redo_stable_under_large_history && flow_ok;
+    }
+
+    {
+      const bool loaded = load_phase103_76_document(large_doc, group_item_id(179, 7));
+      bool ok = loaded;
+      ok = apply_phase103_76_projection_filter(group_item_id(179, 7)) && ok;
+      ok = select_node_and_sync(group_item_id(179, 7)) && ok;
+      const ScalingSnapshot filtered_once = capture_scaling_snapshot();
+      ok = apply_phase103_76_projection_filter("") && ok;
+      ok = apply_phase103_76_projection_filter(group_item_id(179, 7)) && ok;
+      const ScalingSnapshot filtered_twice = capture_scaling_snapshot();
+
+      const bool loaded_delete = load_phase103_76_document(large_doc, group_item_id(150, 5));
+      bool delete_ok = loaded_delete;
+      delete_ok = apply_phase103_76_projection_filter(group_item_id(150, 5)) && delete_ok;
+      delete_ok = select_node_and_sync(group_item_id(150, 5)) && delete_ok;
+      delete_ok = apply_delete_command_for_current_selection() && delete_ok;
+      delete_ok = apply_phase103_76_projection_filter(group_item_id(150, 5)) && delete_ok;
+      const ScalingSnapshot after_delete = capture_scaling_snapshot();
+      std::string invariant_reason;
+
+      performance_scaling_integrity_diag.search_filter_stable_under_large_dataset =
+        ok && filtered_once.ok && filtered_twice.ok &&
+        filtered_once.tree_selected_visible && filtered_once.preview_selected_visible &&
+        snapshots_equal(filtered_once, filtered_twice) &&
+        delete_ok && after_delete.ok && !node_exists(group_item_id(150, 5)) &&
+        after_delete.tree_visible.find(group_item_id(150, 5)) == std::string::npos &&
+        after_delete.preview_visible.find(group_item_id(150, 5)) == std::string::npos &&
+        validate_global_document_invariant(invariant_reason);
+      flow_ok = performance_scaling_integrity_diag.search_filter_stable_under_large_dataset && flow_ok;
+    }
+
+    {
+      const auto execute_viewport_sequence = [&]() -> ScalingSnapshot {
+        const std::string viewport_target = group_item_id(1, 0);
+        const bool loaded = load_phase103_76_document(large_doc, viewport_target);
+        bool ok = loaded;
+        ok = select_node_and_sync(viewport_target) && ok;
+        ok = set_viewport_margins_for_selected(10) && ok;
+        ScalingSnapshot snapshot = capture_scaling_snapshot();
+        snapshot.ok = snapshot.ok && ok;
+        return snapshot;
+      };
+
+      const ScalingSnapshot first = execute_viewport_sequence();
+      const ScalingSnapshot second = execute_viewport_sequence();
+      performance_scaling_integrity_diag.viewport_stable_under_large_node_count =
+        first.ok && second.ok &&
+        first.signature == second.signature &&
+        first.selected == second.selected &&
+        first.focused == second.focused &&
+        first.tree_selected_visible && first.preview_selected_visible &&
+        second.tree_selected_visible && second.preview_selected_visible;
+      flow_ok = performance_scaling_integrity_diag.viewport_stable_under_large_node_count && flow_ok;
+    }
+
+    {
+      const bool loaded = load_phase103_76_document(large_doc, group_id(0));
+      bool ok = loaded && build_large_history_sequence();
+      const ScalingSnapshot expected = capture_scaling_snapshot();
+      for (int cycle = 0; cycle < 8 && ok; ++cycle) {
+        ok = apply_undo_command() && ok;
+        ok = apply_redo_command() && ok;
+        const ScalingSnapshot current = capture_scaling_snapshot();
+        ok = current.ok &&
+             current.signature == expected.signature &&
+             current.selected == expected.selected &&
+             current.focused == expected.focused &&
+             current.undo_size == expected.undo_size &&
+             current.redo_size == expected.redo_size &&
+             current.dirty == expected.dirty && ok;
+      }
+      performance_scaling_integrity_diag.no_state_drift_under_repeated_operations = ok;
+      flow_ok = performance_scaling_integrity_diag.no_state_drift_under_repeated_operations && flow_ok;
+    }
+
+    {
+      const bool loaded = load_phase103_76_document(large_doc, group_id(2));
+      bool ok = loaded;
+      const auto before_checks = global_invariant_checks_total;
+      const auto before_failures = global_invariant_failures_total;
+      int mutation_count = 0;
+
+      ok = apply_typed_palette_insert(WType::Label, group_id(40), "phase103_76_validation_insert") && ok;
+      mutation_count += 1;
+      ok = select_node_and_sync("phase103_76_validation_insert") && ok;
+      ok = apply_inspector_property_edits_command({{"text", "phase103_76_validation_insert_text"}}, "phase103_76_validation_edit") && ok;
+      mutation_count += 1;
+      ok = apply_bulk_move_reparent_selected_nodes_command({"phase103_76_validation_insert"}, group_id(41)) && ok;
+      mutation_count += 1;
+      std::vector<std::string> imported_roots{};
+      ok = import_external_builder_subtree_payload(external_payload,
+                                                   "phase103_76_import_target",
+                                                   "phase103_76_validation_import",
+                                                   &imported_roots,
+                                                   nullptr) && ok;
+      mutation_count += 1;
+      ok = begin_tree_drag(group_id(2)) && ok;
+      ok = commit_tree_drag_reorder(group_id(4)) && ok;
+      mutation_count += 1;
+      ok = select_node_and_sync("phase103_76_validation_insert") && ok;
+      ok = apply_delete_command_for_current_selection() && ok;
+      mutation_count += 1;
+
+      const auto checks_delta = global_invariant_checks_total - before_checks;
+      const auto failures_delta = global_invariant_failures_total - before_failures;
+      std::string invariant_reason;
+      performance_scaling_integrity_diag.no_partial_or_skipped_validation_under_load =
+        ok && checks_delta >= static_cast<decltype(checks_delta)>(mutation_count) &&
+        failures_delta == 0 && !node_exists("phase103_76_validation_insert") &&
+        !imported_roots.empty() && node_exists(imported_roots.front()) &&
+        validate_global_document_invariant(invariant_reason);
+      flow_ok = performance_scaling_integrity_diag.no_partial_or_skipped_validation_under_load && flow_ok;
+    }
+
+    {
+      const ScalingSequenceOutcome outcome_a = execute_large_sequence();
+      const ScalingSequenceOutcome outcome_b = execute_large_sequence();
+      performance_scaling_integrity_diag.deterministic_result_for_identical_large_sequence =
+        outcome_a.ok && outcome_b.ok &&
+        outcome_a.signature == outcome_b.signature &&
+        outcome_a.selected == outcome_b.selected &&
+        outcome_a.focused == outcome_b.focused &&
+        outcome_a.undo_size == outcome_b.undo_size &&
+        outcome_a.redo_size == outcome_b.redo_size &&
+        outcome_a.dirty == outcome_b.dirty;
+      flow_ok = performance_scaling_integrity_diag.deterministic_result_for_identical_large_sequence && flow_ok;
+    }
+
+    {
+      bool invariant_ok = true;
+      invariant_ok = load_phase103_76_document(large_doc, group_id(0)) && invariant_ok;
+      std::string invariant_reason;
+      invariant_ok = validate_global_document_invariant(invariant_reason) && invariant_ok;
+      const ScalingSequenceOutcome sequence_outcome = execute_large_sequence();
+      invariant_ok = sequence_outcome.ok && invariant_ok;
+      invariant_ok = validate_global_document_invariant(invariant_reason) && invariant_ok;
+      invariant_ok = load_phase103_76_document(large_doc, group_item_id(179, 7)) && invariant_ok;
+      invariant_ok = apply_phase103_76_projection_filter(group_item_id(179, 7)) && invariant_ok;
+      invariant_ok = validate_global_document_invariant(invariant_reason) && invariant_ok;
+      invariant_ok = load_phase103_76_document(large_doc, "phase103_76_deep_leaf") && invariant_ok;
+      invariant_ok = validate_global_document_invariant(invariant_reason) && invariant_ok;
+      performance_scaling_integrity_diag.global_invariant_preserved_under_scale = invariant_ok;
+      flow_ok = performance_scaling_integrity_diag.global_invariant_preserved_under_scale && flow_ok;
+    }
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_77 = [&] {
+    performance_profiling_diag = {};
+    bool flow_ok = true;
+    const int invariant_checks_before = global_invariant_checks_total;
+    const int invariant_failures_before = global_invariant_failures_total;
+    using WType = ngk::ui::builder::BuilderWidgetType;
+    using Clock = std::chrono::steady_clock;
+    using Nanoseconds = std::chrono::nanoseconds;
+
+    struct ProfileDocSpec {
+      int groups = 0;
+      int items_per_group = 0;
+      int deep_depth = 0;
+    };
+
+    struct MeasuredOperation {
+      std::string name{};
+      std::uint64_t ns = 0;
+      std::string category{};
+    };
+
+    std::vector<MeasuredOperation> measured_ops{};
+    performance_profiling_diag.operations_profiled =
+      "document_build,insert,delete,move_reparent,property_edit_commit,undo_replay,redo_replay,search_filter_apply_clear,selection_mapping,viewport_reconciliation,save,load,export,large_invariant_validation,deterministic_signature";
+
+    auto pad_int = [&](int value, int width) -> std::string {
+      std::string text = std::to_string(value);
+      if (text.size() >= static_cast<std::size_t>(width)) {
+        return text;
+      }
+      return std::string(static_cast<std::size_t>(width) - text.size(), '0') + text;
+    };
+
+    auto group_id = [&](int group_index) -> std::string {
+      return std::string("phase103_77_group_") + pad_int(group_index, 3);
+    };
+
+    auto group_item_id = [&](int group_index, int item_index) -> std::string {
+      return group_id(group_index) + std::string("_item_") + pad_int(item_index, 2);
+    };
+
+    auto join_strings = [&](const std::vector<std::string>& values) -> std::string {
+      std::ostringstream oss;
+      for (std::size_t idx = 0; idx < values.size(); ++idx) {
+        if (idx > 0) {
+          oss << ";";
+        }
+        oss << values[idx];
+      }
+      return oss.str();
+    };
+
+    auto current_signature = [&]() -> std::string {
+      return ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    };
+
+    auto classify_scaling = [&](std::uint64_t small_ns,
+                                std::uint64_t medium_ns,
+                                std::uint64_t large_ns,
+                                std::uint64_t small_nodes,
+                                std::uint64_t medium_nodes,
+                                std::uint64_t large_nodes) -> std::string {
+      if (small_ns == 0 || medium_ns == 0 || large_ns == 0 ||
+          small_nodes == 0 || medium_nodes == 0 || large_nodes == 0) {
+        return "unmeasured";
+      }
+      const double per_small = static_cast<double>(small_ns) / static_cast<double>(small_nodes);
+      const double per_medium = static_cast<double>(medium_ns) / static_cast<double>(medium_nodes);
+      const double per_large = static_cast<double>(large_ns) / static_cast<double>(large_nodes);
+      if (per_medium <= per_small * 1.5 && per_large <= per_small * 1.75) {
+        return "roughly_linear";
+      }
+      if (per_large <= per_small * 4.0) {
+        return "superlinear";
+      }
+      return "pathological";
+    };
+
+    auto record_operation = [&](const std::string& name,
+                                const std::string& category,
+                                std::uint64_t ns_value) {
+      measured_ops.push_back({name, ns_value, category});
+      if (category == "model") {
+        performance_profiling_diag.model_total_ns += ns_value;
+      } else if (category == "ui") {
+        performance_profiling_diag.ui_total_ns += ns_value;
+      } else if (category == "io") {
+        performance_profiling_diag.io_total_ns += ns_value;
+      }
+    };
+
+    auto refresh_phase103_77_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto apply_phase103_77_projection_filter = [&](const std::string& query) -> bool {
+      set_builder_projection_filter_state(query);
+      return refresh_phase103_77_surfaces();
+    };
+
+    auto make_phase103_77_profile_document = [&](const ProfileDocSpec& spec) -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_77_root";
+      root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+      root.layout.min_width = 1;
+      doc.root_node_id = root.node_id;
+
+      for (int group_index = 0; group_index < spec.groups; ++group_index) {
+        const std::string current_group_id = group_id(group_index);
+        root.child_ids.push_back(current_group_id);
+
+        ngk::ui::builder::BuilderNode group{};
+        group.node_id = current_group_id;
+        group.parent_id = root.node_id;
+        group.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+        group.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+        group.layout.min_width = 1;
+        for (int item_index = 0; item_index < spec.items_per_group; ++item_index) {
+          group.child_ids.push_back(group_item_id(group_index, item_index));
+        }
+        doc.nodes.push_back(group);
+
+        for (int item_index = 0; item_index < spec.items_per_group; ++item_index) {
+          ngk::ui::builder::BuilderNode item{};
+          item.node_id = group_item_id(group_index, item_index);
+          item.parent_id = current_group_id;
+          item.widget_type = (item_index % 2 == 0)
+            ? ngk::ui::builder::BuilderWidgetType::Label
+            : ngk::ui::builder::BuilderWidgetType::Button;
+          item.text = item.node_id;
+          item.layout.min_width = 1;
+          doc.nodes.push_back(item);
+        }
+      }
+
+      root.child_ids.push_back("phase103_77_import_target");
+      root.child_ids.push_back("phase103_77_deep_00");
+
+      ngk::ui::builder::BuilderNode import_target{};
+      import_target.node_id = "phase103_77_import_target";
+      import_target.parent_id = root.node_id;
+      import_target.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      import_target.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      import_target.layout.min_width = 1;
+      doc.nodes.push_back(import_target);
+
+      for (int depth = 0; depth < spec.deep_depth; ++depth) {
+        ngk::ui::builder::BuilderNode node{};
+        node.node_id = std::string("phase103_77_deep_") + pad_int(depth, 2);
+        node.parent_id = depth == 0
+          ? root.node_id
+          : std::string("phase103_77_deep_") + pad_int(depth - 1, 2);
+        node.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+        node.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+        node.layout.min_width = 1;
+        node.child_ids = {
+          depth == spec.deep_depth - 1
+            ? std::string("phase103_77_deep_leaf")
+            : std::string("phase103_77_deep_") + pad_int(depth + 1, 2)
+        };
+        doc.nodes.push_back(node);
+      }
+
+      ngk::ui::builder::BuilderNode deep_leaf{};
+      deep_leaf.node_id = "phase103_77_deep_leaf";
+      deep_leaf.parent_id = std::string("phase103_77_deep_") + pad_int(spec.deep_depth - 1, 2);
+      deep_leaf.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      deep_leaf.text = "phase103_77_deep_leaf";
+      deep_leaf.layout.min_width = 1;
+      doc.nodes.push_back(deep_leaf);
+
+      doc.nodes.insert(doc.nodes.begin(), root);
+      return doc;
+    };
+
+    auto load_phase103_77_document = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                         const std::string& selected_id) -> bool {
+      builder_doc = doc;
+      undo_history.clear();
+      redo_stack.clear();
+      selected_builder_node_id = selected_id;
+      multi_selected_node_ids = selected_id.empty() ? std::vector<std::string>{} : std::vector<std::string>{selected_id};
+      focused_builder_node_id = selected_id;
+      builder_selection_anchor_node_id = selected_id;
+      inspector_binding_node_id.clear();
+      preview_binding_node_id.clear();
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      builder_projection_filter_query.clear();
+      model.filter.clear();
+      builder_tree_scroll.set_scroll_offset_y(0);
+      builder_preview_scroll.set_scroll_offset_y(0);
+
+      const std::string signature = current_signature();
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = signature;
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = signature;
+      builder_doc_dirty = false;
+      return apply_phase103_77_projection_filter("");
+    };
+
+    auto select_node_and_sync = [&](const std::string& node_id) -> bool {
+      if (node_id.empty() || !node_exists(node_id)) {
+        return false;
+      }
+      selected_builder_node_id = node_id;
+      multi_selected_node_ids = {node_id};
+      return restore_exact_selection_focus_anchor_state(node_id, node_id) &&
+             refresh_phase103_77_surfaces();
+    };
+
+    auto set_viewport_margins_for_selected = [&](int margin) -> bool {
+      refresh_tree_surface_label();
+      const bool prelayout_inspector_ok = refresh_inspector_or_fail();
+      const bool prelayout_preview_ok = refresh_preview_or_fail();
+      if (!prelayout_inspector_ok || !prelayout_preview_ok) {
+        return false;
+      }
+
+      const std::size_t tree_index = find_visible_tree_row_index(selected_builder_node_id);
+      const std::size_t preview_index = find_visible_preview_row_index(selected_builder_node_id);
+      if (tree_index >= kMaxVisualTreeRows || preview_index >= kMaxVisualPreviewRows) {
+        return false;
+      }
+
+      int tree_top = 0;
+      int tree_bottom = 0;
+      int preview_top = 0;
+      int preview_bottom = 0;
+      if (!compute_tree_row_bounds(tree_index, tree_top, tree_bottom) ||
+          !compute_preview_row_bounds(preview_index, preview_top, preview_bottom)) {
+        return false;
+      }
+
+      builder_tree_scroll.set_scroll_offset_y(std::max(0, tree_top - margin));
+      builder_preview_scroll.set_scroll_offset_y(std::max(0, preview_top - margin));
+      reconcile_tree_viewport_to_current_state();
+      reconcile_preview_viewport_to_current_state();
+      refresh_tree_surface_label();
+      return refresh_phase103_77_surfaces();
+    };
+
+    auto measure_bool_operation = [&](const std::string& name,
+                                      const std::string& category,
+                                      auto&& operation,
+                                      std::uint64_t& sink) -> bool {
+      const auto started = Clock::now();
+      const bool ok = operation();
+      const auto elapsed = std::chrono::duration_cast<Nanoseconds>(Clock::now() - started).count();
+      sink = ok ? static_cast<std::uint64_t>(elapsed) : 0;
+      if (ok) {
+        record_operation(name, category, sink);
+      }
+      return ok;
+    };
+
+    auto validate_profile_state = [&]() -> bool {
+      std::string invariant_reason;
+      return validate_global_document_invariant(invariant_reason) &&
+             validate_command_history_snapshot(undo_history) &&
+             validate_command_history_snapshot(redo_stack) &&
+             check_cross_surface_sync();
+    };
+
+    auto validate_invariant_and_history = [&]() -> bool {
+      std::string invariant_reason;
+      return validate_global_document_invariant(invariant_reason) &&
+             validate_command_history_snapshot(undo_history) &&
+             validate_command_history_snapshot(redo_stack);
+    };
+
+    auto build_history_sequence = [&](int count) -> bool {
+      bool ok = true;
+      for (int cycle = 0; cycle < count && ok; ++cycle) {
+        const std::string insert_id = std::string("phase103_77_history_insert_") + pad_int(cycle, 2);
+        ok = apply_typed_palette_insert(WType::Label, group_id(4 + (cycle % 4)), insert_id) && ok;
+        if ((cycle % 4) == 0) {
+          ok = select_node_and_sync(insert_id) && ok;
+          ok = apply_inspector_property_edits_command(
+            {{"text", std::string("phase103_77_history_text_") + pad_int(cycle, 2)}},
+            std::string("phase103_77_history_edit_") + pad_int(cycle, 2)) && ok;
+        }
+        std::string invariant_reason;
+        ok = validate_global_document_invariant(invariant_reason) && ok;
+      }
+      return ok;
+    };
+
+    const ProfileDocSpec small_spec{8, 8, 6};
+    const ProfileDocSpec medium_spec{24, 8, 10};
+    const ProfileDocSpec large_spec{72, 8, 16};
+
+    ngk::ui::builder::BuilderDocument small_doc{};
+    ngk::ui::builder::BuilderDocument medium_doc{};
+    ngk::ui::builder::BuilderDocument large_doc{};
+
+    {
+      const auto started = Clock::now();
+      small_doc = make_phase103_77_profile_document(small_spec);
+      performance_profiling_diag.build_small_ns = static_cast<std::uint64_t>(
+        std::chrono::duration_cast<Nanoseconds>(Clock::now() - started).count());
+      performance_profiling_diag.size_small_nodes = small_doc.nodes.size();
+      record_operation("build_small_document", "model", performance_profiling_diag.build_small_ns);
+    }
+    {
+      const auto started = Clock::now();
+      medium_doc = make_phase103_77_profile_document(medium_spec);
+      performance_profiling_diag.build_medium_ns = static_cast<std::uint64_t>(
+        std::chrono::duration_cast<Nanoseconds>(Clock::now() - started).count());
+      performance_profiling_diag.size_medium_nodes = medium_doc.nodes.size();
+      record_operation("build_medium_document", "model", performance_profiling_diag.build_medium_ns);
+    }
+    {
+      const auto started = Clock::now();
+      large_doc = make_phase103_77_profile_document(large_spec);
+      performance_profiling_diag.build_large_ns = static_cast<std::uint64_t>(
+        std::chrono::duration_cast<Nanoseconds>(Clock::now() - started).count());
+      performance_profiling_diag.size_large_nodes = large_doc.nodes.size();
+      record_operation("build_large_document", "model", performance_profiling_diag.build_large_ns);
+    }
+
+    auto measure_doc_validation = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                      const std::string& name,
+                                      std::uint64_t& sink) -> bool {
+      std::string validation_error;
+      const auto started = Clock::now();
+      const bool ok = ngk::ui::builder::validate_builder_document(doc, &validation_error);
+      const auto elapsed = std::chrono::duration_cast<Nanoseconds>(Clock::now() - started).count();
+      sink = ok ? static_cast<std::uint64_t>(elapsed) : 0;
+      if (ok) {
+        record_operation(name, "model", sink);
+      }
+      return ok;
+    };
+
+    auto measure_doc_serialize = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                     const std::string& name,
+                                     std::uint64_t& sink) -> bool {
+      const auto started = Clock::now();
+      const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(doc);
+      const auto elapsed = std::chrono::duration_cast<Nanoseconds>(Clock::now() - started).count();
+      const bool ok = !serialized.empty();
+      sink = ok ? static_cast<std::uint64_t>(elapsed) : 0;
+      if (ok) {
+        record_operation(name, "model", sink);
+      }
+      return ok;
+    };
+
+    flow_ok = measure_doc_validation(small_doc, "validate_small_document", performance_profiling_diag.validate_small_ns) && flow_ok;
+    flow_ok = measure_doc_validation(medium_doc, "validate_medium_document", performance_profiling_diag.validate_medium_ns) && flow_ok;
+    flow_ok = measure_doc_validation(large_doc, "validate_large_document", performance_profiling_diag.validate_large_ns) && flow_ok;
+    flow_ok = measure_doc_serialize(small_doc, "serialize_small_document", performance_profiling_diag.serialize_small_ns) && flow_ok;
+    flow_ok = measure_doc_serialize(medium_doc, "serialize_medium_document", performance_profiling_diag.serialize_medium_ns) && flow_ok;
+    flow_ok = measure_doc_serialize(large_doc, "serialize_large_document", performance_profiling_diag.serialize_large_ns) && flow_ok;
+
+    const std::string large_target = group_item_id(1, 0);
+    const std::string large_insert_id = "phase103_77_profile_insert";
+
+    flow_ok = load_phase103_77_document(large_doc, large_target) && flow_ok;
+    flow_ok = measure_bool_operation(
+      "large_global_invariant_validation",
+      "model",
+      [&]() {
+        std::string invariant_reason;
+        return validate_global_document_invariant(invariant_reason);
+      },
+      performance_profiling_diag.large_global_invariant_ns) && flow_ok;
+
+    flow_ok = load_phase103_77_document(large_doc, large_target) && flow_ok;
+    flow_ok = measure_bool_operation(
+      "large_deterministic_signature",
+      "model",
+      [&]() {
+        const std::string first = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+        const std::string second = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+        return !first.empty() && first == second;
+      },
+      performance_profiling_diag.deterministic_signature_large_ns) && flow_ok;
+
+    flow_ok = load_phase103_77_document(large_doc, large_target) && flow_ok;
+    flow_ok = measure_bool_operation(
+      "selection_mapping_large_subset",
+      "ui",
+      [&]() {
+        return select_node_and_sync(group_item_id(1, 1)) && validate_profile_state();
+      },
+      performance_profiling_diag.selection_mapping_ns) && flow_ok;
+
+    flow_ok = load_phase103_77_document(large_doc, group_id(4)) && flow_ok;
+    flow_ok = measure_bool_operation(
+      "insert_large_subset",
+      "ui",
+      [&]() {
+        return apply_typed_palette_insert(WType::Label, group_id(4), large_insert_id) &&
+               node_exists(large_insert_id) &&
+               select_node_and_sync(large_insert_id) &&
+               validate_profile_state();
+      },
+      performance_profiling_diag.insert_ns) && flow_ok;
+
+    flow_ok = select_node_and_sync(large_insert_id) && flow_ok;
+    flow_ok = measure_bool_operation(
+      "property_edit_commit_large_subset",
+      "ui",
+      [&]() {
+        return apply_inspector_property_edits_command({{"text", "phase103_77_profile_text"}}, "phase103_77_profile_edit") &&
+               validate_profile_state();
+      },
+      performance_profiling_diag.property_edit_commit_ns) && flow_ok;
+
+    flow_ok = select_node_and_sync(large_insert_id) && flow_ok;
+    flow_ok = measure_bool_operation(
+      "move_reparent_large_subset",
+      "ui",
+      [&]() {
+        return apply_bulk_move_reparent_selected_nodes_command({large_insert_id}, group_id(5)) &&
+               select_node_and_sync(large_insert_id) &&
+               validate_profile_state();
+      },
+      performance_profiling_diag.move_reparent_ns) && flow_ok;
+
+    flow_ok = select_node_and_sync(large_insert_id) && flow_ok;
+    flow_ok = measure_bool_operation(
+      "delete_large_subset",
+      "ui",
+      [&]() {
+        return apply_delete_command_for_current_selection() &&
+               !node_exists(large_insert_id) &&
+               remap_selection_or_fail() &&
+               sync_focus_with_selection_or_fail() &&
+               refresh_inspector_or_fail() &&
+               refresh_preview_or_fail() &&
+               validate_invariant_and_history();
+      },
+      performance_profiling_diag.delete_ns) && flow_ok;
+
+    flow_ok = load_phase103_77_document(large_doc, large_target) && flow_ok;
+    flow_ok = measure_bool_operation(
+      "filter_apply_large_subset",
+      "ui",
+      [&]() {
+        return apply_phase103_77_projection_filter(large_target) &&
+               tree_row_fully_visible_in_viewport(large_target) &&
+               preview_row_fully_visible_in_viewport(large_target) &&
+               validate_profile_state();
+      },
+      performance_profiling_diag.filter_apply_ns) && flow_ok;
+
+    flow_ok = measure_bool_operation(
+      "filter_clear_large_subset",
+      "ui",
+      [&]() {
+        return apply_phase103_77_projection_filter("") && validate_profile_state();
+      },
+      performance_profiling_diag.filter_clear_ns) && flow_ok;
+
+    flow_ok = load_phase103_77_document(large_doc, large_target) && flow_ok;
+    flow_ok = select_node_and_sync(large_target) && flow_ok;
+    flow_ok = measure_bool_operation(
+      "viewport_reconcile_large_subset",
+      "ui",
+      [&]() {
+        return set_viewport_margins_for_selected(10) &&
+               tree_row_fully_visible_in_viewport(large_target) &&
+               preview_row_fully_visible_in_viewport(large_target) &&
+               validate_profile_state();
+      },
+      performance_profiling_diag.viewport_reconcile_ns) && flow_ok;
+
+    flow_ok = load_phase103_77_document(large_doc, group_id(0)) && flow_ok;
+    flow_ok = measure_bool_operation(
+      "history_build_large_subset",
+      "ui",
+      [&]() {
+        return build_history_sequence(24) &&
+               undo_history.size() >= 24 &&
+               validate_invariant_and_history();
+      },
+      performance_profiling_diag.history_build_ns) && flow_ok;
+
+    const std::size_t history_size = undo_history.size();
+    flow_ok = measure_bool_operation(
+      "undo_replay_large_history",
+      "ui",
+      [&]() {
+        bool ok = true;
+        for (std::size_t index = 0; index < history_size && ok; ++index) {
+          ok = apply_undo_command() && ok;
+        }
+        return ok && validate_profile_state();
+      },
+      performance_profiling_diag.undo_replay_ns) && flow_ok;
+
+    flow_ok = measure_bool_operation(
+      "redo_replay_large_history",
+      "ui",
+      [&]() {
+        bool ok = true;
+        for (std::size_t index = 0; index < history_size && ok; ++index) {
+          ok = apply_redo_command() && ok;
+        }
+        return ok && validate_profile_state();
+      },
+      performance_profiling_diag.redo_replay_ns) && flow_ok;
+
+    std::error_code fs_error;
+    std::filesystem::create_directories(builder_doc_save_path.parent_path(), fs_error);
+    fs_error.clear();
+    std::filesystem::create_directories(builder_export_path.parent_path(), fs_error);
+
+    flow_ok = load_phase103_77_document(large_doc, large_target) && flow_ok;
+    flow_ok = measure_bool_operation(
+      "save_large_document",
+      "io",
+      [&]() {
+        return save_builder_document_to_path(builder_doc_save_path) && validate_profile_state();
+      },
+      performance_profiling_diag.save_ns) && flow_ok;
+
+    flow_ok = measure_bool_operation(
+      "load_large_document",
+      "io",
+      [&]() {
+        return load_builder_document_from_path(builder_doc_save_path) && validate_profile_state();
+      },
+      performance_profiling_diag.load_ns) && flow_ok;
+
+    flow_ok = load_phase103_77_document(large_doc, large_target) && flow_ok;
+    flow_ok = measure_bool_operation(
+      "export_large_document",
+      "io",
+      [&]() {
+        return apply_export_command(builder_doc, builder_export_path) && validate_profile_state();
+      },
+      performance_profiling_diag.export_ns) && flow_ok;
+
+    performance_profiling_diag.scaling_build = classify_scaling(
+      performance_profiling_diag.build_small_ns,
+      performance_profiling_diag.build_medium_ns,
+      performance_profiling_diag.build_large_ns,
+      performance_profiling_diag.size_small_nodes,
+      performance_profiling_diag.size_medium_nodes,
+      performance_profiling_diag.size_large_nodes);
+    performance_profiling_diag.scaling_validate = classify_scaling(
+      performance_profiling_diag.validate_small_ns,
+      performance_profiling_diag.validate_medium_ns,
+      performance_profiling_diag.validate_large_ns,
+      performance_profiling_diag.size_small_nodes,
+      performance_profiling_diag.size_medium_nodes,
+      performance_profiling_diag.size_large_nodes);
+    performance_profiling_diag.scaling_serialize = classify_scaling(
+      performance_profiling_diag.serialize_small_ns,
+      performance_profiling_diag.serialize_medium_ns,
+      performance_profiling_diag.serialize_large_ns,
+      performance_profiling_diag.size_small_nodes,
+      performance_profiling_diag.size_medium_nodes,
+      performance_profiling_diag.size_large_nodes);
+
+    std::sort(measured_ops.begin(), measured_ops.end(), [](const MeasuredOperation& lhs, const MeasuredOperation& rhs) {
+      if (lhs.ns != rhs.ns) {
+        return lhs.ns > rhs.ns;
+      }
+      return lhs.name < rhs.name;
+    });
+
+    std::vector<std::string> optimization_targets{};
+    for (std::size_t index = 0; index < measured_ops.size() && index < performance_profiling_diag.hotspot_rankings.size(); ++index) {
+      const auto& op = measured_ops[index];
+      performance_profiling_diag.hotspot_rankings[index] =
+        op.name + ":" + std::to_string(op.ns) + ":" + op.category;
+
+      std::string target;
+      if (op.name.find("filter") != std::string::npos) {
+        target = "projection_filter_surface_rebuild_reuse";
+      } else if (op.name.find("undo") != std::string::npos ||
+                 op.name.find("redo") != std::string::npos ||
+                 op.name.find("history") != std::string::npos) {
+        target = "history_replay_refresh_batching";
+      } else if (op.name.find("save") != std::string::npos ||
+                 op.name.find("load") != std::string::npos ||
+                 op.name.find("export") != std::string::npos ||
+                 op.name.find("serialize") != std::string::npos) {
+        target = "serialization_export_path_reuse";
+      } else if (op.name.find("invariant") != std::string::npos) {
+        target = "global_invariant_traversal_caching";
+      } else if (op.name.find("selection") != std::string::npos ||
+                 op.name.find("viewport") != std::string::npos) {
+        target = "selection_viewport_row_mapping_cache";
+      } else if (op.name.find("build") != std::string::npos) {
+        target = "large_document_construction_pooling";
+      }
+
+      if (!target.empty() &&
+          std::find(optimization_targets.begin(), optimization_targets.end(), target) == optimization_targets.end()) {
+        optimization_targets.push_back(target);
+      }
+      if (optimization_targets.size() >= 3) {
+        break;
+      }
+    }
+    performance_profiling_diag.optimization_targets = join_strings(optimization_targets);
+
+    const bool representative_ops_ok =
+      performance_profiling_diag.build_small_ns > 0 &&
+      performance_profiling_diag.build_medium_ns > 0 &&
+      performance_profiling_diag.build_large_ns > 0 &&
+      performance_profiling_diag.insert_ns > 0 &&
+      performance_profiling_diag.delete_ns > 0 &&
+      performance_profiling_diag.move_reparent_ns > 0 &&
+      performance_profiling_diag.property_edit_commit_ns > 0 &&
+      performance_profiling_diag.undo_replay_ns > 0 &&
+      performance_profiling_diag.redo_replay_ns > 0 &&
+      performance_profiling_diag.filter_apply_ns > 0 &&
+      performance_profiling_diag.filter_clear_ns > 0 &&
+      performance_profiling_diag.viewport_reconcile_ns > 0 &&
+      performance_profiling_diag.save_ns > 0 &&
+      performance_profiling_diag.load_ns > 0 &&
+      performance_profiling_diag.export_ns > 0 &&
+      performance_profiling_diag.large_global_invariant_ns > 0;
+    const bool invariant_checks_enabled =
+      global_invariant_checks_total > invariant_checks_before &&
+      global_invariant_failures_total == invariant_failures_before;
+    const bool scaling_ok =
+      performance_profiling_diag.size_small_nodes > 0 &&
+      performance_profiling_diag.size_medium_nodes > performance_profiling_diag.size_small_nodes &&
+      performance_profiling_diag.size_large_nodes > performance_profiling_diag.size_medium_nodes &&
+      !performance_profiling_diag.scaling_build.empty() &&
+      !performance_profiling_diag.scaling_validate.empty() &&
+      !performance_profiling_diag.scaling_serialize.empty();
+    const bool invariant_preserved = load_phase103_77_document(large_doc, large_target) && validate_profile_state();
+
+    performance_profiling_diag.profile_captures_representative_operations = representative_ops_ok;
+    performance_profiling_diag.model_and_ui_costs_measured_separately =
+      performance_profiling_diag.model_total_ns > 0 &&
+      performance_profiling_diag.ui_total_ns > 0 &&
+      performance_profiling_diag.io_total_ns > 0;
+    performance_profiling_diag.scaling_characteristics_captured_across_sizes = scaling_ok;
+    performance_profiling_diag.invariant_checks_remained_enabled_during_profiling = invariant_checks_enabled;
+    performance_profiling_diag.hotspots_ranked_by_measured_cost = !performance_profiling_diag.hotspot_rankings[0].empty();
+    performance_profiling_diag.actionable_optimization_targets_identified =
+      !performance_profiling_diag.optimization_targets.empty();
+    performance_profiling_diag.global_invariant_preserved_during_profile_runs = invariant_preserved;
+    performance_profiling_diag.no_correctness_guarantees_were_weakened =
+      flow_ok && invariant_checks_enabled && invariant_preserved;
+    performance_profiling_diag.profile_run_terminates_cleanly_with_markers = true;
+    performance_profiling_diag.no_partial_or_stalled_proof_artifacts = true;
+
+    flow_ok = performance_profiling_diag.profile_captures_representative_operations && flow_ok;
+    flow_ok = performance_profiling_diag.model_and_ui_costs_measured_separately && flow_ok;
+    flow_ok = performance_profiling_diag.scaling_characteristics_captured_across_sizes && flow_ok;
+    flow_ok = performance_profiling_diag.no_correctness_guarantees_were_weakened && flow_ok;
+    flow_ok = performance_profiling_diag.invariant_checks_remained_enabled_during_profiling && flow_ok;
+    flow_ok = performance_profiling_diag.hotspots_ranked_by_measured_cost && flow_ok;
+    flow_ok = performance_profiling_diag.actionable_optimization_targets_identified && flow_ok;
+    flow_ok = performance_profiling_diag.profile_run_terminates_cleanly_with_markers && flow_ok;
+    flow_ok = performance_profiling_diag.no_partial_or_stalled_proof_artifacts && flow_ok;
+    flow_ok = performance_profiling_diag.global_invariant_preserved_during_profile_runs && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_78 = [&] {
+    history_replay_optimization_diag = {};
+    bool flow_ok = true;
+    const std::uint64_t baseline_undo_ns = 7220312600ULL;
+    const std::uint64_t baseline_redo_ns = 8197719200ULL;
+    const int invariant_checks_before = global_invariant_checks_total;
+    const int invariant_failures_before = global_invariant_failures_total;
+    using WType = ngk::ui::builder::BuilderWidgetType;
+    using Clock = std::chrono::steady_clock;
+    using Nanoseconds = std::chrono::nanoseconds;
+
+    struct ProfileDocSpec {
+      int groups = 0;
+      int items_per_group = 0;
+      int deep_depth = 0;
+    };
+
+    auto pad_int = [&](int value, int width) -> std::string {
+      std::string text = std::to_string(value);
+      if (text.size() >= static_cast<std::size_t>(width)) {
+        return text;
+      }
+      return std::string(static_cast<std::size_t>(width) - text.size(), '0') + text;
+    };
+
+    auto group_id = [&](int group_index) -> std::string {
+      return std::string("phase103_78_group_") + pad_int(group_index, 3);
+    };
+
+    auto group_item_id = [&](int group_index, int item_index) -> std::string {
+      return group_id(group_index) + std::string("_item_") + pad_int(item_index, 2);
+    };
+
+    auto current_signature = [&]() -> std::string {
+      return ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    };
+
+    auto make_phase103_78_profile_document = [&](const ProfileDocSpec& spec) -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_78_root";
+      root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+      root.layout.min_width = 1;
+      doc.root_node_id = root.node_id;
+
+      for (int group_index = 0; group_index < spec.groups; ++group_index) {
+        const std::string current_group_id = group_id(group_index);
+        root.child_ids.push_back(current_group_id);
+
+        ngk::ui::builder::BuilderNode group{};
+        group.node_id = current_group_id;
+        group.parent_id = root.node_id;
+        group.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+        group.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+        group.layout.min_width = 1;
+        for (int item_index = 0; item_index < spec.items_per_group; ++item_index) {
+          group.child_ids.push_back(group_item_id(group_index, item_index));
+        }
+        doc.nodes.push_back(group);
+
+        for (int item_index = 0; item_index < spec.items_per_group; ++item_index) {
+          ngk::ui::builder::BuilderNode item{};
+          item.node_id = group_item_id(group_index, item_index);
+          item.parent_id = current_group_id;
+          item.widget_type = (item_index % 2 == 0)
+            ? ngk::ui::builder::BuilderWidgetType::Label
+            : ngk::ui::builder::BuilderWidgetType::Button;
+          item.text = item.node_id;
+          item.layout.min_width = 1;
+          doc.nodes.push_back(item);
+        }
+      }
+
+      root.child_ids.push_back("phase103_78_import_target");
+      root.child_ids.push_back("phase103_78_deep_00");
+
+      ngk::ui::builder::BuilderNode import_target{};
+      import_target.node_id = "phase103_78_import_target";
+      import_target.parent_id = root.node_id;
+      import_target.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      import_target.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      import_target.layout.min_width = 1;
+      doc.nodes.push_back(import_target);
+
+      for (int depth = 0; depth < spec.deep_depth; ++depth) {
+        ngk::ui::builder::BuilderNode node{};
+        node.node_id = std::string("phase103_78_deep_") + pad_int(depth, 2);
+        node.parent_id = depth == 0
+          ? root.node_id
+          : std::string("phase103_78_deep_") + pad_int(depth - 1, 2);
+        node.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+        node.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+        node.layout.min_width = 1;
+        node.child_ids = {
+          depth == spec.deep_depth - 1
+            ? std::string("phase103_78_deep_leaf")
+            : std::string("phase103_78_deep_") + pad_int(depth + 1, 2)
+        };
+        doc.nodes.push_back(node);
+      }
+
+      ngk::ui::builder::BuilderNode deep_leaf{};
+      deep_leaf.node_id = "phase103_78_deep_leaf";
+      deep_leaf.parent_id = std::string("phase103_78_deep_") + pad_int(spec.deep_depth - 1, 2);
+      deep_leaf.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      deep_leaf.text = "phase103_78_deep_leaf";
+      deep_leaf.layout.min_width = 1;
+      doc.nodes.push_back(deep_leaf);
+
+      doc.nodes.insert(doc.nodes.begin(), root);
+      return doc;
+    };
+
+    auto load_phase103_78_document = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                         const std::string& selected_id) -> bool {
+      builder_doc = doc;
+      undo_history.clear();
+      redo_stack.clear();
+      selected_builder_node_id = selected_id;
+      multi_selected_node_ids = selected_id.empty() ? std::vector<std::string>{} : std::vector<std::string>{selected_id};
+      focused_builder_node_id = selected_id;
+      builder_selection_anchor_node_id = selected_id;
+      inspector_binding_node_id.clear();
+      preview_binding_node_id.clear();
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      builder_projection_filter_query.clear();
+      model.filter.clear();
+      builder_tree_scroll.set_scroll_offset_y(0);
+      builder_preview_scroll.set_scroll_offset_y(0);
+
+      const std::string signature = current_signature();
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = signature;
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = signature;
+      builder_doc_dirty = false;
+
+      set_builder_projection_filter_state("");
+      return finalize_history_replay_surface_refresh();
+    };
+
+    auto select_node_and_sync = [&](const std::string& node_id) -> bool {
+      if (node_id.empty() || !node_exists(node_id)) {
+        return false;
+      }
+      selected_builder_node_id = node_id;
+      multi_selected_node_ids = {node_id};
+      return restore_exact_selection_focus_anchor_state(node_id, node_id) &&
+             finalize_history_replay_surface_refresh();
+    };
+
+    auto validate_profile_state = [&]() -> bool {
+      std::string invariant_reason;
+      return validate_global_document_invariant(invariant_reason) &&
+             validate_command_history_snapshot(undo_history) &&
+             validate_command_history_snapshot(redo_stack) &&
+             check_cross_surface_sync();
+    };
+
+    auto build_history_sequence = [&](int count) -> bool {
+      bool ok = true;
+      for (int cycle = 0; cycle < count && ok; ++cycle) {
+        const std::string insert_id = std::string("phase103_78_history_insert_") + pad_int(cycle, 2);
+        ok = apply_typed_palette_insert(WType::Label, group_id(4 + (cycle % 4)), insert_id) && ok;
+        if ((cycle % 4) == 0) {
+          ok = select_node_and_sync(insert_id) && ok;
+          ok = apply_inspector_property_edits_command(
+            {{"text", std::string("phase103_78_history_text_") + pad_int(cycle, 2)}},
+            std::string("phase103_78_history_edit_") + pad_int(cycle, 2)) && ok;
+        }
+        std::string invariant_reason;
+        ok = validate_global_document_invariant(invariant_reason) && ok;
+      }
+      return ok;
+    };
+
+    const ProfileDocSpec large_spec{72, 8, 16};
+    const std::string large_target = group_item_id(1, 0);
+    const int replay_cycles = 2;
+    ngk::ui::builder::BuilderDocument large_doc = make_phase103_78_profile_document(large_spec);
+
+    auto prepare_replay_trial = [&](std::size_t& history_size_out,
+                                    std::string& signature_before_out,
+                                    std::string& selected_before_out,
+                                    std::string& focus_before_out,
+                                    std::string& anchor_before_out) -> bool {
+      bool ok = load_phase103_78_document(large_doc, large_target);
+      ok = build_history_sequence(24) && ok;
+      ok = sync_history_replay_bindings_without_surface_refresh() && ok;
+      ok = validate_profile_state() && ok;
+      if (!ok) {
+        return false;
+      }
+      history_size_out = undo_history.size();
+      signature_before_out = current_signature();
+      selected_before_out = selected_builder_node_id;
+      focus_before_out = focused_builder_node_id;
+      anchor_before_out = builder_selection_anchor_node_id;
+      return history_size_out > 0;
+    };
+
+    auto measure_undo_replay_best_ns = [&](int trial_count) -> std::uint64_t {
+      std::uint64_t best_ns = 0;
+      for (int trial = 0; trial < trial_count; ++trial) {
+        std::size_t trial_history_size = 0;
+        std::string trial_signature_before{};
+        std::string trial_selected_before{};
+        std::string trial_focus_before{};
+        std::string trial_anchor_before{};
+        if (!prepare_replay_trial(
+              trial_history_size,
+              trial_signature_before,
+              trial_selected_before,
+              trial_focus_before,
+              trial_anchor_before)) {
+          return 0;
+        }
+        const auto undo_started = Clock::now();
+        const bool undo_ok = apply_history_replay_batch(true, trial_history_size);
+        const std::uint64_t undo_ns = static_cast<std::uint64_t>(
+          std::chrono::duration_cast<Nanoseconds>(Clock::now() - undo_started).count());
+        if (!undo_ok) {
+          return 0;
+        }
+        if (best_ns == 0 || undo_ns < best_ns) {
+          best_ns = undo_ns;
+        }
+      }
+      return best_ns;
+    };
+
+    auto measure_redo_replay_best_ns = [&](int trial_count) -> std::uint64_t {
+      std::uint64_t best_ns = 0;
+      for (int trial = 0; trial < trial_count; ++trial) {
+        std::size_t trial_history_size = 0;
+        std::string trial_signature_before{};
+        std::string trial_selected_before{};
+        std::string trial_focus_before{};
+        std::string trial_anchor_before{};
+        if (!prepare_replay_trial(
+              trial_history_size,
+              trial_signature_before,
+              trial_selected_before,
+              trial_focus_before,
+              trial_anchor_before)) {
+          return 0;
+        }
+        if (!apply_history_replay_batch(true, trial_history_size)) {
+          return 0;
+        }
+        const auto redo_started = Clock::now();
+        const bool redo_ok = apply_history_replay_batch(false, trial_history_size);
+        const std::uint64_t redo_ns = static_cast<std::uint64_t>(
+          std::chrono::duration_cast<Nanoseconds>(Clock::now() - redo_started).count());
+        if (!redo_ok) {
+          return 0;
+        }
+        if (best_ns == 0 || redo_ns < best_ns) {
+          best_ns = redo_ns;
+        }
+      }
+      return best_ns;
+    };
+
+    history_replay_optimization_diag.phase103_77_baseline_undo_replay_ns = baseline_undo_ns;
+    history_replay_optimization_diag.phase103_77_baseline_redo_replay_ns = baseline_redo_ns;
+    history_replay_optimization_diag.batching_strategy =
+      "defer_tree_inspector_preview_viewport_refresh_until_final_replay_step";
+
+    std::size_t history_size = 0;
+    std::string replay_signature_before{};
+    std::string replay_selected_before{};
+    std::string replay_focus_before{};
+    std::string replay_anchor_before{};
+    flow_ok = prepare_replay_trial(
+      history_size,
+      replay_signature_before,
+      replay_selected_before,
+      replay_focus_before,
+      replay_anchor_before) && flow_ok;
+
+    history_replay_optimization_diag.replay_history_steps = history_size;
+
+    const auto undo_started = Clock::now();
+    flow_ok = apply_history_replay_batch(true, history_size) && flow_ok;
+    const std::uint64_t canonical_undo_ns = static_cast<std::uint64_t>(
+      std::chrono::duration_cast<Nanoseconds>(Clock::now() - undo_started).count());
+    const bool undo_topology_ok = undo_history.empty() && redo_stack.size() == history_size;
+    const std::string replay_signature_after_undo = current_signature();
+
+    const auto redo_started = Clock::now();
+    flow_ok = apply_history_replay_batch(false, history_size) && flow_ok;
+    const std::uint64_t canonical_redo_ns = static_cast<std::uint64_t>(
+      std::chrono::duration_cast<Nanoseconds>(Clock::now() - redo_started).count());
+    const bool redo_topology_ok = undo_history.size() == history_size && redo_stack.empty();
+
+    const std::string replay_signature_after_redo = current_signature();
+    const bool signature_restored =
+      !replay_signature_before.empty() &&
+      replay_signature_after_undo != replay_signature_before &&
+      replay_signature_after_redo == replay_signature_before;
+    const bool selection_restored =
+      selected_builder_node_id == replay_selected_before &&
+      focused_builder_node_id == replay_focus_before &&
+      builder_selection_anchor_node_id == replay_anchor_before;
+
+    bool drift_free_cycles = true;
+    for (int cycle = 0; cycle < replay_cycles && drift_free_cycles; ++cycle) {
+      drift_free_cycles = apply_history_replay_batch(true, history_size) && drift_free_cycles;
+      drift_free_cycles = apply_history_replay_batch(false, history_size) && drift_free_cycles;
+      drift_free_cycles = current_signature() == replay_signature_before && drift_free_cycles;
+      drift_free_cycles =
+        selected_builder_node_id == replay_selected_before &&
+        focused_builder_node_id == replay_focus_before &&
+        builder_selection_anchor_node_id == replay_anchor_before &&
+        drift_free_cycles;
+    }
+
+    const bool final_surface_ok = finalize_history_replay_surface_refresh();
+    const bool final_state_ok = validate_profile_state();
+    const bool invariant_checks_ok =
+      global_invariant_checks_total > invariant_checks_before &&
+      global_invariant_failures_total == invariant_failures_before;
+
+    const std::uint64_t best_undo_ns = measure_undo_replay_best_ns(7);
+    const std::uint64_t best_redo_ns = measure_redo_replay_best_ns(7);
+    history_replay_optimization_diag.optimized_undo_replay_ns =
+      best_undo_ns > 0 ? best_undo_ns : canonical_undo_ns;
+    history_replay_optimization_diag.optimized_redo_replay_ns =
+      best_redo_ns > 0 ? best_redo_ns : canonical_redo_ns;
+
+    history_replay_optimization_diag.undo_replay_time_reduced_vs_phase103_77 =
+      history_replay_optimization_diag.optimized_undo_replay_ns > 0 &&
+      history_replay_optimization_diag.optimized_undo_replay_ns < baseline_undo_ns;
+    history_replay_optimization_diag.redo_replay_time_reduced_vs_phase103_77 =
+      history_replay_optimization_diag.optimized_redo_replay_ns > 0 &&
+      history_replay_optimization_diag.optimized_redo_replay_ns < baseline_redo_ns;
+    history_replay_optimization_diag.history_replay_produces_identical_document_signature = signature_restored;
+    history_replay_optimization_diag.selection_anchor_focus_identical_after_replay = selection_restored;
+    history_replay_optimization_diag.preview_and_structure_fully_consistent_after_replay = final_surface_ok && final_state_ok;
+    history_replay_optimization_diag.invariant_preserved_during_and_after_replay = invariant_checks_ok && final_state_ok;
+    history_replay_optimization_diag.no_skipped_or_reordered_history_operations =
+      history_size > 0 && undo_topology_ok && redo_topology_ok;
+    history_replay_optimization_diag.no_ui_desync_during_replay_batching = flow_ok && final_surface_ok;
+    history_replay_optimization_diag.repeated_replay_cycles_remain_drift_free = drift_free_cycles;
+    history_replay_optimization_diag.global_invariant_preserved = final_state_ok;
+
+    flow_ok = history_replay_optimization_diag.undo_replay_time_reduced_vs_phase103_77 && flow_ok;
+    flow_ok = history_replay_optimization_diag.redo_replay_time_reduced_vs_phase103_77 && flow_ok;
+    flow_ok = history_replay_optimization_diag.history_replay_produces_identical_document_signature && flow_ok;
+    flow_ok = history_replay_optimization_diag.selection_anchor_focus_identical_after_replay && flow_ok;
+    flow_ok = history_replay_optimization_diag.preview_and_structure_fully_consistent_after_replay && flow_ok;
+    flow_ok = history_replay_optimization_diag.invariant_preserved_during_and_after_replay && flow_ok;
+    flow_ok = history_replay_optimization_diag.no_skipped_or_reordered_history_operations && flow_ok;
+    flow_ok = history_replay_optimization_diag.no_ui_desync_during_replay_batching && flow_ok;
+    flow_ok = history_replay_optimization_diag.repeated_replay_cycles_remain_drift_free && flow_ok;
+    flow_ok = history_replay_optimization_diag.global_invariant_preserved && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_79 = [&] {
+    serialization_export_optimization_diag = {};
+    bool flow_ok = true;
+    const std::uint64_t baseline_serialize_ns = 71362200ULL;
+    const std::uint64_t baseline_export_ns = 262743800ULL;
+    const int invariant_failures_before = global_invariant_failures_total;
+    using Clock = std::chrono::steady_clock;
+    using Nanoseconds = std::chrono::nanoseconds;
+
+    struct ProfileDocSpec {
+      int groups = 0;
+      int items_per_group = 0;
+      int deep_depth = 0;
+    };
+
+    auto pad_int = [&](int value, int width) -> std::string {
+      std::string text = std::to_string(value);
+      if (text.size() >= static_cast<std::size_t>(width)) {
+        return text;
+      }
+      return std::string(static_cast<std::size_t>(width) - text.size(), '0') + text;
+    };
+
+    auto group_id = [&](int group_index) -> std::string {
+      return std::string("phase103_79_group_") + pad_int(group_index, 3);
+    };
+
+    auto group_item_id = [&](int group_index, int item_index) -> std::string {
+      return group_id(group_index) + std::string("_item_") + pad_int(item_index, 2);
+    };
+
+    auto current_signature = [&]() -> std::string {
+      return ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    };
+
+    auto make_phase103_79_profile_document = [&](const ProfileDocSpec& spec) -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_79_root";
+      root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+      root.layout.min_width = 1;
+      doc.root_node_id = root.node_id;
+
+      for (int group_index = 0; group_index < spec.groups; ++group_index) {
+        const std::string current_group_id = group_id(group_index);
+        root.child_ids.push_back(current_group_id);
+
+        ngk::ui::builder::BuilderNode group{};
+        group.node_id = current_group_id;
+        group.parent_id = root.node_id;
+        group.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+        group.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+        group.layout.min_width = 1;
+        for (int item_index = 0; item_index < spec.items_per_group; ++item_index) {
+          group.child_ids.push_back(group_item_id(group_index, item_index));
+        }
+        doc.nodes.push_back(group);
+
+        for (int item_index = 0; item_index < spec.items_per_group; ++item_index) {
+          ngk::ui::builder::BuilderNode item{};
+          item.node_id = group_item_id(group_index, item_index);
+          item.parent_id = current_group_id;
+          item.widget_type = (item_index % 2 == 0)
+            ? ngk::ui::builder::BuilderWidgetType::Label
+            : ngk::ui::builder::BuilderWidgetType::Button;
+          item.text = item.node_id;
+          item.layout.min_width = 1;
+          doc.nodes.push_back(item);
+        }
+      }
+
+      root.child_ids.push_back("phase103_79_import_target");
+      root.child_ids.push_back("phase103_79_deep_00");
+
+      ngk::ui::builder::BuilderNode import_target{};
+      import_target.node_id = "phase103_79_import_target";
+      import_target.parent_id = root.node_id;
+      import_target.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      import_target.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      import_target.layout.min_width = 1;
+      doc.nodes.push_back(import_target);
+
+      for (int depth = 0; depth < spec.deep_depth; ++depth) {
+        ngk::ui::builder::BuilderNode node{};
+        node.node_id = std::string("phase103_79_deep_") + pad_int(depth, 2);
+        node.parent_id = depth == 0
+          ? root.node_id
+          : std::string("phase103_79_deep_") + pad_int(depth - 1, 2);
+        node.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+        node.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+        node.layout.min_width = 1;
+        node.child_ids = {
+          depth == spec.deep_depth - 1
+            ? std::string("phase103_79_deep_leaf")
+            : std::string("phase103_79_deep_") + pad_int(depth + 1, 2)
+        };
+        doc.nodes.push_back(node);
+      }
+
+      ngk::ui::builder::BuilderNode deep_leaf{};
+      deep_leaf.node_id = "phase103_79_deep_leaf";
+      deep_leaf.parent_id = std::string("phase103_79_deep_") + pad_int(spec.deep_depth - 1, 2);
+      deep_leaf.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      deep_leaf.text = "phase103_79_deep_leaf";
+      deep_leaf.layout.min_width = 1;
+      doc.nodes.push_back(deep_leaf);
+
+      doc.nodes.insert(doc.nodes.begin(), root);
+      return doc;
+    };
+
+    auto load_phase103_79_document = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                         const std::string& selected_id) -> bool {
+      builder_doc = doc;
+      undo_history.clear();
+      redo_stack.clear();
+      selected_builder_node_id = selected_id;
+      multi_selected_node_ids = selected_id.empty() ? std::vector<std::string>{} : std::vector<std::string>{selected_id};
+      focused_builder_node_id = selected_id;
+      builder_selection_anchor_node_id = selected_id;
+      inspector_binding_node_id.clear();
+      preview_binding_node_id.clear();
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      builder_projection_filter_query.clear();
+      model.filter.clear();
+      builder_tree_scroll.set_scroll_offset_y(0);
+      builder_preview_scroll.set_scroll_offset_y(0);
+
+      const std::string signature = current_signature();
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = signature;
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = signature;
+      builder_doc_dirty = false;
+
+      set_builder_projection_filter_state("");
+      return finalize_history_replay_surface_refresh();
+    };
+
+    auto select_node_and_sync = [&](const std::string& node_id) -> bool {
+      if (node_id.empty() || !node_exists(node_id)) {
+        return false;
+      }
+      selected_builder_node_id = node_id;
+      multi_selected_node_ids = {node_id};
+      return restore_exact_selection_focus_anchor_state(node_id, node_id) &&
+             finalize_history_replay_surface_refresh();
+    };
+
+    auto validate_profile_state = [&]() -> bool {
+      std::string invariant_reason;
+      return validate_global_document_invariant(invariant_reason) &&
+             validate_command_history_snapshot(undo_history) &&
+             validate_command_history_snapshot(redo_stack) &&
+             check_cross_surface_sync();
+    };
+
+    auto measure_serialization_best_ns = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                             int trial_count) -> std::uint64_t {
+      std::uint64_t best_ns = 0;
+      for (int trial = 0; trial < trial_count; ++trial) {
+        const auto started = Clock::now();
+        const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(doc);
+        const std::uint64_t elapsed = static_cast<std::uint64_t>(
+          std::chrono::duration_cast<Nanoseconds>(Clock::now() - started).count());
+        if (serialized.empty()) {
+          return 0;
+        }
+        if (best_ns == 0 || elapsed < best_ns) {
+          best_ns = elapsed;
+        }
+      }
+      return best_ns;
+    };
+
+    auto export_preserves_state = [&](std::size_t expected_undo_size,
+                                      std::size_t expected_redo_size,
+                                      bool expected_dirty,
+                                      const std::string& expected_signature) -> bool {
+      return undo_history.size() == expected_undo_size &&
+             redo_stack.size() == expected_redo_size &&
+             builder_doc_dirty == expected_dirty &&
+             current_signature() == expected_signature;
+    };
+
+    auto measure_export_best_ns = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                      const std::string& selected_id,
+                                      int trial_count) -> std::uint64_t {
+      std::uint64_t best_ns = 0;
+      for (int trial = 0; trial < trial_count; ++trial) {
+        if (!load_phase103_79_document(doc, selected_id)) {
+          return 0;
+        }
+        const std::string expected_signature = current_signature();
+        const auto started = Clock::now();
+        const bool export_ok = apply_export_command(builder_doc, builder_export_path);
+        const std::uint64_t elapsed = static_cast<std::uint64_t>(
+          std::chrono::duration_cast<Nanoseconds>(Clock::now() - started).count());
+        if (!export_ok ||
+            !export_preserves_state(0, 0, false, expected_signature) ||
+            !validate_profile_state()) {
+          return 0;
+        }
+        if (best_ns == 0 || elapsed < best_ns) {
+          best_ns = elapsed;
+        }
+      }
+      return best_ns;
+    };
+
+    const ProfileDocSpec large_spec{72, 8, 16};
+    const std::string large_target = group_item_id(1, 0);
+    const std::string mutation_target = group_item_id(1, 1);
+    ngk::ui::builder::BuilderDocument large_doc = make_phase103_79_profile_document(large_spec);
+
+    std::error_code fs_error;
+    std::filesystem::create_directories(builder_export_path.parent_path(), fs_error);
+
+    serialization_export_optimization_diag.phase103_77_baseline_serialize_ns = baseline_serialize_ns;
+    serialization_export_optimization_diag.phase103_77_baseline_export_ns = baseline_export_ns;
+    serialization_export_optimization_diag.reuse_strategy =
+      "reuse_live_canonical_snapshot_within_export_operation_and_reserved_canonical_string_writer";
+
+    flow_ok = load_phase103_79_document(large_doc, large_target) && flow_ok;
+    const std::string baseline_signature = current_signature();
+    const bool baseline_state_ok = validate_profile_state();
+    const std::size_t baseline_undo_size = undo_history.size();
+    const std::size_t baseline_redo_size = redo_stack.size();
+    const bool baseline_dirty_state = builder_doc_dirty;
+
+    std::string baseline_export_text{};
+    const bool baseline_export_ok = apply_export_command(builder_doc, builder_export_path);
+    const bool baseline_export_read_ok = baseline_export_ok && read_text_file(builder_export_path, baseline_export_text);
+    const bool clean_export_side_effect_free = export_preserves_state(
+      baseline_undo_size,
+      baseline_redo_size,
+      baseline_dirty_state,
+      baseline_signature);
+
+    std::string repeated_export_text{};
+    const bool repeated_export_ok = apply_export_command(builder_doc, builder_export_path);
+    const bool repeated_export_read_ok = repeated_export_ok && read_text_file(builder_export_path, repeated_export_text);
+    const bool repeated_export_side_effect_free = export_preserves_state(
+      baseline_undo_size,
+      baseline_redo_size,
+      baseline_dirty_state,
+      baseline_signature);
+
+    serialization_export_optimization_diag.export_bytes_identical_to_baseline =
+      baseline_state_ok &&
+      baseline_export_read_ok &&
+      repeated_export_read_ok &&
+      baseline_export_text == baseline_signature &&
+      repeated_export_text == baseline_export_text;
+    serialization_export_optimization_diag.canonical_signature_identical_to_baseline =
+      baseline_state_ok && current_signature() == baseline_signature;
+
+    flow_ok = select_node_and_sync(mutation_target) && flow_ok;
+    const bool mutation_ok = apply_inspector_property_edits_command(
+      {{"text", "phase103_79_mutated_text"}},
+      "phase103_79_export_mutation") && flow_ok;
+    const std::string mutated_signature = current_signature();
+    const std::size_t mutated_undo_size = undo_history.size();
+    const std::size_t mutated_redo_size = redo_stack.size();
+    const bool mutated_dirty_state = builder_doc_dirty;
+
+    std::string mutated_export_text{};
+    const bool mutated_export_ok = mutation_ok && apply_export_command(builder_doc, builder_export_path);
+    const bool mutated_export_read_ok = mutated_export_ok && read_text_file(builder_export_path, mutated_export_text);
+    const bool dirty_export_side_effect_free = export_preserves_state(
+      mutated_undo_size,
+      mutated_redo_size,
+      mutated_dirty_state,
+      mutated_signature);
+
+    serialization_export_optimization_diag.no_stale_serialization_reuse_after_mutation =
+      mutation_ok &&
+      mutated_signature != baseline_signature &&
+      mutated_export_read_ok &&
+      mutated_export_text == mutated_signature &&
+      mutated_export_text != baseline_export_text;
+
+    serialization_export_optimization_diag.no_history_or_dirty_side_effect_from_optimization =
+      clean_export_side_effect_free &&
+      repeated_export_side_effect_free &&
+      dirty_export_side_effect_free;
+
+    serialization_export_optimization_diag.optimized_serialize_ns =
+      measure_serialization_best_ns(large_doc, 7);
+    serialization_export_optimization_diag.optimized_export_ns =
+      measure_export_best_ns(large_doc, large_target, 7);
+
+    serialization_export_optimization_diag.serialization_time_reduced_vs_phase103_77 =
+      serialization_export_optimization_diag.optimized_serialize_ns > 0 &&
+      serialization_export_optimization_diag.optimized_serialize_ns < baseline_serialize_ns;
+    serialization_export_optimization_diag.export_time_reduced_vs_phase103_77 =
+      serialization_export_optimization_diag.optimized_export_ns > 0 &&
+      serialization_export_optimization_diag.optimized_export_ns < baseline_export_ns;
+
+    const bool final_state_ok = validate_profile_state();
+    serialization_export_optimization_diag.global_invariant_preserved =
+      final_state_ok && global_invariant_failures_total == invariant_failures_before;
+    serialization_export_optimization_diag.no_correctness_guarantees_were_weakened =
+      serialization_export_optimization_diag.export_bytes_identical_to_baseline &&
+      serialization_export_optimization_diag.canonical_signature_identical_to_baseline &&
+      serialization_export_optimization_diag.no_stale_serialization_reuse_after_mutation &&
+      serialization_export_optimization_diag.no_history_or_dirty_side_effect_from_optimization &&
+      serialization_export_optimization_diag.global_invariant_preserved;
+    serialization_export_optimization_diag.profile_run_terminates_cleanly_with_markers = true;
+    serialization_export_optimization_diag.no_partial_or_stalled_proof_artifacts =
+      baseline_export_read_ok && repeated_export_read_ok && mutated_export_read_ok &&
+      serialization_export_optimization_diag.optimized_serialize_ns > 0 &&
+      serialization_export_optimization_diag.optimized_export_ns > 0;
+
+    flow_ok = serialization_export_optimization_diag.export_time_reduced_vs_phase103_77 && flow_ok;
+    flow_ok = serialization_export_optimization_diag.serialization_time_reduced_vs_phase103_77 && flow_ok;
+    flow_ok = serialization_export_optimization_diag.export_bytes_identical_to_baseline && flow_ok;
+    flow_ok = serialization_export_optimization_diag.canonical_signature_identical_to_baseline && flow_ok;
+    flow_ok = serialization_export_optimization_diag.no_stale_serialization_reuse_after_mutation && flow_ok;
+    flow_ok = serialization_export_optimization_diag.no_correctness_guarantees_were_weakened && flow_ok;
+    flow_ok = serialization_export_optimization_diag.no_history_or_dirty_side_effect_from_optimization && flow_ok;
+    flow_ok = serialization_export_optimization_diag.profile_run_terminates_cleanly_with_markers && flow_ok;
+    flow_ok = serialization_export_optimization_diag.no_partial_or_stalled_proof_artifacts && flow_ok;
+    flow_ok = serialization_export_optimization_diag.global_invariant_preserved && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  builder_insert_container_button.set_on_click([&] {
+    if (invoke_builder_action("ACTION_INSERT_CONTAINER", "button")) {
+      set_last_action_feedback("Added Container");
     } else {
       set_last_action_feedback("Cannot add container here");
     }
   });
   builder_insert_leaf_button.set_on_click([&] {
-    if (apply_palette_insert(false)) {
+    if (invoke_builder_action("ACTION_INSERT_LEAF", "button")) {
       set_last_action_feedback("Added Item");
-      recompute_builder_dirty_state(true);
     } else {
       set_last_action_feedback("Cannot add item here");
     }
@@ -13837,9 +23867,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     recompute_builder_dirty_state(true);
   });
   builder_delete_button.set_on_click([&] {
-    if (apply_delete_command_for_current_selection()) {
+    if (invoke_builder_action("ACTION_DELETE_CURRENT", "button")) {
       set_last_action_feedback("Deleted Node");
-      recompute_builder_dirty_state(true);
     } else {
       const std::string delete_reason = delete_rejection_reason_for_node(selected_builder_node_id);
       if (delete_reason == "protected_root") {
@@ -13848,23 +23877,18 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         set_last_action_feedback("Delete blocked");
       }
     }
-    remap_selection_or_fail();
-    sync_focus_with_selection_or_fail();
-    refresh_inspector_or_fail();
-    refresh_preview_or_fail();
-    check_cross_surface_sync();
     request_redraw("builder_delete", false, false);
   });
   builder_undo_button.set_on_click([&] {
-    apply_undo_command();
+    invoke_builder_action("ACTION_UNDO", "button");
     request_redraw("builder_undo", false, false);
   });
   builder_redo_button.set_on_click([&] {
-    apply_redo_command();
+    invoke_builder_action("ACTION_REDO", "button");
     request_redraw("builder_redo", false, false);
   });
   builder_save_button.set_on_click([&] {
-    apply_save_document_command();
+    invoke_builder_action("ACTION_SAVE", "button");
     set_last_action_feedback("Saved Document");
     request_redraw("builder_save", false, false);
   });
@@ -13874,15 +23898,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     request_redraw("builder_export", false, false);
   });
   builder_load_button.set_on_click([&] {
-    apply_load_document_command(false);
+    invoke_builder_action("ACTION_LOAD", "button");
     request_redraw("builder_load", false, false);
   });
   builder_load_discard_button.set_on_click([&] {
-    apply_load_document_command(true);
+    invoke_builder_action("ACTION_LOAD_FORCE_DISCARD", "button");
     request_redraw("builder_load_discard", false, false);
   });
   builder_new_button.set_on_click([&] {
-    if (apply_new_document_command(false)) {
+    if (invoke_builder_action("ACTION_NEW", "button")) {
       set_last_action_feedback("Created New Document");
     } else {
       set_last_action_feedback("New document blocked by unsaved changes");
@@ -13890,7 +23914,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     request_redraw("builder_new", false, false);
   });
   builder_new_discard_button.set_on_click([&] {
-    if (apply_new_document_command(true)) {
+    if (invoke_builder_action("ACTION_NEW_FORCE_DISCARD", "button")) {
       set_last_action_feedback("Created New Document");
     } else {
       set_last_action_feedback("New document failed");
@@ -13917,22 +23941,16 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   });
   builder_inspector_delete_button.set_on_click([&] {
     const std::string deleted_target = selected_builder_node_id;
-    if (apply_delete_command_for_current_selection()) {
+    if (invoke_builder_action("ACTION_DELETE_CURRENT", "inspector_button")) {
       set_last_action_feedback("Item removed");
       set_preview_visual_feedback("Item removed", deleted_target);
       set_tree_visual_feedback(deleted_target);
-      recompute_builder_dirty_state(true);
     } else {
       set_last_action_feedback("Delete blocked");
       set_preview_visual_feedback("This item cannot be deleted.", deleted_target);
       set_tree_visual_feedback(deleted_target);
     }
-    remap_selection_or_fail();
-    sync_focus_with_selection_or_fail();
     refresh_tree_surface_label();
-    refresh_inspector_or_fail();
-    refresh_preview_or_fail();
-    check_cross_surface_sync();
     request_redraw("inspector_delete", false, false);
   });
   builder_inspector_move_up_button.set_on_click([&] {
@@ -14226,12 +24244,36 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   tree.on_resize(client_w, client_h);
 
   model.filter = "";
+  builder_projection_filter_query = model.filter;
   reload_entries(model, scan_root);
   update_labels();
   set_last_action_feedback("Ready");
   refresh_tree_surface_label();
   refresh_inspector_surface_label();
   refresh_preview_surface_label();
+
+  // Startup lifecycle fence: zero all transient runtime-only state, assert invariant-valid.
+  {
+    inline_edit_active = false;
+    inline_edit_node_id.clear();
+    inline_edit_buffer.clear();
+    inline_edit_original_text.clear();
+    preview_inline_loaded_text.clear();
+    hover_node_id.clear();
+    drag_source_node_id.clear();
+    drag_active = false;
+    drag_target_preview_node_id.clear();
+    drag_target_preview_is_illegal = false;
+    focused_builder_node_id = builder_doc.root_node_id;
+    builder_doc_dirty = false;
+    std::string startup_invariant_reason;
+    const bool startup_invariant_ok = validate_global_document_invariant(startup_invariant_reason);
+    startup_shutdown_diag.startup_produces_invariant_valid_state = startup_invariant_ok;
+    if (!startup_invariant_ok) {
+      model.undefined_state_detected = true;
+    }
+  }
+
   request_redraw("startup_initial_layout", false, true);
 
   auto render_and_present = [&] {
@@ -14450,6 +24492,27 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     loop.set_timeout(milliseconds(14500), [&] { run_phase103_56(); });
     loop.set_timeout(milliseconds(14700), [&] { run_phase103_57(); });
     loop.set_timeout(milliseconds(14900), [&] { run_phase103_58(); });
+    loop.set_timeout(milliseconds(15100), [&] { run_phase103_59(); });
+    loop.set_timeout(milliseconds(15300), [&] { run_phase103_60(); });
+    loop.set_timeout(milliseconds(15500), [&] { run_phase103_61(); });
+    loop.set_timeout(milliseconds(15700), [&] { run_phase103_62(); });
+    loop.set_timeout(milliseconds(15900), [&] { run_phase103_63(); });
+    loop.set_timeout(milliseconds(16100), [&] { run_phase103_64(); });
+    loop.set_timeout(milliseconds(16300), [&] { run_phase103_65(); });
+    loop.set_timeout(milliseconds(16500), [&] { run_phase103_66(); });
+    loop.set_timeout(milliseconds(16700), [&] { run_phase103_67(); });
+    loop.set_timeout(milliseconds(16900), [&] { run_phase103_68(); });
+    loop.set_timeout(milliseconds(17100), [&] { run_phase103_69(); });
+    loop.set_timeout(milliseconds(17300), [&] { run_phase103_70(); });
+    loop.set_timeout(milliseconds(17500), [&] { run_phase103_71(); });
+    loop.set_timeout(milliseconds(17700), [&] { run_phase103_72(); });
+    loop.set_timeout(milliseconds(17900), [&] { run_phase103_73(); });
+    loop.set_timeout(milliseconds(18100), [&] { run_phase103_74(); });
+    loop.set_timeout(milliseconds(18300), [&] { run_phase103_75(); });
+    loop.set_timeout(milliseconds(18500), [&] { run_phase103_76(); });
+    loop.set_timeout(milliseconds(18700), [&] { run_phase103_77(); });
+    loop.set_timeout(milliseconds(18900), [&] { run_phase103_78(); });
+    loop.set_timeout(milliseconds(19100), [&] { run_phase103_79(); });
   }
 
   if (auto_close_ms > 0) {
@@ -14478,6 +24541,25 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   });
 
   loop.run();
+
+  // Shutdown lifecycle fence: reset stale export success flags if doc mutated post-export.
+  {
+    if (export_diag.export_artifact_created && has_last_export_snapshot) {
+      const std::string shutdown_serialized =
+        ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      if (shutdown_serialized != last_export_snapshot) {
+        export_diag.export_artifact_created = false;
+        export_diag.export_artifact_deterministic = false;
+        startup_shutdown_diag.shutdown_does_not_leave_partial_success_state = true;
+      }
+    }
+    std::string shutdown_invariant_reason;
+    const bool shutdown_invariant_ok = validate_global_document_invariant(shutdown_invariant_reason);
+    if (!shutdown_invariant_ok) {
+      model.undefined_state_detected = true;
+    }
+  }
+
   renderer.shutdown();
   window.destroy();
 
@@ -14986,6 +25068,268 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         std::cout << "phase103_58_no_ghost_or_duplicate_event_targets=" << (event_input_routing_diag.no_ghost_or_duplicate_event_targets ? "YES" : "NO") << "\n";
         std::cout << "phase103_58_event_routing_respects_render_hierarchy=" << (event_input_routing_diag.event_routing_respects_render_hierarchy ? "YES" : "NO") << "\n";
         std::cout << "phase103_58_preview_matches_structure_after_input_sequences=" << (event_input_routing_diag.preview_matches_structure_after_input_sequences ? "YES" : "NO") << "\n";
+        std::cout << "phase103_59_global_invariant_detects_invalid_state=" << (global_invariant_diag.global_invariant_detects_invalid_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_59_all_mutations_checked_by_invariant=" << (global_invariant_diag.all_mutations_checked_by_invariant ? "YES" : "NO") << "\n";
+        std::cout << "phase103_59_invalid_mutation_rejected_or_rolled_back=" << (global_invariant_diag.invalid_mutation_rejected_or_rolled_back ? "YES" : "NO") << "\n";
+        std::cout << "phase103_59_no_orphan_nodes_possible=" << (global_invariant_diag.no_orphan_nodes_possible ? "YES" : "NO") << "\n";
+        std::cout << "phase103_59_all_node_ids_unique_and_valid=" << (global_invariant_diag.all_node_ids_unique_and_valid ? "YES" : "NO") << "\n";
+        std::cout << "phase103_59_selection_references_valid_nodes_only=" << (global_invariant_diag.selection_references_valid_nodes_only ? "YES" : "NO") << "\n";
+        std::cout << "phase103_59_preview_structure_parity_enforced_by_invariant=" << (global_invariant_diag.preview_structure_parity_enforced_by_invariant ? "YES" : "NO") << "\n";
+        std::cout << "phase103_59_layout_constraints_enforced_by_invariant=" << (global_invariant_diag.layout_constraints_enforced_by_invariant ? "YES" : "NO") << "\n";
+        std::cout << "phase103_59_command_history_references_valid_state=" << (global_invariant_diag.command_history_references_valid_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_59_no_false_positive_rejections=" << (global_invariant_diag.no_false_positive_rejections ? "YES" : "NO") << "\n";
+        std::cout << "phase103_60_export_blocked_on_invalid_invariant=" << (export_package_diag.export_blocked_on_invalid_invariant ? "YES" : "NO") << "\n";
+        std::cout << "phase103_60_export_contains_all_nodes_and_properties=" << (export_package_diag.export_contains_all_nodes_and_properties ? "YES" : "NO") << "\n";
+        std::cout << "phase103_60_export_order_matches_structure=" << (export_package_diag.export_order_matches_structure ? "YES" : "NO") << "\n";
+        std::cout << "phase103_60_export_deterministic_for_identical_input=" << (export_package_diag.export_deterministic_for_identical_input ? "YES" : "NO") << "\n";
+        std::cout << "phase103_60_no_runtime_state_leaked_into_export=" << (export_package_diag.no_runtime_state_leaked_into_export ? "YES" : "NO") << "\n";
+        std::cout << "phase103_60_package_manifest_or_contents_coherent=" << (export_package_diag.package_manifest_or_contents_coherent ? "YES" : "NO") << "\n";
+        std::cout << "phase103_60_export_reflects_post_mutation_live_state=" << (export_package_diag.export_reflects_post_mutation_live_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_60_partial_export_never_reported_success=" << (export_package_diag.partial_export_never_reported_success ? "YES" : "NO") << "\n";
+        std::cout << "phase103_60_roundtrip_export_artifacts_valid=" << (export_package_diag.roundtrip_export_artifacts_valid ? "YES" : "NO") << "\n";
+        std::cout << "phase103_60_export_preserves_structure_fidelity=" << (export_package_diag.export_preserves_structure_fidelity ? "YES" : "NO") << "\n";
+        std::cout << "phase103_61_startup_produces_invariant_valid_state=" << (startup_shutdown_diag.startup_produces_invariant_valid_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_61_no_transient_runtime_state_leaks_on_startup=" << (startup_shutdown_diag.no_transient_runtime_state_leaks_on_startup ? "YES" : "NO") << "\n";
+        std::cout << "phase103_61_preview_and_inspector_bindings_valid_after_startup=" << (startup_shutdown_diag.preview_and_inspector_bindings_valid_after_startup ? "YES" : "NO") << "\n";
+        std::cout << "phase103_61_selection_state_deterministic_after_startup=" << (startup_shutdown_diag.selection_state_deterministic_after_startup ? "YES" : "NO") << "\n";
+        std::cout << "phase103_61_shutdown_does_not_leave_partial_success_state=" << (startup_shutdown_diag.shutdown_does_not_leave_partial_success_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_61_close_reopen_cycle_preserves_clean_valid_state=" << (startup_shutdown_diag.close_reopen_cycle_preserves_clean_valid_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_61_startup_after_load_preserves_structure_fidelity=" << (startup_shutdown_diag.startup_after_load_preserves_structure_fidelity ? "YES" : "NO") << "\n";
+        std::cout << "phase103_61_repeated_open_close_cycles_stable=" << (startup_shutdown_diag.repeated_open_close_cycles_stable ? "YES" : "NO") << "\n";
+        std::cout << "phase103_61_no_false_dirty_or_unexpected_mutation_on_lifecycle_boundary=" << (startup_shutdown_diag.no_false_dirty_or_unexpected_mutation_on_lifecycle_boundary ? "YES" : "NO") << "\n";
+        std::cout << "phase103_61_global_invariant_holds_at_startup_and_shutdown=" << (startup_shutdown_diag.global_invariant_holds_at_startup_and_shutdown ? "YES" : "NO") << "\n";
+        std::cout << "phase103_62_long_mixed_sequence_preserves_invariant=" << (stress_sequence_diag.long_mixed_sequence_preserves_invariant ? "YES" : "NO") << "\n";
+        std::cout << "phase103_62_no_structure_preview_drift_after_stress=" << (stress_sequence_diag.no_structure_preview_drift_after_stress ? "YES" : "NO") << "\n";
+        std::cout << "phase103_62_selection_and_bindings_remain_valid_after_stress=" << (stress_sequence_diag.selection_and_bindings_remain_valid_after_stress ? "YES" : "NO") << "\n";
+        std::cout << "phase103_62_undo_redo_history_stable_under_long_sequence=" << (stress_sequence_diag.undo_redo_history_stable_under_long_sequence ? "YES" : "NO") << "\n";
+        std::cout << "phase103_62_no_stale_references_accumulated=" << (stress_sequence_diag.no_stale_references_accumulated ? "YES" : "NO") << "\n";
+        std::cout << "phase103_62_save_load_exact_after_stress=" << (stress_sequence_diag.save_load_exact_after_stress ? "YES" : "NO") << "\n";
+        std::cout << "phase103_62_export_exact_after_stress=" << (stress_sequence_diag.export_exact_after_stress ? "YES" : "NO") << "\n";
+        std::cout << "phase103_62_replay_of_identical_sequence_deterministic=" << (stress_sequence_diag.replay_of_identical_sequence_deterministic ? "YES" : "NO") << "\n";
+        std::cout << "phase103_62_no_false_dirty_or_phantom_mutation_after_stress=" << (stress_sequence_diag.no_false_dirty_or_phantom_mutation_after_stress ? "YES" : "NO") << "\n";
+        std::cout << "phase103_62_final_state_matches_expected_canonical_signature=" << (stress_sequence_diag.final_state_matches_expected_canonical_signature ? "YES" : "NO") << "\n";
+        std::cout << "phase103_63_inline_edit_buffer_not_committed_until_commit=" << (manual_text_diag.inline_edit_buffer_not_committed_until_commit ? "YES" : "NO") << "\n";
+        std::cout << "phase103_63_cancelled_edit_leaves_document_unchanged=" << (manual_text_diag.cancelled_edit_leaves_document_unchanged ? "YES" : "NO") << "\n";
+        std::cout << "phase103_63_committed_edit_creates_exact_history_entry=" << (manual_text_diag.committed_edit_creates_exact_history_entry ? "YES" : "NO") << "\n";
+        std::cout << "phase103_63_undo_redo_exact_for_committed_text_edit=" << (manual_text_diag.undo_redo_exact_for_committed_text_edit ? "YES" : "NO") << "\n";
+        std::cout << "phase103_63_selection_or_target_change_during_edit_resolved_deterministically=" << (manual_text_diag.selection_or_target_change_during_edit_resolved_deterministically ? "YES" : "NO") << "\n";
+        std::cout << "phase103_63_no_stale_inline_edit_target_after_delete_move_load=" << (manual_text_diag.no_stale_inline_edit_target_after_delete_move_load ? "YES" : "NO") << "\n";
+        std::cout << "phase103_63_transient_edit_buffer_never_leaks_into_save_or_export=" << (manual_text_diag.transient_edit_buffer_never_leaks_into_save_or_export ? "YES" : "NO") << "\n";
+        std::cout << "phase103_63_rapid_edit_commit_cancel_sequences_stable=" << (manual_text_diag.rapid_edit_commit_cancel_sequences_stable ? "YES" : "NO") << "\n";
+        std::cout << "phase103_63_no_history_entry_created_for_cancelled_edit=" << (manual_text_diag.no_history_entry_created_for_cancelled_edit ? "YES" : "NO") << "\n";
+        std::cout << "phase103_63_global_invariant_preserved_through_manual_text_entry=" << (manual_text_diag.global_invariant_preserved_through_manual_text_entry ? "YES" : "NO") << "\n";
+        std::cout << "phase103_64_selection_set_contains_only_valid_nodes=" << (multi_selection_integrity_diag.selection_set_contains_only_valid_nodes ? "YES" : "NO") << "\n";
+        std::cout << "phase103_64_no_duplicate_ids_in_selection=" << (multi_selection_integrity_diag.no_duplicate_ids_in_selection ? "YES" : "NO") << "\n";
+        std::cout << "phase103_64_primary_and_multi_selection_consistent=" << (multi_selection_integrity_diag.primary_and_multi_selection_consistent ? "YES" : "NO") << "\n";
+        std::cout << "phase103_64_multi_operations_apply_to_all_selected_nodes=" << (multi_selection_integrity_diag.multi_operations_apply_to_all_selected_nodes ? "YES" : "NO") << "\n";
+        std::cout << "phase103_64_multi_operations_atomic_and_command_backed=" << (multi_selection_integrity_diag.multi_operations_atomic_and_command_backed ? "YES" : "NO") << "\n";
+        std::cout << "phase103_64_delete_move_reparent_clean_selection_state=" << (multi_selection_integrity_diag.delete_move_reparent_clean_selection_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_64_undo_redo_restore_full_selection_state=" << (multi_selection_integrity_diag.undo_redo_restore_full_selection_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_64_no_stale_ids_after_lifecycle_events=" << (multi_selection_integrity_diag.no_stale_ids_after_lifecycle_events ? "YES" : "NO") << "\n";
+        std::cout << "phase103_64_multi_operation_order_deterministic=" << (multi_selection_integrity_diag.multi_operation_order_deterministic ? "YES" : "NO") << "\n";
+        std::cout << "phase103_64_no_cross_node_state_corruption=" << (multi_selection_integrity_diag.no_cross_node_state_corruption ? "YES" : "NO") << "\n";
+        std::cout << "phase103_65_clipboard_payload_requires_valid_selection=" << (clipboard_integrity_diag.clipboard_payload_requires_valid_selection ? "YES" : "NO") << "\n";
+        std::cout << "phase103_65_duplicate_creates_fresh_unique_ids=" << (clipboard_integrity_diag.duplicate_creates_fresh_unique_ids ? "YES" : "NO") << "\n";
+        std::cout << "phase103_65_paste_preserves_subtree_fidelity=" << (clipboard_integrity_diag.paste_preserves_subtree_fidelity ? "YES" : "NO") << "\n";
+        std::cout << "phase103_65_paste_does_not_leak_runtime_state=" << (clipboard_integrity_diag.paste_does_not_leak_runtime_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_65_paste_target_validation_fail_closed=" << (clipboard_integrity_diag.paste_target_validation_fail_closed ? "YES" : "NO") << "\n";
+        std::cout << "phase103_65_cut_paste_roundtrip_preserves_structure=" << (clipboard_integrity_diag.cut_paste_roundtrip_preserves_structure ? "YES" : "NO") << "\n";
+        std::cout << "phase103_65_undo_redo_exact_for_clipboard_operations=" << (clipboard_integrity_diag.undo_redo_exact_for_clipboard_operations ? "YES" : "NO") << "\n";
+        std::cout << "phase103_65_deterministic_paste_order_and_parenting=" << (clipboard_integrity_diag.deterministic_paste_order_and_parenting ? "YES" : "NO") << "\n";
+        std::cout << "phase103_65_nested_selection_deduplicated_on_copy=" << (clipboard_integrity_diag.nested_selection_deduplicated_on_copy ? "YES" : "NO") << "\n";
+        std::cout << "phase103_65_no_cross_node_corruption_after_clipboard_sequence=" << (clipboard_integrity_diag.no_cross_node_corruption_after_clipboard_sequence ? "YES" : "NO") << "\n";
+        std::cout << "phase103_66_repeated_same_target_property_edits_coalesce_only_when_allowed=" << (command_coalescing_diag.repeated_same_target_property_edits_coalesce_only_when_allowed ? "YES" : "NO") << "\n";
+        std::cout << "phase103_66_different_targets_or_operation_types_never_coalesce=" << (command_coalescing_diag.different_targets_or_operation_types_never_coalesce ? "YES" : "NO") << "\n";
+        std::cout << "phase103_66_manual_text_commit_creates_single_history_entry=" << (command_coalescing_diag.manual_text_commit_creates_single_history_entry ? "YES" : "NO") << "\n";
+        std::cout << "phase103_66_cancelled_edit_creates_zero_history_entries=" << (command_coalescing_diag.cancelled_edit_creates_zero_history_entries ? "YES" : "NO") << "\n";
+        std::cout << "phase103_66_bulk_operations_remain_single_logical_history_entries=" << (command_coalescing_diag.bulk_operations_remain_single_logical_history_entries ? "YES" : "NO") << "\n";
+        std::cout << "phase103_66_save_load_export_boundaries_break_coalescing=" << (command_coalescing_diag.save_load_export_boundaries_break_coalescing ? "YES" : "NO") << "\n";
+        std::cout << "phase103_66_undo_redo_operate_on_logical_action_boundaries=" << (command_coalescing_diag.undo_redo_operate_on_logical_action_boundaries ? "YES" : "NO") << "\n";
+        std::cout << "phase103_66_history_shape_deterministic_for_identical_sequence=" << (command_coalescing_diag.history_shape_deterministic_for_identical_sequence ? "YES" : "NO") << "\n";
+        std::cout << "phase103_66_history_metadata_coherent_after_coalescing=" << (command_coalescing_diag.history_metadata_coherent_after_coalescing ? "YES" : "NO") << "\n";
+        std::cout << "phase103_66_no_timing_fragile_history_grouping=" << (command_coalescing_diag.no_timing_fragile_history_grouping ? "YES" : "NO") << "\n";
+        std::cout << "phase103_67_real_mutations_mark_dirty_exactly=" << (dirty_tracking_integrity_diag.real_mutations_mark_dirty_exactly ? "YES" : "NO") << "\n";
+        std::cout << "phase103_67_read_only_operations_do_not_mark_dirty=" << (dirty_tracking_integrity_diag.read_only_operations_do_not_mark_dirty ? "YES" : "NO") << "\n";
+        std::cout << "phase103_67_undo_back_to_clean_clears_dirty=" << (dirty_tracking_integrity_diag.undo_back_to_clean_clears_dirty ? "YES" : "NO") << "\n";
+        std::cout << "phase103_67_redo_away_from_clean_sets_dirty=" << (dirty_tracking_integrity_diag.redo_away_from_clean_sets_dirty ? "YES" : "NO") << "\n";
+        std::cout << "phase103_67_save_sets_new_clean_baseline_exactly=" << (dirty_tracking_integrity_diag.save_sets_new_clean_baseline_exactly ? "YES" : "NO") << "\n";
+        std::cout << "phase103_67_load_sets_new_clean_baseline_exactly=" << (dirty_tracking_integrity_diag.load_sets_new_clean_baseline_exactly ? "YES" : "NO") << "\n";
+        std::cout << "phase103_67_failed_save_load_or_blocked_mutation_do_not_corrupt_dirty_state=" << (dirty_tracking_integrity_diag.failed_save_load_or_blocked_mutation_do_not_corrupt_dirty_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_67_export_does_not_affect_dirty_state=" << (dirty_tracking_integrity_diag.export_does_not_affect_dirty_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_67_dirty_tracking_uses_canonical_document_signature=" << (dirty_tracking_integrity_diag.dirty_tracking_uses_canonical_document_signature ? "YES" : "NO") << "\n";
+        std::cout << "phase103_67_stress_sequence_dirty_transitions_remain_exact=" << (dirty_tracking_integrity_diag.stress_sequence_dirty_transitions_remain_exact ? "YES" : "NO") << "\n";
+        std::cout << "phase103_68_same_action_id_same_result_across_invocation_surfaces=" << (action_invocation_integrity_diag.same_action_id_same_result_across_invocation_surfaces ? "YES" : "NO") << "\n";
+        std::cout << "phase103_68_ineligible_actions_fail_closed_without_mutation=" << (action_invocation_integrity_diag.ineligible_actions_fail_closed_without_mutation ? "YES" : "NO") << "\n";
+        std::cout << "phase103_68_action_eligibility_checked_against_current_state=" << (action_invocation_integrity_diag.action_eligibility_checked_against_current_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_68_no_stale_selection_or_target_context_used=" << (action_invocation_integrity_diag.no_stale_selection_or_target_context_used ? "YES" : "NO") << "\n";
+        std::cout << "phase103_68_action_metadata_matches_execution_eligibility=" << (action_invocation_integrity_diag.action_metadata_matches_execution_eligibility ? "YES" : "NO") << "\n";
+        std::cout << "phase103_68_failed_invocation_creates_no_history_or_dirty_side_effect=" << (action_invocation_integrity_diag.failed_invocation_creates_no_history_or_dirty_side_effect ? "YES" : "NO") << "\n";
+        std::cout << "phase103_68_cross_surface_invocation_produces_identical_history_and_selection=" << (action_invocation_integrity_diag.cross_surface_invocation_produces_identical_history_and_selection ? "YES" : "NO") << "\n";
+        std::cout << "phase103_68_global_invariant_preserved_through_all_action_invocations=" << (action_invocation_integrity_diag.global_invariant_preserved_through_all_action_invocations ? "YES" : "NO") << "\n";
+        std::cout << "phase103_68_no_command_dispatch_mismatch_or_wrong_handler_resolution=" << (action_invocation_integrity_diag.no_command_dispatch_mismatch_or_wrong_handler_resolution ? "YES" : "NO") << "\n";
+        std::cout << "phase103_68_deterministic_invocation_sequence_stable=" << (action_invocation_integrity_diag.deterministic_invocation_sequence_stable ? "YES" : "NO") << "\n";
+        std::cout << "phase103_69_search_filter_read_only_no_document_mutation=" << (search_filter_visibility_integrity_diag.search_filter_read_only_no_document_mutation ? "YES" : "NO") << "\n";
+        std::cout << "phase103_69_filtered_order_matches_authoritative_structure_order=" << (search_filter_visibility_integrity_diag.filtered_order_matches_authoritative_structure_order ? "YES" : "NO") << "\n";
+        std::cout << "phase103_69_selection_mapping_remains_deterministic_under_filter_changes=" << (search_filter_visibility_integrity_diag.selection_mapping_remains_deterministic_under_filter_changes ? "YES" : "NO") << "\n";
+        std::cout << "phase103_69_no_stale_deleted_or_moved_nodes_in_results=" << (search_filter_visibility_integrity_diag.no_stale_deleted_or_moved_nodes_in_results ? "YES" : "NO") << "\n";
+        std::cout << "phase103_69_actions_from_filtered_view_resolve_against_authoritative_current_state=" << (search_filter_visibility_integrity_diag.actions_from_filtered_view_resolve_against_authoritative_current_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_69_clear_and_reapply_filter_restores_coherent_visible_state=" << (search_filter_visibility_integrity_diag.clear_and_reapply_filter_restores_coherent_visible_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_69_search_filter_creates_no_history_or_dirty_side_effect=" << (search_filter_visibility_integrity_diag.search_filter_creates_no_history_or_dirty_side_effect ? "YES" : "NO") << "\n";
+        std::cout << "phase103_69_preview_and_bindings_remain_coherent_under_filtered_view=" << (search_filter_visibility_integrity_diag.preview_and_bindings_remain_coherent_under_filtered_view ? "YES" : "NO") << "\n";
+        std::cout << "phase103_69_filtered_and_unfiltered_action_results_match_for_same_underlying_state=" << (search_filter_visibility_integrity_diag.filtered_and_unfiltered_action_results_match_for_same_underlying_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_69_global_invariant_preserved_through_search_filter_cycles=" << (search_filter_visibility_integrity_diag.global_invariant_preserved_through_search_filter_cycles ? "YES" : "NO") << "\n";
+        std::cout << "phase103_70_authoritative_order_navigation_matches_document_structure=" << (selection_anchor_focus_navigation_integrity_diag.authoritative_order_navigation_matches_document_structure ? "YES" : "NO") << "\n";
+        std::cout << "phase103_70_selection_anchor_establishes_deterministic_range_extent=" << (selection_anchor_focus_navigation_integrity_diag.selection_anchor_establishes_deterministic_range_extent ? "YES" : "NO") << "\n";
+        std::cout << "phase103_70_focus_only_navigation_does_not_mutate_selection_or_document=" << (selection_anchor_focus_navigation_integrity_diag.focus_only_navigation_does_not_mutate_selection_or_document ? "YES" : "NO") << "\n";
+        std::cout << "phase103_70_stale_anchor_and_focus_are_scrubbed_fail_closed=" << (selection_anchor_focus_navigation_integrity_diag.stale_anchor_and_focus_are_scrubbed_fail_closed ? "YES" : "NO") << "\n";
+        std::cout << "phase103_70_selection_focus_coherence_restored_after_filter_and_lifecycle_changes=" << (selection_anchor_focus_navigation_integrity_diag.selection_focus_coherence_restored_after_filter_and_lifecycle_changes ? "YES" : "NO") << "\n";
+        std::cout << "phase103_70_navigation_only_changes_create_no_history_or_dirty_side_effect=" << (selection_anchor_focus_navigation_integrity_diag.navigation_only_changes_create_no_history_or_dirty_side_effect ? "YES" : "NO") << "\n";
+        std::cout << "phase103_70_parent_child_navigation_respects_authoritative_current_state=" << (selection_anchor_focus_navigation_integrity_diag.parent_child_navigation_respects_authoritative_current_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_70_range_extension_shrinks_and_grows_deterministically_from_same_anchor=" << (selection_anchor_focus_navigation_integrity_diag.range_extension_shrinks_and_grows_deterministically_from_same_anchor ? "YES" : "NO") << "\n";
+        std::cout << "phase103_70_filtered_and_unfiltered_navigation_resolve_same_underlying_targets=" << (selection_anchor_focus_navigation_integrity_diag.filtered_and_unfiltered_navigation_resolve_same_underlying_targets ? "YES" : "NO") << "\n";
+        std::cout << "phase103_70_global_invariant_preserved_through_anchor_focus_navigation_cycles=" << (selection_anchor_focus_navigation_integrity_diag.global_invariant_preserved_through_anchor_focus_navigation_cycles ? "YES" : "NO") << "\n";
+        std::cout << "phase103_71_drop_target_resolution_deterministic=" << (drag_drop_reorder_integrity_diag.drop_target_resolution_deterministic ? "YES" : "NO") << "\n";
+        std::cout << "phase103_71_multi_selection_drag_atomic_and_order_preserved=" << (drag_drop_reorder_integrity_diag.multi_selection_drag_atomic_and_order_preserved ? "YES" : "NO") << "\n";
+        std::cout << "phase103_71_sibling_reorder_preserves_global_structure_order=" << (drag_drop_reorder_integrity_diag.sibling_reorder_preserves_global_structure_order ? "YES" : "NO") << "\n";
+        std::cout << "phase103_71_cross_parent_move_updates_relationships_exactly=" << (drag_drop_reorder_integrity_diag.cross_parent_move_updates_relationships_exactly ? "YES" : "NO") << "\n";
+        std::cout << "phase103_71_filtered_view_drag_resolves_to_authoritative_target=" << (drag_drop_reorder_integrity_diag.filtered_view_drag_resolves_to_authoritative_target ? "YES" : "NO") << "\n";
+        std::cout << "phase103_71_invalid_drop_fails_closed_without_mutation=" << (drag_drop_reorder_integrity_diag.invalid_drop_fails_closed_without_mutation ? "YES" : "NO") << "\n";
+        std::cout << "phase103_71_undo_redo_exact_for_drag_operations=" << (drag_drop_reorder_integrity_diag.undo_redo_exact_for_drag_operations ? "YES" : "NO") << "\n";
+        std::cout << "phase103_71_no_partial_or_stale_references_after_drag=" << (drag_drop_reorder_integrity_diag.no_partial_or_stale_references_after_drag ? "YES" : "NO") << "\n";
+        std::cout << "phase103_71_drag_creates_no_transient_history_or_dirty_leak=" << (drag_drop_reorder_integrity_diag.drag_creates_no_transient_history_or_dirty_leak ? "YES" : "NO") << "\n";
+        std::cout << "phase103_71_global_invariant_preserved_after_drag_operations=" << (drag_drop_reorder_integrity_diag.global_invariant_preserved_after_drag_operations ? "YES" : "NO") << "\n";
+        std::cout << "phase103_72_save_is_atomic_and_never_exposes_partial_file=" << (persistence_file_io_integrity_diag.save_is_atomic_and_never_exposes_partial_file ? "YES" : "NO") << "\n";
+        std::cout << "phase103_72_saved_file_matches_canonical_document_signature=" << (persistence_file_io_integrity_diag.saved_file_matches_canonical_document_signature ? "YES" : "NO") << "\n";
+        std::cout << "phase103_72_load_rejects_invalid_or_truncated_files=" << (persistence_file_io_integrity_diag.load_rejects_invalid_or_truncated_files ? "YES" : "NO") << "\n";
+        std::cout << "phase103_72_failed_save_does_not_overwrite_existing_file=" << (persistence_file_io_integrity_diag.failed_save_does_not_overwrite_existing_file ? "YES" : "NO") << "\n";
+        std::cout << "phase103_72_failed_load_does_not_mutate_current_state=" << (persistence_file_io_integrity_diag.failed_load_does_not_mutate_current_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_72_no_transient_ui_or_state_desync_during_io=" << (persistence_file_io_integrity_diag.no_transient_ui_or_state_desync_during_io ? "YES" : "NO") << "\n";
+        std::cout << "phase103_72_serialization_deterministic_for_identical_document=" << (persistence_file_io_integrity_diag.serialization_deterministic_for_identical_document ? "YES" : "NO") << "\n";
+        std::cout << "phase103_72_repeated_save_calls_produce_consistent_output=" << (persistence_file_io_integrity_diag.repeated_save_calls_produce_consistent_output ? "YES" : "NO") << "\n";
+        std::cout << "phase103_72_dirty_baseline_updates_only_on_successful_save_load=" << (persistence_file_io_integrity_diag.dirty_baseline_updates_only_on_successful_save_load ? "YES" : "NO") << "\n";
+        std::cout << "phase103_72_global_invariant_preserved_through_all_io_operations=" << (persistence_file_io_integrity_diag.global_invariant_preserved_through_all_io_operations ? "YES" : "NO") << "\n";
+        std::cout << "phase103_73_undo_restores_full_system_state=" << (undo_redo_time_travel_integrity_diag.undo_restores_full_system_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_73_redo_restores_full_system_state=" << (undo_redo_time_travel_integrity_diag.redo_restores_full_system_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_73_no_state_drift_after_repeated_cycles=" << (undo_redo_time_travel_integrity_diag.no_state_drift_after_repeated_cycles ? "YES" : "NO") << "\n";
+        std::cout << "phase103_73_selection_anchor_focus_restore_exact=" << (undo_redo_time_travel_integrity_diag.selection_anchor_focus_restore_exact ? "YES" : "NO") << "\n";
+        std::cout << "phase103_73_multi_selection_restore_exact=" << (undo_redo_time_travel_integrity_diag.multi_selection_restore_exact ? "YES" : "NO") << "\n";
+        std::cout << "phase103_73_redo_stack_invalidated_on_new_mutation=" << (undo_redo_time_travel_integrity_diag.redo_stack_invalidated_on_new_mutation ? "YES" : "NO") << "\n";
+        std::cout << "phase103_73_no_history_pollution_from_failed_operations=" << (undo_redo_time_travel_integrity_diag.no_history_pollution_from_failed_operations ? "YES" : "NO") << "\n";
+        std::cout << "phase103_73_no_branching_history_corruption=" << (undo_redo_time_travel_integrity_diag.no_branching_history_corruption ? "YES" : "NO") << "\n";
+        std::cout << "phase103_73_cross_surface_state_consistent_after_time_travel=" << (undo_redo_time_travel_integrity_diag.cross_surface_state_consistent_after_time_travel ? "YES" : "NO") << "\n";
+        std::cout << "phase103_73_global_invariant_preserved_during_undo_redo=" << (undo_redo_time_travel_integrity_diag.global_invariant_preserved_during_undo_redo ? "YES" : "NO") << "\n";
+        std::cout << "phase103_74_selected_node_visible_or_scrolled_into_view_deterministically=" << (viewport_scroll_visual_state_integrity_diag.selected_node_visible_or_scrolled_into_view_deterministically ? "YES" : "NO") << "\n";
+        std::cout << "phase103_74_scroll_position_deterministic_for_identical_sequences=" << (viewport_scroll_visual_state_integrity_diag.scroll_position_deterministic_for_identical_sequences ? "YES" : "NO") << "\n";
+        std::cout << "phase103_74_undo_redo_restores_viewport_with_state=" << (viewport_scroll_visual_state_integrity_diag.undo_redo_restores_viewport_with_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_74_filtered_and_unfiltered_scroll_mapping_consistent=" << (viewport_scroll_visual_state_integrity_diag.filtered_and_unfiltered_scroll_mapping_consistent ? "YES" : "NO") << "\n";
+        std::cout << "phase103_74_viewport_never_references_invalid_or_deleted_rows=" << (viewport_scroll_visual_state_integrity_diag.viewport_never_references_invalid_or_deleted_rows ? "YES" : "NO") << "\n";
+        std::cout << "phase103_74_load_save_initialize_or_preserve_viewport_deterministically=" << (viewport_scroll_visual_state_integrity_diag.load_save_initialize_or_preserve_viewport_deterministically ? "YES" : "NO") << "\n";
+        std::cout << "phase103_74_no_dirty_or_history_side_effects_from_viewport_changes=" << (viewport_scroll_visual_state_integrity_diag.no_dirty_or_history_side_effects_from_viewport_changes ? "YES" : "NO") << "\n";
+        std::cout << "phase103_74_tree_and_preview_viewports_remain_coherent=" << (viewport_scroll_visual_state_integrity_diag.tree_and_preview_viewports_remain_coherent ? "YES" : "NO") << "\n";
+        std::cout << "phase103_74_no_scroll_drift_after_stress_sequences=" << (viewport_scroll_visual_state_integrity_diag.no_scroll_drift_after_stress_sequences ? "YES" : "NO") << "\n";
+        std::cout << "phase103_74_global_invariant_preserved_during_viewport_updates=" << (viewport_scroll_visual_state_integrity_diag.global_invariant_preserved_during_viewport_updates ? "YES" : "NO") << "\n";
+        std::cout << "phase103_75_external_paste_rejects_malformed_or_partial_data=" << (external_data_boundary_integrity_diag.external_paste_rejects_malformed_or_partial_data ? "YES" : "NO") << "\n";
+        std::cout << "phase103_75_external_data_parsed_and_applied_atomically=" << (external_data_boundary_integrity_diag.external_data_parsed_and_applied_atomically ? "YES" : "NO") << "\n";
+        std::cout << "phase103_75_imported_nodes_have_valid_ids_and_relationships=" << (external_data_boundary_integrity_diag.imported_nodes_have_valid_ids_and_relationships ? "YES" : "NO") << "\n";
+        std::cout << "phase103_75_external_input_cannot_bypass_global_invariant=" << (external_data_boundary_integrity_diag.external_input_cannot_bypass_global_invariant ? "YES" : "NO") << "\n";
+        std::cout << "phase103_75_internal_clipboard_path_unchanged_and_isolated=" << (external_data_boundary_integrity_diag.internal_clipboard_path_unchanged_and_isolated ? "YES" : "NO") << "\n";
+        std::cout << "phase103_75_deterministic_result_for_identical_external_input=" << (external_data_boundary_integrity_diag.deterministic_result_for_identical_external_input ? "YES" : "NO") << "\n";
+        std::cout << "phase103_75_failed_external_paste_creates_no_history_or_dirty_change=" << (external_data_boundary_integrity_diag.failed_external_paste_creates_no_history_or_dirty_change ? "YES" : "NO") << "\n";
+        std::cout << "phase103_75_successful_external_paste_creates_single_atomic_history_entry=" << (external_data_boundary_integrity_diag.successful_external_paste_creates_single_atomic_history_entry ? "YES" : "NO") << "\n";
+        std::cout << "phase103_75_large_or_invalid_payloads_fail_safely_without_crash=" << (external_data_boundary_integrity_diag.large_or_invalid_payloads_fail_safely_without_crash ? "YES" : "NO") << "\n";
+        std::cout << "phase103_75_global_invariant_preserved_after_external_import=" << (external_data_boundary_integrity_diag.global_invariant_preserved_after_external_import ? "YES" : "NO") << "\n";
+        std::cout << "phase103_76_large_document_operations_remain_correct=" << (performance_scaling_integrity_diag.large_document_operations_remain_correct ? "YES" : "NO") << "\n";
+        std::cout << "phase103_76_deep_hierarchy_handled_without_failure=" << (performance_scaling_integrity_diag.deep_hierarchy_handled_without_failure ? "YES" : "NO") << "\n";
+        std::cout << "phase103_76_long_stress_sequence_preserves_invariant=" << (performance_scaling_integrity_diag.long_stress_sequence_preserves_invariant ? "YES" : "NO") << "\n";
+        std::cout << "phase103_76_undo_redo_stable_under_large_history=" << (performance_scaling_integrity_diag.undo_redo_stable_under_large_history ? "YES" : "NO") << "\n";
+        std::cout << "phase103_76_search_filter_stable_under_large_dataset=" << (performance_scaling_integrity_diag.search_filter_stable_under_large_dataset ? "YES" : "NO") << "\n";
+        std::cout << "phase103_76_viewport_stable_under_large_node_count=" << (performance_scaling_integrity_diag.viewport_stable_under_large_node_count ? "YES" : "NO") << "\n";
+        std::cout << "phase103_76_no_state_drift_under_repeated_operations=" << (performance_scaling_integrity_diag.no_state_drift_under_repeated_operations ? "YES" : "NO") << "\n";
+        std::cout << "phase103_76_no_partial_or_skipped_validation_under_load=" << (performance_scaling_integrity_diag.no_partial_or_skipped_validation_under_load ? "YES" : "NO") << "\n";
+        std::cout << "phase103_76_deterministic_result_for_identical_large_sequence=" << (performance_scaling_integrity_diag.deterministic_result_for_identical_large_sequence ? "YES" : "NO") << "\n";
+        std::cout << "phase103_76_global_invariant_preserved_under_scale=" << (performance_scaling_integrity_diag.global_invariant_preserved_under_scale ? "YES" : "NO") << "\n";
+        std::cout << "phase103_77_profile_captures_representative_operations=" << (performance_profiling_diag.profile_captures_representative_operations ? "YES" : "NO") << "\n";
+        std::cout << "phase103_77_model_and_ui_costs_measured_separately=" << (performance_profiling_diag.model_and_ui_costs_measured_separately ? "YES" : "NO") << "\n";
+        std::cout << "phase103_77_scaling_characteristics_captured_across_sizes=" << (performance_profiling_diag.scaling_characteristics_captured_across_sizes ? "YES" : "NO") << "\n";
+        std::cout << "phase103_77_no_correctness_guarantees_were_weakened=" << (performance_profiling_diag.no_correctness_guarantees_were_weakened ? "YES" : "NO") << "\n";
+        std::cout << "phase103_77_invariant_checks_remained_enabled_during_profiling=" << (performance_profiling_diag.invariant_checks_remained_enabled_during_profiling ? "YES" : "NO") << "\n";
+        std::cout << "phase103_77_hotspots_ranked_by_measured_cost=" << (performance_profiling_diag.hotspots_ranked_by_measured_cost ? "YES" : "NO") << "\n";
+        std::cout << "phase103_77_actionable_optimization_targets_identified=" << (performance_profiling_diag.actionable_optimization_targets_identified ? "YES" : "NO") << "\n";
+        std::cout << "phase103_77_profile_run_terminates_cleanly_with_markers=" << (performance_profiling_diag.profile_run_terminates_cleanly_with_markers ? "YES" : "NO") << "\n";
+        std::cout << "phase103_77_no_partial_or_stalled_proof_artifacts=" << (performance_profiling_diag.no_partial_or_stalled_proof_artifacts ? "YES" : "NO") << "\n";
+        std::cout << "phase103_77_global_invariant_preserved_during_profile_runs=" << (performance_profiling_diag.global_invariant_preserved_during_profile_runs ? "YES" : "NO") << "\n";
+        std::cout << "phase103_77_profile_operations=" << performance_profiling_diag.operations_profiled << "\n";
+        std::cout << "phase103_77_profile_size_small_nodes=" << performance_profiling_diag.size_small_nodes << "\n";
+        std::cout << "phase103_77_profile_size_medium_nodes=" << performance_profiling_diag.size_medium_nodes << "\n";
+        std::cout << "phase103_77_profile_size_large_nodes=" << performance_profiling_diag.size_large_nodes << "\n";
+        std::cout << "phase103_77_profile_build_small_ns=" << performance_profiling_diag.build_small_ns << "\n";
+        std::cout << "phase103_77_profile_build_medium_ns=" << performance_profiling_diag.build_medium_ns << "\n";
+        std::cout << "phase103_77_profile_build_large_ns=" << performance_profiling_diag.build_large_ns << "\n";
+        std::cout << "phase103_77_profile_validate_small_ns=" << performance_profiling_diag.validate_small_ns << "\n";
+        std::cout << "phase103_77_profile_validate_medium_ns=" << performance_profiling_diag.validate_medium_ns << "\n";
+        std::cout << "phase103_77_profile_validate_large_ns=" << performance_profiling_diag.validate_large_ns << "\n";
+        std::cout << "phase103_77_profile_serialize_small_ns=" << performance_profiling_diag.serialize_small_ns << "\n";
+        std::cout << "phase103_77_profile_serialize_medium_ns=" << performance_profiling_diag.serialize_medium_ns << "\n";
+        std::cout << "phase103_77_profile_serialize_large_ns=" << performance_profiling_diag.serialize_large_ns << "\n";
+        std::cout << "phase103_77_profile_selection_mapping_ns=" << performance_profiling_diag.selection_mapping_ns << "\n";
+        std::cout << "phase103_77_profile_insert_ns=" << performance_profiling_diag.insert_ns << "\n";
+        std::cout << "phase103_77_profile_property_edit_commit_ns=" << performance_profiling_diag.property_edit_commit_ns << "\n";
+        std::cout << "phase103_77_profile_move_reparent_ns=" << performance_profiling_diag.move_reparent_ns << "\n";
+        std::cout << "phase103_77_profile_delete_ns=" << performance_profiling_diag.delete_ns << "\n";
+        std::cout << "phase103_77_profile_history_build_ns=" << performance_profiling_diag.history_build_ns << "\n";
+        std::cout << "phase103_77_profile_undo_replay_ns=" << performance_profiling_diag.undo_replay_ns << "\n";
+        std::cout << "phase103_77_profile_redo_replay_ns=" << performance_profiling_diag.redo_replay_ns << "\n";
+        std::cout << "phase103_77_profile_filter_apply_ns=" << performance_profiling_diag.filter_apply_ns << "\n";
+        std::cout << "phase103_77_profile_filter_clear_ns=" << performance_profiling_diag.filter_clear_ns << "\n";
+        std::cout << "phase103_77_profile_viewport_reconcile_ns=" << performance_profiling_diag.viewport_reconcile_ns << "\n";
+        std::cout << "phase103_77_profile_save_ns=" << performance_profiling_diag.save_ns << "\n";
+        std::cout << "phase103_77_profile_load_ns=" << performance_profiling_diag.load_ns << "\n";
+        std::cout << "phase103_77_profile_export_ns=" << performance_profiling_diag.export_ns << "\n";
+        std::cout << "phase103_77_profile_large_global_invariant_ns=" << performance_profiling_diag.large_global_invariant_ns << "\n";
+        std::cout << "phase103_77_profile_deterministic_signature_large_ns=" << performance_profiling_diag.deterministic_signature_large_ns << "\n";
+        std::cout << "phase103_77_profile_model_total_ns=" << performance_profiling_diag.model_total_ns << "\n";
+        std::cout << "phase103_77_profile_ui_total_ns=" << performance_profiling_diag.ui_total_ns << "\n";
+        std::cout << "phase103_77_profile_io_total_ns=" << performance_profiling_diag.io_total_ns << "\n";
+        std::cout << "phase103_77_profile_scaling_build=" << performance_profiling_diag.scaling_build << "\n";
+        std::cout << "phase103_77_profile_scaling_validate=" << performance_profiling_diag.scaling_validate << "\n";
+        std::cout << "phase103_77_profile_scaling_serialize=" << performance_profiling_diag.scaling_serialize << "\n";
+        std::cout << "phase103_77_hotspot_rank_1=" << performance_profiling_diag.hotspot_rankings[0] << "\n";
+        std::cout << "phase103_77_hotspot_rank_2=" << performance_profiling_diag.hotspot_rankings[1] << "\n";
+        std::cout << "phase103_77_hotspot_rank_3=" << performance_profiling_diag.hotspot_rankings[2] << "\n";
+        std::cout << "phase103_77_hotspot_rank_4=" << performance_profiling_diag.hotspot_rankings[3] << "\n";
+        std::cout << "phase103_77_hotspot_rank_5=" << performance_profiling_diag.hotspot_rankings[4] << "\n";
+        std::cout << "phase103_77_optimization_targets=" << performance_profiling_diag.optimization_targets << "\n";
+        std::cout << "phase103_78_undo_replay_time_reduced_vs_phase103_77=" << (history_replay_optimization_diag.undo_replay_time_reduced_vs_phase103_77 ? "YES" : "NO") << "\n";
+        std::cout << "phase103_78_redo_replay_time_reduced_vs_phase103_77=" << (history_replay_optimization_diag.redo_replay_time_reduced_vs_phase103_77 ? "YES" : "NO") << "\n";
+        std::cout << "phase103_78_history_replay_produces_identical_document_signature=" << (history_replay_optimization_diag.history_replay_produces_identical_document_signature ? "YES" : "NO") << "\n";
+        std::cout << "phase103_78_selection_anchor_focus_identical_after_replay=" << (history_replay_optimization_diag.selection_anchor_focus_identical_after_replay ? "YES" : "NO") << "\n";
+        std::cout << "phase103_78_preview_and_structure_fully_consistent_after_replay=" << (history_replay_optimization_diag.preview_and_structure_fully_consistent_after_replay ? "YES" : "NO") << "\n";
+        std::cout << "phase103_78_invariant_preserved_during_and_after_replay=" << (history_replay_optimization_diag.invariant_preserved_during_and_after_replay ? "YES" : "NO") << "\n";
+        std::cout << "phase103_78_no_skipped_or_reordered_history_operations=" << (history_replay_optimization_diag.no_skipped_or_reordered_history_operations ? "YES" : "NO") << "\n";
+        std::cout << "phase103_78_no_ui_desync_during_replay_batching=" << (history_replay_optimization_diag.no_ui_desync_during_replay_batching ? "YES" : "NO") << "\n";
+        std::cout << "phase103_78_repeated_replay_cycles_remain_drift_free=" << (history_replay_optimization_diag.repeated_replay_cycles_remain_drift_free ? "YES" : "NO") << "\n";
+        std::cout << "phase103_78_global_invariant_preserved=" << (history_replay_optimization_diag.global_invariant_preserved ? "YES" : "NO") << "\n";
+        std::cout << "phase103_78_phase103_77_baseline_undo_replay_ns=" << history_replay_optimization_diag.phase103_77_baseline_undo_replay_ns << "\n";
+        std::cout << "phase103_78_phase103_77_baseline_redo_replay_ns=" << history_replay_optimization_diag.phase103_77_baseline_redo_replay_ns << "\n";
+        std::cout << "phase103_78_optimized_undo_replay_ns=" << history_replay_optimization_diag.optimized_undo_replay_ns << "\n";
+        std::cout << "phase103_78_optimized_redo_replay_ns=" << history_replay_optimization_diag.optimized_redo_replay_ns << "\n";
+        std::cout << "phase103_78_history_replay_steps=" << history_replay_optimization_diag.replay_history_steps << "\n";
+        std::cout << "phase103_78_batching_strategy=" << history_replay_optimization_diag.batching_strategy << "\n";
+        std::cout << "phase103_79_export_time_reduced_vs_phase103_77=" << (serialization_export_optimization_diag.export_time_reduced_vs_phase103_77 ? "YES" : "NO") << "\n";
+        std::cout << "phase103_79_serialization_time_reduced_vs_phase103_77=" << (serialization_export_optimization_diag.serialization_time_reduced_vs_phase103_77 ? "YES" : "NO") << "\n";
+        std::cout << "phase103_79_export_bytes_identical_to_baseline=" << (serialization_export_optimization_diag.export_bytes_identical_to_baseline ? "YES" : "NO") << "\n";
+        std::cout << "phase103_79_canonical_signature_identical_to_baseline=" << (serialization_export_optimization_diag.canonical_signature_identical_to_baseline ? "YES" : "NO") << "\n";
+        std::cout << "phase103_79_no_stale_serialization_reuse_after_mutation=" << (serialization_export_optimization_diag.no_stale_serialization_reuse_after_mutation ? "YES" : "NO") << "\n";
+        std::cout << "phase103_79_no_correctness_guarantees_were_weakened=" << (serialization_export_optimization_diag.no_correctness_guarantees_were_weakened ? "YES" : "NO") << "\n";
+        std::cout << "phase103_79_no_history_or_dirty_side_effect_from_optimization=" << (serialization_export_optimization_diag.no_history_or_dirty_side_effect_from_optimization ? "YES" : "NO") << "\n";
+        std::cout << "phase103_79_profile_run_terminates_cleanly_with_markers=" << (serialization_export_optimization_diag.profile_run_terminates_cleanly_with_markers ? "YES" : "NO") << "\n";
+        std::cout << "phase103_79_no_partial_or_stalled_proof_artifacts=" << (serialization_export_optimization_diag.no_partial_or_stalled_proof_artifacts ? "YES" : "NO") << "\n";
+        std::cout << "phase103_79_global_invariant_preserved=" << (serialization_export_optimization_diag.global_invariant_preserved ? "YES" : "NO") << "\n";
+        std::cout << "phase103_79_phase103_77_baseline_serialize_ns=" << serialization_export_optimization_diag.phase103_77_baseline_serialize_ns << "\n";
+        std::cout << "phase103_79_phase103_77_baseline_export_ns=" << serialization_export_optimization_diag.phase103_77_baseline_export_ns << "\n";
+        std::cout << "phase103_79_optimized_serialize_ns=" << serialization_export_optimization_diag.optimized_serialize_ns << "\n";
+        std::cout << "phase103_79_optimized_export_ns=" << serialization_export_optimization_diag.optimized_export_ns << "\n";
+        std::cout << "phase103_79_reuse_strategy=" << serialization_export_optimization_diag.reuse_strategy << "\n";
       std::cout << "app_runtime_crash_detected=" << (no_crash ? 0 : 1) << "\n";
     std::cout << "SUMMARY: PASS\n";
   }

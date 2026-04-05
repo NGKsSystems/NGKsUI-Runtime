@@ -590,53 +590,81 @@ inline std::string serialize_builder_document_deterministic(const BuilderDocumen
   }
 
   const std::vector<const BuilderNode*> ordered = canonical_node_order(doc);
-  std::ostringstream out;
-  out << kBuilderTextFormatMagic << "\n";
-  out << "schema_version=" << escape_field(doc.schema_version) << "\n";
-  out << "root_node_id=" << escape_field(doc.root_node_id) << "\n";
-  out << "node_count=" << ordered.size() << "\n";
+  std::string out;
+  out.reserve(128 + ordered.size() * 768);
+
+  auto append_text = [&](const std::string& text) {
+    out.append(text);
+  };
+
+  auto append_line = [&](const std::string& key, const std::string& value) {
+    out.append(key);
+    out.push_back('=');
+    out.append(value);
+    out.push_back('\n');
+  };
+
+  auto append_int_line = [&](const std::string& key, int value) {
+    out.append(key);
+    out.push_back('=');
+    out.append(std::to_string(value));
+    out.push_back('\n');
+  };
+
+  auto append_size_line = [&](const std::string& key, std::size_t value) {
+    out.append(key);
+    out.push_back('=');
+    out.append(std::to_string(value));
+    out.push_back('\n');
+  };
+
+  append_text(kBuilderTextFormatMagic);
+  out.push_back('\n');
+  append_line("schema_version", escape_field(doc.schema_version));
+  append_line("root_node_id", escape_field(doc.root_node_id));
+  append_size_line("node_count", ordered.size());
 
   for (std::size_t index = 0; index < ordered.size(); ++index) {
     const BuilderNode& node = *ordered[index];
     const std::string prefix = "node." + std::to_string(index) + ".";
 
-    out << prefix << "id=" << escape_field(node.node_id) << "\n";
-    out << prefix << "parent_id=" << escape_field(node.parent_id) << "\n";
-    out << prefix << "widget_type=" << to_string(node.widget_type) << "\n";
-    out << prefix << "container_type=" << to_string(node.container_type) << "\n";
-    out << prefix << "layout_axis=" << to_string(node.layout_axis) << "\n";
-    out << prefix << "visible=" << (node.visible ? 1 : 0) << "\n";
-    out << prefix << "text=" << escape_field(node.text) << "\n";
+    append_line(prefix + "id", escape_field(node.node_id));
+    append_line(prefix + "parent_id", escape_field(node.parent_id));
+    append_line(prefix + "widget_type", to_string(node.widget_type));
+    append_line(prefix + "container_type", to_string(node.container_type));
+    append_line(prefix + "layout_axis", to_string(node.layout_axis));
+    append_int_line(prefix + "visible", node.visible ? 1 : 0);
+    append_line(prefix + "text", escape_field(node.text));
 
-    out << prefix << "layout.width_policy=" << to_string(node.layout.width_policy) << "\n";
-    out << prefix << "layout.height_policy=" << to_string(node.layout.height_policy) << "\n";
-    out << prefix << "layout.weight=" << node.layout.layout_weight << "\n";
-    out << prefix << "layout.min_width=" << node.layout.min_width << "\n";
-    out << prefix << "layout.min_height=" << node.layout.min_height << "\n";
-    out << prefix << "layout.preferred_width=" << node.layout.preferred_width << "\n";
-    out << prefix << "layout.preferred_height=" << node.layout.preferred_height << "\n";
-    out << prefix << "layout.spacing=" << node.layout.spacing << "\n";
+    append_line(prefix + "layout.width_policy", to_string(node.layout.width_policy));
+    append_line(prefix + "layout.height_policy", to_string(node.layout.height_policy));
+    append_int_line(prefix + "layout.weight", node.layout.layout_weight);
+    append_int_line(prefix + "layout.min_width", node.layout.min_width);
+    append_int_line(prefix + "layout.min_height", node.layout.min_height);
+    append_int_line(prefix + "layout.preferred_width", node.layout.preferred_width);
+    append_int_line(prefix + "layout.preferred_height", node.layout.preferred_height);
+    append_int_line(prefix + "layout.spacing", node.layout.spacing);
 
-    out << prefix << "layout.margin.left=" << node.layout.margin.left << "\n";
-    out << prefix << "layout.margin.top=" << node.layout.margin.top << "\n";
-    out << prefix << "layout.margin.right=" << node.layout.margin.right << "\n";
-    out << prefix << "layout.margin.bottom=" << node.layout.margin.bottom << "\n";
+    append_int_line(prefix + "layout.margin.left", node.layout.margin.left);
+    append_int_line(prefix + "layout.margin.top", node.layout.margin.top);
+    append_int_line(prefix + "layout.margin.right", node.layout.margin.right);
+    append_int_line(prefix + "layout.margin.bottom", node.layout.margin.bottom);
 
-    out << prefix << "layout.padding.left=" << node.layout.padding.left << "\n";
-    out << prefix << "layout.padding.top=" << node.layout.padding.top << "\n";
-    out << prefix << "layout.padding.right=" << node.layout.padding.right << "\n";
-    out << prefix << "layout.padding.bottom=" << node.layout.padding.bottom << "\n";
+    append_int_line(prefix + "layout.padding.left", node.layout.padding.left);
+    append_int_line(prefix + "layout.padding.top", node.layout.padding.top);
+    append_int_line(prefix + "layout.padding.right", node.layout.padding.right);
+    append_int_line(prefix + "layout.padding.bottom", node.layout.padding.bottom);
 
-    out << prefix << "layout.align.horizontal=" << to_string(node.layout.horizontal_alignment) << "\n";
-    out << prefix << "layout.align.vertical=" << to_string(node.layout.vertical_alignment) << "\n";
+    append_line(prefix + "layout.align.horizontal", to_string(node.layout.horizontal_alignment));
+    append_line(prefix + "layout.align.vertical", to_string(node.layout.vertical_alignment));
 
-    out << prefix << "child_count=" << node.child_ids.size() << "\n";
+    append_size_line(prefix + "child_count", node.child_ids.size());
     for (std::size_t child_index = 0; child_index < node.child_ids.size(); ++child_index) {
-      out << prefix << "child." << child_index << "=" << escape_field(node.child_ids[child_index]) << "\n";
+      append_line(prefix + "child." + std::to_string(child_index), escape_field(node.child_ids[child_index]));
     }
   }
 
-  return out.str();
+  return out;
 }
 
 inline bool parse_prefixed_key(const std::string& line, const std::string& key_prefix, std::string& value_out) {
