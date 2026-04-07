@@ -43,8 +43,9 @@ public:
     if (!contains_point(x, y)) {
       return false;
     }
+    const int old_scroll_y = scroll_y_;
     set_scroll_offset_y(scroll_y_ - (delta * wheel_step_ / 120));
-    return true;
+    return scroll_y_ != old_scroll_y;
   }
 
   void render(Renderer& renderer) override {

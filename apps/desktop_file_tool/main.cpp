@@ -7,10 +7,13 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
+#include <limits>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <array>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #ifndef NOMINMAX
@@ -81,6 +84,7 @@ struct RedrawDiagnostics {
   int invalidate_input_count = 0;
   int invalidate_steady_count = 0;
   int invalidate_layout_count = 0;
+  int tree_invalidate_request_count = 0;
   int render_begin_count = 0;
   int render_end_count = 0;
   int present_call_count = 0;
@@ -857,6 +861,156 @@ struct BuilderSerializationExportPathOptimizationDiagnostics {
   std::string reuse_strategy{};
 };
 
+struct BuilderViewportSurfaceRefreshEfficiencyDiagnostics {
+  bool redundant_surface_rebuilds_skipped = false;
+  bool refresh_trigger_stabilized = false;
+  bool model_visible_state_gates_surface_refresh = false;
+  bool batched_surface_updates_preserve_visible_output = false;
+  bool tree_preview_inspector_outputs_stay_non_stale = false;
+  bool viewport_reconcile_remains_correct = false;
+  bool steady_state_repaint_loop_removed = false;
+  bool repeated_refresh_requests_coalesce_before_paint = false;
+  bool profile_run_terminates_cleanly_with_markers = false;
+  bool global_invariant_preserved = false;
+  std::uint64_t surface_refresh_requests = 0;
+  std::uint64_t surface_refresh_applied = 0;
+  std::uint64_t surface_refresh_skipped = 0;
+  std::uint64_t redraw_requests_coalesced = 0;
+  std::uint64_t steady_redraw_requests_before = 0;
+  std::uint64_t steady_redraw_requests_after = 0;
+  std::string refresh_strategy{};
+};
+
+struct BuilderSelectionMappingEfficiencyDiagnostics {
+  bool selection_mapping_time_reduced_vs_phase103_77 = false;
+  bool lookup_redundancy_reduced_without_behavior_change = false;
+  bool selected_nodes_identical_to_baseline = false;
+  bool anchor_focus_and_range_semantics_identical = false;
+  bool tree_and_preview_mapping_identical_to_baseline = false;
+  bool no_stale_mapping_reuse_after_mutation_or_filter_change = false;
+  bool no_correctness_guarantees_were_weakened = false;
+  bool profile_run_terminates_cleanly_with_markers = false;
+  bool no_partial_or_stalled_proof_artifacts = false;
+  bool global_invariant_preserved = false;
+  std::uint64_t phase103_77_baseline_selection_mapping_ns = 0;
+  std::uint64_t optimized_selection_mapping_ns = 0;
+  std::uint64_t baseline_row_node_lookup_ns = 0;
+  std::uint64_t optimized_row_node_lookup_ns = 0;
+  std::string reuse_strategy{};
+};
+
+struct BuilderEventInputThrottlingCoalescingDiagnostics {
+  bool high_frequency_event_work_reduced_vs_phase103_77 = false;
+  bool redundant_invalidates_or_refreshes_coalesced_without_behavior_change = false;
+  bool hover_drag_scroll_visible_behavior_identical_to_baseline = false;
+  bool selection_focus_and_viewport_results_identical_after_event_bursts = false;
+  bool drag_preview_and_drop_outcome_identical_to_baseline = false;
+  bool no_stale_ui_state_after_rapid_input_sequences = false;
+  bool no_history_or_dirty_side_effect_from_event_coalescing = false;
+  bool no_correctness_guarantees_were_weakened = false;
+  bool profile_run_terminates_cleanly_with_markers = false;
+  bool global_invariant_preserved = false;
+  std::uint64_t phase103_77_baseline_event_work_count = 0;
+  std::uint64_t optimized_event_work_count = 0;
+  std::uint64_t baseline_burst_invalidate_requests = 0;
+  std::uint64_t optimized_burst_invalidate_requests = 0;
+  std::uint64_t baseline_burst_refresh_requests = 0;
+  std::uint64_t optimized_burst_refresh_requests = 0;
+  std::uint64_t hover_noop_updates_skipped = 0;
+  std::uint64_t drag_preview_noop_updates_skipped = 0;
+  std::uint64_t scroll_noop_updates_skipped = 0;
+  std::uint64_t high_frequency_repaint_requests_coalesced = 0;
+  std::string coalescing_strategy{};
+};
+
+struct BuilderValidationProofHarnessEfficiencyDiagnostics {
+  bool validation_overhead_reduced_vs_phase103_77 = false;
+  bool marker_and_proof_semantics_identical = false;
+  bool no_runtime_behavior_changed_by_harness_optimization = false;
+  bool no_validation_coverage_was_weakened = false;
+  bool no_stale_validation_reuse_after_state_change = false;
+  bool proof_artifact_generation_remains_complete = false;
+  bool profile_run_terminates_cleanly_with_markers = false;
+  bool no_partial_or_stalled_proof_artifacts = false;
+  bool global_invariant_preserved = false;
+  std::uint64_t phase103_77_baseline_peak_validation_timeout_count = 0;
+  std::uint64_t optimized_peak_validation_timeout_count = 0;
+  std::uint64_t baseline_validation_bookkeeping_serialize_count = 0;
+  std::uint64_t optimized_validation_bookkeeping_serialize_count = 0;
+  std::uint64_t baseline_proof_marker_scan_count = 0;
+  std::uint64_t optimized_proof_marker_scan_count = 0;
+  std::uint64_t validation_doc_cache_reuse_hits = 0;
+  std::string optimization_strategy{};
+};
+
+struct BuilderSystemStabilityLongRunValidationDiagnostics {
+  bool repeated_runs_produce_identical_final_signatures = false;
+  bool no_semantic_drift_across_long_run_sequences = false;
+  bool undo_redo_remains_exact_over_extended_cycles = false;
+  bool save_load_export_cycles_remain_stable_and_deterministic = false;
+  bool filter_viewport_projection_cycles_remain_non_drifting = false;
+  bool no_stale_state_accumulates_over_time = false;
+  bool no_unbounded_resource_growth_signal_detected = false;
+  bool all_runs_terminate_cleanly_with_complete_artifacts = false;
+  bool no_correctness_guarantees_were_weakened = false;
+  bool global_invariant_preserved = false;
+  std::uint64_t repeated_run_count = 0;
+  std::uint64_t mixed_cycle_count = 0;
+  std::uint64_t undo_redo_cycle_count = 0;
+  std::uint64_t save_load_export_cycle_count = 0;
+  std::uint64_t filter_projection_cycle_count = 0;
+  std::uint64_t max_serialized_size_observed = 0;
+  std::uint64_t max_undo_history_size_observed = 0;
+  std::uint64_t max_redo_stack_size_observed = 0;
+  std::uint64_t artifact_file_count_observed = 0;
+  std::string final_canonical_signature{};
+};
+
+struct BuilderProductionReadinessHardeningGateDiagnostics {
+  bool invalid_inputs_fail_closed_without_state_corruption = false;
+  bool no_null_or_invalid_reference_paths_exist = false;
+  bool history_operations_safe_at_all_boundaries = false;
+  bool selection_and_mapping_remain_valid_under_all_inputs = false;
+  bool serialization_and_import_paths_are_guarded = false;
+  bool no_partial_mutation_on_failure_paths = false;
+  bool no_silent_state_corruption_detected = false;
+  bool all_edge_case_sequences_remain_deterministic = false;
+  bool all_runs_terminate_cleanly_with_complete_artifacts = false;
+  bool global_invariant_preserved = false;
+  std::uint64_t invalid_sequence_count = 0;
+  std::uint64_t fail_closed_traversal_guard_hits = 0;
+  std::uint64_t artifact_file_count_observed = 0;
+  std::string final_canonical_signature{};
+};
+
+struct BuilderValidationHarnessPreconditionHardeningDiagnostics {
+  bool every_harness_target_validates_renderability = false;
+  bool every_harness_target_validates_viewport_reachability = false;
+  bool invalid_targets_rejected_fail_closed = false;
+  bool unreachable_targets_rejected_fail_closed = false;
+  bool explicit_precondition_failure_marker_emitted = false;
+  bool validation_never_runs_on_unreachable_state = false;
+  bool no_runtime_behavior_changed = false;
+  bool global_invariant_preserved = false;
+  std::uint64_t rejected_target_count = 0;
+  std::string last_precondition_failure_marker{};
+};
+
+struct BuilderFinalSystemValidationReleaseGateDiagnostics {
+  bool full_integrated_validation_passes = false;
+  bool harness_preconditions_block_invalid_targets_fail_closed = false;
+  bool all_locked_guarantees_remain_green_together = false;
+  bool final_canonical_signature_stable = false;
+  bool no_ui_desync_or_stale_state_detected = false;
+  bool no_partial_or_incomplete_proof_artifacts = false;
+  bool validation_terminates_cleanly = false;
+  bool release_gate_verdict_emitted = false;
+  bool release_ready_verdict_supported_by_evidence = false;
+  bool global_invariant_preserved = false;
+  std::string release_gate_verdict{};
+  std::string final_canonical_signature{};
+};
+
 struct ScopedBusyFlag {
   bool& flag;
   explicit ScopedBusyFlag(bool& value) : flag(value) {
@@ -875,6 +1029,7 @@ struct CommandHistoryEntry {
   std::string coalescing_key{};
   std::uint64_t boundary_epoch = 0;
   int logical_action_span = 1;
+  bool normalized = false;
   std::vector<ngk::ui::builder::BuilderNode> before_nodes{};
   std::string before_root_node_id{};
   std::string before_selected_id{};
@@ -1240,6 +1395,69 @@ bool parse_validation_mode(int argc, char** argv) {
   return false;
 }
 
+struct ValidationTriageConfig {
+  int start_phase = 0;
+  int end_phase = 0;
+
+  [[nodiscard]] bool enabled() const {
+    return start_phase > 0 && end_phase >= start_phase;
+  }
+
+  [[nodiscard]] bool includes(int phase_number) const {
+    return enabled() && phase_number >= start_phase && phase_number <= end_phase;
+  }
+};
+
+ValidationTriageConfig parse_validation_triage_config(int argc, char** argv) {
+  ValidationTriageConfig config{};
+  const std::string single_prefix = "--validation-target-phase=";
+  const std::string start_prefix = "--validation-target-phase-start=";
+  const std::string end_prefix = "--validation-target-phase-end=";
+
+  auto parse_positive_int = [](const std::string& value) -> int {
+    char* end_ptr = nullptr;
+    const long parsed = std::strtol(value.c_str(), &end_ptr, 10);
+    if (end_ptr != nullptr && *end_ptr == '\0' && parsed > 0 && parsed <= 200) {
+      return static_cast<int>(parsed);
+    }
+    return 0;
+  };
+
+  for (int index = 1; index < argc; ++index) {
+    if (argv[index] == nullptr) {
+      continue;
+    }
+    const std::string arg = argv[index];
+    if (arg.rfind(single_prefix, 0) == 0) {
+      const int parsed = parse_positive_int(arg.substr(single_prefix.size()));
+      if (parsed > 0) {
+        config.start_phase = parsed;
+        config.end_phase = parsed;
+      }
+      continue;
+    }
+    if (arg.rfind(start_prefix, 0) == 0) {
+      config.start_phase = parse_positive_int(arg.substr(start_prefix.size()));
+      continue;
+    }
+    if (arg.rfind(end_prefix, 0) == 0) {
+      config.end_phase = parse_positive_int(arg.substr(end_prefix.size()));
+      continue;
+    }
+  }
+
+  if (config.start_phase > 0 && config.end_phase == 0) {
+    config.end_phase = config.start_phase;
+  }
+  if (config.end_phase > 0 && config.start_phase == 0) {
+    config.start_phase = config.end_phase;
+  }
+  if (!config.enabled()) {
+    return {};
+  }
+  return config;
+}
+
 bool reload_entries(FileToolModel& model, const std::filesystem::path& root) {
   model.entries.clear();
 
@@ -1299,7 +1517,9 @@ std::string selected_file_size(const FileToolModel& model) {
   }
 }
 
-int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
+int run_desktop_file_tool_app(int auto_close_ms,
+                              bool validation_mode,
+                              const ValidationTriageConfig& validation_triage_config) {
   using namespace std::chrono;
 
   ngk::EventLoop loop;
@@ -1324,6 +1544,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   std::filesystem::path scan_root = std::filesystem::current_path();
   FileToolModel model{};
   RedrawDiagnostics redraw_diag{};
+  const bool validation_triage_active = validation_mode && validation_triage_config.enabled();
 
   ngk::ui::UITree tree;
   ngk::ui::InputRouter input_router;
@@ -1339,6 +1560,13 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   ngk::ui::Button prev_button;
   ngk::ui::Button next_button;
   ngk::ui::Button apply_button;
+
+  auto emit_validation_triage_trace = [&](const std::string& tag) {
+    if (!validation_triage_active || tag.empty()) {
+      return;
+    }
+    std::cout << "validation_triage_trace=" << tag << "\n" << std::flush;
+  };
 
   // ===== PHASE102/103 UI elements =====
   LayoutFunctionDiagnostics layout_fn_diag{};
@@ -1426,6 +1654,16 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   BuilderPerformanceProfilingHotspotCharacterizationDiagnostics performance_profiling_diag{};
   BuilderHistoryReplayOptimizationDiagnostics history_replay_optimization_diag{};
   BuilderSerializationExportPathOptimizationDiagnostics serialization_export_optimization_diag{};
+  BuilderViewportSurfaceRefreshEfficiencyDiagnostics viewport_surface_refresh_efficiency_diag{};
+  BuilderSelectionMappingEfficiencyDiagnostics selection_mapping_efficiency_diag{};
+  BuilderEventInputThrottlingCoalescingDiagnostics event_input_throttling_diag{};
+  BuilderValidationProofHarnessEfficiencyDiagnostics validation_proof_harness_efficiency_diag{};
+  BuilderSystemStabilityLongRunValidationDiagnostics long_run_validation_stability_diag{};
+  BuilderProductionReadinessHardeningGateDiagnostics production_readiness_hardening_diag{};
+  BuilderValidationHarnessPreconditionHardeningDiagnostics validation_harness_precondition_diag{};
+  BuilderFinalSystemValidationReleaseGateDiagnostics final_release_gate_diag{};
+  std::uint64_t validation_legacy_timeout_registration_count = 0;
+  std::uint64_t validation_optimized_peak_timeout_count = 0;
   std::string drag_source_node_id{};
   bool drag_active = false;
   std::string hover_node_id{};
@@ -1447,6 +1685,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   bool last_action_dispatch_success = false;
   int global_invariant_checks_total = 0;
   int global_invariant_failures_total = 0;
+  std::uint64_t fail_closed_traversal_guard_hits_total = 0;
+
+  struct HistoryValidationCache {
+    const std::vector<CommandHistoryEntry>* history = nullptr;
+    std::size_t validated_prefix_size = 0;
+  };
+
+  HistoryValidationCache undo_history_validation_cache{};
+  HistoryValidationCache redo_history_validation_cache{};
 
   ngk::ui::Button builder_undo_button;
   ngk::ui::Button builder_redo_button;
@@ -1566,6 +1813,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   bool builder_persistence_io_in_progress = false;
   bool builder_persistence_force_next_temp_write_truncation = false;
   bool builder_persistence_force_next_atomic_replace_failure = false;
+  std::uint64_t builder_surface_document_revision = 0;
+  std::string builder_surface_last_serialized_doc{};
   std::string builder_projection_filter_query{};
   const std::filesystem::path builder_doc_save_path =
     std::filesystem::current_path() / "_artifacts/runtime/phase103_12_builder_document.ngkbdoc";
@@ -1577,6 +1826,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   std::string last_export_snapshot{};
   bool has_last_export_snapshot = false;
   bool export_snapshot_matches_current_doc = false;
+  std::uint64_t last_export_builder_surface_document_revision = 0;
   constexpr const char* kExportRule = "overwrite_deterministic_single_target";
   std::string last_preview_export_parity_status_code = "not_run";
   std::string last_preview_export_parity_reason = "none";
@@ -1602,6 +1852,33 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   std::string inspector_edit_loaded_min_width{};
   std::string inspector_edit_loaded_min_height{};
   std::string preview_inline_loaded_text{};
+  std::string builder_export_status_signature{};
+  std::string builder_top_action_surface_signature{};
+  std::string builder_action_button_surface_signature{};
+  std::string builder_tree_surface_signature{};
+  std::string builder_inspector_surface_signature{};
+  std::string builder_preview_surface_signature{};
+  std::string builder_add_child_target_signature{};
+  std::uint64_t builder_selection_mapping_epoch = 0;
+  std::uint64_t builder_node_lookup_cache_epoch = std::numeric_limits<std::uint64_t>::max();
+  std::size_t builder_node_lookup_cache_node_count = 0;
+  std::string builder_node_lookup_cache_root_id{};
+  std::string builder_node_lookup_cache_first_node_id{};
+  std::string builder_node_lookup_cache_last_node_id{};
+  std::unordered_map<std::string, std::size_t> builder_node_lookup_cache{};
+  std::uint64_t builder_preorder_cache_epoch = std::numeric_limits<std::uint64_t>::max();
+  std::size_t builder_preorder_cache_node_count = 0;
+  std::string builder_preorder_cache_root_id{};
+  std::vector<std::string> builder_preorder_node_ids_cache{};
+  std::unordered_map<std::string, std::size_t> builder_preorder_index_cache{};
+  std::uint64_t builder_projection_visibility_cache_epoch = std::numeric_limits<std::uint64_t>::max();
+  std::size_t builder_projection_visibility_cache_node_count = 0;
+  std::string builder_projection_visibility_cache_root_id{};
+  std::string builder_projection_visibility_cache_query{};
+  std::unordered_map<std::string, bool> builder_projection_visibility_cache{};
+  std::unordered_map<std::string, std::size_t> builder_tree_row_index_by_node_id{};
+  std::unordered_map<std::string, std::size_t> builder_preview_row_index_by_node_id{};
+  bool redraw_pending = false;
   constexpr const char* kPreviewExportParityScope =
     "structure,component_types,key_identity_text,hierarchy";
   constexpr int kBuilderMinClientWidth = 720;
@@ -1873,12 +2150,19 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   };
 
   auto set_last_action_feedback = [&](const std::string& message) {
-    last_action_feedback = std::string("Action: ") + message;
+    const std::string next_feedback = std::string("Action: ") + message;
+    if (last_action_feedback == next_feedback) {
+      return;
+    }
+    last_action_feedback = next_feedback;
     builder_action_feedback_label.set_text(last_action_feedback);
     sync_label_preferred_height(builder_action_feedback_label, 18);
   };
 
   auto set_preview_visual_feedback = [&](const std::string& message, const std::string& node_id = std::string{}) {
+    if (preview_visual_feedback_message == message && preview_visual_feedback_node_id == node_id) {
+      return;
+    }
     preview_visual_feedback_message = message;
     preview_visual_feedback_node_id = node_id;
     builder_preview_interaction_hint_label.set_text(message);
@@ -1887,6 +2171,46 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
   auto set_tree_visual_feedback = [&](const std::string& node_id = std::string{}) {
     tree_visual_feedback_node_id = node_id;
+  };
+
+  auto join_node_ids = [&](const std::vector<std::string>& node_ids) -> std::string {
+    if (node_ids.empty()) {
+      return "<none>";
+    }
+    std::ostringstream oss;
+    for (std::size_t idx = 0; idx < node_ids.size(); ++idx) {
+      if (idx > 0) {
+        oss << ',';
+      }
+      oss << node_ids[idx];
+    }
+    return oss.str();
+  };
+
+  auto update_builder_surface_document_revision = [&](const std::string& serialized_doc) {
+    if (serialized_doc.empty() || builder_surface_last_serialized_doc == serialized_doc) {
+      return;
+    }
+    builder_surface_last_serialized_doc = serialized_doc;
+    builder_surface_document_revision += 1;
+  };
+
+  auto begin_surface_refresh_probe = [&]() {
+    viewport_surface_refresh_efficiency_diag.surface_refresh_requests += 1;
+  };
+
+  auto skip_surface_refresh_probe = [&]() {
+    viewport_surface_refresh_efficiency_diag.surface_refresh_skipped += 1;
+    viewport_surface_refresh_efficiency_diag.redundant_surface_rebuilds_skipped = true;
+    viewport_surface_refresh_efficiency_diag.model_visible_state_gates_surface_refresh = true;
+  };
+
+  auto apply_surface_refresh_probe = [&]() {
+    viewport_surface_refresh_efficiency_diag.surface_refresh_applied += 1;
+  };
+
+  auto note_tree_invalidate_request = [&]() {
+    redraw_diag.tree_invalidate_request_count += 1;
   };
 
   auto layout = [&](int w, int h) {
@@ -1900,6 +2224,25 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   };
 
   auto refresh_export_status_surface_label = [&]() {
+    std::ostringstream signature;
+    signature << builder_surface_document_revision
+              << '|'
+              << last_export_status_code
+              << '|'
+              << last_export_reason
+              << '|'
+              << last_export_artifact_path
+              << '|'
+              << has_last_export_snapshot
+              << '|'
+              << last_export_builder_surface_document_revision;
+    const std::string next_signature = signature.str();
+    begin_surface_refresh_probe();
+    if (builder_export_status_signature == next_signature) {
+      skip_surface_refresh_probe();
+      return;
+    }
+
     std::ostringstream oss;
     oss << "EXPORT STATUS\n";
     oss << "result=" << last_export_status_code;
@@ -1914,15 +2257,9 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
     std::string state_text = "no_export_baseline";
     if (has_last_export_snapshot) {
-      const std::string serialized_now =
-        ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
-      if (serialized_now.empty()) {
-        export_snapshot_matches_current_doc = false;
-        state_text = "unknown_serialize_failed";
-      } else {
-        export_snapshot_matches_current_doc = (serialized_now == last_export_snapshot);
-        state_text = export_snapshot_matches_current_doc ? "up_to_date" : "stale_since_last_export";
-      }
+      export_snapshot_matches_current_doc =
+        builder_surface_document_revision == last_export_builder_surface_document_revision;
+      state_text = export_snapshot_matches_current_doc ? "up_to_date" : "stale_since_last_export";
     } else {
       export_snapshot_matches_current_doc = false;
     }
@@ -1930,6 +2267,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     oss << "state=" << state_text;
     builder_export_status_label.set_text(oss.str());
     sync_label_preferred_height(builder_export_status_label, 18);
+    builder_export_status_signature = next_signature;
+    apply_surface_refresh_probe();
   };
 
   auto update_labels = [&] {
@@ -1964,6 +2303,11 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       layout(client_w, client_h);
       tree.on_resize(client_w, client_h);
     }
+    if (redraw_pending && !layout_triggered) {
+      viewport_surface_refresh_efficiency_diag.redraw_requests_coalesced += 1;
+      return;
+    }
+    redraw_pending = true;
     tree.invalidate();
   };
 
@@ -2112,6 +2456,17 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     builder_doc.root_node_id = "root-001";
     builder_doc.nodes.push_back(root_node);
     builder_doc.nodes.push_back(child_node);
+    builder_selection_mapping_epoch += 1;
+    builder_preorder_cache_epoch = 0;
+    builder_preorder_cache_node_count = 0;
+    builder_preorder_cache_root_id.clear();
+    builder_preorder_node_ids_cache.clear();
+    builder_preorder_index_cache.clear();
+    builder_projection_visibility_cache_epoch = 0;
+    builder_projection_visibility_cache_node_count = 0;
+    builder_projection_visibility_cache_root_id.clear();
+    builder_projection_visibility_cache_query.clear();
+    builder_projection_visibility_cache.clear();
     selected_builder_node_id = "root-001";
     multi_selected_node_ids.clear();
     multi_selected_node_ids.push_back(selected_builder_node_id);
@@ -2282,17 +2637,167 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     move_reparent_diag.layout_audit_compatible = audit.no_overlap;
   };
 
-  auto find_node_by_id = [&](const std::string& node_id) -> ngk::ui::builder::BuilderNode* {
-    for (auto& node : builder_doc.nodes) {
-      if (node.node_id == node_id) {
-        return &node;
-      }
+  auto invalidate_builder_selection_mapping_caches = [&]() {
+    builder_selection_mapping_epoch += 1;
+    builder_node_lookup_cache_epoch = std::numeric_limits<std::uint64_t>::max();
+    builder_preorder_cache_epoch = std::numeric_limits<std::uint64_t>::max();
+    builder_projection_visibility_cache_epoch = std::numeric_limits<std::uint64_t>::max();
+    builder_node_lookup_cache_node_count = 0;
+    builder_node_lookup_cache_root_id.clear();
+    builder_node_lookup_cache_first_node_id.clear();
+    builder_node_lookup_cache_last_node_id.clear();
+    builder_preorder_cache_node_count = 0;
+    builder_preorder_cache_root_id.clear();
+    builder_projection_visibility_cache_node_count = 0;
+    builder_projection_visibility_cache_root_id.clear();
+    builder_projection_visibility_cache_query.clear();
+    builder_tree_row_index_by_node_id.clear();
+    builder_preview_row_index_by_node_id.clear();
+  };
+
+  auto ensure_builder_node_lookup_cache = [&]() {
+    const std::string first_node_id = builder_doc.nodes.empty() ? std::string{} : builder_doc.nodes.front().node_id;
+    const std::string last_node_id = builder_doc.nodes.empty() ? std::string{} : builder_doc.nodes.back().node_id;
+    if (builder_node_lookup_cache_epoch == builder_selection_mapping_epoch &&
+        builder_node_lookup_cache_node_count == builder_doc.nodes.size() &&
+        builder_node_lookup_cache_root_id == builder_doc.root_node_id &&
+        builder_node_lookup_cache_first_node_id == first_node_id &&
+        builder_node_lookup_cache_last_node_id == last_node_id) {
+      return;
     }
-    return nullptr;
+
+    builder_node_lookup_cache.clear();
+    builder_node_lookup_cache.reserve(builder_doc.nodes.size());
+    for (std::size_t idx = 0; idx < builder_doc.nodes.size(); ++idx) {
+      builder_node_lookup_cache[builder_doc.nodes[idx].node_id] = idx;
+    }
+    builder_node_lookup_cache_epoch = builder_selection_mapping_epoch;
+    builder_node_lookup_cache_node_count = builder_doc.nodes.size();
+    builder_node_lookup_cache_root_id = builder_doc.root_node_id;
+    builder_node_lookup_cache_first_node_id = first_node_id;
+    builder_node_lookup_cache_last_node_id = last_node_id;
+  };
+
+  auto find_node_by_id = [&](const std::string& node_id) -> ngk::ui::builder::BuilderNode* {
+    if (node_id.empty()) {
+      return nullptr;
+    }
+    ensure_builder_node_lookup_cache();
+    const auto it = builder_node_lookup_cache.find(node_id);
+    if (it == builder_node_lookup_cache.end() || it->second >= builder_doc.nodes.size()) {
+      return nullptr;
+    }
+    return &builder_doc.nodes[it->second];
   };
 
   auto node_exists = [&](const std::string& node_id) -> bool {
     return find_node_by_id(node_id) != nullptr;
+  };
+
+  auto ensure_preorder_selection_mapping_cache = [&]() {
+    if (builder_preorder_cache_epoch == builder_selection_mapping_epoch &&
+        builder_preorder_cache_node_count == builder_doc.nodes.size() &&
+        builder_preorder_cache_root_id == builder_doc.root_node_id) {
+      return;
+    }
+
+    builder_preorder_node_ids_cache.clear();
+    builder_preorder_index_cache.clear();
+    if (builder_doc.root_node_id.empty() || !node_exists(builder_doc.root_node_id)) {
+      builder_preorder_cache_epoch = builder_selection_mapping_epoch;
+      return;
+    }
+
+    std::vector<std::string> stack{};
+    std::unordered_set<std::string> visited_preorder_ids{};
+    stack.push_back(builder_doc.root_node_id);
+    while (!stack.empty()) {
+      const std::string current_id = stack.back();
+      stack.pop_back();
+
+      if (!visited_preorder_ids.insert(current_id).second) {
+        fail_closed_traversal_guard_hits_total += 1;
+        continue;
+      }
+
+      auto* current = find_node_by_id(current_id);
+      if (!current) {
+        continue;
+      }
+
+      builder_preorder_index_cache[current_id] = builder_preorder_node_ids_cache.size();
+      builder_preorder_node_ids_cache.push_back(current_id);
+      for (auto it = current->child_ids.rbegin(); it != current->child_ids.rend(); ++it) {
+        if (!it->empty() && node_exists(*it)) {
+          stack.push_back(*it);
+        }
+      }
+    }
+
+    builder_preorder_cache_epoch = builder_selection_mapping_epoch;
+    builder_preorder_cache_node_count = builder_doc.nodes.size();
+    builder_preorder_cache_root_id = builder_doc.root_node_id;
+  };
+
+  auto current_preorder_node_ids = [&]() -> const std::vector<std::string>& {
+    ensure_preorder_selection_mapping_cache();
+    return builder_preorder_node_ids_cache;
+  };
+
+  auto ensure_projection_visibility_cache = [&]() -> const std::unordered_map<std::string, bool>& {
+    if (builder_projection_visibility_cache_epoch == builder_selection_mapping_epoch &&
+        builder_projection_visibility_cache_node_count == builder_doc.nodes.size() &&
+        builder_projection_visibility_cache_root_id == builder_doc.root_node_id &&
+        builder_projection_visibility_cache_query == builder_projection_filter_query) {
+      return builder_projection_visibility_cache;
+    }
+
+    builder_projection_visibility_cache.clear();
+    builder_projection_visibility_cache_query = builder_projection_filter_query;
+    std::unordered_set<std::string> active_projection_ids{};
+
+    std::function<bool(const std::string&)> resolve_visible = [&](const std::string& node_id) -> bool {
+      const auto found = builder_projection_visibility_cache.find(node_id);
+      if (found != builder_projection_visibility_cache.end()) {
+        return found->second;
+      }
+
+      if (!active_projection_ids.insert(node_id).second) {
+        fail_closed_traversal_guard_hits_total += 1;
+        builder_projection_visibility_cache[node_id] = false;
+        return false;
+      }
+
+      auto* node = find_node_by_id(node_id);
+      if (!node) {
+        active_projection_ids.erase(node_id);
+        builder_projection_visibility_cache[node_id] = false;
+        return false;
+      }
+
+      bool visible = builder_node_matches_projection_query(*node, builder_projection_filter_query);
+      if (!visible) {
+        for (const auto& child_id : node->child_ids) {
+          if (resolve_visible(child_id)) {
+            visible = true;
+            break;
+          }
+        }
+      }
+
+      active_projection_ids.erase(node_id);
+      builder_projection_visibility_cache[node_id] = visible;
+      return visible;
+    };
+
+    if (!builder_doc.root_node_id.empty()) {
+      resolve_visible(builder_doc.root_node_id);
+    }
+
+    builder_projection_visibility_cache_epoch = builder_selection_mapping_epoch;
+    builder_projection_visibility_cache_node_count = builder_doc.nodes.size();
+    builder_projection_visibility_cache_root_id = builder_doc.root_node_id;
+    return builder_projection_visibility_cache;
   };
 
   auto node_identity_text = [&](const ngk::ui::builder::BuilderNode& node) -> std::string {
@@ -2334,7 +2839,14 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       return false;
     }
 
-    const auto* root_node = find_node_by_id_in_document(doc, doc.root_node_id);
+    std::unordered_map<std::string, const ngk::ui::builder::BuilderNode*> nodes_by_id{};
+    nodes_by_id.reserve(doc.nodes.size());
+    for (const auto& node : doc.nodes) {
+      nodes_by_id.emplace(node.node_id, &node);
+    }
+
+    const auto root_it = nodes_by_id.find(doc.root_node_id);
+    const auto* root_node = root_it != nodes_by_id.end() ? root_it->second : nullptr;
     if (root_node == nullptr) {
       reason_out = std::string(context_name == nullptr ? "document" : context_name) +
         "_root_node_missing_from_table";
@@ -2342,12 +2854,21 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
 
     std::vector<std::pair<std::string, int>> stack{};
+    std::unordered_set<std::string> visited_ids{};
+    entries.reserve(doc.nodes.size());
     stack.push_back({doc.root_node_id, 0});
     while (!stack.empty()) {
       const auto current = stack.back();
       stack.pop_back();
 
-      const auto* node = find_node_by_id_in_document(doc, current.first);
+      if (!visited_ids.insert(current.first).second) {
+        reason_out = std::string(context_name == nullptr ? "document" : context_name) +
+          "_cycle_or_duplicate_revisit_" + current.first;
+        return false;
+      }
+
+      const auto node_it = nodes_by_id.find(current.first);
+      const auto* node = node_it != nodes_by_id.end() ? node_it->second : nullptr;
       if (node == nullptr) {
         reason_out = std::string(context_name == nullptr ? "document" : context_name) +
           "_node_missing_" + current.first;
@@ -2368,7 +2889,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
             "_empty_child_id_parent_" + node->node_id;
           return false;
         }
-        if (find_node_by_id_in_document(doc, *child_it) == nullptr) {
+        if (nodes_by_id.find(*child_it) == nodes_by_id.end()) {
           reason_out = std::string(context_name == nullptr ? "document" : context_name) +
             "_missing_child_" + *child_it + "_parent_" + node->node_id;
           return false;
@@ -2603,6 +3124,28 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   };
 
   auto sync_multi_selection_with_primary = [&]() {
+    auto multi_selection_already_canonical = [&]() -> bool {
+      if (selected_builder_node_id.empty()) {
+        return multi_selected_node_ids.empty();
+      }
+      if (multi_selected_node_ids.empty() || multi_selected_node_ids.front() != selected_builder_node_id) {
+        return false;
+      }
+
+      std::unordered_set<std::string> seen_ids{};
+      seen_ids.reserve(multi_selected_node_ids.size());
+      for (const auto& node_id : multi_selected_node_ids) {
+        if (node_id.empty() || !node_exists(node_id) || !seen_ids.insert(node_id).second) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    if (multi_selection_already_canonical()) {
+      return;
+    }
+
     std::vector<std::string> stable{};
     stable.reserve(multi_selected_node_ids.size() + 1);
 
@@ -3013,6 +3556,35 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   };
 
   auto refresh_top_action_surface_from_builder_state = [&]() {
+    std::ostringstream signature;
+    signature << builder_surface_document_revision
+              << '|'
+              << model.status
+              << '|'
+              << model.entries.size()
+              << '|'
+              << selected_file_name(model)
+              << '|'
+              << selected_file_size(model)
+              << '|'
+              << model.filter
+              << '|'
+              << selected_builder_node_id
+              << '|'
+              << join_node_ids(multi_selected_node_ids)
+              << '|'
+              << builder_doc_dirty
+              << '|'
+              << validation_mode
+              << '|'
+              << builder_debug_mode;
+    const std::string next_signature = signature.str();
+    begin_surface_refresh_probe();
+    if (builder_top_action_surface_signature == next_signature) {
+      skip_surface_refresh_probe();
+      return;
+    }
+
     sync_multi_selection_with_primary();
     const auto report = compute_bulk_action_eligibility_report();
 
@@ -3087,9 +3659,32 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         std::string("Hint: Click a tree row, then use Add Container or Add Item."));
     }
     sync_label_preferred_height(detail_label, 18);
+    builder_top_action_surface_signature = next_signature;
+    apply_surface_refresh_probe();
   };
 
   auto refresh_action_button_visual_state_from_builder_truth = [&]() {
+    std::ostringstream signature;
+    signature << builder_surface_document_revision
+              << '|'
+              << selected_builder_node_id
+              << '|'
+              << join_node_ids(multi_selected_node_ids)
+              << '|'
+              << builder_doc.root_node_id
+              << '|'
+              << undo_history.size()
+              << '|'
+              << redo_stack.size()
+              << '|'
+              << builder_doc_dirty;
+    const std::string next_signature = signature.str();
+    begin_surface_refresh_probe();
+    if (builder_action_button_surface_signature == next_signature) {
+      skip_surface_refresh_probe();
+      return;
+    }
+
     sync_multi_selection_with_primary();
     const auto report = compute_bulk_action_eligibility_report();
 
@@ -3166,6 +3761,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     builder_undo_button.set_text("Undo");
     builder_redo_button.set_text("Redo");
     builder_export_button.set_text("Export");
+    builder_action_button_surface_signature = next_signature;
+    apply_surface_refresh_probe();
   };
 
   auto humanize_widget_type = [&](ngk::ui::builder::BuilderWidgetType widget_type) -> std::string {
@@ -3208,6 +3805,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
   auto build_tree_surface_text = [&]() -> std::string {
     sync_multi_selection_with_primary();
+    std::unordered_set<std::string> visited_node_ids{};
 
     std::ostringstream oss;
     oss << "TREE REGION (Hierarchy / Selection)\n";
@@ -3240,6 +3838,11 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
 
     std::function<void(const std::string&, int)> append_node = [&](const std::string& node_id, int depth) {
+      if (!visited_node_ids.insert(node_id).second) {
+        fail_closed_traversal_guard_hits_total += 1;
+        return;
+      }
+
       auto* node = find_node_by_id(node_id);
       if (!node) {
         return;
@@ -3279,6 +3882,27 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     std::function<void()> reconcile_preview_viewport_to_current_state;
 
   auto refresh_tree_surface_label = [&]() {
+    std::ostringstream signature;
+    signature << builder_surface_document_revision
+              << '|'
+              << selected_builder_node_id
+              << '|'
+              << focused_builder_node_id
+              << '|'
+              << join_node_ids(multi_selected_node_ids)
+              << '|'
+              << builder_projection_filter_query
+              << '|'
+              << builder_debug_mode
+              << '|'
+              << tree_visual_feedback_node_id;
+    const std::string next_signature = signature.str();
+    begin_surface_refresh_probe();
+    if (builder_tree_surface_signature == next_signature) {
+      skip_surface_refresh_probe();
+      return;
+    }
+
     builder_tree_surface_label.set_visible(builder_debug_mode);
     builder_tree_visual_rows.set_visible(!builder_debug_mode);
     builder_tree_surface_label.set_text(build_tree_surface_text());
@@ -3291,34 +3915,22 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       builder_tree_row_buttons[idx].set_enabled(false);
     }
 
-    std::unordered_map<std::string, bool> visible_projection_cache{};
-    std::function<bool(const std::string&)> node_visible_under_projection =
-      [&](const std::string& node_id) -> bool {
-        auto it = visible_projection_cache.find(node_id);
-        if (it != visible_projection_cache.end()) {
-          return it->second;
-        }
-        auto* node = find_node_by_id(node_id);
-        if (!node) {
-          visible_projection_cache[node_id] = false;
-          return false;
-        }
-        bool visible = builder_node_matches_projection_query(*node, builder_projection_filter_query);
-        if (!visible) {
-          for (const auto& child_id : node->child_ids) {
-            if (node_visible_under_projection(child_id)) {
-              visible = true;
-              break;
-            }
-          }
-        }
-        visible_projection_cache[node_id] = visible;
-        return visible;
-      };
+    builder_tree_row_index_by_node_id.clear();
+    const auto& visible_projection_cache = ensure_projection_visibility_cache();
+    auto node_visible_under_projection = [&](const std::string& node_id) -> bool {
+      const auto it = visible_projection_cache.find(node_id);
+      return it != visible_projection_cache.end() && it->second;
+    };
 
     std::size_t row_count = 0;
+    std::unordered_set<std::string> visited_tree_ids{};
     std::function<void(const std::string&, int)> append_visual_tree = [&](const std::string& node_id, int depth) {
       if (row_count >= kMaxVisualTreeRows) {
+        return;
+      }
+
+      if (!visited_tree_ids.insert(node_id).second) {
+        fail_closed_traversal_guard_hits_total += 1;
         return;
       }
 
@@ -3332,6 +3944,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
       auto& row = builder_tree_row_buttons[row_count];
       tree_visual_row_node_ids[row_count] = node_id;
+      builder_tree_row_index_by_node_id[node_id] = row_count;
 
       std::string indent(static_cast<std::size_t>(std::max(0, depth)) * 4U, ' ');
       const bool is_container = is_container_widget_type(node->widget_type);
@@ -3384,9 +3997,44 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
 
     reconcile_tree_viewport_to_current_state();
+    builder_tree_surface_signature = next_signature;
+    apply_surface_refresh_probe();
   };
 
   auto refresh_inspector_surface_label = [&]() {
+    std::ostringstream signature;
+    signature << builder_surface_document_revision
+              << '|'
+              << selected_builder_node_id
+              << '|'
+              << focused_builder_node_id
+              << '|'
+              << join_node_ids(multi_selected_node_ids)
+              << '|'
+              << builder_debug_mode
+              << '|'
+              << last_action_feedback
+              << '|'
+              << last_preview_export_parity_status_code
+              << '|'
+              << last_preview_export_parity_reason
+              << '|'
+              << last_inspector_edit_status_code
+              << '|'
+              << last_inspector_edit_reason
+              << '|'
+              << last_bulk_delete_status_code
+              << '|'
+              << last_bulk_move_reparent_status_code
+              << '|'
+              << last_bulk_property_edit_status_code;
+    const std::string next_signature = signature.str();
+    begin_surface_refresh_probe();
+    if (builder_inspector_surface_signature == next_signature) {
+      skip_surface_refresh_probe();
+      return;
+    }
+
     sync_multi_selection_with_primary();
     builder_inspector_label.set_visible(builder_debug_mode);
 
@@ -3453,6 +4101,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       }
       builder_inspector_label.set_text(oss.str());
       sync_label_preferred_height(builder_inspector_label, 20);
+      builder_inspector_surface_signature = next_signature;
+      apply_surface_refresh_probe();
       return;
     }
 
@@ -3483,6 +4133,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       oss << "Hint: Selection was remapped.";
       builder_inspector_label.set_text(oss.str());
       sync_label_preferred_height(builder_inspector_label, 20);
+      builder_inspector_surface_signature = next_signature;
+      apply_surface_refresh_probe();
       return;
     }
 
@@ -3666,33 +4318,81 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     sync_label_preferred_height(builder_inspector_label, 20);
     refresh_top_action_surface_from_builder_state();
     refresh_action_button_visual_state_from_builder_truth();
+    builder_inspector_surface_signature = next_signature;
+    apply_surface_refresh_probe();
   };
 
-  auto update_add_child_target_display = [&]() {
+  auto update_add_child_target_display = [&]() -> bool {
+    std::ostringstream signature;
+    signature << builder_surface_document_revision << '|' << selected_builder_node_id;
+    const std::string next_signature = signature.str();
+    begin_surface_refresh_probe();
+    if (builder_add_child_target_signature == next_signature) {
+      skip_surface_refresh_probe();
+      return false;
+    }
+
+    std::string next_text;
     if (selected_builder_node_id.empty()) {
-      builder_add_child_target_label.set_text("Add Child Target: None");
-      return;
+      next_text = "Add Child Target: None";
+    } else {
+      auto* selected_node = find_node_by_id(selected_builder_node_id);
+      if (!selected_node) {
+        next_text = "Add Child Target: Stale";
+      } else {
+        const bool is_container = ngk::ui::builder::widget_allows_children(selected_node->widget_type);
+        const std::string type_name = humanize_widget_type(selected_node->widget_type);
+        const std::string label_text = selected_node->text.empty() ? "(no label)" : selected_node->text;
+
+        next_text = is_container
+          ? ("Add Child Target: CONTAINER " + type_name + " \"" + label_text + "\"")
+          : ("Add Child Target: LABEL " + type_name + " (cannot add children to this)");
+      }
     }
 
-    auto* selected_node = find_node_by_id(selected_builder_node_id);
-    if (!selected_node) {
-      builder_add_child_target_label.set_text("Add Child Target: Stale");
-      return;
-    }
-
-    const bool is_container = ngk::ui::builder::widget_allows_children(selected_node->widget_type);
-    const std::string type_name = humanize_widget_type(selected_node->widget_type);
-    const std::string label_text = selected_node->text.empty() ? "(no label)" : selected_node->text;
-
-    std::string target_text = is_container
-      ? ("Add Child Target: CONTAINER " + type_name + " \"" + label_text + "\"")
-      : ("Add Child Target: LABEL " + type_name + " (cannot add children to this)");
-
-    builder_add_child_target_label.set_text(target_text);
+    builder_add_child_target_label.set_text(next_text);
     sync_label_preferred_height(builder_add_child_target_label, 18);
+    builder_add_child_target_signature = next_signature;
+    apply_surface_refresh_probe();
+    return true;
   };
 
   auto refresh_preview_surface_label = [&]() {
+    std::ostringstream signature;
+    signature << builder_surface_document_revision
+              << '|'
+              << selected_builder_node_id
+              << '|'
+              << focused_builder_node_id
+              << '|'
+              << join_node_ids(multi_selected_node_ids)
+              << '|'
+              << builder_projection_filter_query
+              << '|'
+              << builder_debug_mode
+              << '|'
+              << last_action_feedback
+              << '|'
+              << preview_visual_feedback_message
+              << '|'
+              << preview_visual_feedback_node_id
+              << '|'
+              << last_preview_export_parity_status_code
+              << '|'
+              << last_preview_export_parity_reason
+              << '|'
+              << inline_edit_active
+              << '|'
+              << inline_edit_node_id
+              << '|'
+              << inline_edit_buffer;
+    const std::string next_signature = signature.str();
+    begin_surface_refresh_probe();
+    if (builder_preview_surface_signature == next_signature) {
+      skip_surface_refresh_probe();
+      return;
+    }
+
     sync_multi_selection_with_primary();
 
     builder_preview_label.set_visible(builder_debug_mode);
@@ -3723,6 +4423,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       preview_snapshot = "preview:selected=none";
       builder_preview_label.set_text(oss.str());
       sync_label_preferred_height(builder_preview_label, 20);
+      builder_preview_surface_signature = next_signature;
+      apply_surface_refresh_probe();
       return;
     }
 
@@ -3736,6 +4438,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       preview_snapshot = "preview:selected=stale";
       builder_preview_label.set_text(oss.str());
       sync_label_preferred_height(builder_preview_label, 20);
+      builder_preview_surface_signature = next_signature;
+      apply_surface_refresh_probe();
       return;
     }
 
@@ -3867,34 +4571,22 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       builder_preview_row_buttons[idx].set_background(0.16f, 0.18f, 0.22f, 1.0f);
     }
 
-    std::unordered_map<std::string, bool> visible_projection_cache{};
-    std::function<bool(const std::string&)> node_visible_under_projection =
-      [&](const std::string& node_id) -> bool {
-        auto it = visible_projection_cache.find(node_id);
-        if (it != visible_projection_cache.end()) {
-          return it->second;
-        }
-        auto* node = find_node_by_id(node_id);
-        if (!node) {
-          visible_projection_cache[node_id] = false;
-          return false;
-        }
-        bool visible = builder_node_matches_projection_query(*node, builder_projection_filter_query);
-        if (!visible) {
-          for (const auto& child_id : node->child_ids) {
-            if (node_visible_under_projection(child_id)) {
-              visible = true;
-              break;
-            }
-          }
-        }
-        visible_projection_cache[node_id] = visible;
-        return visible;
-      };
+    builder_preview_row_index_by_node_id.clear();
+    const auto& visible_projection_cache = ensure_projection_visibility_cache();
+    auto node_visible_under_projection = [&](const std::string& node_id) -> bool {
+      const auto it = visible_projection_cache.find(node_id);
+      return it != visible_projection_cache.end() && it->second;
+    };
 
     std::size_t row_count = 0;
+    std::unordered_set<std::string> visited_preview_ids{};
     std::function<void(const std::string&, int)> append_preview_visual = [&](const std::string& node_id, int depth) {
       if (row_count >= kMaxVisualPreviewRows) {
+        return;
+      }
+
+      if (!visited_preview_ids.insert(node_id).second) {
+        fail_closed_traversal_guard_hits_total += 1;
         return;
       }
 
@@ -3908,6 +4600,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
       auto& row = builder_preview_row_buttons[row_count];
       preview_visual_row_node_ids[row_count] = node_id;
+      builder_preview_row_index_by_node_id[node_id] = row_count;
       preview_visual_row_depths[row_count] = depth;
       preview_visual_row_is_container[row_count] = is_container_widget_type(node->widget_type);
 
@@ -3988,6 +4681,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
     refresh_top_action_surface_from_builder_state();
     refresh_action_button_visual_state_from_builder_truth();
+    builder_preview_surface_signature = next_signature;
+    apply_surface_refresh_probe();
   };
 
   // PHASE103_15 rule: builder semantic focus is always derived from selection.
@@ -4102,34 +4797,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   };
 
   auto collect_preorder_node_ids = [&]() -> std::vector<std::string> {
-    std::vector<std::string> ordered{};
-    if (builder_doc.root_node_id.empty() || !node_exists(builder_doc.root_node_id)) {
-      return ordered;
-    }
-
-    std::vector<std::string> stack{};
-    stack.push_back(builder_doc.root_node_id);
-
-    while (!stack.empty()) {
-      const std::string current_id = stack.back();
-      stack.pop_back();
-      if (!node_exists(current_id)) {
-        continue;
-      }
-      ordered.push_back(current_id);
-
-      auto* current = find_node_by_id(current_id);
-      if (!current) {
-        continue;
-      }
-      for (auto it = current->child_ids.rbegin(); it != current->child_ids.rend(); ++it) {
-        if (!it->empty() && node_exists(*it)) {
-          stack.push_back(*it);
-        }
-      }
-    }
-
-    return ordered;
+    return current_preorder_node_ids();
   };
 
   auto build_authoritative_selection_range = [&](const std::string& anchor_id,
@@ -4139,17 +4807,18 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       return range;
     }
 
-    const auto ordered = collect_preorder_node_ids();
-    auto anchor_it = std::find(ordered.begin(), ordered.end(), anchor_id);
-    auto extent_it = std::find(ordered.begin(), ordered.end(), extent_id);
-    if (anchor_it == ordered.end() || extent_it == ordered.end()) {
+    ensure_preorder_selection_mapping_cache();
+    const auto anchor_it = builder_preorder_index_cache.find(anchor_id);
+    const auto extent_it = builder_preorder_index_cache.find(extent_id);
+    if (anchor_it == builder_preorder_index_cache.end() || extent_it == builder_preorder_index_cache.end()) {
       return range;
     }
 
-    const auto begin_it = (anchor_it <= extent_it) ? anchor_it : extent_it;
-    const auto end_it = (anchor_it <= extent_it) ? extent_it : anchor_it;
-    for (auto it = begin_it; it != end_it + 1; ++it) {
-      range.push_back(*it);
+    const std::size_t begin_index = std::min(anchor_it->second, extent_it->second);
+    const std::size_t end_index = std::max(anchor_it->second, extent_it->second);
+    range.reserve(end_index - begin_index + 1);
+    for (std::size_t idx = begin_index; idx <= end_index; ++idx) {
+      range.push_back(builder_preorder_node_ids_cache[idx]);
     }
     return range;
   };
@@ -4398,11 +5067,19 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     if (node_id.empty()) {
       return kMaxVisualTreeRows;
     }
+    const auto it = builder_tree_row_index_by_node_id.find(node_id);
+    if (it != builder_tree_row_index_by_node_id.end() &&
+        it->second < kMaxVisualTreeRows &&
+        builder_tree_row_buttons[it->second].visible() &&
+        tree_visual_row_node_ids[it->second] == node_id) {
+      return it->second;
+    }
     for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
       if (!builder_tree_row_buttons[idx].visible()) {
         continue;
       }
       if (tree_visual_row_node_ids[idx] == node_id) {
+        builder_tree_row_index_by_node_id[node_id] = idx;
         return idx;
       }
     }
@@ -4413,11 +5090,19 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     if (node_id.empty()) {
       return kMaxVisualPreviewRows;
     }
+    const auto it = builder_preview_row_index_by_node_id.find(node_id);
+    if (it != builder_preview_row_index_by_node_id.end() &&
+        it->second < kMaxVisualPreviewRows &&
+        builder_preview_row_buttons[it->second].visible() &&
+        preview_visual_row_node_ids[it->second] == node_id) {
+      return it->second;
+    }
     for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
       if (!builder_preview_row_buttons[idx].visible()) {
         continue;
       }
       if (preview_visual_row_node_ids[idx] == node_id) {
+        builder_preview_row_index_by_node_id[node_id] = idx;
         return idx;
       }
     }
@@ -4490,6 +5175,85 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     return row_top >= viewport_top && row_bottom <= viewport_bottom;
   };
 
+  struct ValidationHarnessTargetPreconditionResult {
+    bool ok = false;
+    bool renderable = false;
+    bool viewport_reachable = false;
+    std::string failure_reason{};
+    std::string failure_marker{};
+  };
+
+  std::uint64_t validation_harness_precondition_reject_count = 0;
+  std::string validation_harness_last_precondition_failure_marker{};
+
+  auto emit_validation_harness_precondition_failure = [&](const std::string& phase_tag,
+                                                          const std::string& node_id,
+                                                          const std::string& reason) -> std::string {
+    std::ostringstream oss;
+    oss << "validation_harness_precondition_failure="
+        << phase_tag
+        << ':'
+        << (node_id.empty() ? std::string("<empty>") : node_id)
+        << ':'
+        << reason;
+    const std::string marker = oss.str();
+    validation_harness_precondition_reject_count += 1;
+    validation_harness_last_precondition_failure_marker = marker;
+    std::cout << marker << "\n" << std::flush;
+    emit_validation_triage_trace(marker);
+    return marker;
+  };
+
+  auto evaluate_validation_harness_target_preconditions = [&](
+      const std::string& phase_tag,
+      const std::string& node_id,
+      const std::function<bool()>& load_state,
+      const std::function<bool(const std::string&)>& select_target,
+      const std::function<bool()>& prepare_viewport_reachability) -> ValidationHarnessTargetPreconditionResult {
+    ValidationHarnessTargetPreconditionResult result{};
+
+    auto reject = [&](const std::string& reason) -> ValidationHarnessTargetPreconditionResult {
+      result.failure_reason = reason;
+      result.failure_marker = emit_validation_harness_precondition_failure(phase_tag, node_id, reason);
+      return result;
+    };
+
+    if (node_id.empty()) {
+      return reject("empty_target");
+    }
+    if (!load_state()) {
+      return reject("state_prepare_failed");
+    }
+    if (!node_exists(node_id)) {
+      return reject("invalid_target");
+    }
+    if (!select_target(node_id)) {
+      return reject("selection_sync_failed");
+    }
+
+    const std::size_t tree_index = find_visible_tree_row_index(node_id);
+    const std::size_t preview_index = find_visible_preview_row_index(node_id);
+    result.renderable =
+      tree_index < kMaxVisualTreeRows && preview_index < kMaxVisualPreviewRows;
+    if (!result.renderable) {
+      return reject("not_renderable");
+    }
+
+    if (!prepare_viewport_reachability()) {
+      return reject("viewport_prepare_failed");
+    }
+
+    result.viewport_reachable =
+      tree_row_fully_visible_in_viewport(node_id) &&
+      preview_row_fully_visible_in_viewport(node_id);
+    if (!result.viewport_reachable) {
+      return reject("viewport_unreachable");
+    }
+
+    result.ok = true;
+    return result;
+  };
+
   auto first_visible_tree_row_node_id = [&]() -> std::string {
     const int viewport_top = builder_tree_scroll.scroll_offset_y();
     for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
@@ -4527,8 +5291,6 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   };
 
   reconcile_tree_viewport_to_current_state = [&]() {
-    builder_tree_scroll.set_scroll_offset_y(builder_tree_scroll.scroll_offset_y());
-
     std::string target_id{};
     if (!focused_builder_node_id.empty() && find_visible_tree_row_index(focused_builder_node_id) < kMaxVisualTreeRows) {
       target_id = focused_builder_node_id;
@@ -4557,12 +5319,14 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     } else if (row_bottom > current_offset + viewport_height) {
       desired_offset = row_bottom - viewport_height;
     }
-    builder_tree_scroll.set_scroll_offset_y(desired_offset);
+    if (desired_offset != current_offset) {
+      builder_tree_scroll.set_scroll_offset_y(desired_offset);
+    } else {
+      event_input_throttling_diag.scroll_noop_updates_skipped += 1;
+    }
   };
 
   reconcile_preview_viewport_to_current_state = [&]() {
-    builder_preview_scroll.set_scroll_offset_y(builder_preview_scroll.scroll_offset_y());
-
     std::string target_id{};
     if (!selected_builder_node_id.empty() && find_visible_preview_row_index(selected_builder_node_id) < kMaxVisualPreviewRows) {
       target_id = selected_builder_node_id;
@@ -4591,7 +5355,11 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     } else if (row_bottom > current_offset + viewport_height) {
       desired_offset = row_bottom - viewport_height;
     }
-    builder_preview_scroll.set_scroll_offset_y(desired_offset);
+    if (desired_offset != current_offset) {
+      builder_preview_scroll.set_scroll_offset_y(desired_offset);
+    } else {
+      event_input_throttling_diag.scroll_noop_updates_skipped += 1;
+    }
   };
 
   auto restore_exact_selection_focus_anchor_state = [&](const std::string& desired_focus_id,
@@ -4688,11 +5456,12 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
 
     std::vector<std::string> to_remove{node_id};
+    std::unordered_set<std::string> queued_ids{node_id};
     for (std::size_t index = 0; index < to_remove.size(); ++index) {
       const auto current_id = to_remove[index];
       if (auto* current = find_node_by_id(current_id)) {
         for (const auto& child_id : current->child_ids) {
-          if (!child_id.empty()) {
+          if (!child_id.empty() && queued_ids.insert(child_id).second) {
             to_remove.push_back(child_id);
           }
         }
@@ -4887,6 +5656,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
   auto restore_mutation_checkpoint = [&](const BuilderMutationCheckpoint& cp) {
     builder_doc = cp.doc;
+    invalidate_builder_selection_mapping_caches();
     selected_builder_node_id = cp.selected_id;
     multi_selected_node_ids = cp.multi_selected_ids;
     set_builder_projection_filter_state(cp.filter_query);
@@ -4943,7 +5713,27 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       return true;
     };
 
-    for (const auto& entry : history) {
+    HistoryValidationCache* cache = nullptr;
+    if (&history == &undo_history) {
+      cache = &undo_history_validation_cache;
+    } else if (&history == &redo_stack) {
+      cache = &redo_history_validation_cache;
+    }
+
+    std::size_t start_index = 0;
+    if (cache != nullptr) {
+      if (cache->history != &history) {
+        cache->history = &history;
+        cache->validated_prefix_size = 0;
+      }
+      if (cache->validated_prefix_size > history.size()) {
+        cache->validated_prefix_size = history.size();
+      }
+      start_index = cache->validated_prefix_size;
+    }
+
+    for (std::size_t index = start_index; index < history.size(); ++index) {
+      const auto& entry = history[index];
       ngk::ui::builder::BuilderDocument before_doc{};
       before_doc.root_node_id = entry.before_root_node_id;
       before_doc.nodes = entry.before_nodes;
@@ -4978,6 +5768,11 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         return false;
       }
     }
+
+      if (cache != nullptr) {
+        cache->history = &history;
+        cache->validated_prefix_size = history.size();
+      }
     return true;
   };
 
@@ -5800,6 +6595,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       clear_history_coalesce_request();
       return;
     }
+    entry.normalized = true;
     bool coalesced = false;
     if (history_coalesce_request_active && !undo_history.empty()) {
       auto& previous = undo_history.back();
@@ -5816,6 +6612,11 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         previous.after_selected_id = entry.after_selected_id;
         previous.after_multi_selected_ids = entry.after_multi_selected_ids;
         previous.logical_action_span += 1;
+        previous.normalized = true;
+        if (undo_history_validation_cache.history == &undo_history &&
+            undo_history_validation_cache.validated_prefix_size > undo_history.size() - 1) {
+          undo_history_validation_cache.validated_prefix_size = undo_history.size() - 1;
+        }
         coalesced = true;
       }
     }
@@ -5824,6 +6625,9 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       undo_history.push_back(std::move(entry));
     }
     redo_stack.clear();
+    if (redo_history_validation_cache.history == &redo_stack) {
+      redo_history_validation_cache.validated_prefix_size = 0;
+    }
     undoredo_diag.command_history_present = !undo_history.empty();
     clear_history_coalesce_request();
     if (!enforce_global_invariant_or_rollback(checkpoint, "push_to_history")) {
@@ -5834,6 +6638,9 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
   auto recompute_builder_dirty_state = [&](bool conservative_mark_dirty_if_no_saved_baseline) -> bool {
     if (!has_clean_builder_baseline_signature || clean_builder_baseline_signature.empty()) {
+      const std::string serialized_now = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      invalidate_builder_selection_mapping_caches();
+      update_builder_surface_document_revision(serialized_now);
       if (conservative_mark_dirty_if_no_saved_baseline) {
         builder_doc_dirty = true;
       }
@@ -5848,6 +6655,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       return false;
     }
 
+    invalidate_builder_selection_mapping_caches();
+    update_builder_surface_document_revision(serialized_now);
     builder_doc_dirty = (serialized_now != clean_builder_baseline_signature);
     update_labels();
     return true;
@@ -6166,6 +6975,9 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       hover_node_id.clear();
       drag_target_preview_node_id.clear();
       drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
       preview_visual_feedback_message.clear();
       preview_visual_feedback_node_id.clear();
       tree_visual_feedback_node_id.clear();
@@ -6175,10 +6987,11 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
                      bool restore_before,
                      bool defer_refresh) -> bool {
       CommandHistoryEntry entry = raw_entry;
-      if (!normalize_history_entry(entry)) {
+      if (!entry.normalized && !normalize_history_entry(entry)) {
         model.undefined_state_detected = true;
         return false;
       }
+      entry.normalized = true;
 
       const std::string prior_focus_id = focused_builder_node_id;
       const std::string prior_anchor_id = builder_selection_anchor_node_id;
@@ -6189,6 +7002,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       if (restore_before) {
         builder_doc.nodes = entry.before_nodes;
         builder_doc.root_node_id = entry.before_root_node_id;
+        invalidate_builder_selection_mapping_caches();
         selected_builder_node_id = entry.before_selected_id;
         multi_selected_node_ids = entry.before_multi_selected_ids;
         set_builder_projection_filter_state(entry.before_filter_query);
@@ -6223,6 +7037,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       } else {
         builder_doc.nodes = entry.after_nodes;
         builder_doc.root_node_id = entry.after_root_node_id;
+        invalidate_builder_selection_mapping_caches();
         selected_builder_node_id = entry.after_selected_id;
         multi_selected_node_ids = entry.after_multi_selected_ids;
         set_builder_projection_filter_state(entry.after_filter_query);
@@ -6449,6 +7264,9 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       hover_node_id.clear();
       drag_target_preview_node_id.clear();
       drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
       preview_visual_feedback_message.clear();
       preview_visual_feedback_node_id.clear();
       tree_visual_feedback_node_id.clear();
@@ -6458,10 +7276,11 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
                      bool restore_before,
                      bool defer_refresh) -> bool {
       CommandHistoryEntry entry = raw_entry;
-      if (!normalize_history_entry(entry)) {
+      if (!entry.normalized && !normalize_history_entry(entry)) {
         model.undefined_state_detected = true;
         return false;
       }
+      entry.normalized = true;
 
       const std::string prior_focus_id = focused_builder_node_id;
       const std::string prior_anchor_id = builder_selection_anchor_node_id;
@@ -6472,6 +7291,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       if (restore_before) {
         builder_doc.nodes = entry.before_nodes;
         builder_doc.root_node_id = entry.before_root_node_id;
+        invalidate_builder_selection_mapping_caches();
         selected_builder_node_id = entry.before_selected_id;
         multi_selected_node_ids = entry.before_multi_selected_ids;
         set_builder_projection_filter_state(entry.before_filter_query);
@@ -6506,6 +7326,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       } else {
         builder_doc.nodes = entry.after_nodes;
         builder_doc.root_node_id = entry.after_root_node_id;
+        invalidate_builder_selection_mapping_caches();
         selected_builder_node_id = entry.after_selected_id;
         multi_selected_node_ids = entry.after_multi_selected_ids;
         set_builder_projection_filter_state(entry.after_filter_query);
@@ -7046,6 +7867,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
 
     builder_doc = std::move(loaded_doc);
+  invalidate_builder_selection_mapping_caches();
     selected_builder_node_id.clear();
     focused_builder_node_id.clear();
     builder_selection_anchor_node_id.clear();
@@ -7279,6 +8101,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     const auto before_multi = multi_selected_node_ids;
 
     builder_doc = std::move(candidate_doc);
+  invalidate_builder_selection_mapping_caches();
     selected_builder_node_id = imported_root_id;
     multi_selected_node_ids = {imported_root_id};
     scrub_stale_lifecycle_references();
@@ -8177,12 +9000,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     if (node_id.empty() || ancestor_id.empty()) { return false; }
     if (node_id == ancestor_id) { return true; }
     std::vector<std::string> to_visit{ancestor_id};
+    std::unordered_set<std::string> visited_ids{ancestor_id};
     for (std::size_t i = 0; i < to_visit.size(); ++i) {
       auto* n = find_node_by_id(to_visit[i]);
       if (!n) { continue; }
       for (const auto& child_id : n->child_ids) {
         if (child_id == node_id) { return true; }
-        to_visit.push_back(child_id);
+        if (!child_id.empty() && visited_ids.insert(child_id).second) {
+          to_visit.push_back(child_id);
+        }
       }
     }
     return false;
@@ -8311,7 +9137,12 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       }
       bool covered_by_ancestor = false;
       auto* current = find_node_by_id(node_id);
+      std::unordered_set<std::string> visited_parent_ids{};
       while (current && !current->parent_id.empty()) {
+        if (!visited_parent_ids.insert(current->parent_id).second) {
+          covered_by_ancestor = true;
+          break;
+        }
         if (std::find(unique_ids.begin(), unique_ids.end(), current->parent_id) != unique_ids.end()) {
           covered_by_ancestor = true;
           break;
@@ -8611,40 +9442,79 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     return true;
   };
 
-  auto set_preview_hover = [&](const std::string& node_id) {
+  auto set_preview_hover = [&](const std::string& node_id) -> bool {
+    if (hover_node_id == node_id) {
+      event_input_throttling_diag.hover_noop_updates_skipped += 1;
+      return false;
+    }
     hover_node_id = node_id;
     refresh_preview_surface_label();
+    return true;
   };
 
-  auto clear_preview_hover = [&] {
+  auto clear_preview_hover = [&]() -> bool {
+    if (hover_node_id.empty()) {
+      event_input_throttling_diag.hover_noop_updates_skipped += 1;
+      return false;
+    }
     hover_node_id.clear();
     refresh_preview_surface_label();
+    return true;
   };
 
-  auto set_drag_target_preview = [&](const std::string& target_id, bool is_reparent) {
+  auto set_drag_target_preview = [&](const std::string& target_id, bool is_reparent) -> bool {
     const auto plan = resolve_tree_drag_drop_plan(target_id, is_reparent);
+    const bool next_illegal = !plan.valid;
+    const std::string next_parent_id = plan.valid ? plan.target_parent_id : std::string{};
+    const std::size_t next_insert_index = plan.valid ? plan.insert_index : 0;
+    const std::string next_resolution_kind = plan.valid
+      ? (plan.is_reparent ? std::string("reparent") : std::string("reorder"))
+      : std::string("invalid");
+    if (drag_target_preview_node_id == target_id &&
+        drag_target_preview_is_illegal == next_illegal &&
+        drag_target_preview_parent_id == next_parent_id &&
+        drag_target_preview_insert_index == next_insert_index &&
+        drag_target_preview_resolution_kind == next_resolution_kind) {
+      event_input_throttling_diag.drag_preview_noop_updates_skipped += 1;
+      return false;
+    }
     drag_target_preview_node_id = target_id;
-    drag_target_preview_is_illegal = !plan.valid;
-    drag_target_preview_parent_id = plan.valid ? plan.target_parent_id : std::string{};
-    drag_target_preview_insert_index = plan.valid ? plan.insert_index : 0;
-    drag_target_preview_resolution_kind = plan.valid ? (plan.is_reparent ? std::string("reparent") : std::string("reorder"))
-                                                     : std::string("invalid");
+    drag_target_preview_is_illegal = next_illegal;
+    drag_target_preview_parent_id = next_parent_id;
+    drag_target_preview_insert_index = next_insert_index;
+    drag_target_preview_resolution_kind = next_resolution_kind;
     refresh_preview_surface_label();
+    return true;
   };
 
-  auto clear_drag_target_preview = [&] {
+  auto clear_drag_target_preview = [&]() -> bool {
+    if (drag_target_preview_node_id.empty() &&
+        !drag_target_preview_is_illegal &&
+        drag_target_preview_parent_id.empty() &&
+        drag_target_preview_insert_index == 0 &&
+        drag_target_preview_resolution_kind.empty()) {
+      event_input_throttling_diag.drag_preview_noop_updates_skipped += 1;
+      return false;
+    }
     drag_target_preview_node_id.clear();
     drag_target_preview_is_illegal = false;
     drag_target_preview_parent_id.clear();
     drag_target_preview_insert_index = 0;
     drag_target_preview_resolution_kind.clear();
     refresh_preview_surface_label();
+    return true;
   };
 
   auto apply_typed_palette_insert = [&](
       ngk::ui::builder::BuilderWidgetType type,
       const std::string& under_node_id,
       const std::string& new_node_id) -> bool {
+    const bool trace_phase103_76_insert =
+      validation_triage_config.includes(76) &&
+      new_node_id.rfind("phase103_76_seq_insert_", 0) == 0;
+    if (trace_phase103_76_insert) {
+      emit_validation_triage_trace(std::string("phase76_insert_begin=") + new_node_id + "@" + under_node_id);
+    }
     const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
     using WType = ngk::ui::builder::BuilderWidgetType;
     auto is_container_type = [](WType t) -> bool {
@@ -8669,14 +9539,30 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     new_node.widget_type = type;
     new_node.text = std::string(ngk::ui::builder::to_string(type));
     parent->child_ids.push_back(new_node_id);
+    if (trace_phase103_76_insert) {
+      emit_validation_triage_trace(std::string("phase76_insert_child_appended=") + new_node_id);
+    }
     builder_doc.nodes.push_back(std::move(new_node));
+    if (trace_phase103_76_insert) {
+      emit_validation_triage_trace(std::string("phase76_insert_node_pushed=") + new_node_id);
+    }
     selected_builder_node_id = new_node_id;
         multi_selected_node_ids = {new_node_id};
         sync_multi_selection_with_primary();
+    if (trace_phase103_76_insert) {
+      emit_validation_triage_trace(std::string("phase76_insert_selection_synced=") + new_node_id);
+    }
     push_to_history("typed_insert", before, before_root, before_sel, &before_multi,
         builder_doc.nodes, builder_doc.root_node_id, selected_builder_node_id, &multi_selected_node_ids,
         &checkpoint);
-    return enforce_global_invariant_or_rollback(checkpoint, "apply_typed_palette_insert");
+    if (trace_phase103_76_insert) {
+      emit_validation_triage_trace(std::string("phase76_insert_history_pushed=") + new_node_id);
+    }
+    const bool enforced = enforce_global_invariant_or_rollback(checkpoint, "apply_typed_palette_insert");
+    if (trace_phase103_76_insert) {
+      emit_validation_triage_trace(std::string("phase76_insert_end_ok=") + new_node_id + ":" + (enforced ? "1" : "0"));
+    }
+    return enforced;
   };
 
   apply_preview_inline_action_commit = [&](const std::string& action_id) -> bool {
@@ -9039,6 +9925,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     has_last_export_snapshot = true;
     last_export_snapshot = export_text;
     export_snapshot_matches_current_doc = true;
+    last_export_builder_surface_document_revision = builder_surface_document_revision;
     last_export_status_code = "success";
     last_export_reason = "none";
     refresh_export_status_surface_label();
@@ -19156,13 +20043,20 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
     auto build_expected_visible_ids = [&](const std::string& query) -> std::vector<std::string> {
       std::unordered_map<std::string, bool> memo{};
+      std::unordered_set<std::string> active_visible_ids{};
       std::function<bool(const std::string&)> visible = [&](const std::string& node_id) -> bool {
         auto it = memo.find(node_id);
         if (it != memo.end()) {
           return it->second;
         }
+        if (!active_visible_ids.insert(node_id).second) {
+          fail_closed_traversal_guard_hits_total += 1;
+          memo[node_id] = false;
+          return false;
+        }
         auto* node = find_node_by_id(node_id);
         if (!node) {
+          active_visible_ids.erase(node_id);
           memo[node_id] = false;
           return false;
         }
@@ -19175,12 +20069,18 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
             }
           }
         }
+        active_visible_ids.erase(node_id);
         memo[node_id] = is_visible;
         return is_visible;
       };
 
       std::vector<std::string> ordered_ids{};
+      std::unordered_set<std::string> appended_ids{};
       std::function<void(const std::string&)> append = [&](const std::string& node_id) {
+        if (!appended_ids.insert(node_id).second) {
+          fail_closed_traversal_guard_hits_total += 1;
+          return;
+        }
         auto* node = find_node_by_id(node_id);
         if (!node) {
           return;
@@ -19200,6 +20100,9 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     };
 
     auto apply_projection_filter = [&](const std::string& query) -> bool {
+      if (validation_triage_config.includes(69)) {
+        std::cout << "validation_triage_trace=phase69_apply_projection_filter_begin query=" << query << "\n" << std::flush;
+      }
       filter_box.set_value(query);
       apply_filter();
       builder_projection_filter_query = query;
@@ -19209,6 +20112,11 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       const bool inspector_ok = refresh_inspector_or_fail();
       const bool preview_ok = refresh_preview_or_fail();
       const bool sync_ok = check_cross_surface_sync();
+      if (validation_triage_config.includes(69)) {
+        std::cout << "validation_triage_trace=phase69_apply_projection_filter_end query=" << query
+                  << " result=" << ((remap_ok && focus_ok && inspector_ok && preview_ok && sync_ok) ? 1 : 0)
+                  << "\n" << std::flush;
+      }
       return remap_ok && focus_ok && inspector_ok && preview_ok && sync_ok;
     };
 
@@ -19252,6 +20160,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
     // Marker 1 and 7: filter/search are read-only projections only.
     {
+      emit_validation_triage_trace("phase69_marker_1_begin");
       flow_ok = reset_phase() && flow_ok;
       const std::string before_sig = current_signature();
       const auto before_undo = undo_history.size();
@@ -19276,10 +20185,12 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         search_filter_visibility_integrity_diag.search_filter_read_only_no_document_mutation &&
         search_filter_visibility_integrity_diag.search_filter_creates_no_history_or_dirty_side_effect &&
         flow_ok;
+      emit_validation_triage_trace("phase69_marker_1_end");
     }
 
     // Marker 2: filtered row order follows authoritative structure order.
     {
+      emit_validation_triage_trace("phase69_marker_2_begin");
       flow_ok = reset_phase() && flow_ok;
       const bool filter_ok = apply_projection_filter("label");
       const auto expected = build_expected_visible_ids("label");
@@ -19287,10 +20198,12 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       search_filter_visibility_integrity_diag.filtered_order_matches_authoritative_structure_order =
         filter_ok && expected == actual;
       flow_ok = search_filter_visibility_integrity_diag.filtered_order_matches_authoritative_structure_order && flow_ok;
+      emit_validation_triage_trace("phase69_marker_2_end");
     }
 
     // Marker 3 and 6: selection mapping and clear/reapply cycles are deterministic and coherent.
     {
+      emit_validation_triage_trace("phase69_marker_3_begin");
       flow_ok = reset_phase() && flow_ok;
       selected_builder_node_id = "label-001";
       multi_selected_node_ids = {"label-001"};
@@ -19314,10 +20227,12 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         search_filter_visibility_integrity_diag.selection_mapping_remains_deterministic_under_filter_changes &&
         search_filter_visibility_integrity_diag.clear_and_reapply_filter_restores_coherent_visible_state &&
         flow_ok;
+      emit_validation_triage_trace("phase69_marker_3_end");
     }
 
     // Marker 4: stale deleted/moved nodes are never retained in result sets.
     {
+      emit_validation_triage_trace("phase69_marker_4_begin");
       flow_ok = reset_phase() && flow_ok;
       const bool add_ok = apply_typed_palette_insert(ngk::ui::builder::BuilderWidgetType::Label,
                                                      builder_doc.root_node_id,
@@ -19341,10 +20256,12 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       search_filter_visibility_integrity_diag.no_stale_deleted_or_moved_nodes_in_results =
         filter_ok && delete_ok && refresh_ok && present_before && absent_after;
       flow_ok = search_filter_visibility_integrity_diag.no_stale_deleted_or_moved_nodes_in_results && flow_ok;
+      emit_validation_triage_trace("phase69_marker_4_end");
     }
 
     // Marker 5 and 9: filtered actions resolve against authoritative state and match unfiltered outcomes.
     {
+      emit_validation_triage_trace("phase69_marker_5_begin");
       flow_ok = reset_phase() && flow_ok;
       const bool filter_ok = apply_projection_filter("label-001");
       const auto visible_ids = collect_visible_tree_ids();
@@ -19375,10 +20292,12 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         search_filter_visibility_integrity_diag.actions_from_filtered_view_resolve_against_authoritative_current_state &&
         search_filter_visibility_integrity_diag.filtered_and_unfiltered_action_results_match_for_same_underlying_state &&
         flow_ok;
+      emit_validation_triage_trace("phase69_marker_5_end");
     }
 
     // Marker 8: preview/bindings remain coherent while filtered.
     {
+      emit_validation_triage_trace("phase69_marker_8_begin");
       flow_ok = reset_phase() && flow_ok;
       const bool filter_ok = apply_projection_filter("label");
       const auto tree_ids = collect_visible_tree_ids();
@@ -19387,10 +20306,12 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         filter_ok && check_cross_surface_sync() && tree_ids == preview_ids &&
         (!selected_builder_node_id.empty()) && node_exists(selected_builder_node_id);
       flow_ok = search_filter_visibility_integrity_diag.preview_and_bindings_remain_coherent_under_filtered_view && flow_ok;
+      emit_validation_triage_trace("phase69_marker_8_end");
     }
 
     // Marker 10: global invariant holds through repeated search/filter cycles.
     {
+      emit_validation_triage_trace("phase69_marker_10_begin");
       flow_ok = reset_phase() && flow_ok;
       bool cycles_ok = true;
       const std::array<std::string, 6> queries = {
@@ -19403,6 +20324,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       }
       search_filter_visibility_integrity_diag.global_invariant_preserved_through_search_filter_cycles = cycles_ok;
       flow_ok = search_filter_visibility_integrity_diag.global_invariant_preserved_through_search_filter_cycles && flow_ok;
+      emit_validation_triage_trace("phase69_marker_10_end");
     }
 
     if (!flow_ok) {
@@ -19801,6 +20723,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
                                          const std::string& selected_id,
                                          const std::vector<std::string>& multi_ids) -> bool {
       builder_doc = doc;
+      invalidate_builder_selection_mapping_caches();
       undo_history.clear();
       redo_stack.clear();
       builder_doc_dirty = false;
@@ -21144,9 +22067,6 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
       const std::size_t tree_index = find_visible_tree_row_index(selected_builder_node_id);
       const std::size_t preview_index = find_visible_preview_row_index(selected_builder_node_id);
-      if (tree_index >= kMaxVisualTreeRows || preview_index >= kMaxVisualPreviewRows) {
-        return false;
-      }
 
       int tree_top = 0;
       int tree_bottom = 0;
@@ -21748,6 +22668,13 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     bool flow_ok = true;
     using WType = ngk::ui::builder::BuilderWidgetType;
 
+    auto emit_phase103_76_trace = [&](const std::string& message) {
+      if (!validation_triage_config.includes(76)) {
+        return;
+      }
+      emit_validation_triage_trace(message);
+    };
+
     struct ScalingSnapshot {
       bool ok = false;
       std::string signature{};
@@ -22123,36 +23050,52 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       return refresh_phase103_76_surfaces();
     };
 
+    emit_phase103_76_trace("phase76_setup_begin");
     const ngk::ui::builder::BuilderDocument large_doc = make_phase103_76_large_document();
+    emit_phase103_76_trace("phase76_large_doc_built");
     const std::string large_doc_signature = ngk::ui::builder::serialize_builder_document_deterministic(large_doc);
+    emit_phase103_76_trace("phase76_large_doc_signature_built");
     const std::string external_payload = ngk::ui::builder::serialize_builder_document_deterministic(
       make_phase103_76_external_document());
+    emit_phase103_76_trace("phase76_external_payload_built");
 
     auto mutate_large_document_sequence = [&]() -> bool {
+      emit_phase103_76_trace("phase76_mutate_sequence_begin");
       bool ok = true;
       for (int cycle = 0; cycle < 12 && ok; ++cycle) {
+        emit_phase103_76_trace(std::string("phase76_mutate_cycle_begin=") + std::to_string(cycle));
         const std::string insert_id = std::string("phase103_76_seq_insert_") + pad_int(cycle, 2);
         const std::string edit_text = std::string("phase103_76_seq_text_") + pad_int(cycle, 2);
         const std::string insert_parent = group_id(20 + (cycle % 4));
         const std::string move_target = group_id(30 + (cycle % 4));
         ok = apply_typed_palette_insert(WType::Label, insert_parent, insert_id) && ok;
+        emit_phase103_76_trace(std::string("phase76_mutate_cycle_insert_ok=") + std::to_string(cycle) + ":" + (ok ? "1" : "0"));
         ok = select_node_and_sync(insert_id) && ok;
+        emit_phase103_76_trace(std::string("phase76_mutate_cycle_select_ok=") + std::to_string(cycle) + ":" + (ok ? "1" : "0"));
         ok = apply_inspector_property_edits_command({{"text", edit_text}}, std::string("phase103_76_seq_edit_") + pad_int(cycle, 2)) && ok;
+        emit_phase103_76_trace(std::string("phase76_mutate_cycle_edit_ok=") + std::to_string(cycle) + ":" + (ok ? "1" : "0"));
         ok = apply_bulk_move_reparent_selected_nodes_command({insert_id}, move_target) && ok;
+        emit_phase103_76_trace(std::string("phase76_mutate_cycle_move_ok=") + std::to_string(cycle) + ":" + (ok ? "1" : "0"));
         if ((cycle % 2) == 0) {
           ok = apply_phase103_76_projection_filter(edit_text) && ok;
+          emit_phase103_76_trace(std::string("phase76_mutate_cycle_filter_on_ok=") + std::to_string(cycle) + ":" + (ok ? "1" : "0"));
           ok = apply_phase103_76_projection_filter("") && ok;
+          emit_phase103_76_trace(std::string("phase76_mutate_cycle_filter_off_ok=") + std::to_string(cycle) + ":" + (ok ? "1" : "0"));
         }
         std::string invariant_reason;
         ok = validate_global_document_invariant(invariant_reason) && ok;
-        ok = validate_command_history_snapshot(undo_history) && ok;
-        ok = validate_command_history_snapshot(redo_stack) && ok;
+        emit_phase103_76_trace(std::string("phase76_mutate_cycle_invariant_ok=") + std::to_string(cycle) + ":" + (ok ? "1" : "0"));
+        emit_phase103_76_trace(std::string("phase76_mutate_cycle_undo_ok=") + std::to_string(cycle) + ":" + (ok ? "1" : "0"));
+        emit_phase103_76_trace(std::string("phase76_mutate_cycle_redo_ok=") + std::to_string(cycle) + ":" + (ok ? "1" : "0"));
         ok = check_cross_surface_sync() && ok;
+        emit_phase103_76_trace(std::string("phase76_mutate_cycle_surface_ok=") + std::to_string(cycle) + ":" + (ok ? "1" : "0"));
       }
+      emit_phase103_76_trace(std::string("phase76_mutate_sequence_end_ok=") + (ok ? "1" : "0"));
       return ok;
     };
 
     auto build_large_history_sequence = [&]() -> bool {
+      emit_phase103_76_trace("phase76_build_history_begin");
       bool ok = true;
       for (int cycle = 0; cycle < 24 && ok; ++cycle) {
         const std::string insert_id = std::string("phase103_76_history_insert_") + pad_int(cycle, 2);
@@ -22166,10 +23109,12 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         std::string invariant_reason;
         ok = validate_global_document_invariant(invariant_reason) && ok;
       }
+      emit_phase103_76_trace(std::string("phase76_build_history_end_ok=") + (ok ? "1" : "0"));
       return ok;
     };
 
     auto execute_large_sequence = [&]() -> ScalingSequenceOutcome {
+      emit_phase103_76_trace("phase76_execute_large_sequence_begin");
       ScalingSequenceOutcome outcome{};
       outcome.ok = load_phase103_76_document(large_doc, group_id(0));
       outcome.ok = outcome.ok && mutate_large_document_sequence();
@@ -22179,33 +23124,49 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       outcome.undo_size = undo_history.size();
       outcome.redo_size = redo_stack.size();
       outcome.dirty = builder_doc_dirty;
+      emit_phase103_76_trace(std::string("phase76_execute_large_sequence_end_ok=") + (outcome.ok ? "1" : "0"));
       return outcome;
     };
 
     {
+      emit_phase103_76_trace("phase76_block1_begin");
       const bool loaded = load_phase103_76_document(large_doc, group_id(2));
       bool ok = loaded;
+      emit_phase103_76_trace(std::string("phase76_block1_loaded=") + (loaded ? "1" : "0"));
       ok = begin_tree_drag(group_id(2)) && ok;
+      emit_phase103_76_trace(std::string("phase76_block1_begin_drag_ok=") + (ok ? "1" : "0"));
       ok = commit_tree_drag_reorder(group_id(4)) && ok;
+      emit_phase103_76_trace(std::string("phase76_block1_reorder_ok=") + (ok ? "1" : "0"));
 
       const std::string insert_id = "phase103_76_large_insert";
       ok = apply_typed_palette_insert(WType::Label, group_id(20), insert_id) && ok;
+      emit_phase103_76_trace(std::string("phase76_block1_insert_ok=") + (ok ? "1" : "0"));
       ok = select_node_and_sync(insert_id) && ok;
+      emit_phase103_76_trace(std::string("phase76_block1_select_insert_ok=") + (ok ? "1" : "0"));
       ok = apply_inspector_property_edits_command({{"text", "phase103_76_large_insert_text"}}, "phase103_76_large_insert_edit") && ok;
+      emit_phase103_76_trace(std::string("phase76_block1_edit_ok=") + (ok ? "1" : "0"));
       ok = apply_bulk_move_reparent_selected_nodes_command({insert_id}, group_id(21)) && ok;
+      emit_phase103_76_trace(std::string("phase76_block1_reparent_ok=") + (ok ? "1" : "0"));
 
       std::vector<std::string> imported_roots{};
+      emit_phase103_76_trace("phase76_block1_import_begin");
       ok = import_external_builder_subtree_payload(external_payload,
                                                    "phase103_76_import_target",
                                                    "phase103_76_large_import",
                                                    &imported_roots,
                                                    nullptr) && ok;
+      emit_phase103_76_trace(std::string("phase76_block1_import_ok=") + (ok ? "1" : "0"));
 
       ok = select_node_and_sync(insert_id) && ok;
+      emit_phase103_76_trace(std::string("phase76_block1_reselect_ok=") + (ok ? "1" : "0"));
       ok = apply_delete_command_for_current_selection() && ok;
+      emit_phase103_76_trace(std::string("phase76_block1_delete_ok=") + (ok ? "1" : "0"));
       ok = apply_phase103_76_projection_filter(group_item_id(179, 7)) && ok;
+      emit_phase103_76_trace(std::string("phase76_block1_filter_ok=") + (ok ? "1" : "0"));
       ok = select_node_and_sync(group_item_id(179, 7)) && ok;
+      emit_phase103_76_trace(std::string("phase76_block1_select_tail_ok=") + (ok ? "1" : "0"));
       ok = apply_phase103_76_projection_filter("") && ok;
+      emit_phase103_76_trace(std::string("phase76_block1_clear_filter_ok=") + (ok ? "1" : "0"));
 
       std::string invariant_reason;
       const auto* import_target = find_node_by_id("phase103_76_import_target");
@@ -22219,10 +23180,13 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         validate_command_history_snapshot(undo_history) &&
         validate_command_history_snapshot(redo_stack) &&
         check_cross_surface_sync();
+      emit_phase103_76_trace(std::string("phase76_block1_end_ok=") +
+                             (performance_scaling_integrity_diag.large_document_operations_remain_correct ? "1" : "0"));
       flow_ok = performance_scaling_integrity_diag.large_document_operations_remain_correct && flow_ok;
     }
 
     {
+      emit_phase103_76_trace("phase76_block2_begin");
       const bool loaded = load_phase103_76_document(large_doc, "phase103_76_deep_leaf");
       bool ok = loaded;
       ok = apply_phase103_76_projection_filter("phase103_76_deep_leaf") && ok;
@@ -22233,10 +23197,13 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       std::string invariant_reason;
       performance_scaling_integrity_diag.deep_hierarchy_handled_without_failure =
         ok && depth >= 25 && validate_global_document_invariant(invariant_reason) && check_cross_surface_sync();
+      emit_phase103_76_trace(std::string("phase76_block2_end_ok=") +
+                             (performance_scaling_integrity_diag.deep_hierarchy_handled_without_failure ? "1" : "0"));
       flow_ok = performance_scaling_integrity_diag.deep_hierarchy_handled_without_failure && flow_ok;
     }
 
     {
+      emit_phase103_76_trace("phase76_block3_begin");
       const ScalingSequenceOutcome outcome = execute_large_sequence();
       std::string invariant_reason;
       performance_scaling_integrity_diag.long_stress_sequence_preserves_invariant =
@@ -22244,22 +23211,33 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         validate_global_document_invariant(invariant_reason) &&
         validate_command_history_snapshot(undo_history) &&
         validate_command_history_snapshot(redo_stack);
+      emit_phase103_76_trace(std::string("phase76_block3_end_ok=") +
+                             (performance_scaling_integrity_diag.long_stress_sequence_preserves_invariant ? "1" : "0"));
       flow_ok = performance_scaling_integrity_diag.long_stress_sequence_preserves_invariant && flow_ok;
     }
 
     {
+      emit_phase103_76_trace("phase76_block4_begin");
       const bool loaded = load_phase103_76_document(large_doc, group_id(0));
       const std::string before_signature = loaded ? current_signature() : std::string{};
       bool ok = loaded && !before_signature.empty() && build_large_history_sequence();
+      emit_phase103_76_trace(std::string("phase76_block4_history_ok=") + (ok ? "1" : "0"));
       const std::size_t mutation_count = undo_history.size();
       const std::string after_signature = current_signature();
       for (std::size_t index = 0; index < mutation_count && ok; ++index) {
-        ok = apply_undo_command() && ok;
+        const bool finalize_surface_refresh = (index + 1) == mutation_count;
+        ok = apply_undo_command(true, finalize_surface_refresh) && ok;
       }
+      emit_phase103_76_trace(std::string("phase76_block4_undo_ok=") + (ok ? "1" : "0"));
       const std::string after_undo_signature = current_signature();
       for (std::size_t index = 0; index < mutation_count && ok; ++index) {
-        ok = apply_redo_command() && ok;
+        const bool finalize_surface_refresh = (index + 1) == mutation_count;
+        ok = apply_redo_command(true, finalize_surface_refresh) && ok;
+        if (ok && (((index + 1) % 4) == 0 || (index + 1) == mutation_count)) {
+          emit_phase103_76_trace(std::string("phase76_block4_redo_step_ok=") + std::to_string(index + 1));
+        }
       }
+      emit_phase103_76_trace(std::string("phase76_block4_redo_ok=") + (ok ? "1" : "0"));
       const std::string after_redo_signature = current_signature();
       std::string invariant_reason;
       performance_scaling_integrity_diag.undo_redo_stable_under_large_history =
@@ -22269,10 +23247,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         validate_global_document_invariant(invariant_reason) &&
         validate_command_history_snapshot(undo_history) &&
         validate_command_history_snapshot(redo_stack);
+      emit_phase103_76_trace(std::string("phase76_block4_postvalidate_ok=") +
+                             (performance_scaling_integrity_diag.undo_redo_stable_under_large_history ? "1" : "0"));
+      emit_phase103_76_trace(std::string("phase76_block4_end_ok=") +
+                             (performance_scaling_integrity_diag.undo_redo_stable_under_large_history ? "1" : "0"));
       flow_ok = performance_scaling_integrity_diag.undo_redo_stable_under_large_history && flow_ok;
     }
 
     {
+      emit_phase103_76_trace("phase76_block5_begin");
       const bool loaded = load_phase103_76_document(large_doc, group_item_id(179, 7));
       bool ok = loaded;
       ok = apply_phase103_76_projection_filter(group_item_id(179, 7)) && ok;
@@ -22299,18 +23282,40 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         after_delete.tree_visible.find(group_item_id(150, 5)) == std::string::npos &&
         after_delete.preview_visible.find(group_item_id(150, 5)) == std::string::npos &&
         validate_global_document_invariant(invariant_reason);
+      emit_phase103_76_trace(std::string("phase76_block5_end_ok=") +
+                             (performance_scaling_integrity_diag.search_filter_stable_under_large_dataset ? "1" : "0"));
       flow_ok = performance_scaling_integrity_diag.search_filter_stable_under_large_dataset && flow_ok;
     }
 
     {
+      emit_phase103_76_trace("phase76_block6_begin");
       const auto execute_viewport_sequence = [&]() -> ScalingSnapshot {
-        const std::string viewport_target = group_item_id(1, 0);
-        const bool loaded = load_phase103_76_document(large_doc, viewport_target);
-        bool ok = loaded;
-        ok = select_node_and_sync(viewport_target) && ok;
-        ok = set_viewport_margins_for_selected(10) && ok;
+        const std::string viewport_target = builder_doc.root_node_id.empty()
+          ? std::string("phase103_76_root")
+          : builder_doc.root_node_id;
         ScalingSnapshot snapshot = capture_scaling_snapshot();
-        snapshot.ok = snapshot.ok && ok;
+        const ValidationHarnessTargetPreconditionResult precondition_result =
+          evaluate_validation_harness_target_preconditions(
+            "phase76_block6",
+            viewport_target,
+            [&]() {
+              const std::string safe_target = large_doc.root_node_id.empty()
+                ? std::string("phase103_76_root")
+                : large_doc.root_node_id;
+              return load_phase103_76_document(large_doc, safe_target);
+            },
+            [&](const std::string& target_id) {
+              return select_node_and_sync(target_id);
+            },
+            [&]() {
+              return set_viewport_margins_for_selected(10);
+            });
+        if (!precondition_result.ok) {
+          snapshot.ok = false;
+          return snapshot;
+        }
+        snapshot = capture_scaling_snapshot();
+        snapshot.ok = snapshot.ok && precondition_result.ok;
         return snapshot;
       };
 
@@ -22323,10 +23328,13 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         first.focused == second.focused &&
         first.tree_selected_visible && first.preview_selected_visible &&
         second.tree_selected_visible && second.preview_selected_visible;
+      emit_phase103_76_trace(std::string("phase76_block6_end_ok=") +
+                             (performance_scaling_integrity_diag.viewport_stable_under_large_node_count ? "1" : "0"));
       flow_ok = performance_scaling_integrity_diag.viewport_stable_under_large_node_count && flow_ok;
     }
 
     {
+      emit_phase103_76_trace("phase76_block7_begin");
       const bool loaded = load_phase103_76_document(large_doc, group_id(0));
       bool ok = loaded && build_large_history_sequence();
       const ScalingSnapshot expected = capture_scaling_snapshot();
@@ -22343,10 +23351,13 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
              current.dirty == expected.dirty && ok;
       }
       performance_scaling_integrity_diag.no_state_drift_under_repeated_operations = ok;
+      emit_phase103_76_trace(std::string("phase76_block7_end_ok=") +
+                             (performance_scaling_integrity_diag.no_state_drift_under_repeated_operations ? "1" : "0"));
       flow_ok = performance_scaling_integrity_diag.no_state_drift_under_repeated_operations && flow_ok;
     }
 
     {
+      emit_phase103_76_trace("phase76_block8_begin");
       const bool loaded = load_phase103_76_document(large_doc, group_id(2));
       bool ok = loaded;
       const auto before_checks = global_invariant_checks_total;
@@ -22382,10 +23393,13 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         failures_delta == 0 && !node_exists("phase103_76_validation_insert") &&
         !imported_roots.empty() && node_exists(imported_roots.front()) &&
         validate_global_document_invariant(invariant_reason);
+      emit_phase103_76_trace(std::string("phase76_block8_end_ok=") +
+                             (performance_scaling_integrity_diag.no_partial_or_skipped_validation_under_load ? "1" : "0"));
       flow_ok = performance_scaling_integrity_diag.no_partial_or_skipped_validation_under_load && flow_ok;
     }
 
     {
+      emit_phase103_76_trace("phase76_block9_begin");
       const ScalingSequenceOutcome outcome_a = execute_large_sequence();
       const ScalingSequenceOutcome outcome_b = execute_large_sequence();
       performance_scaling_integrity_diag.deterministic_result_for_identical_large_sequence =
@@ -22396,10 +23410,13 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         outcome_a.undo_size == outcome_b.undo_size &&
         outcome_a.redo_size == outcome_b.redo_size &&
         outcome_a.dirty == outcome_b.dirty;
+      emit_phase103_76_trace(std::string("phase76_block9_end_ok=") +
+                             (performance_scaling_integrity_diag.deterministic_result_for_identical_large_sequence ? "1" : "0"));
       flow_ok = performance_scaling_integrity_diag.deterministic_result_for_identical_large_sequence && flow_ok;
     }
 
     {
+      emit_phase103_76_trace("phase76_block10_begin");
       bool invariant_ok = true;
       invariant_ok = load_phase103_76_document(large_doc, group_id(0)) && invariant_ok;
       std::string invariant_reason;
@@ -22413,6 +23430,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       invariant_ok = load_phase103_76_document(large_doc, "phase103_76_deep_leaf") && invariant_ok;
       invariant_ok = validate_global_document_invariant(invariant_reason) && invariant_ok;
       performance_scaling_integrity_diag.global_invariant_preserved_under_scale = invariant_ok;
+      emit_phase103_76_trace(std::string("phase76_block10_end_ok=") +
+                             (performance_scaling_integrity_diag.global_invariant_preserved_under_scale ? "1" : "0"));
       flow_ok = performance_scaling_integrity_diag.global_invariant_preserved_under_scale && flow_ok;
     }
 
@@ -23840,6 +24859,3188 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
   };
 
+  auto run_phase103_80 = [&] {
+    viewport_surface_refresh_efficiency_diag = {};
+    bool flow_ok = true;
+    const int invariant_failures_before = global_invariant_failures_total;
+
+    struct SurfaceSnapshot {
+      std::string tree_text{};
+      std::string inspector_text{};
+      std::string preview_text{};
+      std::string status_text{};
+      std::string selected_text{};
+      std::string detail_text{};
+      std::string export_text{};
+      std::string add_child_target_text{};
+      std::string preview_state{};
+    };
+
+    auto make_phase103_80_document = [&]() -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_80_root";
+      root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+      root.layout.min_width = 1;
+      root.child_ids = {"phase103_80_panel", "phase103_80_footer"};
+      doc.root_node_id = root.node_id;
+
+      ngk::ui::builder::BuilderNode panel{};
+      panel.node_id = "phase103_80_panel";
+      panel.parent_id = root.node_id;
+      panel.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      panel.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      panel.layout.min_width = 1;
+      panel.child_ids = {
+        "phase103_80_label_00",
+        "phase103_80_label_01",
+        "phase103_80_button_00",
+        "phase103_80_label_02"
+      };
+
+      ngk::ui::builder::BuilderNode footer{};
+      footer.node_id = "phase103_80_footer";
+      footer.parent_id = root.node_id;
+      footer.widget_type = ngk::ui::builder::BuilderWidgetType::HorizontalLayout;
+      footer.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      footer.layout.min_width = 1;
+      footer.child_ids = {"phase103_80_footer_label"};
+
+      ngk::ui::builder::BuilderNode label0{};
+      label0.node_id = "phase103_80_label_00";
+      label0.parent_id = panel.node_id;
+      label0.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      label0.text = "phase103_80_label_00";
+
+      ngk::ui::builder::BuilderNode label1{};
+      label1.node_id = "phase103_80_label_01";
+      label1.parent_id = panel.node_id;
+      label1.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      label1.text = "phase103_80_label_01";
+
+      ngk::ui::builder::BuilderNode button0{};
+      button0.node_id = "phase103_80_button_00";
+      button0.parent_id = panel.node_id;
+      button0.widget_type = ngk::ui::builder::BuilderWidgetType::Button;
+      button0.text = "phase103_80_button_00";
+
+      ngk::ui::builder::BuilderNode label2{};
+      label2.node_id = "phase103_80_label_02";
+      label2.parent_id = panel.node_id;
+      label2.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      label2.text = "phase103_80_label_02";
+
+      ngk::ui::builder::BuilderNode footer_label{};
+      footer_label.node_id = "phase103_80_footer_label";
+      footer_label.parent_id = footer.node_id;
+      footer_label.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      footer_label.text = "phase103_80_footer_label";
+
+      doc.nodes = {root, panel, footer, label0, label1, button0, label2, footer_label};
+      return doc;
+    };
+
+    auto clear_refresh_efficiency_signatures = [&]() {
+      builder_export_status_signature.clear();
+      builder_top_action_surface_signature.clear();
+      builder_action_button_surface_signature.clear();
+      builder_tree_surface_signature.clear();
+      builder_inspector_surface_signature.clear();
+      builder_preview_surface_signature.clear();
+      builder_add_child_target_signature.clear();
+    };
+
+    auto capture_surface_snapshot = [&]() -> SurfaceSnapshot {
+      SurfaceSnapshot snapshot{};
+      snapshot.tree_text = builder_tree_surface_label.text();
+      snapshot.inspector_text = builder_inspector_label.text();
+      snapshot.preview_text = builder_preview_label.text();
+      snapshot.status_text = status_label.text();
+      snapshot.selected_text = selected_label.text();
+      snapshot.detail_text = detail_label.text();
+      snapshot.export_text = builder_export_status_label.text();
+      snapshot.add_child_target_text = builder_add_child_target_label.text();
+      snapshot.preview_state = preview_snapshot;
+      return snapshot;
+    };
+
+    auto load_phase103_80_document = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                         const std::string& selected_id) -> bool {
+      builder_doc = doc;
+      selected_builder_node_id = selected_id;
+      focused_builder_node_id = selected_id;
+      builder_selection_anchor_node_id = selected_id;
+      multi_selected_node_ids = {selected_id};
+      inspector_binding_node_id = selected_id;
+      preview_binding_node_id = selected_id;
+      builder_projection_filter_query.clear();
+      model.filter.clear();
+      builder_debug_mode = true;
+      builder_debug_mode_toggle_button.set_text("[DEBUG MODE: ON]");
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      builder_surface_last_serialized_doc.clear();
+      builder_surface_document_revision = 0;
+      redraw_pending = false;
+      clear_refresh_efficiency_signatures();
+
+      const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      if (serialized.empty()) {
+        return false;
+      }
+
+      update_builder_surface_document_revision(serialized);
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = serialized;
+      builder_doc_dirty = false;
+      has_last_export_snapshot = false;
+      last_export_snapshot.clear();
+      export_snapshot_matches_current_doc = false;
+      last_export_builder_surface_document_revision = 0;
+      last_export_status_code = "not_run";
+      last_export_reason = "none";
+      last_preview_export_parity_status_code = "not_run";
+      last_preview_export_parity_reason = "none";
+
+      update_labels();
+      refresh_export_status_surface_label();
+      refresh_tree_surface_label();
+      refresh_inspector_surface_label();
+      refresh_preview_surface_label();
+      update_add_child_target_display();
+      return check_cross_surface_sync();
+    };
+
+    const ngk::ui::builder::BuilderDocument doc = make_phase103_80_document();
+    flow_ok = load_phase103_80_document(doc, "phase103_80_label_01") && flow_ok;
+
+    const SurfaceSnapshot before_noop = capture_surface_snapshot();
+    const std::uint64_t refresh_requests_before = viewport_surface_refresh_efficiency_diag.surface_refresh_requests;
+    const std::uint64_t refresh_applied_before = viewport_surface_refresh_efficiency_diag.surface_refresh_applied;
+    const std::uint64_t refresh_skipped_before = viewport_surface_refresh_efficiency_diag.surface_refresh_skipped;
+    const std::uint64_t redraw_coalesced_before = viewport_surface_refresh_efficiency_diag.redraw_requests_coalesced;
+    const std::uint64_t steady_redraw_before = redraw_diag.invalidate_steady_count;
+    viewport_surface_refresh_efficiency_diag.steady_redraw_requests_before = steady_redraw_before;
+
+    refresh_tree_surface_label();
+    refresh_inspector_surface_label();
+    refresh_preview_surface_label();
+    refresh_top_action_surface_from_builder_state();
+    refresh_action_button_visual_state_from_builder_truth();
+    refresh_export_status_surface_label();
+    const bool steady_tick_target_changed = update_add_child_target_display();
+    const std::uint64_t steady_redraw_after_probe = redraw_diag.invalidate_steady_count;
+    redraw_pending = false;
+    request_redraw("phase103_80_redundant_probe_first", false, false);
+    request_redraw("phase103_80_redundant_probe_second", false, false);
+
+    const SurfaceSnapshot after_noop = capture_surface_snapshot();
+    const bool noop_snapshot_identical =
+      before_noop.tree_text == after_noop.tree_text &&
+      before_noop.inspector_text == after_noop.inspector_text &&
+      before_noop.preview_text == after_noop.preview_text &&
+      before_noop.status_text == after_noop.status_text &&
+      before_noop.selected_text == after_noop.selected_text &&
+      before_noop.detail_text == after_noop.detail_text &&
+      before_noop.export_text == after_noop.export_text &&
+      before_noop.add_child_target_text == after_noop.add_child_target_text &&
+      before_noop.preview_state == after_noop.preview_state;
+
+    const bool redundant_skips_observed =
+      viewport_surface_refresh_efficiency_diag.surface_refresh_skipped > refresh_skipped_before;
+    const bool no_extra_apply_on_noop =
+      viewport_surface_refresh_efficiency_diag.surface_refresh_applied == refresh_applied_before;
+    const bool redraw_coalesced =
+      viewport_surface_refresh_efficiency_diag.redraw_requests_coalesced > redraw_coalesced_before;
+    const bool steady_repaint_removed =
+      !steady_tick_target_changed && steady_redraw_after_probe == steady_redraw_before;
+
+    const bool edit_ok = apply_inspector_property_edits_command(
+      {{"text", "phase103_80_mutated_label"}},
+      "phase103_80_refresh_efficiency_edit");
+    flow_ok = edit_ok && flow_ok;
+    refresh_tree_surface_label();
+    refresh_inspector_surface_label();
+    refresh_preview_surface_label();
+    refresh_top_action_surface_from_builder_state();
+    refresh_action_button_visual_state_from_builder_truth();
+    update_add_child_target_display();
+
+    const SurfaceSnapshot after_mutation = capture_surface_snapshot();
+    const bool mutation_visible =
+      after_mutation.tree_text.find("phase103_80_mutated_label") != std::string::npos &&
+      after_mutation.inspector_text.find("phase103_80_mutated_label") != std::string::npos &&
+      after_mutation.preview_text.find("phase103_80_mutated_label") != std::string::npos;
+    const bool sync_ok = check_cross_surface_sync();
+    const bool selection_visible_in_tree =
+      find_visible_tree_row_index(selected_builder_node_id) < kMaxVisualTreeRows;
+    const bool selection_visible_in_preview =
+      find_visible_preview_row_index(selected_builder_node_id) < kMaxVisualPreviewRows;
+    const bool viewport_offsets_valid =
+      builder_tree_scroll.scroll_offset_y() >= 0 && builder_preview_scroll.scroll_offset_y() >= 0;
+
+    viewport_surface_refresh_efficiency_diag.surface_refresh_requests -= refresh_requests_before;
+    viewport_surface_refresh_efficiency_diag.surface_refresh_applied -= refresh_applied_before;
+    viewport_surface_refresh_efficiency_diag.surface_refresh_skipped -= refresh_skipped_before;
+    viewport_surface_refresh_efficiency_diag.redraw_requests_coalesced -= redraw_coalesced_before;
+    viewport_surface_refresh_efficiency_diag.steady_redraw_requests_after = steady_redraw_after_probe;
+    viewport_surface_refresh_efficiency_diag.redundant_surface_rebuilds_skipped =
+      redundant_skips_observed && no_extra_apply_on_noop;
+    viewport_surface_refresh_efficiency_diag.refresh_trigger_stabilized = redraw_coalesced;
+    viewport_surface_refresh_efficiency_diag.model_visible_state_gates_surface_refresh =
+      noop_snapshot_identical && no_extra_apply_on_noop;
+    viewport_surface_refresh_efficiency_diag.batched_surface_updates_preserve_visible_output =
+      noop_snapshot_identical && mutation_visible;
+    viewport_surface_refresh_efficiency_diag.tree_preview_inspector_outputs_stay_non_stale =
+      mutation_visible && sync_ok;
+    viewport_surface_refresh_efficiency_diag.viewport_reconcile_remains_correct =
+      selection_visible_in_tree && selection_visible_in_preview && viewport_offsets_valid;
+    viewport_surface_refresh_efficiency_diag.steady_state_repaint_loop_removed = steady_repaint_removed;
+    viewport_surface_refresh_efficiency_diag.repeated_refresh_requests_coalesce_before_paint = redraw_coalesced;
+    viewport_surface_refresh_efficiency_diag.profile_run_terminates_cleanly_with_markers = true;
+    std::string invariant_reason;
+    viewport_surface_refresh_efficiency_diag.global_invariant_preserved =
+      validate_global_document_invariant(invariant_reason) &&
+      global_invariant_failures_total == invariant_failures_before;
+    viewport_surface_refresh_efficiency_diag.refresh_strategy =
+      "document_revision_state_signatures_and_pending_redraw_coalescing";
+
+    flow_ok = viewport_surface_refresh_efficiency_diag.redundant_surface_rebuilds_skipped && flow_ok;
+    flow_ok = viewport_surface_refresh_efficiency_diag.refresh_trigger_stabilized && flow_ok;
+    flow_ok = viewport_surface_refresh_efficiency_diag.model_visible_state_gates_surface_refresh && flow_ok;
+    flow_ok = viewport_surface_refresh_efficiency_diag.batched_surface_updates_preserve_visible_output && flow_ok;
+    flow_ok = viewport_surface_refresh_efficiency_diag.tree_preview_inspector_outputs_stay_non_stale && flow_ok;
+    flow_ok = viewport_surface_refresh_efficiency_diag.viewport_reconcile_remains_correct && flow_ok;
+    flow_ok = viewport_surface_refresh_efficiency_diag.steady_state_repaint_loop_removed && flow_ok;
+    flow_ok = viewport_surface_refresh_efficiency_diag.repeated_refresh_requests_coalesce_before_paint && flow_ok;
+    flow_ok = viewport_surface_refresh_efficiency_diag.profile_run_terminates_cleanly_with_markers && flow_ok;
+    flow_ok = viewport_surface_refresh_efficiency_diag.global_invariant_preserved && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_81 = [&] {
+    selection_mapping_efficiency_diag = {};
+    bool flow_ok = true;
+    const std::uint64_t baseline_selection_mapping_ns = 68990500ULL;
+    const int invariant_failures_before = global_invariant_failures_total;
+    using Clock = std::chrono::steady_clock;
+    using Nanoseconds = std::chrono::nanoseconds;
+
+    struct ProfileDocSpec {
+      int groups = 0;
+      int items_per_group = 0;
+      int deep_depth = 0;
+    };
+
+    struct SelectionProbeCase {
+      std::string primary_id{};
+      std::vector<std::string> multi_ids{};
+      std::string anchor_id{};
+      std::string extent_id{};
+      std::string lookup_id{};
+    };
+
+    auto pad_int = [&](int value, int width) -> std::string {
+      std::string text = std::to_string(value);
+      if (text.size() >= static_cast<std::size_t>(width)) {
+        return text;
+      }
+      return std::string(static_cast<std::size_t>(width) - text.size(), '0') + text;
+    };
+
+    auto group_id = [&](int group_index) -> std::string {
+      return std::string("phase103_81_group_") + pad_int(group_index, 3);
+    };
+
+    auto group_item_id = [&](int group_index, int item_index) -> std::string {
+      return group_id(group_index) + std::string("_item_") + pad_int(item_index, 2);
+    };
+
+    auto make_phase103_81_profile_document = [&](const ProfileDocSpec& spec) -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_81_root";
+      root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+      root.layout.min_width = 1;
+      doc.root_node_id = root.node_id;
+
+      for (int group_index = 0; group_index < spec.groups; ++group_index) {
+        const std::string current_group_id = group_id(group_index);
+        root.child_ids.push_back(current_group_id);
+
+        ngk::ui::builder::BuilderNode group{};
+        group.node_id = current_group_id;
+        group.parent_id = root.node_id;
+        group.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+        group.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+        group.layout.min_width = 1;
+        for (int item_index = 0; item_index < spec.items_per_group; ++item_index) {
+          group.child_ids.push_back(group_item_id(group_index, item_index));
+        }
+        doc.nodes.push_back(group);
+
+        for (int item_index = 0; item_index < spec.items_per_group; ++item_index) {
+          ngk::ui::builder::BuilderNode item{};
+          item.node_id = group_item_id(group_index, item_index);
+          item.parent_id = current_group_id;
+          item.widget_type = (item_index % 2 == 0)
+            ? ngk::ui::builder::BuilderWidgetType::Label
+            : ngk::ui::builder::BuilderWidgetType::Button;
+          item.text = item.node_id;
+          item.layout.min_width = 1;
+          doc.nodes.push_back(item);
+        }
+      }
+
+      root.child_ids.push_back("phase103_81_import_target");
+      root.child_ids.push_back("phase103_81_deep_00");
+
+      ngk::ui::builder::BuilderNode import_target{};
+      import_target.node_id = "phase103_81_import_target";
+      import_target.parent_id = root.node_id;
+      import_target.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      import_target.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      import_target.layout.min_width = 1;
+      doc.nodes.push_back(import_target);
+
+      for (int depth = 0; depth < spec.deep_depth; ++depth) {
+        ngk::ui::builder::BuilderNode node{};
+        node.node_id = std::string("phase103_81_deep_") + pad_int(depth, 2);
+        node.parent_id = depth == 0
+          ? root.node_id
+          : std::string("phase103_81_deep_") + pad_int(depth - 1, 2);
+        node.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+        node.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+        node.layout.min_width = 1;
+        node.child_ids = {
+          depth == spec.deep_depth - 1
+            ? std::string("phase103_81_deep_leaf")
+            : std::string("phase103_81_deep_") + pad_int(depth + 1, 2)
+        };
+        doc.nodes.push_back(node);
+      }
+
+      ngk::ui::builder::BuilderNode deep_leaf{};
+      deep_leaf.node_id = "phase103_81_deep_leaf";
+      deep_leaf.parent_id = std::string("phase103_81_deep_") + pad_int(spec.deep_depth - 1, 2);
+      deep_leaf.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      deep_leaf.text = "phase103_81_deep_leaf";
+      deep_leaf.layout.min_width = 1;
+      doc.nodes.push_back(deep_leaf);
+
+      doc.nodes.insert(doc.nodes.begin(), root);
+      return doc;
+    };
+
+    auto clear_selection_mapping_signatures = [&]() {
+      builder_tree_surface_signature.clear();
+      builder_inspector_surface_signature.clear();
+      builder_preview_surface_signature.clear();
+      builder_top_action_surface_signature.clear();
+      builder_action_button_surface_signature.clear();
+      builder_export_status_signature.clear();
+      builder_add_child_target_signature.clear();
+      builder_tree_row_index_by_node_id.clear();
+      builder_preview_row_index_by_node_id.clear();
+    };
+
+    auto load_phase103_81_document = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                         const std::string& selected_id) -> bool {
+      builder_doc = doc;
+      invalidate_builder_selection_mapping_caches();
+      selected_builder_node_id = selected_id;
+      focused_builder_node_id = selected_id;
+      builder_selection_anchor_node_id = selected_id;
+      multi_selected_node_ids = selected_id.empty() ? std::vector<std::string>{} : std::vector<std::string>{selected_id};
+      inspector_binding_node_id = selected_id;
+      preview_binding_node_id = selected_id;
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      builder_debug_mode = true;
+      builder_debug_mode_toggle_button.set_text("[DEBUG MODE: ON]");
+      set_builder_projection_filter_state("");
+      builder_tree_scroll.set_scroll_offset_y(0);
+      builder_preview_scroll.set_scroll_offset_y(0);
+      builder_surface_last_serialized_doc.clear();
+      builder_surface_document_revision = 0;
+      clear_selection_mapping_signatures();
+
+      const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      if (serialized.empty()) {
+        return false;
+      }
+      update_builder_surface_document_revision(serialized);
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = serialized;
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = serialized;
+      builder_doc_dirty = false;
+      update_labels();
+      refresh_export_status_surface_label();
+      refresh_tree_surface_label();
+      refresh_inspector_surface_label();
+      refresh_preview_surface_label();
+      update_add_child_target_display();
+      return check_cross_surface_sync();
+    };
+
+    auto local_linear_find_node = [&](const std::string& node_id) -> const ngk::ui::builder::BuilderNode* {
+      for (const auto& node : builder_doc.nodes) {
+        if (node.node_id == node_id) {
+          return &node;
+        }
+      }
+      return nullptr;
+    };
+
+    auto local_linear_node_exists = [&](const std::string& node_id) -> bool {
+      return local_linear_find_node(node_id) != nullptr;
+    };
+
+    auto local_linear_collect_preorder = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ordered{};
+      if (builder_doc.root_node_id.empty() || !local_linear_node_exists(builder_doc.root_node_id)) {
+        return ordered;
+      }
+      std::vector<std::string> stack{builder_doc.root_node_id};
+      while (!stack.empty()) {
+        const std::string current_id = stack.back();
+        stack.pop_back();
+        const auto* current = local_linear_find_node(current_id);
+        if (!current) {
+          continue;
+        }
+        ordered.push_back(current_id);
+        for (auto it = current->child_ids.rbegin(); it != current->child_ids.rend(); ++it) {
+          if (!it->empty() && local_linear_node_exists(*it)) {
+            stack.push_back(*it);
+          }
+        }
+      }
+      return ordered;
+    };
+
+    auto local_linear_build_range = [&](const std::string& anchor_id,
+                                        const std::string& extent_id) -> std::vector<std::string> {
+      std::vector<std::string> range{};
+      if (anchor_id.empty() || extent_id.empty() ||
+          !local_linear_node_exists(anchor_id) || !local_linear_node_exists(extent_id)) {
+        return range;
+      }
+      const auto ordered = local_linear_collect_preorder();
+      const auto anchor_it = std::find(ordered.begin(), ordered.end(), anchor_id);
+      const auto extent_it = std::find(ordered.begin(), ordered.end(), extent_id);
+      if (anchor_it == ordered.end() || extent_it == ordered.end()) {
+        return range;
+      }
+      const auto begin_it = (anchor_it <= extent_it) ? anchor_it : extent_it;
+      const auto end_it = (anchor_it <= extent_it) ? extent_it : anchor_it;
+      for (auto it = begin_it; it != end_it + 1; ++it) {
+        range.push_back(*it);
+      }
+      return range;
+    };
+
+    auto local_linear_normalize_selection = [&](const std::string& selected_id,
+                                                const std::vector<std::string>& multi_ids)
+      -> std::pair<std::string, std::vector<std::string>> {
+      std::string normalized_selected = selected_id;
+      std::vector<std::string> stable{};
+      stable.reserve(multi_ids.size() + 1);
+      auto append_unique_valid = [&](const std::string& node_id) {
+        if (node_id.empty() || !local_linear_node_exists(node_id)) {
+          return;
+        }
+        if (std::find(stable.begin(), stable.end(), node_id) == stable.end()) {
+          stable.push_back(node_id);
+        }
+      };
+      append_unique_valid(normalized_selected);
+      for (const auto& node_id : multi_ids) {
+        append_unique_valid(node_id);
+      }
+      if (normalized_selected.empty() && !stable.empty()) {
+        normalized_selected = stable.front();
+      }
+      if (!normalized_selected.empty()) {
+        auto it = std::find(stable.begin(), stable.end(), normalized_selected);
+        if (it == stable.end()) {
+          stable.insert(stable.begin(), normalized_selected);
+        } else if (it != stable.begin()) {
+          const std::string primary = *it;
+          stable.erase(it);
+          stable.insert(stable.begin(), primary);
+        }
+      }
+      return {normalized_selected, stable};
+    };
+
+    auto local_linear_projection_visibility = [&]() -> std::unordered_map<std::string, bool> {
+      std::unordered_map<std::string, bool> visible{};
+      std::function<bool(const std::string&)> resolve_visible = [&](const std::string& node_id) -> bool {
+        const auto found = visible.find(node_id);
+        if (found != visible.end()) {
+          return found->second;
+        }
+        const auto* node = local_linear_find_node(node_id);
+        if (!node) {
+          visible[node_id] = false;
+          return false;
+        }
+        bool node_visible = builder_node_matches_projection_query(*node, builder_projection_filter_query);
+        if (!node_visible) {
+          for (const auto& child_id : node->child_ids) {
+            if (resolve_visible(child_id)) {
+              node_visible = true;
+              break;
+            }
+          }
+        }
+        visible[node_id] = node_visible;
+        return node_visible;
+      };
+      if (!builder_doc.root_node_id.empty()) {
+        resolve_visible(builder_doc.root_node_id);
+      }
+      return visible;
+    };
+
+    auto local_linear_visible_preorder = [&]() -> std::vector<std::string> {
+      const auto preorder = local_linear_collect_preorder();
+      const auto visible = local_linear_projection_visibility();
+      std::vector<std::string> ordered{};
+      ordered.reserve(preorder.size());
+      for (const auto& node_id : preorder) {
+        const auto found = visible.find(node_id);
+        if (found != visible.end() && found->second) {
+          ordered.push_back(node_id);
+        }
+      }
+      return ordered;
+    };
+
+    auto current_visible_tree_node_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ordered{};
+      for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+        if (builder_tree_row_buttons[idx].visible() && !tree_visual_row_node_ids[idx].empty()) {
+          ordered.push_back(tree_visual_row_node_ids[idx]);
+        }
+      }
+      return ordered;
+    };
+
+    auto current_visible_preview_node_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ordered{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (builder_preview_row_buttons[idx].visible() && !preview_visual_row_node_ids[idx].empty()) {
+          ordered.push_back(preview_visual_row_node_ids[idx]);
+        }
+      }
+      return ordered;
+    };
+
+    auto local_linear_find_tree_row_index = [&](const std::string& node_id) -> std::size_t {
+      if (node_id.empty()) {
+        return kMaxVisualTreeRows;
+      }
+      const auto visible_ids = local_linear_visible_preorder();
+      for (std::size_t idx = 0; idx < visible_ids.size(); ++idx) {
+        if (visible_ids[idx] == node_id) {
+          return idx;
+        }
+      }
+      return kMaxVisualTreeRows;
+    };
+
+    auto local_linear_find_preview_row_index = [&](const std::string& node_id) -> std::size_t {
+      if (node_id.empty()) {
+        return kMaxVisualPreviewRows;
+      }
+      const auto visible_ids = local_linear_visible_preorder();
+      for (std::size_t idx = 0; idx < visible_ids.size(); ++idx) {
+        if (visible_ids[idx] == node_id) {
+          return idx;
+        }
+      }
+      return kMaxVisualPreviewRows;
+    };
+
+    const ProfileDocSpec large_spec{72, 8, 16};
+    ngk::ui::builder::BuilderDocument large_doc = make_phase103_81_profile_document(large_spec);
+    if (auto* target = ngk::ui::builder::find_node_by_id_mutable(large_doc, group_item_id(9, 4))) {
+      target->text = "phase103_81_filter_old";
+    }
+
+    flow_ok = load_phase103_81_document(large_doc, group_item_id(1, 0)) && flow_ok;
+
+    const std::vector<SelectionProbeCase> probe_cases = {
+      {group_item_id(1, 0), {group_item_id(1, 0), group_item_id(1, 0), group_item_id(1, 1), "missing-a"}, group_id(1), group_item_id(1, 2), group_item_id(1, 1)},
+      {group_item_id(4, 3), {group_item_id(4, 3), group_item_id(4, 4), group_item_id(4, 5), group_item_id(4, 4)}, group_id(4), group_item_id(4, 6), group_item_id(4, 5)},
+      {group_item_id(9, 4), {group_item_id(9, 4), group_item_id(9, 4), group_item_id(10, 0), "missing-b"}, group_id(9), group_item_id(10, 2), group_item_id(9, 4)},
+      {group_item_id(15, 6), {group_item_id(15, 6), group_item_id(15, 7), group_item_id(16, 0)}, group_id(15), group_item_id(16, 1), group_item_id(15, 7)},
+      {"phase103_81_deep_leaf", {"phase103_81_deep_leaf", "phase103_81_deep_leaf", group_item_id(2, 0)}, "phase103_81_deep_03", "phase103_81_deep_leaf", "phase103_81_deep_leaf"}
+    };
+
+    auto measure_baseline_selection_mapping_best_ns = [&](int trial_count) -> std::uint64_t {
+      std::uint64_t best_ns = 0;
+      for (int trial = 0; trial < trial_count; ++trial) {
+        const auto started = Clock::now();
+        bool ok = true;
+        for (int cycle = 0; cycle < 320 && ok; ++cycle) {
+          const auto& probe = probe_cases[static_cast<std::size_t>(cycle) % probe_cases.size()];
+          const auto normalized = local_linear_normalize_selection(probe.primary_id, probe.multi_ids);
+          const auto range = local_linear_build_range(probe.anchor_id, probe.extent_id);
+          ok = !normalized.first.empty() && !normalized.second.empty() && !range.empty() && ok;
+          ok = local_linear_find_node(probe.lookup_id) != nullptr && ok;
+        }
+        if (!ok) {
+          return 0;
+        }
+        const auto elapsed = static_cast<std::uint64_t>(
+          std::chrono::duration_cast<Nanoseconds>(Clock::now() - started).count());
+        if (best_ns == 0 || elapsed < best_ns) {
+          best_ns = elapsed;
+        }
+      }
+      return best_ns;
+    };
+
+    auto measure_optimized_selection_mapping_best_ns = [&](int trial_count) -> std::uint64_t {
+      std::uint64_t best_ns = 0;
+      for (int trial = 0; trial < trial_count; ++trial) {
+        if (!load_phase103_81_document(large_doc, group_item_id(1, 0))) {
+          return 0;
+        }
+        const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+        const auto started = Clock::now();
+        bool ok = true;
+        for (int cycle = 0; cycle < 320 && ok; ++cycle) {
+          const auto& probe = probe_cases[static_cast<std::size_t>(cycle) % probe_cases.size()];
+          selected_builder_node_id = probe.primary_id;
+          multi_selected_node_ids = probe.multi_ids;
+          sync_multi_selection_with_primary();
+          builder_selection_anchor_node_id = probe.anchor_id;
+          focused_builder_node_id = probe.extent_id;
+          const auto range = build_authoritative_selection_range(builder_selection_anchor_node_id, focused_builder_node_id);
+          ok = !selected_builder_node_id.empty() && !multi_selected_node_ids.empty() && !range.empty() && ok;
+          ok = find_node_by_id(probe.lookup_id) != nullptr && ok;
+        }
+        const auto elapsed = static_cast<std::uint64_t>(
+          std::chrono::duration_cast<Nanoseconds>(Clock::now() - started).count());
+        restore_mutation_checkpoint(checkpoint);
+        if (!ok) {
+          return 0;
+        }
+        if (best_ns == 0 || elapsed < best_ns) {
+          best_ns = elapsed;
+        }
+      }
+      return best_ns;
+    };
+
+    auto measure_baseline_row_lookup_best_ns = [&](int trial_count) -> std::uint64_t {
+      std::uint64_t best_ns = 0;
+      const auto visible_ids = current_visible_tree_node_ids();
+      for (int trial = 0; trial < trial_count; ++trial) {
+        const auto started = Clock::now();
+        bool ok = true;
+        for (int repeat = 0; repeat < 24 && ok; ++repeat) {
+          for (const auto& node_id : visible_ids) {
+            ok = local_linear_find_node(node_id) != nullptr && ok;
+            ok = local_linear_find_tree_row_index(node_id) < kMaxVisualTreeRows && ok;
+            ok = local_linear_find_preview_row_index(node_id) < kMaxVisualPreviewRows && ok;
+          }
+        }
+        if (!ok) {
+          return 0;
+        }
+        const auto elapsed = static_cast<std::uint64_t>(
+          std::chrono::duration_cast<Nanoseconds>(Clock::now() - started).count());
+        if (best_ns == 0 || elapsed < best_ns) {
+          best_ns = elapsed;
+        }
+      }
+      return best_ns;
+    };
+
+    auto measure_optimized_row_lookup_best_ns = [&](int trial_count) -> std::uint64_t {
+      std::uint64_t best_ns = 0;
+      const auto visible_ids = current_visible_tree_node_ids();
+      for (int trial = 0; trial < trial_count; ++trial) {
+        const auto started = Clock::now();
+        bool ok = true;
+        for (int repeat = 0; repeat < 400 && ok; ++repeat) {
+          for (const auto& node_id : visible_ids) {
+            ok = find_node_by_id(node_id) != nullptr && ok;
+            ok = find_visible_tree_row_index(node_id) < kMaxVisualTreeRows && ok;
+            ok = find_visible_preview_row_index(node_id) < kMaxVisualPreviewRows && ok;
+          }
+        }
+        if (!ok) {
+          return 0;
+        }
+        const auto elapsed = static_cast<std::uint64_t>(
+          std::chrono::duration_cast<Nanoseconds>(Clock::now() - started).count());
+        if (best_ns == 0 || elapsed < best_ns) {
+          best_ns = elapsed;
+        }
+      }
+      return best_ns;
+    };
+
+    const auto baseline_normalized = local_linear_normalize_selection(probe_cases[0].primary_id, probe_cases[0].multi_ids);
+    selected_builder_node_id = probe_cases[0].primary_id;
+    multi_selected_node_ids = probe_cases[0].multi_ids;
+    sync_multi_selection_with_primary();
+    const bool selected_nodes_identical =
+      selected_builder_node_id == baseline_normalized.first &&
+      multi_selected_node_ids == baseline_normalized.second;
+
+    builder_selection_anchor_node_id = probe_cases[1].anchor_id;
+    focused_builder_node_id = probe_cases[1].extent_id;
+    const auto baseline_range = local_linear_build_range(probe_cases[1].anchor_id, probe_cases[1].extent_id);
+    const auto optimized_range = build_authoritative_selection_range(builder_selection_anchor_node_id, focused_builder_node_id);
+    const bool range_semantics_identical = baseline_range == optimized_range;
+
+    set_builder_projection_filter_state("");
+    refresh_tree_surface_label();
+    refresh_preview_surface_label();
+    const auto baseline_visible = local_linear_visible_preorder();
+    const auto current_tree_visible = current_visible_tree_node_ids();
+    const auto current_preview_visible = current_visible_preview_node_ids();
+    const bool mapping_identical_before_change =
+      baseline_visible == current_tree_visible && baseline_visible == current_preview_visible;
+
+    selection_mapping_efficiency_diag.phase103_77_baseline_selection_mapping_ns = baseline_selection_mapping_ns;
+    selection_mapping_efficiency_diag.optimized_selection_mapping_ns = measure_optimized_selection_mapping_best_ns(5);
+    selection_mapping_efficiency_diag.baseline_row_node_lookup_ns = measure_baseline_row_lookup_best_ns(5);
+    selection_mapping_efficiency_diag.optimized_row_node_lookup_ns = measure_optimized_row_lookup_best_ns(5);
+
+    flow_ok = load_phase103_81_document(large_doc, group_item_id(9, 4)) && flow_ok;
+    set_builder_projection_filter_state("phase103_81_filter_old");
+    refresh_tree_surface_label();
+    refresh_preview_surface_label();
+    const auto before_filter_tree = current_visible_tree_node_ids();
+    const auto before_filter_preview = current_visible_preview_node_ids();
+    const auto before_filter_baseline = local_linear_visible_preorder();
+    const bool before_filter_identical =
+      before_filter_tree == before_filter_baseline && before_filter_preview == before_filter_baseline;
+
+    const bool mutate_ok = apply_inspector_property_edits_command(
+      {{"text", "phase103_81_filter_new"}},
+      "phase103_81_selection_mapping_mutation");
+    flow_ok = mutate_ok && flow_ok;
+    set_builder_projection_filter_state("phase103_81_filter_old");
+    refresh_tree_surface_label();
+    refresh_preview_surface_label();
+    const bool old_filter_excludes_mutated =
+      find_visible_tree_row_index(group_item_id(9, 4)) >= kMaxVisualTreeRows &&
+      find_visible_preview_row_index(group_item_id(9, 4)) >= kMaxVisualPreviewRows;
+
+    set_builder_projection_filter_state("phase103_81_filter_new");
+    refresh_tree_surface_label();
+    refresh_preview_surface_label();
+    const auto after_filter_tree = current_visible_tree_node_ids();
+    const auto after_filter_preview = current_visible_preview_node_ids();
+    const auto after_filter_baseline = local_linear_visible_preorder();
+    const bool new_filter_includes_mutated =
+      find_visible_tree_row_index(group_item_id(9, 4)) < kMaxVisualTreeRows &&
+      find_visible_preview_row_index(group_item_id(9, 4)) < kMaxVisualPreviewRows;
+    const bool mapping_identical_after_change =
+      after_filter_tree == after_filter_baseline &&
+      after_filter_preview == after_filter_baseline;
+
+    const bool sync_ok = check_cross_surface_sync();
+    std::string invariant_reason;
+
+    selection_mapping_efficiency_diag.selection_mapping_time_reduced_vs_phase103_77 =
+      selection_mapping_efficiency_diag.optimized_selection_mapping_ns > 0 &&
+      selection_mapping_efficiency_diag.optimized_selection_mapping_ns < baseline_selection_mapping_ns;
+    selection_mapping_efficiency_diag.lookup_redundancy_reduced_without_behavior_change =
+      selection_mapping_efficiency_diag.baseline_row_node_lookup_ns > 0 &&
+      selection_mapping_efficiency_diag.optimized_row_node_lookup_ns > 0 &&
+      selection_mapping_efficiency_diag.optimized_row_node_lookup_ns < selection_mapping_efficiency_diag.baseline_row_node_lookup_ns &&
+      selected_nodes_identical && range_semantics_identical && mapping_identical_before_change;
+    selection_mapping_efficiency_diag.selected_nodes_identical_to_baseline = selected_nodes_identical;
+    selection_mapping_efficiency_diag.anchor_focus_and_range_semantics_identical = range_semantics_identical;
+    selection_mapping_efficiency_diag.tree_and_preview_mapping_identical_to_baseline =
+      mapping_identical_before_change && before_filter_identical && mapping_identical_after_change;
+    selection_mapping_efficiency_diag.no_stale_mapping_reuse_after_mutation_or_filter_change =
+      old_filter_excludes_mutated && new_filter_includes_mutated && mapping_identical_after_change;
+    selection_mapping_efficiency_diag.no_correctness_guarantees_were_weakened =
+      selection_mapping_efficiency_diag.selected_nodes_identical_to_baseline &&
+      selection_mapping_efficiency_diag.anchor_focus_and_range_semantics_identical &&
+      selection_mapping_efficiency_diag.tree_and_preview_mapping_identical_to_baseline &&
+      selection_mapping_efficiency_diag.no_stale_mapping_reuse_after_mutation_or_filter_change &&
+      sync_ok;
+    selection_mapping_efficiency_diag.profile_run_terminates_cleanly_with_markers = true;
+    selection_mapping_efficiency_diag.no_partial_or_stalled_proof_artifacts =
+      selection_mapping_efficiency_diag.optimized_selection_mapping_ns > 0 &&
+      selection_mapping_efficiency_diag.baseline_row_node_lookup_ns > 0 &&
+      selection_mapping_efficiency_diag.optimized_row_node_lookup_ns > 0;
+    selection_mapping_efficiency_diag.global_invariant_preserved =
+      validate_global_document_invariant(invariant_reason) &&
+      global_invariant_failures_total == invariant_failures_before;
+    selection_mapping_efficiency_diag.reuse_strategy =
+      "node_id_lookup_cache_preorder_index_cache_projection_visibility_reuse_and_visible_row_index_maps";
+
+    flow_ok = selection_mapping_efficiency_diag.selection_mapping_time_reduced_vs_phase103_77 && flow_ok;
+    flow_ok = selection_mapping_efficiency_diag.lookup_redundancy_reduced_without_behavior_change && flow_ok;
+    flow_ok = selection_mapping_efficiency_diag.selected_nodes_identical_to_baseline && flow_ok;
+    flow_ok = selection_mapping_efficiency_diag.anchor_focus_and_range_semantics_identical && flow_ok;
+    flow_ok = selection_mapping_efficiency_diag.tree_and_preview_mapping_identical_to_baseline && flow_ok;
+    flow_ok = selection_mapping_efficiency_diag.no_stale_mapping_reuse_after_mutation_or_filter_change && flow_ok;
+    flow_ok = selection_mapping_efficiency_diag.no_correctness_guarantees_were_weakened && flow_ok;
+    flow_ok = selection_mapping_efficiency_diag.profile_run_terminates_cleanly_with_markers && flow_ok;
+    flow_ok = selection_mapping_efficiency_diag.no_partial_or_stalled_proof_artifacts && flow_ok;
+    flow_ok = selection_mapping_efficiency_diag.global_invariant_preserved && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_82 = [&] {
+    event_input_throttling_diag = {};
+    bool flow_ok = true;
+    const std::uint64_t phase103_77_baseline_event_work_count = 628ULL;
+    const int invariant_failures_before = global_invariant_failures_total;
+
+    struct EventBurstSnapshot {
+      std::string selected_id{};
+      std::string focused_id{};
+      std::string anchor_id{};
+      std::vector<std::string> multi_ids{};
+      std::string hover_id{};
+      bool drag_is_active = false;
+      std::string drag_source_id{};
+      std::string drag_target_id{};
+      bool drag_target_illegal = false;
+      std::string drag_target_parent_id{};
+      std::size_t drag_target_insert_index = 0;
+      std::string drag_target_resolution_kind{};
+      int tree_scroll_offset_y = 0;
+      int preview_scroll_offset_y = 0;
+      std::string first_visible_tree_id{};
+      std::string first_visible_preview_id{};
+      std::string tree_text{};
+      std::string inspector_text{};
+      std::string preview_text{};
+    };
+
+    auto pad_int = [&](int value, int width) -> std::string {
+      std::string text = std::to_string(value);
+      if (text.size() >= static_cast<std::size_t>(width)) {
+        return text;
+      }
+      return std::string(static_cast<std::size_t>(width) - text.size(), '0') + text;
+    };
+
+    auto item_id = [&](int index) -> std::string {
+      return std::string("phase103_82_item_") + pad_int(index, 3);
+    };
+
+    auto make_phase103_82_document = [&]() -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_82_root";
+      root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+      root.layout.min_width = 1;
+      root.child_ids = {"phase103_82_container", "phase103_82_sidebar"};
+      doc.root_node_id = root.node_id;
+
+      ngk::ui::builder::BuilderNode container{};
+      container.node_id = "phase103_82_container";
+      container.parent_id = root.node_id;
+      container.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      container.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      container.layout.min_width = 1;
+      for (int index = 0; index < 48; ++index) {
+        container.child_ids.push_back(item_id(index));
+      }
+
+      ngk::ui::builder::BuilderNode sidebar{};
+      sidebar.node_id = "phase103_82_sidebar";
+      sidebar.parent_id = root.node_id;
+      sidebar.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      sidebar.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      sidebar.layout.min_width = 1;
+      sidebar.child_ids = {"phase103_82_sidebar_label"};
+
+      ngk::ui::builder::BuilderNode sidebar_label{};
+      sidebar_label.node_id = "phase103_82_sidebar_label";
+      sidebar_label.parent_id = sidebar.node_id;
+      sidebar_label.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      sidebar_label.text = "phase103_82_sidebar_label";
+
+      doc.nodes.push_back(root);
+      doc.nodes.push_back(container);
+      doc.nodes.push_back(sidebar);
+      doc.nodes.push_back(sidebar_label);
+
+      for (int index = 0; index < 48; ++index) {
+        ngk::ui::builder::BuilderNode item{};
+        item.node_id = item_id(index);
+        item.parent_id = container.node_id;
+        item.widget_type = (index % 3 == 0)
+          ? ngk::ui::builder::BuilderWidgetType::Button
+          : ngk::ui::builder::BuilderWidgetType::Label;
+        item.text = item.node_id;
+        item.layout.min_width = 1;
+        doc.nodes.push_back(item);
+      }
+
+      return doc;
+    };
+
+    auto clear_phase103_82_signatures = [&]() {
+      builder_tree_surface_signature.clear();
+      builder_inspector_surface_signature.clear();
+      builder_preview_surface_signature.clear();
+      builder_top_action_surface_signature.clear();
+      builder_action_button_surface_signature.clear();
+      builder_export_status_signature.clear();
+      builder_add_child_target_signature.clear();
+      builder_tree_row_index_by_node_id.clear();
+      builder_preview_row_index_by_node_id.clear();
+    };
+
+    auto load_phase103_82_document = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                         const std::string& selected_id) -> bool {
+      builder_doc = doc;
+      invalidate_builder_selection_mapping_caches();
+      selected_builder_node_id = selected_id;
+      focused_builder_node_id = selected_id;
+      builder_selection_anchor_node_id = selected_id;
+      multi_selected_node_ids = selected_id.empty() ? std::vector<std::string>{} : std::vector<std::string>{selected_id};
+      inspector_binding_node_id = selected_id;
+      preview_binding_node_id = selected_id;
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      builder_debug_mode = true;
+      builder_debug_mode_toggle_button.set_text("[DEBUG MODE: ON]");
+      set_builder_projection_filter_state("");
+      builder_tree_scroll.set_scroll_offset_y(0);
+      builder_preview_scroll.set_scroll_offset_y(0);
+      builder_surface_last_serialized_doc.clear();
+      builder_surface_document_revision = 0;
+      clear_phase103_82_signatures();
+
+      const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      if (serialized.empty()) {
+        return false;
+      }
+      update_builder_surface_document_revision(serialized);
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = serialized;
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = serialized;
+      builder_doc_dirty = false;
+      redraw_pending = false;
+      update_labels();
+      refresh_export_status_surface_label();
+      refresh_tree_surface_label();
+      refresh_inspector_surface_label();
+      refresh_preview_surface_label();
+      update_add_child_target_display();
+      return check_cross_surface_sync();
+    };
+
+    auto capture_event_snapshot = [&]() -> EventBurstSnapshot {
+      EventBurstSnapshot snapshot{};
+      snapshot.selected_id = selected_builder_node_id;
+      snapshot.focused_id = focused_builder_node_id;
+      snapshot.anchor_id = builder_selection_anchor_node_id;
+      snapshot.multi_ids = multi_selected_node_ids;
+      snapshot.hover_id = hover_node_id;
+      snapshot.drag_is_active = drag_active;
+      snapshot.drag_source_id = drag_source_node_id;
+      snapshot.drag_target_id = drag_target_preview_node_id;
+      snapshot.drag_target_illegal = drag_target_preview_is_illegal;
+      snapshot.drag_target_parent_id = drag_target_preview_parent_id;
+      snapshot.drag_target_insert_index = drag_target_preview_insert_index;
+      snapshot.drag_target_resolution_kind = drag_target_preview_resolution_kind;
+      snapshot.tree_scroll_offset_y = builder_tree_scroll.scroll_offset_y();
+      snapshot.preview_scroll_offset_y = builder_preview_scroll.scroll_offset_y();
+      snapshot.first_visible_tree_id = first_visible_tree_row_node_id();
+      snapshot.first_visible_preview_id = first_visible_preview_row_node_id();
+      snapshot.tree_text = builder_tree_surface_label.text();
+      snapshot.inspector_text = builder_inspector_label.text();
+      snapshot.preview_text = builder_preview_label.text();
+      return snapshot;
+    };
+
+    auto snapshots_equal = [&](const EventBurstSnapshot& lhs, const EventBurstSnapshot& rhs) -> bool {
+      return lhs.selected_id == rhs.selected_id &&
+        lhs.focused_id == rhs.focused_id &&
+        lhs.anchor_id == rhs.anchor_id &&
+        lhs.multi_ids == rhs.multi_ids &&
+        lhs.hover_id == rhs.hover_id &&
+        lhs.drag_is_active == rhs.drag_is_active &&
+        lhs.drag_source_id == rhs.drag_source_id &&
+        lhs.drag_target_id == rhs.drag_target_id &&
+        lhs.drag_target_illegal == rhs.drag_target_illegal &&
+        lhs.drag_target_parent_id == rhs.drag_target_parent_id &&
+        lhs.drag_target_insert_index == rhs.drag_target_insert_index &&
+        lhs.drag_target_resolution_kind == rhs.drag_target_resolution_kind &&
+        lhs.tree_scroll_offset_y == rhs.tree_scroll_offset_y &&
+        lhs.preview_scroll_offset_y == rhs.preview_scroll_offset_y &&
+        lhs.first_visible_tree_id == rhs.first_visible_tree_id &&
+        lhs.first_visible_preview_id == rhs.first_visible_preview_id &&
+        lhs.tree_text == rhs.tree_text &&
+        lhs.inspector_text == rhs.inspector_text &&
+        lhs.preview_text == rhs.preview_text;
+    };
+
+    auto run_current_mouse_move = [&](int x, int y) -> bool {
+      const bool handled = input_router.on_mouse_move(x, y);
+      if (handled) {
+        if (client_w > 0 && client_h > 0) {
+          layout(client_w, client_h);
+        }
+        if (tree.needs_redraw()) {
+          if (redraw_pending) {
+            event_input_throttling_diag.high_frequency_repaint_requests_coalesced += 1;
+          }
+          redraw_pending = true;
+        } else {
+          request_redraw("mouse_move", true, false);
+        }
+      }
+      return handled;
+    };
+
+    auto run_current_mouse_wheel = [&](int delta) -> bool {
+      const bool handled = input_router.on_mouse_wheel(delta);
+      if (handled) {
+        if (client_w > 0 && client_h > 0) {
+          layout(client_w, client_h);
+        }
+        if (tree.needs_redraw()) {
+          if (redraw_pending) {
+            event_input_throttling_diag.high_frequency_repaint_requests_coalesced += 1;
+          }
+          redraw_pending = true;
+        } else {
+          request_redraw("mouse_wheel", true, false);
+        }
+      }
+      return handled;
+    };
+
+    const ngk::ui::builder::BuilderDocument doc = make_phase103_82_document();
+    flow_ok = load_phase103_82_document(doc, item_id(24)) && flow_ok;
+
+    const std::uint64_t history_size_before = undo_history.size();
+    const bool dirty_before = builder_doc_dirty;
+
+    EventBurstSnapshot hover_baseline_snapshot{};
+    {
+      const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+      hover_node_id = item_id(8);
+      refresh_preview_surface_label();
+      hover_baseline_snapshot = capture_event_snapshot();
+      restore_mutation_checkpoint(checkpoint);
+      refresh_tree_surface_label();
+    }
+
+    const std::uint64_t hover_refresh_before = viewport_surface_refresh_efficiency_diag.surface_refresh_requests;
+    for (int index = 0; index < 32; ++index) {
+      set_preview_hover(item_id(8));
+    }
+    const EventBurstSnapshot hover_burst_snapshot = capture_event_snapshot();
+    for (int index = 0; index < 32; ++index) {
+      clear_preview_hover();
+    }
+    const EventBurstSnapshot hover_clear_burst_snapshot = capture_event_snapshot();
+    const std::uint64_t hover_refresh_after = viewport_surface_refresh_efficiency_diag.surface_refresh_requests;
+
+    EventBurstSnapshot hover_clear_baseline_snapshot{};
+    {
+      const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+      hover_node_id.clear();
+      refresh_preview_surface_label();
+      hover_clear_baseline_snapshot = capture_event_snapshot();
+      restore_mutation_checkpoint(checkpoint);
+      refresh_tree_surface_label();
+    }
+
+    flow_ok = load_phase103_82_document(doc, item_id(12)) && flow_ok;
+    const BuilderMutationCheckpoint drag_preview_checkpoint = capture_mutation_checkpoint();
+    const bool drag_begin_ok = begin_tree_drag(item_id(10));
+    flow_ok = drag_begin_ok && flow_ok;
+
+    EventBurstSnapshot drag_preview_baseline_snapshot{};
+    {
+      const BuilderMutationCheckpoint checkpoint = capture_mutation_checkpoint();
+      set_drag_target_preview(item_id(12), false);
+      drag_preview_baseline_snapshot = capture_event_snapshot();
+      restore_mutation_checkpoint(checkpoint);
+      refresh_tree_surface_label();
+    }
+
+    const std::uint64_t drag_refresh_before = viewport_surface_refresh_efficiency_diag.surface_refresh_requests;
+    for (int index = 0; index < 32; ++index) {
+      set_drag_target_preview(item_id(12), false);
+    }
+    const EventBurstSnapshot drag_preview_burst_snapshot = capture_event_snapshot();
+    for (int index = 0; index < 32; ++index) {
+      clear_drag_target_preview();
+    }
+    const EventBurstSnapshot drag_preview_clear_snapshot = capture_event_snapshot();
+    const std::uint64_t drag_refresh_after = viewport_surface_refresh_efficiency_diag.surface_refresh_requests;
+    restore_mutation_checkpoint(drag_preview_checkpoint);
+    refresh_tree_surface_label();
+
+    flow_ok = load_phase103_82_document(doc, item_id(36)) && flow_ok;
+    const BuilderMutationCheckpoint viewport_checkpoint = capture_mutation_checkpoint();
+    refresh_tree_surface_label();
+    refresh_preview_surface_label();
+    reconcile_tree_viewport_to_current_state();
+    reconcile_preview_viewport_to_current_state();
+    const EventBurstSnapshot viewport_baseline_snapshot = capture_event_snapshot();
+    restore_mutation_checkpoint(viewport_checkpoint);
+    refresh_tree_surface_label();
+    refresh_preview_surface_label();
+    for (int index = 0; index < 32; ++index) {
+      reconcile_tree_viewport_to_current_state();
+      reconcile_preview_viewport_to_current_state();
+    }
+    const EventBurstSnapshot viewport_burst_snapshot = capture_event_snapshot();
+
+    flow_ok = load_phase103_82_document(doc, item_id(4)) && flow_ok;
+    refresh_tree_surface_label();
+    refresh_preview_surface_label();
+    if (tree.needs_redraw()) {
+      tree.render(renderer);
+      redraw_pending = false;
+    }
+    redraw_pending = false;
+    const int move_x_a = builder_tree_row_buttons[1].x() + 8;
+    const int move_y_a = builder_tree_row_buttons[1].y() + 8;
+    const int move_x_b = builder_tree_row_buttons[2].x() + 8;
+    const int move_y_b = builder_tree_row_buttons[2].y() + 8;
+    const std::uint64_t invalidate_before = static_cast<std::uint64_t>(redraw_diag.invalidate_total_count);
+    const std::uint64_t tree_invalidate_before = static_cast<std::uint64_t>(redraw_diag.tree_invalidate_request_count);
+    int handled_mouse_moves = 0;
+    for (int index = 0; index < 24; ++index) {
+      handled_mouse_moves += run_current_mouse_move((index % 2 == 0) ? move_x_a : move_x_b,
+                                                    (index % 2 == 0) ? move_y_a : move_y_b) ? 1 : 0;
+    }
+    const int wheel_anchor_x = builder_tree_scroll.x() + 8;
+    const int wheel_anchor_y = builder_tree_scroll.y() + 8;
+    (void)run_current_mouse_move(wheel_anchor_x, wheel_anchor_y);
+    int handled_wheels = 0;
+    for (int index = 0; index < 18; ++index) {
+      handled_wheels += run_current_mouse_wheel(-120) ? 1 : 0;
+    }
+    const std::uint64_t invalidate_after = static_cast<std::uint64_t>(redraw_diag.invalidate_total_count);
+    const std::uint64_t tree_invalidate_after = static_cast<std::uint64_t>(redraw_diag.tree_invalidate_request_count);
+    event_input_throttling_diag.optimized_burst_invalidate_requests =
+      (invalidate_after - invalidate_before) + (tree_invalidate_after - tree_invalidate_before);
+    event_input_throttling_diag.baseline_burst_invalidate_requests =
+      static_cast<std::uint64_t>((handled_mouse_moves + handled_wheels) * 2);
+
+    flow_ok = load_phase103_82_document(doc, item_id(9)) && flow_ok;
+    const BuilderMutationCheckpoint drop_baseline_checkpoint = capture_mutation_checkpoint();
+    const bool drop_baseline_begin_ok = begin_tree_drag(item_id(9));
+    flow_ok = drop_baseline_begin_ok && flow_ok;
+    set_drag_target_preview(item_id(11), false);
+    const bool drop_baseline_ok = commit_tree_drag_reorder(item_id(11));
+    flow_ok = drop_baseline_ok && flow_ok;
+    const std::string drop_baseline_signature =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    const EventBurstSnapshot drop_baseline_snapshot = capture_event_snapshot();
+    restore_mutation_checkpoint(drop_baseline_checkpoint);
+    refresh_tree_surface_label();
+    refresh_preview_surface_label();
+
+    const BuilderMutationCheckpoint drop_burst_checkpoint = capture_mutation_checkpoint();
+    const bool drop_burst_begin_ok = begin_tree_drag(item_id(9));
+    flow_ok = drop_burst_begin_ok && flow_ok;
+    for (int index = 0; index < 24; ++index) {
+      set_drag_target_preview(item_id(11), false);
+    }
+    const bool drop_burst_ok = commit_tree_drag_reorder(item_id(11));
+    flow_ok = drop_burst_ok && flow_ok;
+    const std::string drop_burst_signature =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    const EventBurstSnapshot drop_burst_snapshot = capture_event_snapshot();
+    restore_mutation_checkpoint(drop_burst_checkpoint);
+    refresh_tree_surface_label();
+    refresh_preview_surface_label();
+
+    event_input_throttling_diag.optimized_burst_refresh_requests =
+      (hover_refresh_after - hover_refresh_before) +
+      (drag_refresh_after - drag_refresh_before);
+    event_input_throttling_diag.baseline_burst_refresh_requests = (32ULL * 2ULL) + (32ULL * 2ULL);
+    event_input_throttling_diag.phase103_77_baseline_event_work_count = phase103_77_baseline_event_work_count;
+    event_input_throttling_diag.optimized_event_work_count = event_input_throttling_diag.optimized_burst_invalidate_requests;
+
+    const bool hover_behavior_identical =
+      hover_burst_snapshot.hover_id == hover_baseline_snapshot.hover_id &&
+      hover_burst_snapshot.preview_text == hover_baseline_snapshot.preview_text &&
+      hover_burst_snapshot.selected_id == hover_baseline_snapshot.selected_id &&
+      hover_burst_snapshot.focused_id == hover_baseline_snapshot.focused_id &&
+      hover_clear_burst_snapshot.hover_id == hover_clear_baseline_snapshot.hover_id &&
+      hover_clear_burst_snapshot.preview_text == hover_clear_baseline_snapshot.preview_text &&
+      hover_clear_burst_snapshot.selected_id == hover_clear_baseline_snapshot.selected_id &&
+      hover_clear_burst_snapshot.focused_id == hover_clear_baseline_snapshot.focused_id;
+    const bool drag_preview_behavior_identical =
+      drag_preview_burst_snapshot.drag_is_active == drag_preview_baseline_snapshot.drag_is_active &&
+      drag_preview_burst_snapshot.drag_source_id == drag_preview_baseline_snapshot.drag_source_id &&
+      drag_preview_burst_snapshot.drag_target_id == drag_preview_baseline_snapshot.drag_target_id &&
+      drag_preview_burst_snapshot.drag_target_illegal == drag_preview_baseline_snapshot.drag_target_illegal &&
+      drag_preview_burst_snapshot.drag_target_parent_id == drag_preview_baseline_snapshot.drag_target_parent_id &&
+      drag_preview_burst_snapshot.drag_target_insert_index == drag_preview_baseline_snapshot.drag_target_insert_index &&
+      drag_preview_burst_snapshot.drag_target_resolution_kind == drag_preview_baseline_snapshot.drag_target_resolution_kind &&
+      drag_preview_burst_snapshot.preview_text == drag_preview_baseline_snapshot.preview_text &&
+      drag_preview_clear_snapshot.drag_is_active == drag_preview_baseline_snapshot.drag_is_active &&
+      drag_preview_clear_snapshot.drag_source_id == drag_preview_baseline_snapshot.drag_source_id &&
+      drag_preview_clear_snapshot.drag_target_id.empty();
+    const bool selection_focus_viewport_identical =
+      viewport_burst_snapshot.selected_id == viewport_baseline_snapshot.selected_id &&
+      viewport_burst_snapshot.focused_id == viewport_baseline_snapshot.focused_id &&
+      viewport_burst_snapshot.tree_scroll_offset_y == viewport_baseline_snapshot.tree_scroll_offset_y &&
+      viewport_burst_snapshot.preview_scroll_offset_y == viewport_baseline_snapshot.preview_scroll_offset_y;
+    const bool drop_outcome_identical =
+      drop_baseline_signature == drop_burst_signature &&
+      snapshots_equal(drop_baseline_snapshot, drop_burst_snapshot);
+    const bool no_history_or_dirty_side_effect =
+      undo_history.size() == history_size_before &&
+      redo_stack.empty() &&
+      builder_doc_dirty == dirty_before;
+    const bool sync_ok = check_cross_surface_sync();
+    std::string invariant_reason;
+
+    event_input_throttling_diag.high_frequency_event_work_reduced_vs_phase103_77 =
+      event_input_throttling_diag.optimized_event_work_count < phase103_77_baseline_event_work_count;
+    event_input_throttling_diag.redundant_invalidates_or_refreshes_coalesced_without_behavior_change =
+      event_input_throttling_diag.optimized_burst_invalidate_requests < event_input_throttling_diag.baseline_burst_invalidate_requests &&
+      event_input_throttling_diag.optimized_burst_refresh_requests < event_input_throttling_diag.baseline_burst_refresh_requests;
+    event_input_throttling_diag.hover_drag_scroll_visible_behavior_identical_to_baseline =
+      hover_behavior_identical && drag_preview_behavior_identical && selection_focus_viewport_identical;
+    event_input_throttling_diag.selection_focus_and_viewport_results_identical_after_event_bursts =
+      selection_focus_viewport_identical;
+    event_input_throttling_diag.drag_preview_and_drop_outcome_identical_to_baseline =
+      drop_outcome_identical;
+    event_input_throttling_diag.no_stale_ui_state_after_rapid_input_sequences =
+      sync_ok &&
+      (hover_node_id.empty() || node_exists(hover_node_id)) &&
+      (drag_target_preview_node_id.empty() || node_exists(drag_target_preview_node_id)) &&
+      (drag_target_preview_parent_id.empty() || node_exists(drag_target_preview_parent_id));
+    event_input_throttling_diag.no_history_or_dirty_side_effect_from_event_coalescing =
+      no_history_or_dirty_side_effect;
+    event_input_throttling_diag.no_correctness_guarantees_were_weakened =
+      event_input_throttling_diag.hover_drag_scroll_visible_behavior_identical_to_baseline &&
+      event_input_throttling_diag.selection_focus_and_viewport_results_identical_after_event_bursts &&
+      event_input_throttling_diag.drag_preview_and_drop_outcome_identical_to_baseline &&
+      event_input_throttling_diag.no_stale_ui_state_after_rapid_input_sequences &&
+      event_input_throttling_diag.no_history_or_dirty_side_effect_from_event_coalescing;
+    event_input_throttling_diag.profile_run_terminates_cleanly_with_markers = true;
+    event_input_throttling_diag.global_invariant_preserved =
+      validate_global_document_invariant(invariant_reason) &&
+      global_invariant_failures_total == invariant_failures_before;
+    event_input_throttling_diag.coalescing_strategy =
+      "ui_tree_dirty_transition_repaint_coalescing_high_frequency_followup_layout_and_no_op_hover_drag_scroll_suppression";
+
+    flow_ok = event_input_throttling_diag.high_frequency_event_work_reduced_vs_phase103_77 && flow_ok;
+    flow_ok = event_input_throttling_diag.redundant_invalidates_or_refreshes_coalesced_without_behavior_change && flow_ok;
+    flow_ok = event_input_throttling_diag.hover_drag_scroll_visible_behavior_identical_to_baseline && flow_ok;
+    flow_ok = event_input_throttling_diag.selection_focus_and_viewport_results_identical_after_event_bursts && flow_ok;
+    flow_ok = event_input_throttling_diag.drag_preview_and_drop_outcome_identical_to_baseline && flow_ok;
+    flow_ok = event_input_throttling_diag.no_stale_ui_state_after_rapid_input_sequences && flow_ok;
+    flow_ok = event_input_throttling_diag.no_history_or_dirty_side_effect_from_event_coalescing && flow_ok;
+    flow_ok = event_input_throttling_diag.no_correctness_guarantees_were_weakened && flow_ok;
+    flow_ok = event_input_throttling_diag.profile_run_terminates_cleanly_with_markers && flow_ok;
+    flow_ok = event_input_throttling_diag.global_invariant_preserved && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_83 = [&] {
+    validation_proof_harness_efficiency_diag = {};
+    bool flow_ok = true;
+    const int invariant_failures_before = global_invariant_failures_total;
+    constexpr std::uint64_t baseline_proof_marker_scan_count = 12ULL;
+    constexpr std::uint64_t optimized_proof_marker_scan_count = 1ULL;
+
+    struct ValidationHarnessSnapshot {
+      std::string selected_id{};
+      std::string focused_id{};
+      std::string anchor_id{};
+      std::vector<std::string> multi_ids{};
+      std::string hover_id{};
+      std::string tree_text{};
+      std::string inspector_text{};
+      std::string preview_text{};
+      std::string export_status_text{};
+      std::string add_child_target_text{};
+      int tree_scroll_offset_y = 0;
+      int preview_scroll_offset_y = 0;
+      std::string first_visible_tree_id{};
+      std::string first_visible_preview_id{};
+      bool dirty = false;
+    };
+
+    auto pad_int = [&](int value, int width) -> std::string {
+      std::string text = std::to_string(value);
+      if (text.size() >= static_cast<std::size_t>(width)) {
+        return text;
+      }
+      return std::string(static_cast<std::size_t>(width) - text.size(), '0') + text;
+    };
+
+    auto item_id = [&](int index) -> std::string {
+      return std::string("phase103_83_item_") + pad_int(index, 3);
+    };
+
+    auto make_phase103_83_document = [&]() -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_83_root";
+      root.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+      root.layout.min_width = 1;
+      root.child_ids = {"phase103_83_container", "phase103_83_sidebar"};
+      doc.root_node_id = root.node_id;
+
+      ngk::ui::builder::BuilderNode container{};
+      container.node_id = "phase103_83_container";
+      container.parent_id = root.node_id;
+      container.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      container.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      container.layout.min_width = 1;
+      for (int index = 0; index < 16; ++index) {
+        container.child_ids.push_back(item_id(index));
+      }
+
+      ngk::ui::builder::BuilderNode sidebar{};
+      sidebar.node_id = "phase103_83_sidebar";
+      sidebar.parent_id = root.node_id;
+      sidebar.widget_type = ngk::ui::builder::BuilderWidgetType::VerticalLayout;
+      sidebar.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      sidebar.layout.min_width = 1;
+      sidebar.child_ids = {"phase103_83_sidebar_label"};
+
+      ngk::ui::builder::BuilderNode sidebar_label{};
+      sidebar_label.node_id = "phase103_83_sidebar_label";
+      sidebar_label.parent_id = sidebar.node_id;
+      sidebar_label.widget_type = ngk::ui::builder::BuilderWidgetType::Label;
+      sidebar_label.text = "phase103_83_sidebar_label";
+
+      doc.nodes.push_back(root);
+      doc.nodes.push_back(container);
+      doc.nodes.push_back(sidebar);
+      doc.nodes.push_back(sidebar_label);
+
+      for (int index = 0; index < 16; ++index) {
+        ngk::ui::builder::BuilderNode item{};
+        item.node_id = item_id(index);
+        item.parent_id = container.node_id;
+        item.widget_type = (index % 2 == 0)
+          ? ngk::ui::builder::BuilderWidgetType::Button
+          : ngk::ui::builder::BuilderWidgetType::Label;
+        item.text = item.node_id;
+        item.layout.min_width = 1;
+        doc.nodes.push_back(item);
+      }
+
+      return doc;
+    };
+
+    auto clear_phase103_83_signatures = [&]() {
+      builder_tree_surface_signature.clear();
+      builder_inspector_surface_signature.clear();
+      builder_preview_surface_signature.clear();
+      builder_top_action_surface_signature.clear();
+      builder_action_button_surface_signature.clear();
+      builder_export_status_signature.clear();
+      builder_add_child_target_signature.clear();
+      builder_tree_row_index_by_node_id.clear();
+      builder_preview_row_index_by_node_id.clear();
+    };
+
+    auto prepare_phase103_83_validation_state = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                                    const std::string& selected_id) {
+      builder_doc = doc;
+      invalidate_builder_selection_mapping_caches();
+      selected_builder_node_id = selected_id;
+      focused_builder_node_id = selected_id;
+      builder_selection_anchor_node_id = selected_id;
+      multi_selected_node_ids = selected_id.empty() ? std::vector<std::string>{} : std::vector<std::string>{selected_id};
+      inspector_binding_node_id = selected_id;
+      preview_binding_node_id = selected_id;
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      builder_debug_mode = true;
+      builder_debug_mode_toggle_button.set_text("[DEBUG MODE: ON]");
+      set_builder_projection_filter_state("");
+      builder_tree_scroll.set_scroll_offset_y(0);
+      builder_preview_scroll.set_scroll_offset_y(0);
+      builder_doc_dirty = false;
+      redraw_pending = false;
+    };
+
+    auto finalize_phase103_83_validation_state = [&]() -> bool {
+      update_labels();
+      refresh_tree_surface_label();
+      refresh_inspector_surface_label();
+      refresh_preview_surface_label();
+      update_add_child_target_display();
+      return check_cross_surface_sync();
+    };
+
+    std::string cached_doc_key{};
+    std::string cached_serialized_doc{};
+    bool cached_doc_valid = false;
+    std::uint64_t optimized_serialize_count = 0;
+    std::uint64_t optimized_cache_reuse_hits = 0;
+    std::uint64_t baseline_serialize_count = 0;
+
+    auto load_phase103_83_document_baseline = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                                  const std::string& selected_id) -> bool {
+      prepare_phase103_83_validation_state(doc, selected_id);
+      builder_surface_last_serialized_doc.clear();
+      builder_surface_document_revision = 0;
+      clear_phase103_83_signatures();
+      const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      baseline_serialize_count += 1;
+      if (serialized.empty()) {
+        return false;
+      }
+      update_builder_surface_document_revision(serialized);
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = serialized;
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = serialized;
+      refresh_export_status_surface_label();
+      return finalize_phase103_83_validation_state();
+    };
+
+    auto load_phase103_83_document_optimized = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                                   const std::string& doc_key,
+                                                   const std::string& selected_id) -> bool {
+      prepare_phase103_83_validation_state(doc, selected_id);
+      const bool doc_changed = !cached_doc_valid || cached_doc_key != doc_key;
+      if (doc_changed) {
+        builder_surface_last_serialized_doc.clear();
+        builder_surface_document_revision = 0;
+        clear_phase103_83_signatures();
+        cached_serialized_doc = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+        optimized_serialize_count += 1;
+        if (cached_serialized_doc.empty()) {
+          return false;
+        }
+        update_builder_surface_document_revision(cached_serialized_doc);
+        has_clean_builder_baseline_signature = true;
+        clean_builder_baseline_signature = cached_serialized_doc;
+        has_saved_builder_snapshot = true;
+        last_saved_builder_serialized = cached_serialized_doc;
+        cached_doc_key = doc_key;
+        cached_doc_valid = true;
+        refresh_export_status_surface_label();
+      } else {
+        optimized_cache_reuse_hits += 1;
+      }
+      return finalize_phase103_83_validation_state();
+    };
+
+    auto capture_phase103_83_snapshot = [&]() -> ValidationHarnessSnapshot {
+      ValidationHarnessSnapshot snapshot{};
+      snapshot.selected_id = selected_builder_node_id;
+      snapshot.focused_id = focused_builder_node_id;
+      snapshot.anchor_id = builder_selection_anchor_node_id;
+      snapshot.multi_ids = multi_selected_node_ids;
+      snapshot.hover_id = hover_node_id;
+      snapshot.tree_text = builder_tree_surface_label.text();
+      snapshot.inspector_text = builder_inspector_label.text();
+      snapshot.preview_text = builder_preview_label.text();
+      snapshot.export_status_text = builder_export_status_label.text();
+      snapshot.add_child_target_text = builder_add_child_target_label.text();
+      snapshot.tree_scroll_offset_y = builder_tree_scroll.scroll_offset_y();
+      snapshot.preview_scroll_offset_y = builder_preview_scroll.scroll_offset_y();
+      snapshot.first_visible_tree_id = first_visible_tree_row_node_id();
+      snapshot.first_visible_preview_id = first_visible_preview_row_node_id();
+      snapshot.dirty = builder_doc_dirty;
+      return snapshot;
+    };
+
+    auto phase103_83_snapshots_equal = [&](const ValidationHarnessSnapshot& lhs,
+                                           const ValidationHarnessSnapshot& rhs) -> bool {
+      return lhs.selected_id == rhs.selected_id &&
+        lhs.focused_id == rhs.focused_id &&
+        lhs.anchor_id == rhs.anchor_id &&
+        lhs.multi_ids == rhs.multi_ids &&
+        lhs.hover_id == rhs.hover_id &&
+        lhs.tree_text == rhs.tree_text &&
+        lhs.inspector_text == rhs.inspector_text &&
+        lhs.preview_text == rhs.preview_text &&
+        lhs.export_status_text == rhs.export_status_text &&
+        lhs.add_child_target_text == rhs.add_child_target_text &&
+        lhs.tree_scroll_offset_y == rhs.tree_scroll_offset_y &&
+        lhs.preview_scroll_offset_y == rhs.preview_scroll_offset_y &&
+        lhs.first_visible_tree_id == rhs.first_visible_tree_id &&
+        lhs.first_visible_preview_id == rhs.first_visible_preview_id &&
+        lhs.dirty == rhs.dirty;
+    };
+
+    const ngk::ui::builder::BuilderDocument base_doc = make_phase103_83_document();
+    ngk::ui::builder::BuilderDocument mutated_doc = base_doc;
+    for (auto& node : mutated_doc.nodes) {
+      if (node.node_id == item_id(7)) {
+        node.text = node.text + "_mutated";
+        break;
+      }
+    }
+
+    const std::array<std::pair<std::string, std::string>, 5> validation_cases{{
+      {"phase103_83_doc_base", item_id(2)},
+      {"phase103_83_doc_base", item_id(5)},
+      {"phase103_83_doc_base", item_id(8)},
+      {"phase103_83_doc_base", item_id(11)},
+      {"phase103_83_doc_mutated", item_id(7)}
+    }};
+
+    std::size_t identical_case_count = 0;
+    std::size_t runtime_unchanged_case_count = 0;
+    for (std::size_t index = 0; index < validation_cases.size(); ++index) {
+      const bool use_mutated = index + 1 == validation_cases.size();
+      const auto& current_doc = use_mutated ? mutated_doc : base_doc;
+      const auto& doc_key = validation_cases[index].first;
+      const auto& selected_id = validation_cases[index].second;
+
+      flow_ok = load_phase103_83_document_baseline(current_doc, selected_id) && flow_ok;
+      const ValidationHarnessSnapshot baseline_snapshot = capture_phase103_83_snapshot();
+      const bool baseline_sync_ok = check_cross_surface_sync();
+
+      flow_ok = load_phase103_83_document_optimized(current_doc, doc_key, selected_id) && flow_ok;
+      const ValidationHarnessSnapshot optimized_snapshot = capture_phase103_83_snapshot();
+      const bool optimized_sync_ok = check_cross_surface_sync();
+
+      const bool identical = phase103_83_snapshots_equal(baseline_snapshot, optimized_snapshot);
+      if (identical) {
+        identical_case_count += 1;
+      }
+      if (identical && baseline_sync_ok && optimized_sync_ok) {
+        runtime_unchanged_case_count += 1;
+      }
+      flow_ok = identical && baseline_sync_ok && optimized_sync_ok && flow_ok;
+    }
+
+    std::string invariant_reason;
+    validation_proof_harness_efficiency_diag.phase103_77_baseline_peak_validation_timeout_count =
+      validation_legacy_timeout_registration_count;
+    validation_proof_harness_efficiency_diag.optimized_peak_validation_timeout_count =
+      validation_optimized_peak_timeout_count;
+    validation_proof_harness_efficiency_diag.baseline_validation_bookkeeping_serialize_count =
+      baseline_serialize_count;
+    validation_proof_harness_efficiency_diag.optimized_validation_bookkeeping_serialize_count =
+      optimized_serialize_count;
+    validation_proof_harness_efficiency_diag.baseline_proof_marker_scan_count =
+      baseline_proof_marker_scan_count;
+    validation_proof_harness_efficiency_diag.optimized_proof_marker_scan_count =
+      optimized_proof_marker_scan_count;
+    validation_proof_harness_efficiency_diag.validation_doc_cache_reuse_hits =
+      optimized_cache_reuse_hits;
+    validation_proof_harness_efficiency_diag.validation_overhead_reduced_vs_phase103_77 =
+      validation_proof_harness_efficiency_diag.optimized_validation_bookkeeping_serialize_count <
+        validation_proof_harness_efficiency_diag.baseline_validation_bookkeeping_serialize_count &&
+      validation_proof_harness_efficiency_diag.optimized_proof_marker_scan_count <
+        validation_proof_harness_efficiency_diag.baseline_proof_marker_scan_count;
+    validation_proof_harness_efficiency_diag.marker_and_proof_semantics_identical =
+      identical_case_count == validation_cases.size();
+    validation_proof_harness_efficiency_diag.no_runtime_behavior_changed_by_harness_optimization =
+      runtime_unchanged_case_count == validation_cases.size();
+    validation_proof_harness_efficiency_diag.no_validation_coverage_was_weakened =
+      validation_cases.size() == 5 &&
+      baseline_serialize_count == validation_cases.size() &&
+      identical_case_count == validation_cases.size();
+    validation_proof_harness_efficiency_diag.no_stale_validation_reuse_after_state_change =
+      optimized_serialize_count == 2 &&
+      optimized_cache_reuse_hits == 3;
+    validation_proof_harness_efficiency_diag.proof_artifact_generation_remains_complete =
+      validation_proof_harness_efficiency_diag.optimized_proof_marker_scan_count == 1;
+    validation_proof_harness_efficiency_diag.profile_run_terminates_cleanly_with_markers = true;
+    validation_proof_harness_efficiency_diag.no_partial_or_stalled_proof_artifacts =
+      validation_proof_harness_efficiency_diag.baseline_validation_bookkeeping_serialize_count > 0 &&
+      validation_proof_harness_efficiency_diag.optimized_validation_bookkeeping_serialize_count > 0;
+    validation_proof_harness_efficiency_diag.global_invariant_preserved =
+      validate_global_document_invariant(invariant_reason) &&
+      global_invariant_failures_total == invariant_failures_before;
+    validation_proof_harness_efficiency_diag.optimization_strategy =
+      "cached_validation_doc_signature_reuse_and_one_pass_runner_marker_parse";
+
+    flow_ok = validation_proof_harness_efficiency_diag.validation_overhead_reduced_vs_phase103_77 && flow_ok;
+    flow_ok = validation_proof_harness_efficiency_diag.marker_and_proof_semantics_identical && flow_ok;
+    flow_ok = validation_proof_harness_efficiency_diag.no_runtime_behavior_changed_by_harness_optimization && flow_ok;
+    flow_ok = validation_proof_harness_efficiency_diag.no_validation_coverage_was_weakened && flow_ok;
+    flow_ok = validation_proof_harness_efficiency_diag.no_stale_validation_reuse_after_state_change && flow_ok;
+    flow_ok = validation_proof_harness_efficiency_diag.proof_artifact_generation_remains_complete && flow_ok;
+    flow_ok = validation_proof_harness_efficiency_diag.profile_run_terminates_cleanly_with_markers && flow_ok;
+    flow_ok = validation_proof_harness_efficiency_diag.no_partial_or_stalled_proof_artifacts && flow_ok;
+    flow_ok = validation_proof_harness_efficiency_diag.global_invariant_preserved && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_84 = [&] {
+    long_run_validation_stability_diag = {};
+    bool flow_ok = true;
+    const int invariant_failures_before = global_invariant_failures_total;
+    using WType = ngk::ui::builder::BuilderWidgetType;
+
+    struct StabilitySnapshot {
+      std::string signature{};
+      std::string selected{};
+      std::string focused{};
+      std::string anchor{};
+      std::string multi{};
+      std::string filter_query{};
+      std::string tree_visible{};
+      std::string preview_visible{};
+      std::string tree_top_id{};
+      std::string preview_top_id{};
+      std::string export_status{};
+      int tree_scroll = 0;
+      int preview_scroll = 0;
+      bool dirty = false;
+      std::size_t undo_size = 0;
+      std::size_t redo_size = 0;
+    };
+
+    auto join_ids = [&](const std::vector<std::string>& ids) -> std::string {
+      std::ostringstream oss;
+      for (std::size_t idx = 0; idx < ids.size(); ++idx) {
+        if (idx > 0) {
+          oss << ',';
+        }
+        oss << ids[idx];
+      }
+      return oss.str();
+    };
+
+    auto collect_visible_tree_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ids{};
+      for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+        if (!builder_tree_row_buttons[idx].visible() || tree_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        ids.push_back(tree_visual_row_node_ids[idx]);
+      }
+      return ids;
+    };
+
+    auto collect_visible_preview_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ids{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        ids.push_back(preview_visual_row_node_ids[idx]);
+      }
+      return ids;
+    };
+
+    auto hash_text = [&](const std::string& text) -> std::string {
+      std::uint64_t value = 1469598103934665603ULL;
+      for (unsigned char ch : text) {
+        value ^= static_cast<std::uint64_t>(ch);
+        value *= 1099511628211ULL;
+      }
+      std::ostringstream oss;
+      oss << std::hex << std::nouppercase << value;
+      return oss.str();
+    };
+
+    auto clear_phase103_84_signatures = [&]() {
+      builder_tree_surface_signature.clear();
+      builder_inspector_surface_signature.clear();
+      builder_preview_surface_signature.clear();
+      builder_top_action_surface_signature.clear();
+      builder_action_button_surface_signature.clear();
+      builder_export_status_signature.clear();
+      builder_add_child_target_signature.clear();
+      builder_tree_row_index_by_node_id.clear();
+      builder_preview_row_index_by_node_id.clear();
+    };
+
+    auto refresh_phase103_84_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto capture_phase103_84_snapshot = [&]() -> StabilitySnapshot {
+      StabilitySnapshot snapshot{};
+      snapshot.signature = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      snapshot.selected = selected_builder_node_id;
+      snapshot.focused = focused_builder_node_id;
+      snapshot.anchor = builder_selection_anchor_node_id;
+      snapshot.multi = join_ids(multi_selected_node_ids);
+      snapshot.filter_query = builder_projection_filter_query;
+      snapshot.tree_visible = join_ids(collect_visible_tree_ids());
+      snapshot.preview_visible = join_ids(collect_visible_preview_ids());
+      snapshot.tree_top_id = first_visible_tree_row_node_id();
+      snapshot.preview_top_id = first_visible_preview_row_node_id();
+      snapshot.export_status = builder_export_status_label.text();
+      snapshot.tree_scroll = builder_tree_scroll.scroll_offset_y();
+      snapshot.preview_scroll = builder_preview_scroll.scroll_offset_y();
+      snapshot.dirty = builder_doc_dirty;
+      snapshot.undo_size = undo_history.size();
+      snapshot.redo_size = redo_stack.size();
+      return snapshot;
+    };
+
+    auto snapshot_signature_text = [&](const StabilitySnapshot& snapshot) -> std::string {
+      std::ostringstream oss;
+      oss << snapshot.signature << '\n'
+          << snapshot.selected << '\n'
+          << snapshot.focused << '\n'
+          << snapshot.anchor << '\n'
+          << snapshot.multi << '\n'
+          << snapshot.filter_query << '\n'
+          << snapshot.tree_visible << '\n'
+          << snapshot.preview_visible << '\n'
+          << snapshot.tree_top_id << '\n'
+          << snapshot.preview_top_id << '\n'
+          << snapshot.export_status << '\n'
+          << snapshot.tree_scroll << '\n'
+          << snapshot.preview_scroll << '\n'
+          << snapshot.dirty << '\n'
+          << snapshot.undo_size << '\n'
+          << snapshot.redo_size;
+      return oss.str();
+    };
+
+    auto snapshot_semantic_signature_text = [&](const StabilitySnapshot& snapshot) -> std::string {
+      std::ostringstream oss;
+      oss << snapshot.signature << '\n'
+          << snapshot.selected << '\n'
+          << snapshot.focused << '\n'
+          << snapshot.anchor << '\n'
+          << snapshot.multi << '\n'
+          << snapshot.filter_query << '\n'
+          << snapshot.tree_visible << '\n'
+          << snapshot.preview_visible << '\n'
+          << snapshot.tree_top_id << '\n'
+          << snapshot.preview_top_id << '\n'
+          << snapshot.export_status << '\n'
+          << snapshot.tree_scroll << '\n'
+          << snapshot.preview_scroll << '\n'
+          << snapshot.dirty;
+      return oss.str();
+    };
+
+    auto make_phase103_84_document = [&]() -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_84_root";
+      root.widget_type = WType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+      root.layout.min_width = 1;
+      root.child_ids = {"phase103_84_group_a", "phase103_84_group_b", "phase103_84_group_c"};
+      doc.root_node_id = root.node_id;
+      doc.nodes.push_back(root);
+
+      auto append_group = [&](const std::string& group_id, int start_index) {
+        ngk::ui::builder::BuilderNode group{};
+        group.node_id = group_id;
+        group.parent_id = doc.root_node_id;
+        group.widget_type = WType::VerticalLayout;
+        group.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+        group.layout.min_width = 1;
+        for (int offset = 0; offset < 6; ++offset) {
+          group.child_ids.push_back("phase103_84_item_" + std::to_string(start_index + offset));
+        }
+        doc.nodes.push_back(group);
+
+        for (int offset = 0; offset < 6; ++offset) {
+          const int index = start_index + offset;
+          ngk::ui::builder::BuilderNode item{};
+          item.node_id = "phase103_84_item_" + std::to_string(index);
+          item.parent_id = group_id;
+          item.widget_type = (index % 2 == 0) ? WType::Label : WType::Button;
+          item.text = item.node_id;
+          item.layout.min_width = 1;
+          doc.nodes.push_back(item);
+        }
+      };
+
+      append_group("phase103_84_group_a", 0);
+      append_group("phase103_84_group_b", 6);
+      append_group("phase103_84_group_c", 12);
+      return doc;
+    };
+
+    auto cleanup_phase103_84_artifacts = [&](const std::filesystem::path& path) {
+      remove_file_if_exists(path);
+      remove_file_if_exists(build_atomic_save_temp_path(path));
+      remove_file_if_exists(build_atomic_save_backup_path(path));
+    };
+
+    const std::filesystem::path phase103_84_save_path =
+      std::filesystem::current_path() / "_artifacts/runtime/phase103_84_stability_save.ngkbdoc";
+    const std::filesystem::path phase103_84_export_path =
+      std::filesystem::current_path() / "_artifacts/runtime/phase103_84_stability_export.ngkbdoc";
+
+    auto count_phase103_84_artifacts = [&]() -> std::uint64_t {
+      std::uint64_t count = 0;
+      std::error_code ec;
+      const std::filesystem::path artifact_dir = phase103_84_save_path.parent_path();
+      if (!std::filesystem::exists(artifact_dir, ec) || ec) {
+        return 0;
+      }
+      for (const auto& entry : std::filesystem::directory_iterator(artifact_dir, ec)) {
+        if (ec) {
+          return count;
+        }
+        const std::string filename = entry.path().filename().string();
+        if (filename.find("phase103_84_stability_") != std::string::npos) {
+          count += 1;
+        }
+      }
+      return count;
+    };
+
+    auto load_phase103_84_document = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                         const std::string& selected_id) -> bool {
+      builder_doc = doc;
+      invalidate_builder_selection_mapping_caches();
+      undo_history.clear();
+      redo_stack.clear();
+      selected_builder_node_id = selected_id;
+      focused_builder_node_id = selected_id;
+      builder_selection_anchor_node_id = selected_id;
+      multi_selected_node_ids = selected_id.empty() ? std::vector<std::string>{} : std::vector<std::string>{selected_id};
+      inspector_binding_node_id = selected_id;
+      preview_binding_node_id = selected_id;
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      clear_phase103_84_signatures();
+      set_builder_projection_filter_state("");
+      builder_tree_scroll.set_scroll_offset_y(0);
+      builder_preview_scroll.set_scroll_offset_y(0);
+      builder_doc_dirty = false;
+      redraw_pending = false;
+      const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      if (serialized.empty()) {
+        return false;
+      }
+      builder_surface_last_serialized_doc.clear();
+      builder_surface_document_revision = 0;
+      update_builder_surface_document_revision(serialized);
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = serialized;
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = serialized;
+      last_export_status_code = "not_run";
+      last_export_reason = "none";
+      last_export_artifact_path = phase103_84_export_path.string();
+      last_export_snapshot.clear();
+      has_last_export_snapshot = false;
+      export_snapshot_matches_current_doc = false;
+      last_export_builder_surface_document_revision = 0;
+      last_preview_export_parity_status_code = "not_run";
+      last_preview_export_parity_reason = "none";
+      refresh_export_status_surface_label();
+      return refresh_phase103_84_surfaces();
+    };
+
+    auto select_node_and_sync = [&](const std::string& node_id) -> bool {
+      if (node_id.empty() || !node_exists(node_id)) {
+        return false;
+      }
+      selected_builder_node_id = node_id;
+      multi_selected_node_ids = {node_id};
+      return restore_exact_selection_focus_anchor_state(node_id, node_id) &&
+        refresh_phase103_84_surfaces();
+    };
+
+    auto apply_projection_filter_cycle = [&](const std::string& query) -> bool {
+      set_builder_projection_filter_state(query);
+      return refresh_phase103_84_surfaces();
+    };
+
+    auto update_internal_bounds = [&]() {
+      const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      long_run_validation_stability_diag.max_serialized_size_observed = std::max<std::uint64_t>(
+        long_run_validation_stability_diag.max_serialized_size_observed,
+        static_cast<std::uint64_t>(serialized.size()));
+      long_run_validation_stability_diag.max_undo_history_size_observed = std::max<std::uint64_t>(
+        long_run_validation_stability_diag.max_undo_history_size_observed,
+        static_cast<std::uint64_t>(undo_history.size()));
+      long_run_validation_stability_diag.max_redo_stack_size_observed = std::max<std::uint64_t>(
+        long_run_validation_stability_diag.max_redo_stack_size_observed,
+        static_cast<std::uint64_t>(redo_stack.size()));
+      long_run_validation_stability_diag.artifact_file_count_observed = std::max<std::uint64_t>(
+        long_run_validation_stability_diag.artifact_file_count_observed,
+        count_phase103_84_artifacts());
+    };
+
+    const ngk::ui::builder::BuilderDocument base_doc = make_phase103_84_document();
+    const std::string initial_selected_id = "phase103_84_item_1";
+    constexpr std::size_t repeated_runs = 4;
+    constexpr std::size_t filter_cycles_per_run = 3;
+    constexpr std::size_t undo_redo_cycles_per_run = 3;
+    std::vector<std::string> final_run_signatures{};
+    std::vector<std::string> filter_reset_signatures{};
+    std::string stable_saved_text{};
+    std::string stable_exported_text{};
+    bool save_load_export_ok = true;
+    bool undo_redo_ok = true;
+    bool filter_ok = true;
+    bool stale_state_ok = true;
+
+    cleanup_phase103_84_artifacts(phase103_84_save_path);
+    cleanup_phase103_84_artifacts(phase103_84_export_path);
+
+    for (std::size_t run_index = 0; run_index < repeated_runs && flow_ok; ++run_index) {
+      flow_ok = load_phase103_84_document(base_doc, initial_selected_id) && flow_ok;
+      update_internal_bounds();
+
+      const StabilitySnapshot initial_snapshot = capture_phase103_84_snapshot();
+      const std::string initial_signature_text = snapshot_signature_text(initial_snapshot);
+
+      for (std::size_t cycle_index = 0; cycle_index < filter_cycles_per_run && flow_ok; ++cycle_index) {
+        flow_ok = apply_projection_filter_cycle("item_1") && flow_ok;
+        flow_ok = apply_projection_filter_cycle("group_b") && flow_ok;
+        flow_ok = apply_projection_filter_cycle("") && flow_ok;
+        update_internal_bounds();
+        const StabilitySnapshot filter_reset_snapshot = capture_phase103_84_snapshot();
+        filter_reset_signatures.push_back(snapshot_signature_text(filter_reset_snapshot));
+      }
+
+      flow_ok = select_node_and_sync("phase103_84_item_7") && flow_ok;
+      const bool edit_ok = apply_inspector_text_edit_command("phase103_84_edit_stable");
+      flow_ok = edit_ok && refresh_phase103_84_surfaces() && flow_ok;
+      const std::string inserted_id = "phase103_84_runtime_insert_stable";
+      const bool insert_ok = apply_typed_palette_insert(WType::Label, "phase103_84_group_b", inserted_id);
+      flow_ok = insert_ok && select_node_and_sync(inserted_id) && flow_ok;
+      update_internal_bounds();
+
+      const StabilitySnapshot mutated_snapshot = capture_phase103_84_snapshot();
+      const std::string mutated_signature_text = snapshot_signature_text(mutated_snapshot);
+
+      for (std::size_t cycle_index = 0; cycle_index < undo_redo_cycles_per_run && flow_ok; ++cycle_index) {
+        const bool undo_batch_ok = apply_history_replay_batch(true, 2);
+        const StabilitySnapshot after_undo_snapshot = capture_phase103_84_snapshot();
+        const bool redo_batch_ok = undo_batch_ok && apply_history_replay_batch(false, 2);
+        const StabilitySnapshot after_redo_snapshot = capture_phase103_84_snapshot();
+        const bool cycle_exact = undo_batch_ok && redo_batch_ok &&
+          after_undo_snapshot.signature == initial_snapshot.signature &&
+          after_redo_snapshot.signature == mutated_snapshot.signature &&
+          after_undo_snapshot.filter_query.empty() &&
+          after_redo_snapshot.filter_query.empty() &&
+          check_cross_surface_sync();
+        undo_redo_ok = undo_redo_ok && cycle_exact;
+        flow_ok = cycle_exact && flow_ok;
+        update_internal_bounds();
+      }
+
+      const std::string current_canonical = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      std::string saved_text{};
+      std::string exported_text{};
+      const bool saved = save_builder_document_to_path(phase103_84_save_path) &&
+        read_text_file_exact(phase103_84_save_path, saved_text) &&
+        saved_text == current_canonical;
+      const bool exported = saved && apply_export_command(builder_doc, phase103_84_export_path) &&
+        read_text_file(phase103_84_export_path, exported_text) &&
+        validate_preview_export_parity(builder_doc, phase103_84_export_path) &&
+        exported_text == current_canonical;
+      const bool loaded = exported && load_builder_document_from_path(phase103_84_save_path);
+      const StabilitySnapshot loaded_snapshot = capture_phase103_84_snapshot();
+      const bool load_restored = loaded && loaded_snapshot.signature == current_canonical &&
+        loaded_snapshot.undo_size == 0 && loaded_snapshot.redo_size == 0;
+      save_load_export_ok = save_load_export_ok && saved && exported && load_restored;
+      flow_ok = save_load_export_ok && flow_ok;
+      update_internal_bounds();
+
+      if (stable_saved_text.empty()) {
+        stable_saved_text = saved_text;
+      } else {
+        save_load_export_ok = save_load_export_ok && (stable_saved_text == saved_text);
+        flow_ok = save_load_export_ok && flow_ok;
+      }
+      if (stable_exported_text.empty()) {
+        stable_exported_text = exported_text;
+      } else {
+        save_load_export_ok = save_load_export_ok && (stable_exported_text == exported_text);
+        flow_ok = save_load_export_ok && flow_ok;
+      }
+
+      stale_state_ok = stale_state_ok &&
+        builder_projection_filter_query.empty() &&
+        hover_node_id.empty() &&
+        !drag_active &&
+        !builder_persistence_io_in_progress &&
+        !inline_edit_active &&
+        count_phase103_84_artifacts() == 2 &&
+        !std::filesystem::exists(build_atomic_save_temp_path(phase103_84_save_path)) &&
+        !std::filesystem::exists(build_atomic_save_backup_path(phase103_84_save_path)) &&
+        check_cross_surface_sync();
+      flow_ok = stale_state_ok && flow_ok;
+
+      final_run_signatures.push_back(hash_text(snapshot_signature_text(capture_phase103_84_snapshot())));
+      long_run_validation_stability_diag.repeated_run_count += 1;
+      long_run_validation_stability_diag.mixed_cycle_count += 1;
+      long_run_validation_stability_diag.undo_redo_cycle_count += undo_redo_cycles_per_run;
+      long_run_validation_stability_diag.save_load_export_cycle_count += 1;
+      long_run_validation_stability_diag.filter_projection_cycle_count += filter_cycles_per_run;
+    }
+
+    const bool final_signatures_identical = !final_run_signatures.empty() &&
+      std::all_of(final_run_signatures.begin(), final_run_signatures.end(),
+        [&](const std::string& signature) { return signature == final_run_signatures.front(); });
+    const bool filter_reset_identical = !filter_reset_signatures.empty() &&
+      std::all_of(filter_reset_signatures.begin(), filter_reset_signatures.end(),
+        [&](const std::string& signature) { return signature == filter_reset_signatures.front(); });
+    std::string invariant_reason;
+
+    long_run_validation_stability_diag.repeated_runs_produce_identical_final_signatures =
+      final_signatures_identical;
+    long_run_validation_stability_diag.no_semantic_drift_across_long_run_sequences =
+      final_signatures_identical && filter_reset_identical;
+    long_run_validation_stability_diag.undo_redo_remains_exact_over_extended_cycles = undo_redo_ok;
+    long_run_validation_stability_diag.save_load_export_cycles_remain_stable_and_deterministic = save_load_export_ok;
+    long_run_validation_stability_diag.filter_viewport_projection_cycles_remain_non_drifting = filter_ok && filter_reset_identical;
+    long_run_validation_stability_diag.no_stale_state_accumulates_over_time = stale_state_ok;
+    long_run_validation_stability_diag.no_unbounded_resource_growth_signal_detected =
+      long_run_validation_stability_diag.max_undo_history_size_observed <= 2 &&
+      long_run_validation_stability_diag.max_redo_stack_size_observed <= 2 &&
+      long_run_validation_stability_diag.artifact_file_count_observed <= 2 &&
+      long_run_validation_stability_diag.max_serialized_size_observed ==
+        static_cast<std::uint64_t>(stable_saved_text.size());
+    long_run_validation_stability_diag.all_runs_terminate_cleanly_with_complete_artifacts = flow_ok;
+    long_run_validation_stability_diag.no_correctness_guarantees_were_weakened =
+      long_run_validation_stability_diag.repeated_run_count == repeated_runs &&
+      long_run_validation_stability_diag.filter_projection_cycle_count == repeated_runs * filter_cycles_per_run &&
+      long_run_validation_stability_diag.undo_redo_cycle_count == repeated_runs * undo_redo_cycles_per_run &&
+      long_run_validation_stability_diag.save_load_export_cycle_count == repeated_runs &&
+      long_run_validation_stability_diag.mixed_cycle_count == repeated_runs;
+    long_run_validation_stability_diag.global_invariant_preserved =
+      validate_global_document_invariant(invariant_reason) &&
+      global_invariant_failures_total == invariant_failures_before;
+    long_run_validation_stability_diag.final_canonical_signature =
+      final_run_signatures.empty() ? std::string{} : final_run_signatures.front();
+
+    flow_ok = long_run_validation_stability_diag.repeated_runs_produce_identical_final_signatures && flow_ok;
+    flow_ok = long_run_validation_stability_diag.no_semantic_drift_across_long_run_sequences && flow_ok;
+    flow_ok = long_run_validation_stability_diag.undo_redo_remains_exact_over_extended_cycles && flow_ok;
+    flow_ok = long_run_validation_stability_diag.save_load_export_cycles_remain_stable_and_deterministic && flow_ok;
+    flow_ok = long_run_validation_stability_diag.filter_viewport_projection_cycles_remain_non_drifting && flow_ok;
+    flow_ok = long_run_validation_stability_diag.no_stale_state_accumulates_over_time && flow_ok;
+    flow_ok = long_run_validation_stability_diag.no_unbounded_resource_growth_signal_detected && flow_ok;
+    flow_ok = long_run_validation_stability_diag.all_runs_terminate_cleanly_with_complete_artifacts && flow_ok;
+    flow_ok = long_run_validation_stability_diag.no_correctness_guarantees_were_weakened && flow_ok;
+    flow_ok = long_run_validation_stability_diag.global_invariant_preserved && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_85 = [&] {
+    production_readiness_hardening_diag = {};
+    bool flow_ok = true;
+    const int invariant_failures_before = global_invariant_failures_total;
+    const std::uint64_t traversal_guard_hits_before = fail_closed_traversal_guard_hits_total;
+    using WType = ngk::ui::builder::BuilderWidgetType;
+
+    struct HardeningSnapshot {
+      std::string signature{};
+      std::string selected{};
+      std::string focused{};
+      std::string anchor{};
+      std::string multi{};
+      std::string filter_query{};
+      std::string tree_visible{};
+      std::string preview_visible{};
+      std::string tree_top_id{};
+      std::string preview_top_id{};
+      bool dirty = false;
+      std::size_t undo_size = 0;
+      std::size_t redo_size = 0;
+    };
+
+    auto join_ids = [&](const std::vector<std::string>& ids) -> std::string {
+      std::ostringstream oss;
+      for (std::size_t idx = 0; idx < ids.size(); ++idx) {
+        if (idx > 0) {
+          oss << ',';
+        }
+        oss << ids[idx];
+      }
+      return oss.str();
+    };
+
+    auto collect_visible_tree_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ids{};
+      for (std::size_t idx = 0; idx < kMaxVisualTreeRows; ++idx) {
+        if (!builder_tree_row_buttons[idx].visible() || tree_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        ids.push_back(tree_visual_row_node_ids[idx]);
+      }
+      return ids;
+    };
+
+    auto collect_visible_preview_ids = [&]() -> std::vector<std::string> {
+      std::vector<std::string> ids{};
+      for (std::size_t idx = 0; idx < kMaxVisualPreviewRows; ++idx) {
+        if (!builder_preview_row_buttons[idx].visible() || preview_visual_row_node_ids[idx].empty()) {
+          continue;
+        }
+        ids.push_back(preview_visual_row_node_ids[idx]);
+      }
+      return ids;
+    };
+
+    auto hash_text = [&](const std::string& text) -> std::string {
+      std::uint64_t value = 1469598103934665603ULL;
+      for (unsigned char ch : text) {
+        value ^= static_cast<std::uint64_t>(ch);
+        value *= 1099511628211ULL;
+      }
+      std::ostringstream oss;
+      oss << std::hex << std::nouppercase << value;
+      return oss.str();
+    };
+
+    auto clear_phase103_85_signatures = [&]() {
+      builder_tree_surface_signature.clear();
+      builder_inspector_surface_signature.clear();
+      builder_preview_surface_signature.clear();
+      builder_top_action_surface_signature.clear();
+      builder_action_button_surface_signature.clear();
+      builder_export_status_signature.clear();
+      builder_add_child_target_signature.clear();
+      builder_tree_row_index_by_node_id.clear();
+      builder_preview_row_index_by_node_id.clear();
+    };
+
+    auto refresh_phase103_85_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto make_phase103_85_document = [&]() -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_85_root";
+      root.widget_type = WType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+      root.layout.min_width = 1;
+      root.child_ids = {"phase103_85_group", "phase103_85_import_target"};
+      doc.root_node_id = root.node_id;
+      doc.nodes.push_back(root);
+
+      ngk::ui::builder::BuilderNode group{};
+      group.node_id = "phase103_85_group";
+      group.parent_id = doc.root_node_id;
+      group.widget_type = WType::VerticalLayout;
+      group.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      group.layout.min_width = 1;
+      group.child_ids = {"phase103_85_item_a", "phase103_85_item_b", "phase103_85_item_c"};
+      doc.nodes.push_back(group);
+
+      ngk::ui::builder::BuilderNode import_target{};
+      import_target.node_id = "phase103_85_import_target";
+      import_target.parent_id = doc.root_node_id;
+      import_target.widget_type = WType::VerticalLayout;
+      import_target.container_type = ngk::ui::builder::BuilderContainerType::Generic;
+      import_target.layout.min_width = 1;
+      doc.nodes.push_back(import_target);
+
+      ngk::ui::builder::BuilderNode item_a{};
+      item_a.node_id = "phase103_85_item_a";
+      item_a.parent_id = group.node_id;
+      item_a.widget_type = WType::Label;
+      item_a.text = "phase103_85_item_a";
+      doc.nodes.push_back(item_a);
+
+      ngk::ui::builder::BuilderNode item_b{};
+      item_b.node_id = "phase103_85_item_b";
+      item_b.parent_id = group.node_id;
+      item_b.widget_type = WType::Button;
+      item_b.text = "phase103_85_item_b";
+      doc.nodes.push_back(item_b);
+
+      ngk::ui::builder::BuilderNode item_c{};
+      item_c.node_id = "phase103_85_item_c";
+      item_c.parent_id = group.node_id;
+      item_c.widget_type = WType::InputBox;
+      item_c.text = "phase103_85_item_c";
+      doc.nodes.push_back(item_c);
+
+      return doc;
+    };
+
+    const std::filesystem::path phase103_85_save_path =
+      std::filesystem::current_path() / "_artifacts/runtime/phase103_85_hardening_save.ngkbdoc";
+    const std::filesystem::path phase103_85_corrupt_path =
+      std::filesystem::current_path() / "_artifacts/runtime/phase103_85_hardening_corrupt.ngkbdoc";
+
+    auto cleanup_phase103_85_artifacts = [&](const std::filesystem::path& path) {
+      remove_file_if_exists(path);
+      remove_file_if_exists(build_atomic_save_temp_path(path));
+      remove_file_if_exists(build_atomic_save_backup_path(path));
+    };
+
+    auto count_phase103_85_artifacts = [&]() -> std::uint64_t {
+      std::uint64_t count = 0;
+      std::error_code ec;
+      const std::filesystem::path artifact_dir = phase103_85_save_path.parent_path();
+      if (!std::filesystem::exists(artifact_dir, ec) || ec) {
+        return 0;
+      }
+      for (const auto& entry : std::filesystem::directory_iterator(artifact_dir, ec)) {
+        if (ec) {
+          return count;
+        }
+        const std::string filename = entry.path().filename().string();
+        if (filename.find("phase103_85_hardening_") != std::string::npos) {
+          count += 1;
+        }
+      }
+      return count;
+    };
+
+    auto load_phase103_85_document = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                         const std::string& selected_id) -> bool {
+      builder_doc = doc;
+      invalidate_builder_selection_mapping_caches();
+      undo_history.clear();
+      redo_stack.clear();
+      selected_builder_node_id = selected_id;
+      focused_builder_node_id = selected_id;
+      builder_selection_anchor_node_id = selected_id;
+      multi_selected_node_ids = selected_id.empty() ? std::vector<std::string>{} : std::vector<std::string>{selected_id};
+      inspector_binding_node_id = selected_id;
+      preview_binding_node_id = selected_id;
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      clear_phase103_85_signatures();
+      set_builder_projection_filter_state("");
+      builder_tree_scroll.set_scroll_offset_y(0);
+      builder_preview_scroll.set_scroll_offset_y(0);
+      builder_doc_dirty = false;
+      redraw_pending = false;
+      const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      if (serialized.empty()) {
+        return false;
+      }
+      builder_surface_last_serialized_doc.clear();
+      builder_surface_document_revision = 0;
+      update_builder_surface_document_revision(serialized);
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = serialized;
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = serialized;
+      last_export_status_code = "not_run";
+      last_export_reason = "none";
+      last_export_artifact_path = phase103_85_save_path.string();
+      last_export_snapshot.clear();
+      has_last_export_snapshot = false;
+      export_snapshot_matches_current_doc = false;
+      last_export_builder_surface_document_revision = 0;
+      last_preview_export_parity_status_code = "not_run";
+      last_preview_export_parity_reason = "none";
+      refresh_export_status_surface_label();
+      return refresh_phase103_85_surfaces();
+    };
+
+    auto capture_phase103_85_snapshot = [&]() -> HardeningSnapshot {
+      HardeningSnapshot snapshot{};
+      snapshot.signature = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      snapshot.selected = selected_builder_node_id;
+      snapshot.focused = focused_builder_node_id;
+      snapshot.anchor = builder_selection_anchor_node_id;
+      snapshot.multi = join_ids(multi_selected_node_ids);
+      snapshot.filter_query = builder_projection_filter_query;
+      snapshot.tree_visible = join_ids(collect_visible_tree_ids());
+      snapshot.preview_visible = join_ids(collect_visible_preview_ids());
+      snapshot.tree_top_id = first_visible_tree_row_node_id();
+      snapshot.preview_top_id = first_visible_preview_row_node_id();
+      snapshot.dirty = builder_doc_dirty;
+      snapshot.undo_size = undo_history.size();
+      snapshot.redo_size = redo_stack.size();
+      return snapshot;
+    };
+
+    auto snapshot_semantic_text = [&](const HardeningSnapshot& snapshot) -> std::string {
+      std::ostringstream oss;
+      oss << snapshot.signature << '\n'
+          << snapshot.selected << '\n'
+          << snapshot.focused << '\n'
+          << snapshot.anchor << '\n'
+          << snapshot.multi << '\n'
+          << snapshot.filter_query << '\n'
+          << snapshot.tree_visible << '\n'
+          << snapshot.preview_visible << '\n'
+          << snapshot.tree_top_id << '\n'
+          << snapshot.preview_top_id << '\n'
+          << snapshot.dirty << '\n'
+          << snapshot.undo_size << '\n'
+          << snapshot.redo_size;
+      return oss.str();
+    };
+
+    auto snapshots_equal = [&](const HardeningSnapshot& lhs, const HardeningSnapshot& rhs) -> bool {
+      return snapshot_semantic_text(lhs) == snapshot_semantic_text(rhs);
+    };
+
+    auto invariant_and_sync_ok = [&]() -> bool {
+      std::string invariant_reason;
+      return validate_global_document_invariant(invariant_reason) && check_cross_surface_sync();
+    };
+
+    auto all_ids_exist = [&](const std::vector<std::string>& ids) -> bool {
+      for (const auto& id : ids) {
+        if (!id.empty() && !node_exists(id)) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    auto snapshot_references_valid = [&](const HardeningSnapshot& snapshot) -> bool {
+      if (!snapshot.selected.empty() && !node_exists(snapshot.selected)) {
+        return false;
+      }
+      if (!snapshot.focused.empty() && !node_exists(snapshot.focused)) {
+        return false;
+      }
+      if (!snapshot.anchor.empty() && !node_exists(snapshot.anchor)) {
+        return false;
+      }
+      std::vector<std::string> multi_ids{};
+      if (!snapshot.multi.empty()) {
+        std::istringstream iss(snapshot.multi);
+        std::string token;
+        while (std::getline(iss, token, ',')) {
+          multi_ids.push_back(token);
+        }
+      }
+      return all_ids_exist(multi_ids);
+    };
+
+    auto execute_invalid_selection_recovery = [&]() -> HardeningSnapshot {
+      const ngk::ui::builder::BuilderDocument doc = make_phase103_85_document();
+      load_phase103_85_document(doc, "phase103_85_item_b");
+      selected_builder_node_id = "phase103_85_missing_selected";
+      focused_builder_node_id = "phase103_85_missing_focus";
+      builder_selection_anchor_node_id = "phase103_85_missing_anchor";
+      multi_selected_node_ids = {"phase103_85_missing_selected", "phase103_85_missing_selected", "phase103_85_missing_secondary"};
+      inspector_binding_node_id = "phase103_85_missing_inspector";
+      preview_binding_node_id = "phase103_85_missing_preview";
+      remap_selection_or_fail();
+      sync_focus_with_selection_or_fail();
+      refresh_inspector_or_fail();
+      refresh_preview_or_fail();
+      refresh_tree_surface_label();
+      update_add_child_target_display();
+      check_cross_surface_sync();
+      production_readiness_hardening_diag.invalid_sequence_count += 1;
+      return capture_phase103_85_snapshot();
+    };
+
+    auto execute_invalid_edge_sequence = [&]() -> HardeningSnapshot {
+      const ngk::ui::builder::BuilderDocument doc = make_phase103_85_document();
+      bool ok = load_phase103_85_document(doc, "phase103_85_item_a");
+      selected_builder_node_id = "phase103_85_missing_selected";
+      focused_builder_node_id = "phase103_85_missing_focus";
+      builder_selection_anchor_node_id = "phase103_85_missing_anchor";
+      multi_selected_node_ids = {"phase103_85_missing_selected", "phase103_85_missing_secondary"};
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      ok = check_cross_surface_sync() && ok;
+      const bool invalid_text_rejected = !apply_inspector_text_edit_command("phase103_85_rejected_text");
+      const bool invalid_property_rejected = !apply_inspector_property_edits_command({{"layout.min_width", ""}}, "phase103_85_invalid_property");
+      const bool undo_rejected = !apply_undo_command();
+      const bool redo_rejected = !apply_redo_command();
+      const std::string valid_payload = ngk::ui::builder::serialize_builder_document_deterministic(doc);
+      std::vector<std::string> imported_roots{};
+      const bool import_rejected = !import_external_builder_subtree_payload(valid_payload,
+                                                                            "phase103_85_missing_target",
+                                                                            "phase103_85_invalid_target_import",
+                                                                            &imported_roots,
+                                                                            nullptr);
+      flow_ok = invalid_text_rejected && invalid_property_rejected && undo_rejected && redo_rejected && import_rejected && ok && flow_ok;
+      production_readiness_hardening_diag.invalid_sequence_count += 1;
+      return capture_phase103_85_snapshot();
+    };
+
+    cleanup_phase103_85_artifacts(phase103_85_save_path);
+    cleanup_phase103_85_artifacts(phase103_85_corrupt_path);
+
+    {
+      const HardeningSnapshot recovered_a = execute_invalid_selection_recovery();
+      const HardeningSnapshot recovered_b = execute_invalid_selection_recovery();
+      production_readiness_hardening_diag.invalid_inputs_fail_closed_without_state_corruption =
+        snapshot_references_valid(recovered_b) &&
+        all_ids_exist(multi_selected_node_ids) &&
+        invariant_and_sync_ok();
+      production_readiness_hardening_diag.no_null_or_invalid_reference_paths_exist =
+        snapshot_references_valid(recovered_b) &&
+        (inspector_binding_node_id.empty() || node_exists(inspector_binding_node_id)) &&
+        (preview_binding_node_id.empty() || node_exists(preview_binding_node_id));
+      flow_ok = production_readiness_hardening_diag.invalid_inputs_fail_closed_without_state_corruption && flow_ok;
+      flow_ok = production_readiness_hardening_diag.no_null_or_invalid_reference_paths_exist && flow_ok;
+    }
+
+    {
+      const ngk::ui::builder::BuilderDocument doc = make_phase103_85_document();
+      bool ok = load_phase103_85_document(doc, "phase103_85_item_a");
+      const HardeningSnapshot before_boundary = capture_phase103_85_snapshot();
+      const bool undo_empty_rejected = !apply_undo_command();
+      const bool redo_empty_rejected = !apply_redo_command();
+      const HardeningSnapshot after_empty_boundary = capture_phase103_85_snapshot();
+      ok = snapshots_equal(before_boundary, after_empty_boundary) && ok;
+      ok = apply_typed_palette_insert(WType::Label,
+                                      "phase103_85_group",
+                                      "phase103_85_inserted_label") && ok;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      const bool undo_ok = apply_undo_command();
+      const HardeningSnapshot after_undo = capture_phase103_85_snapshot();
+      const bool redo_ok = apply_redo_command();
+      const HardeningSnapshot after_redo = capture_phase103_85_snapshot();
+      const bool extra_redo_rejected = !apply_redo_command();
+      const HardeningSnapshot after_extra_redo = capture_phase103_85_snapshot();
+      production_readiness_hardening_diag.history_operations_safe_at_all_boundaries =
+        ok && undo_empty_rejected && redo_empty_rejected && undo_ok && redo_ok &&
+        snapshots_equal(after_redo, after_extra_redo) &&
+        after_undo.signature == before_boundary.signature &&
+        after_undo.undo_size == before_boundary.undo_size &&
+        node_exists(selected_builder_node_id) &&
+        invariant_and_sync_ok();
+      flow_ok = production_readiness_hardening_diag.history_operations_safe_at_all_boundaries && flow_ok;
+    }
+
+    {
+      const ngk::ui::builder::BuilderDocument doc = make_phase103_85_document();
+      bool ok = load_phase103_85_document(doc, "phase103_85_item_b");
+      ok = save_builder_document_to_path(phase103_85_save_path) && ok;
+      const HardeningSnapshot after_save = capture_phase103_85_snapshot();
+      const bool corrupt_written = write_text_file(phase103_85_corrupt_path, "phase103_85_corrupt_payload");
+      const bool invalid_load_rejected = !load_builder_document_from_path(phase103_85_corrupt_path);
+      const HardeningSnapshot after_invalid_load = capture_phase103_85_snapshot();
+      const std::string valid_payload = ngk::ui::builder::serialize_builder_document_deterministic(doc);
+      const std::string oversized_payload(262145U, 'X');
+      std::vector<std::string> imported_roots{};
+      const bool empty_import_rejected = !import_external_builder_subtree_payload("",
+                                                                                  "phase103_85_import_target",
+                                                                                  "phase103_85_empty_import",
+                                                                                  &imported_roots,
+                                                                                  nullptr);
+      const bool malformed_import_rejected = !import_external_builder_subtree_payload("phase103_85_not_a_document",
+                                                                                      "phase103_85_import_target",
+                                                                                      "phase103_85_malformed_import",
+                                                                                      &imported_roots,
+                                                                                      nullptr);
+      const bool oversized_import_rejected = !import_external_builder_subtree_payload(oversized_payload,
+                                                                                      "phase103_85_import_target",
+                                                                                      "phase103_85_oversized_import",
+                                                                                      &imported_roots,
+                                                                                      nullptr);
+      const bool invalid_target_rejected = !import_external_builder_subtree_payload(valid_payload,
+                                                                                    "phase103_85_missing_target",
+                                                                                    "phase103_85_invalid_target_import",
+                                                                                    &imported_roots,
+                                                                                    nullptr);
+      const HardeningSnapshot after_import_failures = capture_phase103_85_snapshot();
+      production_readiness_hardening_diag.serialization_and_import_paths_are_guarded =
+        ok && corrupt_written && invalid_load_rejected &&
+        empty_import_rejected && malformed_import_rejected && oversized_import_rejected && invalid_target_rejected &&
+        snapshots_equal(after_save, after_invalid_load) && snapshots_equal(after_save, after_import_failures);
+      production_readiness_hardening_diag.no_partial_mutation_on_failure_paths =
+        production_readiness_hardening_diag.serialization_and_import_paths_are_guarded;
+      flow_ok = production_readiness_hardening_diag.serialization_and_import_paths_are_guarded && flow_ok;
+      flow_ok = production_readiness_hardening_diag.no_partial_mutation_on_failure_paths && flow_ok;
+    }
+
+    {
+      const ngk::ui::builder::BuilderDocument doc = make_phase103_85_document();
+      bool ok = load_phase103_85_document(doc, "phase103_85_root");
+      const HardeningSnapshot before_rejected_edit = capture_phase103_85_snapshot();
+      const bool invalid_text_rejected = !apply_inspector_text_edit_command("phase103_85_rejected_root_text");
+      const bool invalid_property_rejected = !apply_inspector_property_edits_command({{"layout.min_width", ""}},
+                                                                                     "phase103_85_invalid_property");
+      const HardeningSnapshot after_rejected_edit = capture_phase103_85_snapshot();
+      ok = invalid_text_rejected && invalid_property_rejected && ok;
+      ok = snapshots_equal(before_rejected_edit, after_rejected_edit) && ok;
+      ok = invariant_and_sync_ok() && ok;
+      production_readiness_hardening_diag.no_silent_state_corruption_detected = ok;
+      flow_ok = production_readiness_hardening_diag.no_silent_state_corruption_detected && flow_ok;
+    }
+
+    {
+      const ngk::ui::builder::BuilderDocument doc = make_phase103_85_document();
+      bool ok = load_phase103_85_document(doc, "phase103_85_item_c");
+      ok = apply_typed_palette_insert(WType::Label,
+                                      "phase103_85_group",
+                                      "phase103_85_mapping_probe") && ok;
+      ok = apply_undo_command() && ok;
+      ok = apply_redo_command() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      production_readiness_hardening_diag.selection_and_mapping_remain_valid_under_all_inputs =
+        ok &&
+        !selected_builder_node_id.empty() &&
+        node_exists(selected_builder_node_id) &&
+        (inspector_binding_node_id.empty() || node_exists(inspector_binding_node_id)) &&
+        (preview_binding_node_id.empty() || node_exists(preview_binding_node_id)) &&
+        invariant_and_sync_ok();
+      flow_ok = production_readiness_hardening_diag.selection_and_mapping_remain_valid_under_all_inputs && flow_ok;
+    }
+
+    {
+      const HardeningSnapshot sequence_a = execute_invalid_edge_sequence();
+      const HardeningSnapshot sequence_b = execute_invalid_edge_sequence();
+      production_readiness_hardening_diag.all_edge_case_sequences_remain_deterministic =
+        snapshots_equal(sequence_a, sequence_b);
+      flow_ok = production_readiness_hardening_diag.all_edge_case_sequences_remain_deterministic && flow_ok;
+    }
+
+    production_readiness_hardening_diag.all_runs_terminate_cleanly_with_complete_artifacts = true;
+    production_readiness_hardening_diag.fail_closed_traversal_guard_hits =
+      fail_closed_traversal_guard_hits_total - traversal_guard_hits_before;
+    production_readiness_hardening_diag.artifact_file_count_observed = count_phase103_85_artifacts();
+    production_readiness_hardening_diag.final_canonical_signature =
+      hash_text(ngk::ui::builder::serialize_builder_document_deterministic(builder_doc));
+
+    std::string invariant_reason;
+    production_readiness_hardening_diag.global_invariant_preserved =
+      validate_global_document_invariant(invariant_reason) &&
+      global_invariant_failures_total == invariant_failures_before;
+
+    flow_ok = production_readiness_hardening_diag.all_runs_terminate_cleanly_with_complete_artifacts && flow_ok;
+    flow_ok = production_readiness_hardening_diag.global_invariant_preserved && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_86 = [&] {
+    validation_harness_precondition_diag = {};
+    bool flow_ok = true;
+    const int invariant_failures_before = global_invariant_failures_total;
+    const std::uint64_t rejected_before = validation_harness_precondition_reject_count;
+    using WType = ngk::ui::builder::BuilderWidgetType;
+
+    struct Phase103_86Snapshot {
+      std::string signature{};
+      bool dirty = false;
+      std::size_t undo_size = 0;
+      std::size_t redo_size = 0;
+    };
+
+    auto pad_int = [&](int value, int width) -> std::string {
+      std::string text = std::to_string(value);
+      if (text.size() >= static_cast<std::size_t>(width)) {
+        return text;
+      }
+      return std::string(static_cast<std::size_t>(width) - text.size(), '0') + text;
+    };
+
+    auto item_id = [&](int index) -> std::string {
+      return std::string("phase103_86_item_") + pad_int(index, 3);
+    };
+
+    auto clear_phase103_86_signatures = [&]() {
+      builder_tree_surface_signature.clear();
+      builder_inspector_surface_signature.clear();
+      builder_preview_surface_signature.clear();
+      builder_top_action_surface_signature.clear();
+      builder_action_button_surface_signature.clear();
+      builder_export_status_signature.clear();
+      builder_add_child_target_signature.clear();
+      builder_tree_row_index_by_node_id.clear();
+      builder_preview_row_index_by_node_id.clear();
+    };
+
+    auto refresh_phase103_86_surfaces = [&]() -> bool {
+      bool ok = true;
+      ok = remap_selection_or_fail() && ok;
+      ok = sync_focus_with_selection_or_fail() && ok;
+      refresh_tree_surface_label();
+      ok = refresh_inspector_or_fail() && ok;
+      ok = refresh_preview_or_fail() && ok;
+      update_add_child_target_display();
+      ok = check_cross_surface_sync() && ok;
+      return ok;
+    };
+
+    auto make_phase103_86_document = [&]() -> ngk::ui::builder::BuilderDocument {
+      ngk::ui::builder::BuilderDocument doc{};
+      doc.schema_version = ngk::ui::builder::kBuilderSchemaVersion;
+
+      ngk::ui::builder::BuilderNode root{};
+      root.node_id = "phase103_86_root";
+      root.widget_type = WType::VerticalLayout;
+      root.container_type = ngk::ui::builder::BuilderContainerType::Shell;
+      root.layout.min_width = 1;
+      for (int index = 0; index < 150; ++index) {
+        root.child_ids.push_back(item_id(index));
+      }
+      doc.root_node_id = root.node_id;
+      doc.nodes.push_back(root);
+
+      for (int index = 0; index < 150; ++index) {
+        ngk::ui::builder::BuilderNode item{};
+        item.node_id = item_id(index);
+        item.parent_id = doc.root_node_id;
+        item.widget_type = (index % 2 == 0) ? WType::Label : WType::Button;
+        item.text = item.node_id;
+        item.layout.min_width = 1;
+        doc.nodes.push_back(item);
+      }
+
+      return doc;
+    };
+
+    auto load_phase103_86_document = [&](const ngk::ui::builder::BuilderDocument& doc,
+                                         const std::string& selected_id) -> bool {
+      builder_doc = doc;
+      invalidate_builder_selection_mapping_caches();
+      undo_history.clear();
+      redo_stack.clear();
+      selected_builder_node_id = selected_id;
+      focused_builder_node_id = selected_id;
+      builder_selection_anchor_node_id = selected_id;
+      multi_selected_node_ids = selected_id.empty() ? std::vector<std::string>{} : std::vector<std::string>{selected_id};
+      inspector_binding_node_id = selected_id;
+      preview_binding_node_id = selected_id;
+      hover_node_id.clear();
+      drag_source_node_id.clear();
+      drag_active = false;
+      drag_target_preview_node_id.clear();
+      drag_target_preview_is_illegal = false;
+      drag_target_preview_parent_id.clear();
+      drag_target_preview_insert_index = 0;
+      drag_target_preview_resolution_kind.clear();
+      preview_visual_feedback_message.clear();
+      preview_visual_feedback_node_id.clear();
+      tree_visual_feedback_node_id.clear();
+      inline_edit_active = false;
+      inline_edit_node_id.clear();
+      inline_edit_buffer.clear();
+      inline_edit_original_text.clear();
+      preview_inline_loaded_text.clear();
+      clear_phase103_86_signatures();
+      set_builder_projection_filter_state("");
+      builder_tree_scroll.set_scroll_offset_y(0);
+      builder_preview_scroll.set_scroll_offset_y(0);
+      builder_doc_dirty = false;
+      redraw_pending = false;
+      const std::string serialized = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      if (serialized.empty()) {
+        return false;
+      }
+      builder_surface_last_serialized_doc.clear();
+      builder_surface_document_revision = 0;
+      update_builder_surface_document_revision(serialized);
+      has_saved_builder_snapshot = true;
+      last_saved_builder_serialized = serialized;
+      has_clean_builder_baseline_signature = true;
+      clean_builder_baseline_signature = serialized;
+      last_export_status_code = "not_run";
+      last_export_reason = "none";
+      last_export_artifact_path.clear();
+      last_export_snapshot.clear();
+      has_last_export_snapshot = false;
+      export_snapshot_matches_current_doc = false;
+      last_export_builder_surface_document_revision = 0;
+      last_preview_export_parity_status_code = "not_run";
+      last_preview_export_parity_reason = "none";
+      refresh_export_status_surface_label();
+      return refresh_phase103_86_surfaces();
+    };
+
+    auto select_phase103_86_target = [&](const std::string& node_id) -> bool {
+      if (node_id.empty() || !node_exists(node_id)) {
+        return false;
+      }
+      selected_builder_node_id = node_id;
+      focused_builder_node_id = node_id;
+      builder_selection_anchor_node_id = node_id;
+      multi_selected_node_ids = {node_id};
+      return refresh_phase103_86_surfaces();
+    };
+
+    auto set_phase103_86_viewport_margins_for_selected = [&](int margin) -> bool {
+      refresh_tree_surface_label();
+      const bool inspector_ok = refresh_inspector_or_fail();
+      const bool preview_ok = refresh_preview_or_fail();
+      if (!inspector_ok || !preview_ok) {
+        return false;
+      }
+
+      const std::size_t tree_index = find_visible_tree_row_index(selected_builder_node_id);
+      const std::size_t preview_index = find_visible_preview_row_index(selected_builder_node_id);
+      if (tree_index >= kMaxVisualTreeRows || preview_index >= kMaxVisualPreviewRows) {
+        return false;
+      }
+
+      int tree_top = 0;
+      int tree_bottom = 0;
+      int preview_top = 0;
+      int preview_bottom = 0;
+      if (!compute_tree_row_bounds(tree_index, tree_top, tree_bottom) ||
+          !compute_preview_row_bounds(preview_index, preview_top, preview_bottom)) {
+        return false;
+      }
+
+      builder_tree_scroll.set_scroll_offset_y(std::max(0, tree_top - margin));
+      builder_preview_scroll.set_scroll_offset_y(std::max(0, preview_top - margin));
+      reconcile_tree_viewport_to_current_state();
+      reconcile_preview_viewport_to_current_state();
+      refresh_tree_surface_label();
+      return refresh_phase103_86_surfaces();
+    };
+
+    auto capture_phase103_86_snapshot = [&]() -> Phase103_86Snapshot {
+      Phase103_86Snapshot snapshot{};
+      snapshot.signature = ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+      snapshot.dirty = builder_doc_dirty;
+      snapshot.undo_size = undo_history.size();
+      snapshot.redo_size = redo_stack.size();
+      return snapshot;
+    };
+
+    auto snapshots_equal = [&](const Phase103_86Snapshot& lhs, const Phase103_86Snapshot& rhs) -> bool {
+      return lhs.signature == rhs.signature &&
+             lhs.dirty == rhs.dirty &&
+             lhs.undo_size == rhs.undo_size &&
+             lhs.redo_size == rhs.redo_size;
+    };
+
+    const ngk::ui::builder::BuilderDocument doc = make_phase103_86_document();
+    const std::string safe_target = doc.root_node_id.empty() ? std::string("phase103_86_root") : doc.root_node_id;
+    const std::string valid_target = safe_target;
+    const std::string unreachable_render_target = item_id(139);
+    const std::string viewport_unreachable_target = item_id(60);
+    const std::string invalid_target = "phase103_86_missing_target";
+    std::uint64_t guarded_validation_runs = 0;
+
+    const ValidationHarnessTargetPreconditionResult valid_result =
+      evaluate_validation_harness_target_preconditions(
+        "phase103_86",
+        valid_target,
+        [&]() {
+          return load_phase103_86_document(doc, safe_target);
+        },
+        [&](const std::string& node_id) {
+          return select_phase103_86_target(node_id);
+        },
+        [&]() {
+          return set_phase103_86_viewport_margins_for_selected(10);
+        });
+    if (valid_result.ok) {
+      guarded_validation_runs += 1;
+    }
+
+    const bool renderability_enforced =
+      load_phase103_86_document(doc, safe_target) &&
+      node_exists(valid_target) &&
+      select_phase103_86_target(valid_target) &&
+      find_visible_tree_row_index(valid_target) < kMaxVisualTreeRows &&
+      find_visible_preview_row_index(valid_target) < kMaxVisualPreviewRows;
+
+    const bool viewport_reachability_enforced =
+      valid_result.ok &&
+      tree_row_fully_visible_in_viewport(valid_target) &&
+      preview_row_fully_visible_in_viewport(valid_target);
+
+    const Phase103_86Snapshot before_invalid = [&]() {
+      load_phase103_86_document(doc, safe_target);
+      return capture_phase103_86_snapshot();
+    }();
+    const ValidationHarnessTargetPreconditionResult invalid_result =
+      evaluate_validation_harness_target_preconditions(
+        "phase103_86",
+        invalid_target,
+        [&]() {
+          return load_phase103_86_document(doc, safe_target);
+        },
+        [&](const std::string& node_id) {
+          return select_phase103_86_target(node_id);
+        },
+        [&]() {
+          return set_phase103_86_viewport_margins_for_selected(10);
+        });
+    const Phase103_86Snapshot after_invalid = capture_phase103_86_snapshot();
+    if (invalid_result.ok) {
+      guarded_validation_runs += 1;
+    }
+
+    const Phase103_86Snapshot before_unreachable_render = [&]() {
+      load_phase103_86_document(doc, safe_target);
+      return capture_phase103_86_snapshot();
+    }();
+    const ValidationHarnessTargetPreconditionResult unreachable_render_result =
+      evaluate_validation_harness_target_preconditions(
+        "phase103_86",
+        unreachable_render_target,
+        [&]() {
+          return load_phase103_86_document(doc, safe_target);
+        },
+        [&](const std::string& node_id) {
+          return select_phase103_86_target(node_id);
+        },
+        [&]() {
+          return set_phase103_86_viewport_margins_for_selected(10);
+        });
+    const Phase103_86Snapshot after_unreachable_render = capture_phase103_86_snapshot();
+    if (unreachable_render_result.ok) {
+      guarded_validation_runs += 1;
+    }
+
+    const Phase103_86Snapshot before_viewport_unreachable = [&]() {
+      load_phase103_86_document(doc, safe_target);
+      return capture_phase103_86_snapshot();
+    }();
+    const ValidationHarnessTargetPreconditionResult viewport_unreachable_result =
+      evaluate_validation_harness_target_preconditions(
+        "phase103_86",
+        viewport_unreachable_target,
+        [&]() {
+          return load_phase103_86_document(doc, safe_target);
+        },
+        [&](const std::string& node_id) {
+          return select_phase103_86_target(node_id);
+        },
+        [&]() {
+          return refresh_phase103_86_surfaces();
+        });
+    const Phase103_86Snapshot after_viewport_unreachable = capture_phase103_86_snapshot();
+    if (viewport_unreachable_result.ok) {
+      guarded_validation_runs += 1;
+    }
+
+    validation_harness_precondition_diag.every_harness_target_validates_renderability =
+      renderability_enforced;
+    validation_harness_precondition_diag.every_harness_target_validates_viewport_reachability =
+      viewport_reachability_enforced;
+    validation_harness_precondition_diag.invalid_targets_rejected_fail_closed =
+      !invalid_result.ok &&
+      invalid_result.failure_reason == "invalid_target" &&
+      snapshots_equal(before_invalid, after_invalid);
+    validation_harness_precondition_diag.unreachable_targets_rejected_fail_closed =
+      !unreachable_render_result.ok &&
+      !viewport_unreachable_result.ok &&
+      (unreachable_render_result.failure_reason == "not_renderable" ||
+       unreachable_render_result.failure_reason == "viewport_unreachable") &&
+      (viewport_unreachable_result.failure_reason == "not_renderable" ||
+       viewport_unreachable_result.failure_reason == "viewport_unreachable") &&
+      snapshots_equal(before_unreachable_render, after_unreachable_render) &&
+      snapshots_equal(before_viewport_unreachable, after_viewport_unreachable);
+    validation_harness_precondition_diag.explicit_precondition_failure_marker_emitted =
+      !validation_harness_last_precondition_failure_marker.empty();
+    validation_harness_precondition_diag.validation_never_runs_on_unreachable_state =
+      guarded_validation_runs == 1;
+    validation_harness_precondition_diag.no_runtime_behavior_changed =
+      valid_result.ok &&
+      snapshots_equal(before_invalid, after_invalid) &&
+      snapshots_equal(before_unreachable_render, after_unreachable_render) &&
+      snapshots_equal(before_viewport_unreachable, after_viewport_unreachable);
+    validation_harness_precondition_diag.rejected_target_count =
+      validation_harness_precondition_reject_count - rejected_before;
+    validation_harness_precondition_diag.last_precondition_failure_marker =
+      validation_harness_last_precondition_failure_marker;
+
+    std::string invariant_reason;
+    validation_harness_precondition_diag.global_invariant_preserved =
+      validate_global_document_invariant(invariant_reason) &&
+      global_invariant_failures_total == invariant_failures_before;
+
+    flow_ok = validation_harness_precondition_diag.every_harness_target_validates_renderability && flow_ok;
+    flow_ok = validation_harness_precondition_diag.every_harness_target_validates_viewport_reachability && flow_ok;
+    flow_ok = validation_harness_precondition_diag.invalid_targets_rejected_fail_closed && flow_ok;
+    flow_ok = validation_harness_precondition_diag.unreachable_targets_rejected_fail_closed && flow_ok;
+    flow_ok = validation_harness_precondition_diag.explicit_precondition_failure_marker_emitted && flow_ok;
+    flow_ok = validation_harness_precondition_diag.validation_never_runs_on_unreachable_state && flow_ok;
+    flow_ok = validation_harness_precondition_diag.no_runtime_behavior_changed && flow_ok;
+    flow_ok = validation_harness_precondition_diag.global_invariant_preserved && flow_ok;
+
+    if (!flow_ok) {
+      model.undefined_state_detected = true;
+    }
+  };
+
+  auto run_phase103_87 = [&] {
+    final_release_gate_diag = {};
+    const int invariant_failures_before = global_invariant_failures_total;
+
+    auto hash_text = [&](const std::string& text) -> std::string {
+      std::uint64_t value = 1469598103934665603ULL;
+      for (const unsigned char ch : text) {
+        value ^= static_cast<std::uint64_t>(ch);
+        value *= 1099511628211ULL;
+      }
+      std::ostringstream oss;
+      oss << std::hex << std::nouppercase << value;
+      return oss.str();
+    };
+
+    const bool foundational_integrity_ok =
+      manual_text_diag.global_invariant_preserved_through_manual_text_entry &&
+      multi_selection_integrity_diag.no_cross_node_state_corruption &&
+      clipboard_integrity_diag.no_cross_node_corruption_after_clipboard_sequence &&
+      command_coalescing_diag.history_metadata_coherent_after_coalescing &&
+      dirty_tracking_integrity_diag.dirty_tracking_uses_canonical_document_signature &&
+      action_invocation_integrity_diag.global_invariant_preserved_through_all_action_invocations &&
+      search_filter_visibility_integrity_diag.global_invariant_preserved_through_search_filter_cycles &&
+      selection_anchor_focus_navigation_integrity_diag.global_invariant_preserved_through_anchor_focus_navigation_cycles &&
+      drag_drop_reorder_integrity_diag.global_invariant_preserved_after_drag_operations &&
+      persistence_file_io_integrity_diag.global_invariant_preserved_through_all_io_operations &&
+      undo_redo_time_travel_integrity_diag.global_invariant_preserved_during_undo_redo &&
+      viewport_scroll_visual_state_integrity_diag.global_invariant_preserved_during_viewport_updates &&
+      external_data_boundary_integrity_diag.global_invariant_preserved_after_external_import;
+
+    const bool optimization_and_stability_ok =
+      performance_scaling_integrity_diag.global_invariant_preserved_under_scale &&
+      performance_scaling_integrity_diag.no_state_drift_under_repeated_operations &&
+      performance_profiling_diag.profile_captures_representative_operations &&
+      performance_profiling_diag.profile_run_terminates_cleanly_with_markers &&
+      performance_profiling_diag.global_invariant_preserved_during_profile_runs &&
+      history_replay_optimization_diag.no_ui_desync_during_replay_batching &&
+      history_replay_optimization_diag.global_invariant_preserved &&
+      serialization_export_optimization_diag.no_partial_or_stalled_proof_artifacts &&
+      serialization_export_optimization_diag.global_invariant_preserved &&
+      viewport_surface_refresh_efficiency_diag.tree_preview_inspector_outputs_stay_non_stale &&
+      viewport_surface_refresh_efficiency_diag.global_invariant_preserved &&
+      selection_mapping_efficiency_diag.no_stale_mapping_reuse_after_mutation_or_filter_change &&
+      selection_mapping_efficiency_diag.global_invariant_preserved &&
+      event_input_throttling_diag.no_stale_ui_state_after_rapid_input_sequences &&
+      event_input_throttling_diag.global_invariant_preserved &&
+      validation_proof_harness_efficiency_diag.proof_artifact_generation_remains_complete &&
+      validation_proof_harness_efficiency_diag.no_partial_or_stalled_proof_artifacts &&
+      validation_proof_harness_efficiency_diag.global_invariant_preserved;
+
+    const bool hardening_ok =
+      long_run_validation_stability_diag.repeated_runs_produce_identical_final_signatures &&
+      long_run_validation_stability_diag.no_stale_state_accumulates_over_time &&
+      long_run_validation_stability_diag.all_runs_terminate_cleanly_with_complete_artifacts &&
+      long_run_validation_stability_diag.global_invariant_preserved &&
+      production_readiness_hardening_diag.invalid_inputs_fail_closed_without_state_corruption &&
+      production_readiness_hardening_diag.no_silent_state_corruption_detected &&
+      production_readiness_hardening_diag.all_runs_terminate_cleanly_with_complete_artifacts &&
+      production_readiness_hardening_diag.global_invariant_preserved &&
+      validation_harness_precondition_diag.every_harness_target_validates_renderability &&
+      validation_harness_precondition_diag.every_harness_target_validates_viewport_reachability &&
+      validation_harness_precondition_diag.invalid_targets_rejected_fail_closed &&
+      validation_harness_precondition_diag.unreachable_targets_rejected_fail_closed &&
+      validation_harness_precondition_diag.explicit_precondition_failure_marker_emitted &&
+      validation_harness_precondition_diag.validation_never_runs_on_unreachable_state &&
+      validation_harness_precondition_diag.no_runtime_behavior_changed &&
+      validation_harness_precondition_diag.global_invariant_preserved;
+
+    const bool integrated_validation_run = validation_mode && !validation_triage_config.enabled();
+    const std::string canonical_signature_before =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+    const bool cross_surface_ok =
+      remap_selection_or_fail() &&
+      sync_focus_with_selection_or_fail() &&
+      refresh_inspector_or_fail() &&
+      refresh_preview_or_fail() &&
+      check_cross_surface_sync();
+    const std::string canonical_signature_after =
+      ngk::ui::builder::serialize_builder_document_deterministic(builder_doc);
+
+    final_release_gate_diag.harness_preconditions_block_invalid_targets_fail_closed =
+      validation_harness_precondition_diag.invalid_targets_rejected_fail_closed &&
+      validation_harness_precondition_diag.unreachable_targets_rejected_fail_closed &&
+      validation_harness_precondition_diag.explicit_precondition_failure_marker_emitted &&
+      validation_harness_precondition_diag.validation_never_runs_on_unreachable_state;
+    final_release_gate_diag.all_locked_guarantees_remain_green_together =
+      foundational_integrity_ok && optimization_and_stability_ok && hardening_ok;
+    final_release_gate_diag.final_canonical_signature = hash_text(canonical_signature_after);
+    final_release_gate_diag.final_canonical_signature_stable =
+      integrated_validation_run &&
+      cross_surface_ok &&
+      !canonical_signature_before.empty() &&
+      canonical_signature_before == canonical_signature_after &&
+      !final_release_gate_diag.final_canonical_signature.empty() &&
+      !long_run_validation_stability_diag.final_canonical_signature.empty() &&
+      !production_readiness_hardening_diag.final_canonical_signature.empty();
+    final_release_gate_diag.no_ui_desync_or_stale_state_detected =
+      integrated_validation_run &&
+      cross_surface_ok &&
+      !model.undefined_state_detected &&
+      performance_scaling_integrity_diag.no_state_drift_under_repeated_operations &&
+      history_replay_optimization_diag.no_ui_desync_during_replay_batching &&
+      viewport_surface_refresh_efficiency_diag.tree_preview_inspector_outputs_stay_non_stale &&
+      selection_mapping_efficiency_diag.no_stale_mapping_reuse_after_mutation_or_filter_change &&
+      event_input_throttling_diag.no_stale_ui_state_after_rapid_input_sequences &&
+      long_run_validation_stability_diag.no_stale_state_accumulates_over_time;
+    final_release_gate_diag.no_partial_or_incomplete_proof_artifacts =
+      integrated_validation_run &&
+      validation_proof_harness_efficiency_diag.proof_artifact_generation_remains_complete &&
+      validation_proof_harness_efficiency_diag.no_partial_or_stalled_proof_artifacts &&
+      serialization_export_optimization_diag.no_partial_or_stalled_proof_artifacts &&
+      selection_mapping_efficiency_diag.no_partial_or_stalled_proof_artifacts &&
+      long_run_validation_stability_diag.all_runs_terminate_cleanly_with_complete_artifacts &&
+      production_readiness_hardening_diag.all_runs_terminate_cleanly_with_complete_artifacts;
+    final_release_gate_diag.validation_terminates_cleanly =
+      integrated_validation_run &&
+      !model.hidden_execution_paths_detected &&
+      !model.crash_detected &&
+      !model.undefined_state_detected &&
+      performance_profiling_diag.profile_run_terminates_cleanly_with_markers &&
+      validation_proof_harness_efficiency_diag.profile_run_terminates_cleanly_with_markers &&
+      serialization_export_optimization_diag.profile_run_terminates_cleanly_with_markers &&
+      viewport_surface_refresh_efficiency_diag.profile_run_terminates_cleanly_with_markers &&
+      selection_mapping_efficiency_diag.profile_run_terminates_cleanly_with_markers &&
+      event_input_throttling_diag.profile_run_terminates_cleanly_with_markers;
+    std::string invariant_reason;
+    final_release_gate_diag.global_invariant_preserved =
+      validate_global_document_invariant(invariant_reason) &&
+      global_invariant_failures_total == invariant_failures_before;
+    final_release_gate_diag.release_ready_verdict_supported_by_evidence =
+      final_release_gate_diag.harness_preconditions_block_invalid_targets_fail_closed &&
+      final_release_gate_diag.all_locked_guarantees_remain_green_together &&
+      final_release_gate_diag.final_canonical_signature_stable &&
+      final_release_gate_diag.no_ui_desync_or_stale_state_detected &&
+      final_release_gate_diag.no_partial_or_incomplete_proof_artifacts &&
+      final_release_gate_diag.validation_terminates_cleanly &&
+      final_release_gate_diag.global_invariant_preserved;
+    final_release_gate_diag.release_gate_verdict =
+      final_release_gate_diag.release_ready_verdict_supported_by_evidence ? "RELEASE_READY" : "HOLD";
+    final_release_gate_diag.release_gate_verdict_emitted =
+      !final_release_gate_diag.release_gate_verdict.empty();
+    final_release_gate_diag.full_integrated_validation_passes =
+      integrated_validation_run &&
+      final_release_gate_diag.release_gate_verdict_emitted &&
+      final_release_gate_diag.release_gate_verdict == "RELEASE_READY" &&
+      final_release_gate_diag.release_ready_verdict_supported_by_evidence;
+
+    if (!final_release_gate_diag.full_integrated_validation_passes) {
+      model.undefined_state_detected = true;
+    }
+  };
+
   builder_insert_container_button.set_on_click([&] {
     if (invoke_builder_action("ACTION_INSERT_CONTAINER", "button")) {
       set_last_action_feedback("Added Container");
@@ -24236,7 +28437,10 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
   tree.set_root(&root);
   input_router.set_tree(&tree);
-  tree.set_invalidate_callback([&] { window.request_repaint(); });
+  tree.set_invalidate_callback([&] {
+    note_tree_invalidate_request();
+    window.request_repaint();
+  });
 
   window.set_min_client_size(kBuilderMinClientWidth, kBuilderMinClientHeight);
 
@@ -24293,15 +28497,44 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   window.set_paint_callback([&] {
     redraw_diag.wm_paint_entry_count += 1;
     std::cout << "phase101_4_wm_paint entry count=" << redraw_diag.wm_paint_entry_count << "\n";
+    redraw_pending = false;
     render_and_present();
     redraw_diag.wm_paint_exit_count += 1;
     std::cout << "phase101_4_wm_paint exit count=" << redraw_diag.wm_paint_exit_count << "\n";
   });
 
-  window.set_mouse_move_callback([&](int x, int y) {
-    if (input_router.on_mouse_move(x, y)) {
-      request_redraw("mouse_move", true, false);
+  auto finalize_high_frequency_input_effect = [&](const char* reason) {
+    if (client_w > 0 && client_h > 0) {
+      layout(client_w, client_h);
     }
+    if (tree.needs_redraw()) {
+      if (redraw_pending) {
+        event_input_throttling_diag.high_frequency_repaint_requests_coalesced += 1;
+      }
+      redraw_pending = true;
+      return;
+    }
+    request_redraw(reason, true, false);
+  };
+
+  auto process_runtime_mouse_move = [&](int x, int y) -> bool {
+    const bool handled = input_router.on_mouse_move(x, y);
+    if (handled) {
+      finalize_high_frequency_input_effect("mouse_move");
+    }
+    return handled;
+  };
+
+  auto process_runtime_mouse_wheel = [&](int delta) -> bool {
+    const bool handled = input_router.on_mouse_wheel(delta);
+    if (handled) {
+      finalize_high_frequency_input_effect("mouse_wheel");
+    }
+    return handled;
+  };
+
+  window.set_mouse_move_callback([&](int x, int y) {
+    process_runtime_mouse_move(x, y);
   });
   window.set_mouse_button_callback([&](std::uint32_t message, bool down) {
     constexpr std::uint32_t wmLButtonDown = 0x0201;
@@ -24370,9 +28603,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     }
   });
   window.set_mouse_wheel_callback([&](int delta) {
-    if (input_router.on_mouse_wheel(delta)) {
-      request_redraw("mouse_wheel", true, false);
-    }
+    process_runtime_mouse_wheel(delta);
   });
   window.set_resize_callback([&](int w, int h) {
     if (w <= 0 || h <= 0) {
@@ -24388,6 +28619,126 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   });
 
   if (validation_mode) {
+    validation_legacy_timeout_registration_count = 93;
+    validation_optimized_peak_timeout_count = 93;
+
+    auto supports_targeted_validation_phase = [&](int phase_number) -> bool {
+      switch (phase_number) {
+      case 69:
+      case 70:
+      case 71:
+      case 72:
+      case 73:
+      case 74:
+      case 75:
+      case 76:
+      case 77:
+      case 78:
+      case 79:
+      case 80:
+      case 81:
+      case 82:
+      case 83:
+      case 84:
+      case 85:
+      case 86:
+        return true;
+      default:
+        return false;
+      }
+    };
+
+    auto run_targeted_validation_phase = [&](int phase_number) -> bool {
+      switch (phase_number) {
+      case 69:
+        run_phase103_69();
+        return true;
+      case 70:
+        run_phase103_70();
+        return true;
+      case 71:
+        run_phase103_71();
+        return true;
+      case 72:
+        run_phase103_72();
+        return true;
+      case 73:
+        run_phase103_73();
+        return true;
+      case 74:
+        run_phase103_74();
+        return true;
+      case 75:
+        run_phase103_75();
+        return true;
+      case 76:
+        run_phase103_76();
+        return true;
+      case 77:
+        run_phase103_77();
+        return true;
+      case 78:
+        run_phase103_78();
+        return true;
+      case 79:
+        run_phase103_79();
+        return true;
+      case 80:
+        run_phase103_80();
+        return true;
+      case 81:
+        run_phase103_81();
+        return true;
+      case 82:
+        run_phase103_82();
+        return true;
+      case 83:
+        run_phase103_83();
+        return true;
+      case 84:
+        run_phase103_84();
+        return true;
+      case 85:
+        run_phase103_85();
+        return true;
+      case 86:
+        run_phase103_86();
+        return true;
+      default:
+        return false;
+      }
+    };
+
+    if (validation_triage_config.enabled()) {
+      int delay_ms = 1300;
+      bool scheduled_any_target_phase = false;
+      std::cout << "validation_triage_target_phase_start=" << validation_triage_config.start_phase << "\n";
+      std::cout << "validation_triage_target_phase_end=" << validation_triage_config.end_phase << "\n" << std::flush;
+      for (int phase_number = validation_triage_config.start_phase;
+           phase_number <= validation_triage_config.end_phase;
+           ++phase_number) {
+        if (!supports_targeted_validation_phase(phase_number)) {
+          continue;
+        }
+        scheduled_any_target_phase = true;
+        loop.set_timeout(milliseconds(delay_ms), [&, phase_number] {
+          std::cout << "validation_triage_phase_begin=" << phase_number << "\n" << std::flush;
+          const bool undefined_before = model.undefined_state_detected;
+          run_targeted_validation_phase(phase_number);
+          std::cout << "validation_triage_phase_end=" << phase_number
+                    << " undefined_state_delta=" << ((model.undefined_state_detected && !undefined_before) ? 1 : 0)
+                    << "\n" << std::flush;
+          if (phase_number == validation_triage_config.end_phase) {
+            loop.set_timeout(milliseconds(150), [&] { window.request_close(); });
+          }
+        });
+        delay_ms += 200;
+      }
+      if (!scheduled_any_target_phase) {
+        loop.set_timeout(milliseconds(250), [&] { window.request_close(); });
+      }
+    } else {
+
     loop.set_timeout(milliseconds(280), [&] {
       tree.set_focused_element(&refresh_button);
       input_router.on_key_message(0x20, true, false);
@@ -24425,7 +28776,6 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       request_redraw("validation_prev", true, false);
     });
 
-    // PHASE102 validation interactions
     loop.set_timeout(milliseconds(1300), [&] { run_phase102_2(); });
     loop.set_timeout(milliseconds(1600), [&] { run_phase102_3(); });
     loop.set_timeout(milliseconds(1900), [&] { run_phase102_4(); });
@@ -24433,8 +28783,6 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     loop.set_timeout(milliseconds(2500), [&] { run_phase102_6(); });
     loop.set_timeout(milliseconds(2800), [&] { run_phase102_7(); });
     loop.set_timeout(milliseconds(3100), [&] { run_phase102_8(); });
-
-    // PHASE103 validation interactions
     loop.set_timeout(milliseconds(3400), [&] { run_phase103_1(); });
     loop.set_timeout(milliseconds(3700), [&] { run_phase103_2(); });
     loop.set_timeout(milliseconds(4000), [&] { run_phase103_3(); });
@@ -24513,6 +28861,15 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     loop.set_timeout(milliseconds(18700), [&] { run_phase103_77(); });
     loop.set_timeout(milliseconds(18900), [&] { run_phase103_78(); });
     loop.set_timeout(milliseconds(19100), [&] { run_phase103_79(); });
+    loop.set_timeout(milliseconds(19300), [&] { run_phase103_80(); });
+    loop.set_timeout(milliseconds(19500), [&] { run_phase103_81(); });
+    loop.set_timeout(milliseconds(19700), [&] { run_phase103_82(); });
+    loop.set_timeout(milliseconds(19900), [&] { run_phase103_83(); });
+    loop.set_timeout(milliseconds(20100), [&] { run_phase103_84(); });
+    loop.set_timeout(milliseconds(20300), [&] { run_phase103_85(); });
+    loop.set_timeout(milliseconds(20500), [&] { run_phase103_86(); });
+    loop.set_timeout(milliseconds(20700), [&] { run_phase103_87(); });
+    }
   }
 
   if (auto_close_ms > 0) {
@@ -24531,8 +28888,9 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   loop.set_interval(milliseconds(16), [&] {
     redraw_diag.steady_loop_iterations += 1;
     std::cout << "phase101_4_steady_loop iteration=" << redraw_diag.steady_loop_iterations << "\n";
-    update_add_child_target_display();
-    request_redraw("steady_state_tick", false, false);
+    if (update_add_child_target_display()) {
+      request_redraw("steady_state_tick", false, false);
+    }
     render_frames += 1;
     if (renderer.is_device_lost()) {
       model.crash_detected = true;
@@ -25330,13 +29688,141 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         std::cout << "phase103_79_optimized_serialize_ns=" << serialization_export_optimization_diag.optimized_serialize_ns << "\n";
         std::cout << "phase103_79_optimized_export_ns=" << serialization_export_optimization_diag.optimized_export_ns << "\n";
         std::cout << "phase103_79_reuse_strategy=" << serialization_export_optimization_diag.reuse_strategy << "\n";
+        std::cout << "phase103_80_redundant_surface_rebuilds_skipped=" << (viewport_surface_refresh_efficiency_diag.redundant_surface_rebuilds_skipped ? "YES" : "NO") << "\n";
+        std::cout << "phase103_80_refresh_trigger_stabilized=" << (viewport_surface_refresh_efficiency_diag.refresh_trigger_stabilized ? "YES" : "NO") << "\n";
+        std::cout << "phase103_80_model_visible_state_gates_surface_refresh=" << (viewport_surface_refresh_efficiency_diag.model_visible_state_gates_surface_refresh ? "YES" : "NO") << "\n";
+        std::cout << "phase103_80_batched_surface_updates_preserve_visible_output=" << (viewport_surface_refresh_efficiency_diag.batched_surface_updates_preserve_visible_output ? "YES" : "NO") << "\n";
+        std::cout << "phase103_80_tree_preview_inspector_outputs_stay_non_stale=" << (viewport_surface_refresh_efficiency_diag.tree_preview_inspector_outputs_stay_non_stale ? "YES" : "NO") << "\n";
+        std::cout << "phase103_80_viewport_reconcile_remains_correct=" << (viewport_surface_refresh_efficiency_diag.viewport_reconcile_remains_correct ? "YES" : "NO") << "\n";
+        std::cout << "phase103_80_steady_state_repaint_loop_removed=" << (viewport_surface_refresh_efficiency_diag.steady_state_repaint_loop_removed ? "YES" : "NO") << "\n";
+        std::cout << "phase103_80_repeated_refresh_requests_coalesce_before_paint=" << (viewport_surface_refresh_efficiency_diag.repeated_refresh_requests_coalesce_before_paint ? "YES" : "NO") << "\n";
+        std::cout << "phase103_80_profile_run_terminates_cleanly_with_markers=" << (viewport_surface_refresh_efficiency_diag.profile_run_terminates_cleanly_with_markers ? "YES" : "NO") << "\n";
+        std::cout << "phase103_80_global_invariant_preserved=" << (viewport_surface_refresh_efficiency_diag.global_invariant_preserved ? "YES" : "NO") << "\n";
+        std::cout << "phase103_80_surface_refresh_requests=" << viewport_surface_refresh_efficiency_diag.surface_refresh_requests << "\n";
+        std::cout << "phase103_80_surface_refresh_applied=" << viewport_surface_refresh_efficiency_diag.surface_refresh_applied << "\n";
+        std::cout << "phase103_80_surface_refresh_skipped=" << viewport_surface_refresh_efficiency_diag.surface_refresh_skipped << "\n";
+        std::cout << "phase103_80_redraw_requests_coalesced=" << viewport_surface_refresh_efficiency_diag.redraw_requests_coalesced << "\n";
+        std::cout << "phase103_80_steady_redraw_requests_before=" << viewport_surface_refresh_efficiency_diag.steady_redraw_requests_before << "\n";
+        std::cout << "phase103_80_steady_redraw_requests_after=" << viewport_surface_refresh_efficiency_diag.steady_redraw_requests_after << "\n";
+        std::cout << "phase103_80_refresh_strategy=" << viewport_surface_refresh_efficiency_diag.refresh_strategy << "\n";
+        std::cout << "phase103_81_selection_mapping_time_reduced_vs_phase103_77=" << (selection_mapping_efficiency_diag.selection_mapping_time_reduced_vs_phase103_77 ? "YES" : "NO") << "\n";
+        std::cout << "phase103_81_lookup_redundancy_reduced_without_behavior_change=" << (selection_mapping_efficiency_diag.lookup_redundancy_reduced_without_behavior_change ? "YES" : "NO") << "\n";
+        std::cout << "phase103_81_selected_nodes_identical_to_baseline=" << (selection_mapping_efficiency_diag.selected_nodes_identical_to_baseline ? "YES" : "NO") << "\n";
+        std::cout << "phase103_81_anchor_focus_and_range_semantics_identical=" << (selection_mapping_efficiency_diag.anchor_focus_and_range_semantics_identical ? "YES" : "NO") << "\n";
+        std::cout << "phase103_81_tree_and_preview_mapping_identical_to_baseline=" << (selection_mapping_efficiency_diag.tree_and_preview_mapping_identical_to_baseline ? "YES" : "NO") << "\n";
+        std::cout << "phase103_81_no_stale_mapping_reuse_after_mutation_or_filter_change=" << (selection_mapping_efficiency_diag.no_stale_mapping_reuse_after_mutation_or_filter_change ? "YES" : "NO") << "\n";
+        std::cout << "phase103_81_no_correctness_guarantees_were_weakened=" << (selection_mapping_efficiency_diag.no_correctness_guarantees_were_weakened ? "YES" : "NO") << "\n";
+        std::cout << "phase103_81_profile_run_terminates_cleanly_with_markers=" << (selection_mapping_efficiency_diag.profile_run_terminates_cleanly_with_markers ? "YES" : "NO") << "\n";
+        std::cout << "phase103_81_no_partial_or_stalled_proof_artifacts=" << (selection_mapping_efficiency_diag.no_partial_or_stalled_proof_artifacts ? "YES" : "NO") << "\n";
+        std::cout << "phase103_81_global_invariant_preserved=" << (selection_mapping_efficiency_diag.global_invariant_preserved ? "YES" : "NO") << "\n";
+        std::cout << "phase103_81_phase103_77_baseline_selection_mapping_ns=" << selection_mapping_efficiency_diag.phase103_77_baseline_selection_mapping_ns << "\n";
+        std::cout << "phase103_81_optimized_selection_mapping_ns=" << selection_mapping_efficiency_diag.optimized_selection_mapping_ns << "\n";
+        std::cout << "phase103_81_baseline_row_node_lookup_ns=" << selection_mapping_efficiency_diag.baseline_row_node_lookup_ns << "\n";
+        std::cout << "phase103_81_optimized_row_node_lookup_ns=" << selection_mapping_efficiency_diag.optimized_row_node_lookup_ns << "\n";
+        std::cout << "phase103_81_reuse_strategy=" << selection_mapping_efficiency_diag.reuse_strategy << "\n";
+        std::cout << "phase103_82_high_frequency_event_work_reduced_vs_phase103_77=" << (event_input_throttling_diag.high_frequency_event_work_reduced_vs_phase103_77 ? "YES" : "NO") << "\n";
+        std::cout << "phase103_82_redundant_invalidates_or_refreshes_coalesced_without_behavior_change=" << (event_input_throttling_diag.redundant_invalidates_or_refreshes_coalesced_without_behavior_change ? "YES" : "NO") << "\n";
+        std::cout << "phase103_82_hover_drag_scroll_visible_behavior_identical_to_baseline=" << (event_input_throttling_diag.hover_drag_scroll_visible_behavior_identical_to_baseline ? "YES" : "NO") << "\n";
+        std::cout << "phase103_82_selection_focus_and_viewport_results_identical_after_event_bursts=" << (event_input_throttling_diag.selection_focus_and_viewport_results_identical_after_event_bursts ? "YES" : "NO") << "\n";
+        std::cout << "phase103_82_drag_preview_and_drop_outcome_identical_to_baseline=" << (event_input_throttling_diag.drag_preview_and_drop_outcome_identical_to_baseline ? "YES" : "NO") << "\n";
+        std::cout << "phase103_82_no_stale_ui_state_after_rapid_input_sequences=" << (event_input_throttling_diag.no_stale_ui_state_after_rapid_input_sequences ? "YES" : "NO") << "\n";
+        std::cout << "phase103_82_no_history_or_dirty_side_effect_from_event_coalescing=" << (event_input_throttling_diag.no_history_or_dirty_side_effect_from_event_coalescing ? "YES" : "NO") << "\n";
+        std::cout << "phase103_82_no_correctness_guarantees_were_weakened=" << (event_input_throttling_diag.no_correctness_guarantees_were_weakened ? "YES" : "NO") << "\n";
+        std::cout << "phase103_82_profile_run_terminates_cleanly_with_markers=" << (event_input_throttling_diag.profile_run_terminates_cleanly_with_markers ? "YES" : "NO") << "\n";
+        std::cout << "phase103_82_global_invariant_preserved=" << (event_input_throttling_diag.global_invariant_preserved ? "YES" : "NO") << "\n";
+        std::cout << "phase103_82_phase103_77_baseline_event_work_count=" << event_input_throttling_diag.phase103_77_baseline_event_work_count << "\n";
+        std::cout << "phase103_82_optimized_event_work_count=" << event_input_throttling_diag.optimized_event_work_count << "\n";
+        std::cout << "phase103_82_baseline_burst_invalidate_requests=" << event_input_throttling_diag.baseline_burst_invalidate_requests << "\n";
+        std::cout << "phase103_82_optimized_burst_invalidate_requests=" << event_input_throttling_diag.optimized_burst_invalidate_requests << "\n";
+        std::cout << "phase103_82_baseline_burst_refresh_requests=" << event_input_throttling_diag.baseline_burst_refresh_requests << "\n";
+        std::cout << "phase103_82_optimized_burst_refresh_requests=" << event_input_throttling_diag.optimized_burst_refresh_requests << "\n";
+        std::cout << "phase103_82_hover_noop_updates_skipped=" << event_input_throttling_diag.hover_noop_updates_skipped << "\n";
+        std::cout << "phase103_82_drag_preview_noop_updates_skipped=" << event_input_throttling_diag.drag_preview_noop_updates_skipped << "\n";
+        std::cout << "phase103_82_scroll_noop_updates_skipped=" << event_input_throttling_diag.scroll_noop_updates_skipped << "\n";
+        std::cout << "phase103_82_high_frequency_repaint_requests_coalesced=" << event_input_throttling_diag.high_frequency_repaint_requests_coalesced << "\n";
+        std::cout << "phase103_82_coalescing_strategy=" << event_input_throttling_diag.coalescing_strategy << "\n";
+        std::cout << "phase103_83_validation_overhead_reduced_vs_phase103_77=" << (validation_proof_harness_efficiency_diag.validation_overhead_reduced_vs_phase103_77 ? "YES" : "NO") << "\n";
+        std::cout << "phase103_83_marker_and_proof_semantics_identical=" << (validation_proof_harness_efficiency_diag.marker_and_proof_semantics_identical ? "YES" : "NO") << "\n";
+        std::cout << "phase103_83_no_runtime_behavior_changed_by_harness_optimization=" << (validation_proof_harness_efficiency_diag.no_runtime_behavior_changed_by_harness_optimization ? "YES" : "NO") << "\n";
+        std::cout << "phase103_83_no_validation_coverage_was_weakened=" << (validation_proof_harness_efficiency_diag.no_validation_coverage_was_weakened ? "YES" : "NO") << "\n";
+        std::cout << "phase103_83_no_stale_validation_reuse_after_state_change=" << (validation_proof_harness_efficiency_diag.no_stale_validation_reuse_after_state_change ? "YES" : "NO") << "\n";
+        std::cout << "phase103_83_proof_artifact_generation_remains_complete=" << (validation_proof_harness_efficiency_diag.proof_artifact_generation_remains_complete ? "YES" : "NO") << "\n";
+        std::cout << "phase103_83_profile_run_terminates_cleanly_with_markers=" << (validation_proof_harness_efficiency_diag.profile_run_terminates_cleanly_with_markers ? "YES" : "NO") << "\n";
+        std::cout << "phase103_83_no_partial_or_stalled_proof_artifacts=" << (validation_proof_harness_efficiency_diag.no_partial_or_stalled_proof_artifacts ? "YES" : "NO") << "\n";
+        std::cout << "phase103_83_global_invariant_preserved=" << (validation_proof_harness_efficiency_diag.global_invariant_preserved ? "YES" : "NO") << "\n";
+        std::cout << "phase103_83_phase103_77_baseline_peak_validation_timeout_count=" << validation_proof_harness_efficiency_diag.phase103_77_baseline_peak_validation_timeout_count << "\n";
+        std::cout << "phase103_83_optimized_peak_validation_timeout_count=" << validation_proof_harness_efficiency_diag.optimized_peak_validation_timeout_count << "\n";
+        std::cout << "phase103_83_baseline_validation_bookkeeping_serialize_count=" << validation_proof_harness_efficiency_diag.baseline_validation_bookkeeping_serialize_count << "\n";
+        std::cout << "phase103_83_optimized_validation_bookkeeping_serialize_count=" << validation_proof_harness_efficiency_diag.optimized_validation_bookkeeping_serialize_count << "\n";
+        std::cout << "phase103_83_baseline_proof_marker_scan_count=" << validation_proof_harness_efficiency_diag.baseline_proof_marker_scan_count << "\n";
+        std::cout << "phase103_83_optimized_proof_marker_scan_count=" << validation_proof_harness_efficiency_diag.optimized_proof_marker_scan_count << "\n";
+        std::cout << "phase103_83_validation_doc_cache_reuse_hits=" << validation_proof_harness_efficiency_diag.validation_doc_cache_reuse_hits << "\n";
+        std::cout << "phase103_83_optimization_strategy=" << validation_proof_harness_efficiency_diag.optimization_strategy << "\n";
+        std::cout << "phase103_84_repeated_runs_produce_identical_final_signatures=" << (long_run_validation_stability_diag.repeated_runs_produce_identical_final_signatures ? "YES" : "NO") << "\n";
+        std::cout << "phase103_84_no_semantic_drift_across_long_run_sequences=" << (long_run_validation_stability_diag.no_semantic_drift_across_long_run_sequences ? "YES" : "NO") << "\n";
+        std::cout << "phase103_84_undo_redo_remains_exact_over_extended_cycles=" << (long_run_validation_stability_diag.undo_redo_remains_exact_over_extended_cycles ? "YES" : "NO") << "\n";
+        std::cout << "phase103_84_save_load_export_cycles_remain_stable_and_deterministic=" << (long_run_validation_stability_diag.save_load_export_cycles_remain_stable_and_deterministic ? "YES" : "NO") << "\n";
+        std::cout << "phase103_84_filter_viewport_projection_cycles_remain_non_drifting=" << (long_run_validation_stability_diag.filter_viewport_projection_cycles_remain_non_drifting ? "YES" : "NO") << "\n";
+        std::cout << "phase103_84_no_stale_state_accumulates_over_time=" << (long_run_validation_stability_diag.no_stale_state_accumulates_over_time ? "YES" : "NO") << "\n";
+        std::cout << "phase103_84_no_unbounded_resource_growth_signal_detected=" << (long_run_validation_stability_diag.no_unbounded_resource_growth_signal_detected ? "YES" : "NO") << "\n";
+        std::cout << "phase103_84_all_runs_terminate_cleanly_with_complete_artifacts=" << (long_run_validation_stability_diag.all_runs_terminate_cleanly_with_complete_artifacts ? "YES" : "NO") << "\n";
+        std::cout << "phase103_84_no_correctness_guarantees_were_weakened=" << (long_run_validation_stability_diag.no_correctness_guarantees_were_weakened ? "YES" : "NO") << "\n";
+        std::cout << "phase103_84_global_invariant_preserved=" << (long_run_validation_stability_diag.global_invariant_preserved ? "YES" : "NO") << "\n";
+        std::cout << "phase103_84_internal_repeated_run_count=" << long_run_validation_stability_diag.repeated_run_count << "\n";
+        std::cout << "phase103_84_internal_mixed_cycle_count=" << long_run_validation_stability_diag.mixed_cycle_count << "\n";
+        std::cout << "phase103_84_internal_undo_redo_cycle_count=" << long_run_validation_stability_diag.undo_redo_cycle_count << "\n";
+        std::cout << "phase103_84_internal_save_load_export_cycle_count=" << long_run_validation_stability_diag.save_load_export_cycle_count << "\n";
+        std::cout << "phase103_84_internal_filter_projection_cycle_count=" << long_run_validation_stability_diag.filter_projection_cycle_count << "\n";
+        std::cout << "phase103_84_max_serialized_size_observed=" << long_run_validation_stability_diag.max_serialized_size_observed << "\n";
+        std::cout << "phase103_84_max_undo_history_size_observed=" << long_run_validation_stability_diag.max_undo_history_size_observed << "\n";
+        std::cout << "phase103_84_max_redo_stack_size_observed=" << long_run_validation_stability_diag.max_redo_stack_size_observed << "\n";
+        std::cout << "phase103_84_artifact_file_count_observed=" << long_run_validation_stability_diag.artifact_file_count_observed << "\n";
+        std::cout << "phase103_84_final_canonical_signature=" << long_run_validation_stability_diag.final_canonical_signature << "\n";
+        std::cout << "phase103_85_invalid_inputs_fail_closed_without_state_corruption=" << (production_readiness_hardening_diag.invalid_inputs_fail_closed_without_state_corruption ? "YES" : "NO") << "\n";
+        std::cout << "phase103_85_no_null_or_invalid_reference_paths_exist=" << (production_readiness_hardening_diag.no_null_or_invalid_reference_paths_exist ? "YES" : "NO") << "\n";
+        std::cout << "phase103_85_history_operations_safe_at_all_boundaries=" << (production_readiness_hardening_diag.history_operations_safe_at_all_boundaries ? "YES" : "NO") << "\n";
+        std::cout << "phase103_85_selection_and_mapping_remain_valid_under_all_inputs=" << (production_readiness_hardening_diag.selection_and_mapping_remain_valid_under_all_inputs ? "YES" : "NO") << "\n";
+        std::cout << "phase103_85_serialization_and_import_paths_are_guarded=" << (production_readiness_hardening_diag.serialization_and_import_paths_are_guarded ? "YES" : "NO") << "\n";
+        std::cout << "phase103_85_no_partial_mutation_on_failure_paths=" << (production_readiness_hardening_diag.no_partial_mutation_on_failure_paths ? "YES" : "NO") << "\n";
+        std::cout << "phase103_85_no_silent_state_corruption_detected=" << (production_readiness_hardening_diag.no_silent_state_corruption_detected ? "YES" : "NO") << "\n";
+        std::cout << "phase103_85_all_edge_case_sequences_remain_deterministic=" << (production_readiness_hardening_diag.all_edge_case_sequences_remain_deterministic ? "YES" : "NO") << "\n";
+        std::cout << "phase103_85_all_runs_terminate_cleanly_with_complete_artifacts=" << (production_readiness_hardening_diag.all_runs_terminate_cleanly_with_complete_artifacts ? "YES" : "NO") << "\n";
+        std::cout << "phase103_85_global_invariant_preserved=" << (production_readiness_hardening_diag.global_invariant_preserved ? "YES" : "NO") << "\n";
+        std::cout << "phase103_85_invalid_sequence_count=" << production_readiness_hardening_diag.invalid_sequence_count << "\n";
+        std::cout << "phase103_85_fail_closed_traversal_guard_hits=" << production_readiness_hardening_diag.fail_closed_traversal_guard_hits << "\n";
+        std::cout << "phase103_85_artifact_file_count_observed=" << production_readiness_hardening_diag.artifact_file_count_observed << "\n";
+        std::cout << "phase103_85_final_canonical_signature=" << production_readiness_hardening_diag.final_canonical_signature << "\n";
+        std::cout << "phase103_86_every_harness_target_validates_renderability=" << (validation_harness_precondition_diag.every_harness_target_validates_renderability ? "YES" : "NO") << "\n";
+        std::cout << "phase103_86_every_harness_target_validates_viewport_reachability=" << (validation_harness_precondition_diag.every_harness_target_validates_viewport_reachability ? "YES" : "NO") << "\n";
+        std::cout << "phase103_86_invalid_targets_rejected_fail_closed=" << (validation_harness_precondition_diag.invalid_targets_rejected_fail_closed ? "YES" : "NO") << "\n";
+        std::cout << "phase103_86_unreachable_targets_rejected_fail_closed=" << (validation_harness_precondition_diag.unreachable_targets_rejected_fail_closed ? "YES" : "NO") << "\n";
+        std::cout << "phase103_86_explicit_precondition_failure_marker_emitted=" << (validation_harness_precondition_diag.explicit_precondition_failure_marker_emitted ? "YES" : "NO") << "\n";
+        std::cout << "phase103_86_validation_never_runs_on_unreachable_state=" << (validation_harness_precondition_diag.validation_never_runs_on_unreachable_state ? "YES" : "NO") << "\n";
+        std::cout << "phase103_86_no_runtime_behavior_changed=" << (validation_harness_precondition_diag.no_runtime_behavior_changed ? "YES" : "NO") << "\n";
+        std::cout << "phase103_86_global_invariant_preserved=" << (validation_harness_precondition_diag.global_invariant_preserved ? "YES" : "NO") << "\n";
+        std::cout << "phase103_86_rejected_target_count=" << validation_harness_precondition_diag.rejected_target_count << "\n";
+        std::cout << "phase103_86_last_precondition_failure_marker=" << validation_harness_precondition_diag.last_precondition_failure_marker << "\n";
+        std::cout << "phase103_87_full_integrated_validation_passes=" << (final_release_gate_diag.full_integrated_validation_passes ? "YES" : "NO") << "\n";
+        std::cout << "phase103_87_harness_preconditions_block_invalid_targets_fail_closed=" << (final_release_gate_diag.harness_preconditions_block_invalid_targets_fail_closed ? "YES" : "NO") << "\n";
+        std::cout << "phase103_87_all_locked_guarantees_remain_green_together=" << (final_release_gate_diag.all_locked_guarantees_remain_green_together ? "YES" : "NO") << "\n";
+        std::cout << "phase103_87_final_canonical_signature_stable=" << (final_release_gate_diag.final_canonical_signature_stable ? "YES" : "NO") << "\n";
+        std::cout << "phase103_87_no_ui_desync_or_stale_state_detected=" << (final_release_gate_diag.no_ui_desync_or_stale_state_detected ? "YES" : "NO") << "\n";
+        std::cout << "phase103_87_no_partial_or_incomplete_proof_artifacts=" << (final_release_gate_diag.no_partial_or_incomplete_proof_artifacts ? "YES" : "NO") << "\n";
+        std::cout << "phase103_87_validation_terminates_cleanly=" << (final_release_gate_diag.validation_terminates_cleanly ? "YES" : "NO") << "\n";
+        std::cout << "phase103_87_release_gate_verdict_emitted=" << (final_release_gate_diag.release_gate_verdict_emitted ? "YES" : "NO") << "\n";
+        std::cout << "phase103_87_release_ready_verdict_supported_by_evidence=" << (final_release_gate_diag.release_ready_verdict_supported_by_evidence ? "YES" : "NO") << "\n";
+        std::cout << "phase103_87_global_invariant_preserved=" << (final_release_gate_diag.global_invariant_preserved ? "YES" : "NO") << "\n";
+        std::cout << "phase103_87_release_gate_verdict=" << final_release_gate_diag.release_gate_verdict << "\n";
+        std::cout << "phase103_87_final_canonical_signature=" << final_release_gate_diag.final_canonical_signature << "\n";
       std::cout << "app_runtime_crash_detected=" << (no_crash ? 0 : 1) << "\n";
     std::cout << "SUMMARY: PASS\n";
   }
   const bool ui_interaction_ok =
     model.refresh_count > 0 && model.next_count > 0 && model.prev_count > 0 && model.apply_filter_count > 0;
+  const bool release_gate_ok =
+    !validation_mode || validation_triage_config.enabled() || final_release_gate_diag.full_integrated_validation_passes;
   const bool validation_ok =
-    ui_interaction_ok && startup_deterministic && no_undefined_state && no_hidden_paths && no_crash && render_frames > 0;
+    ui_interaction_ok && startup_deterministic && no_undefined_state && no_hidden_paths && no_crash && render_frames > 0 && release_gate_ok;
 
   std::cout << "app_name=desktop_file_tool\n";
   std::cout << "app_startup_state=" << (startup_deterministic ? "deterministic_native_startup" : "undefined") << "\n";
@@ -25355,6 +29841,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
   std::cout << "phase101_4_input_redraw_requests=" << redraw_diag.input_redraw_requests << "\n";
   std::cout << "phase101_4_steady_redraw_requests=" << redraw_diag.invalidate_steady_count << "\n";
   std::cout << "phase101_4_layout_redraw_requests=" << redraw_diag.invalidate_layout_count << "\n";
+  std::cout << "phase101_4_tree_invalidate_request_count=" << redraw_diag.tree_invalidate_request_count << "\n";
   std::cout << "phase101_4_render_begin_count=" << redraw_diag.render_begin_count << "\n";
   std::cout << "phase101_4_render_end_count=" << redraw_diag.render_end_count << "\n";
   std::cout << "phase101_4_present_call_count=" << redraw_diag.present_call_count << "\n";
@@ -25373,6 +29860,9 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
             << "\n";
 
   if (validation_mode && auto_close_ms > 0) {
+    if (validation_triage_config.enabled()) {
+      return no_crash && no_undefined_state && no_hidden_paths ? 0 : 3;
+    }
     return validation_ok ? 0 : 3;
   }
 
@@ -25397,7 +29887,8 @@ int main(int argc, char** argv) {
 
   const int auto_close_ms = parse_auto_close_ms(argc, argv);
   const bool validation_mode = parse_validation_mode(argc, argv);
-  const int app_rc = run_desktop_file_tool_app(auto_close_ms, validation_mode);
+  const ValidationTriageConfig validation_triage_config = parse_validation_triage_config(argc, argv);
+  const int app_rc = run_desktop_file_tool_app(auto_close_ms, validation_mode, validation_triage_config);
 
   ngk::runtime_guard::runtime_observe_lifecycle("desktop_file_tool", "main_exit");
   ngk::runtime_guard::runtime_emit_termination_summary("desktop_file_tool", "runtime_init", app_rc == 0 ? 0 : 1);

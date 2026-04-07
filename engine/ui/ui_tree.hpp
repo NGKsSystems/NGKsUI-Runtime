@@ -258,8 +258,9 @@ public:
 
 private:
   void mark_dirty(bool request_os_repaint) {
+    const bool was_dirty = dirty_;
     dirty_ = true;
-    if (request_os_repaint && invalidate_callback_) {
+    if (request_os_repaint && invalidate_callback_ && !was_dirty) {
       invalidate_callback_();
     }
   }
