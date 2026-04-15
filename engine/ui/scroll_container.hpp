@@ -30,6 +30,9 @@ public:
       return;
     }
     UIElement* content = children_[0];
+    if (!content) {
+      return;
+    }
     const int preferred_h = content->preferred_height();
     content_h_ = preferred_h > height_ ? preferred_h : height_;
     max_scroll_y_ = std::max(0, content_h_ - height_);

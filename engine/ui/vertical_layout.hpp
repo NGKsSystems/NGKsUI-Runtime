@@ -40,7 +40,10 @@ public:
     std::vector<UIElement*> visible_children{};
     visible_children.reserve(children_.size());
     for (UIElement* child : children_) {
-      if (child && child->visible()) {
+      if (!child) {
+        continue;
+      }
+      if (child->visible()) {
         visible_children.push_back(child);
       }
     }

@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cstdlib>
 #include <cstdint>
+#include <iostream>
 #include <vector>
 
 #include "ngk/gfx/d3d11_renderer.hpp"

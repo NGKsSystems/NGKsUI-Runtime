@@ -456,6 +456,8 @@ struct BuilderPreviewStructureParityDiagnostics {
   bool no_stale_nodes_after_mutation = false;
   bool parent_child_relationships_match = false;
   bool no_selection_desync_detected = false;
+  bool action_selected_id_matches_selected_node = false;
+  bool selected_node_matches_selected_id = false;
 };
 
 struct BuilderCommandIntegrityDiagnostics {
@@ -14479,6 +14481,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
     // Baseline state
     run_phase103_2();
+    set_builder_projection_filter_state("");
     undo_history.clear();
     redo_stack.clear();
     builder_doc_dirty = false;
@@ -14579,6 +14582,27 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
     preview_structure_parity_diag.hit_test_returns_exact_node = hit_exact_ok;
     flow_ok = preview_structure_parity_diag.hit_test_returns_exact_node && flow_ok;
 
+    // Identity alignment: verify action feedback and inspector binding match final selected node
+    {
+      const std::string expected_action = std::string("Action: Selected ") + selected_builder_node_id;
+      preview_structure_parity_diag.action_selected_id_matches_selected_node =
+        hit_exact_ok &&
+        !selected_builder_node_id.empty() &&
+        (last_action_feedback == expected_action);
+      preview_structure_parity_diag.selected_node_matches_selected_id =
+        hit_exact_ok &&
+        !selected_builder_node_id.empty() &&
+        (inspector_binding_node_id == selected_builder_node_id) &&
+        (preview_binding_node_id == selected_builder_node_id);
+      // Direct identity proof: log actual values for the reproduced case
+      std::cout << "phase103_52_case_selected_node_id=" << selected_builder_node_id << "\n";
+      std::cout << "phase103_52_case_action_feedback=" << last_action_feedback << "\n";
+      std::cout << "phase103_52_case_inspector_binding_id=" << inspector_binding_node_id << "\n";
+      std::cout << "phase103_52_case_preview_binding_id=" << preview_binding_node_id << "\n";
+      flow_ok = preview_structure_parity_diag.action_selected_id_matches_selected_node && flow_ok;
+      flow_ok = preview_structure_parity_diag.selected_node_matches_selected_id && flow_ok;
+    }
+
     // Selection stability after insert
     selected_builder_node_id = "root-001";
     focused_builder_node_id = "root-001";
@@ -14596,6 +14620,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
     // Selection stability after delete and no stale nodes after mutation
     run_phase103_2();
+    set_builder_projection_filter_state("");
     undo_history.clear();
     redo_stack.clear();
     selected_builder_node_id = "root-001";
@@ -14634,6 +14659,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
 
     // Selection stability after move
     run_phase103_2();
+    set_builder_projection_filter_state("");
     undo_history.clear();
     redo_stack.clear();
     selected_builder_node_id = "root-001";
@@ -24094,7 +24120,6 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         return;
       }
       selected_builder_node_id = target_id;
-      set_last_action_feedback(std::string("Selected ") + target_id);
       set_preview_visual_feedback("Selected item in structure.", target_id);
       set_tree_visual_feedback(target_id);
       remap_selection_or_fail();
@@ -24102,6 +24127,7 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
       refresh_inspector_or_fail();
       refresh_preview_or_fail();
       check_cross_surface_sync();
+      set_last_action_feedback(std::string("Selected ") + selected_builder_node_id);
       request_redraw("tree_visual_select", true, false);
     });
   }
@@ -25008,6 +25034,8 @@ int run_desktop_file_tool_app(int auto_close_ms, bool validation_mode) {
         std::cout << "phase103_52_no_stale_nodes_after_mutation=" << (preview_structure_parity_diag.no_stale_nodes_after_mutation ? "YES" : "NO") << "\n";
         std::cout << "phase103_52_parent_child_relationships_match=" << (preview_structure_parity_diag.parent_child_relationships_match ? "YES" : "NO") << "\n";
         std::cout << "phase103_52_no_selection_desync_detected=" << (preview_structure_parity_diag.no_selection_desync_detected ? "YES" : "NO") << "\n";
+        std::cout << "phase103_52_action_selected_id_matches_selected_node=" << (preview_structure_parity_diag.action_selected_id_matches_selected_node ? "YES" : "NO") << "\n";
+        std::cout << "phase103_52_selected_node_matches_selected_id=" << (preview_structure_parity_diag.selected_node_matches_selected_id ? "YES" : "NO") << "\n";
         std::cout << "phase103_53_undo_restores_exact_structure=" << (command_integrity_diag.undo_restores_exact_structure ? "YES" : "NO") << "\n";
         std::cout << "phase103_53_undo_restores_selection=" << (command_integrity_diag.undo_restores_selection ? "YES" : "NO") << "\n";
         std::cout << "phase103_53_redo_reapplies_exact_state=" << (command_integrity_diag.redo_reapplies_exact_state ? "YES" : "NO") << "\n";

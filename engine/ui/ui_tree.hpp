@@ -41,7 +41,6 @@ public:
     if (!root_) {
       return;
     }
-
     root_->set_position(0, 0);
     root_->set_size(width, height);
     root_->measure(width, height);

@@ -1,13 +1,13 @@
 {
   "workspace_root": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime",
   "graph_state_version": 1,
-  "last_refresh_utc": "2026-03-23T06:58:54.554983+00:00",
+  "last_refresh_utc": "2026-04-09T06:41:54.682837+00:00",
   "last_refresh_status": "success",
   "dirty": false,
   "dirty_reasons": [],
-  "project_fingerprint": "c8857dc1f5fed3ad11299f3ffba4e845295830ddf34e4891596aa1f54069335e",
-  "graph_artifact_root": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\runs\\build_20260323_095839\\20_graph_auto_refresh_orchestrator",
+  "project_fingerprint": "7e7bf6ebad67513eecde5017ae408ee778f992de3c98eba55032eeaec00b167f",
+  "graph_artifact_root": "C:\\Users\\suppo\\Desktop\\NGKsSystems\\NGKsUI Runtime\\_proof\\runs\\build_20260409_094146\\20_graph_auto_refresh_orchestrator",
   "active_profile": "debug",
-  "active_target": "sandbox_app",
-  "toolchain_fingerprint": "4bc0573abfc6aea348ed0b9bd8c28e68b8c13ffe5d41f1bfe2a678053f8ba404"
+  "active_target": "desktop_file_tool",
+  "toolchain_fingerprint": "294335e61545b793b600d242e6267c32b01d6ba72088b39f50087a4c464e6c29"
 }
